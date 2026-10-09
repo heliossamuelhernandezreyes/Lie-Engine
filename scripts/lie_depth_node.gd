@@ -157,7 +157,7 @@ func _view(key: String, az: int, el: int, elev_degrees: float) -> Dictionary:
     _cache_fifo.append(key)
     return data
 
-func _evict_except(active: Array[String]) -> void:
+func _evict_except(active: Array) -> void:
     # FIFO only removes inactive views. Two active views are never evicted.
     while _cache_fifo.size() > max_cached_views:
         var key: String = _cache_fifo.pop_front()

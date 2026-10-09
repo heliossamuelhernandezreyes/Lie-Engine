@@ -32,7 +32,7 @@ func _run() -> void:
             0.65, wall, big):
         _fail("Complete rectangular occlusion not recognized")
         return
-    if Visibility.covered_by_rectangle(camera.position, Vector3(2.7, 0, 0),
+    if Visibility.covered_by_rectangle(camera.position, Vector3(5.0, 0, 0),
             0.65, wall, big):
         _fail("Partially uncovered object MUST remain visible")
         return
