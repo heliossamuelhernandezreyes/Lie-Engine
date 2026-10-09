@@ -30,7 +30,7 @@ func _capture() -> void:
         if image == null or image.is_empty() or image.get_width() < 640:
             _fail("Captured framebuffer is missing or too small")
             return
-        var filename: String = "user://lie-01-view-%d.png" % shot
+        var filename: String = "res://lie-01-view-%d.png" % shot
         if image.save_png(filename) != OK:
             _fail("Could not save viewport PNG")
             return

@@ -41,7 +41,7 @@ jobs:
         with:
           name: lie-01-native-angle-captures
           path: |
-            ~/.local/share/godot/app_userdata/Lie Engine | LIE-01/lie-01-view-*.png
+            lie-01-view-*.png
           if-no-files-found: error
 
       - name: Headless scene runtime
