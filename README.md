@@ -1,10 +1,16 @@
-# Lie Engine — LIE-01 and LIE-02
+# Lie Engine — LIE-01, LIE-02 and LIE-03
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
 
-## LIE-02: three-channel surfaces (current default scene)
+## LIE-03 — depth reconstructed visibility (current default scene)
+
+The startup `scenes/lie_depth_lab.tscn` loads **two overlapping Lie nodes**. Their visible triangles are reconstructed from the captured depth channels; the actual source glTF geometry remains absent from normal drawing. The usual Godot depth test now handles inter-node occlusion. Arrow keys orbit and Space changes the illumination tint. Geometry reconstruction is a CPU baseline, not yet an optimization.
+
+See [LIE-03 research protocol](docs/LIE_03_DEPTH_OCCLUSION.md). Camera-angle transitions, holes and memory-performance limitations remain unaddressed.
+
+## LIE-02: three-channel surfaces (older lab)
 
 The current startup scene is `scenes/lie_surface_lab.tscn`: it displays a rigid camera-indexed sprite with **albedo + per-pixel normal + normalized depth**, an invisible physical collider, a bounded **parallax approximation**, and **single-source local diffuse lighting**. Arrows orbit the camera, **Space** switches warm/cool illumination. No per-pixel depth writeback, shadows, or real 3D scene reconstruction are claimed.
 
