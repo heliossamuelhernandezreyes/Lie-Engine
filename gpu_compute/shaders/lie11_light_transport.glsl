@@ -6,6 +6,7 @@ layout(local_size_x=64,local_size_y=1,local_size_z=1) in;
 struct Patch { vec4 center_area; vec4 normal_gray; vec4 filter_absorption; };
 struct Light { vec4 position_radius; vec4 power; };
 struct Blocker { vec4 lo; vec4 hi; };
+struct Triangle { vec4 a; vec4 b; vec4 c; };
 layout(set=0,binding=0,std430) readonly buffer Patches { Patch values[]; } patches;
 layout(set=0,binding=1,std430) readonly buffer Lights { Light values[]; } lights;
 layout(set=0,binding=2,std430) readonly buffer Factors { float values[]; } factors;
@@ -16,6 +17,7 @@ layout(set=0,binding=6,std430) buffer FrontierB { vec4 values[]; } frontier_b;
 layout(set=0,binding=7,std430) buffer Received { vec4 values[]; } received;
 layout(set=0,binding=8,std430) readonly buffer Config { ivec4 dims; vec4 tuning; } cfg;
 layout(set=0,binding=9,std430) readonly buffer Blockers { Blocker values[]; } blockers;
+layout(set=0,binding=11,std430) readonly buffer Triangles { Triangle values[]; } triangles;
 layout(rgba32f,set=0,binding=10) uniform writeonly image2D irradiance;
 layout(push_constant,std430) uniform Phase { ivec4 data; } phase;
 const float PI=3.141592653589793;
@@ -36,6 +38,21 @@ bool blocked(vec3 a, vec3 b) {
             }
         }
         if(lo<=hi) return true;
+    }
+    for(int k=0;k<int(cfg.tuning.z);k++) {
+        Triangle tri=triangles.values[k];
+        vec3 e1=tri.b.xyz-tri.a.xyz, e2=tri.c.xyz-tri.a.xyz;
+        vec3 h=cross(delta,e2);
+        float det=dot(e1,h);
+        if(abs(det)<1e-8) continue;
+        vec3 s=a-tri.a.xyz;
+        float u=dot(s,h)/det;
+        if(u<0.0 || u>1.0) continue;
+        vec3 q=cross(s,e1);
+        float v=dot(delta,q)/det;
+        if(v<0.0 || u+v>1.0) continue;
+        float t=dot(e2,q)/det;
+        if(t>=0.001 && t<=0.999) return true;
     }
     return false;
 }

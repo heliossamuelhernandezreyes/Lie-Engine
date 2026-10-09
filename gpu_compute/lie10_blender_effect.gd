@@ -175,6 +175,12 @@ func _make_image_uniform(binding: int, id: RID) -> RDUniform:
     u.add_id(id)
     return u
 
+func _reprojection_file() -> RDShaderFile:
+    return REPROJECTION_SHADER
+
+func _extra_reprojection_uniforms() -> Array[RDUniform]:
+    return []
+
 func _initialize_gpu() -> bool:
     if not capture_loaded:
         return false
@@ -182,7 +188,7 @@ func _initialize_gpu() -> bool:
     if _rd == null:
         push_error("LIE-08 requires RenderingDevice renderer (Vulkan)")
         return false
-    var proj_spirv := REPROJECTION_SHADER.get_spirv()
+    var proj_spirv := _reprojection_file().get_spirv()
     var composite_spirv := COMPOSITE_SHADER.get_spirv()
     var proj_error: String = proj_spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
     var composite_error: String = composite_spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
@@ -237,6 +243,7 @@ func _initialize_gpu() -> bool:
         # binding 8 is occupied by the RGBA image.
         uniforms.append(_make_storage_uniform(9 if binding == 8 else 10 if binding == 9 else binding,_buffers[binding]))
     uniforms.append(_make_image_uniform(8,_output_texture))
+    uniforms.append_array(_extra_reprojection_uniforms())
     var filter := RDSamplerState.new()
     filter.min_filter = RenderingDevice.SAMPLER_FILTER_NEAREST
     filter.mag_filter = RenderingDevice.SAMPLER_FILTER_NEAREST

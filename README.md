@@ -1,8 +1,14 @@
-# Lie Engine — LIE-01 through LIE-11
+# Lie Engine — LIE-01 through LIE-12
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-12 — actual Blender captures consume absorption-coded light
+
+The LIE-10 image reprojection now has a consumer for LIE-11 spatial light codes. An offline capture associates every valid grayscale pixel with a stable XYZ surface node and a separate RGB material filter. Real source triangles serve as invisible light blockers. The complex LIE-10 object, floor and colored walls are rendered entirely from captured images, with moving point lights, colored secondary diffuse bounces and absorption controls. The old LIE-10 scene remains available as a regression baseline.
+
+Generate the bundle and oracle with the commands in [LIE-12 integration and reproducibility](docs/LIE_12_CAPTURE_CODE_LIGHTING.md), then run `gpu_compute/lie12_lab.tscn`. The dedicated workflow checks actual GPU powers, independent-reference rendered frames, camera distance/orbit and native sprite depth ordering. Constant opaque Principled source colors and static geometry are the current exporter contract; large-scene performance, textured proxy averaging and transparent rain remain open work.
 
 ## LIE-11 — grayscale sprites and absorption-coded light transport
 

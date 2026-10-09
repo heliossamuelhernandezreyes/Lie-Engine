@@ -20,7 +20,7 @@ def subtract(a, b):
     return [x - y for x, y in zip(a, b)]
 
 
-def segment_blocked(a, b, boxes):
+def segment_blocked(a, b, boxes, triangles=()):
     """Slab intersection of the open segment, with explicit endpoint exclusion."""
     delta = subtract(b, a)
     for box in boxes:
@@ -36,6 +36,25 @@ def segment_blocked(a, b, boxes):
                 lo = max(lo, min(near, far))
                 hi = min(hi, max(near, far))
         if lo <= hi:
+            return True
+    for tri in triangles:
+        edge1, edge2 = subtract(tri[1], tri[0]), subtract(tri[2], tri[0])
+        def cross(x, y):
+            return [x[1]*y[2]-x[2]*y[1], x[2]*y[0]-x[0]*y[2], x[0]*y[1]-x[1]*y[0]]
+        h = cross(delta, edge2)
+        det = dot(edge1, h)
+        if abs(det) < 1e-8:
+            continue
+        s = subtract(a, tri[0])
+        u = dot(s, h) / det
+        if u < 0 or u > 1:
+            continue
+        q = cross(s, edge1)
+        v = dot(delta, q) / det
+        if v < 0 or u + v > 1:
+            continue
+        t = dot(edge2, q) / det
+        if .001 <= t <= .999:
             return True
     return False
 
@@ -73,6 +92,19 @@ def validate(model):
             raise ValueError("Invalid occluder bounds")
         if any(a >= b for a, b in zip(lo, hi)):
             raise ValueError("Occluder needs nonzero volume")
+    triangles = model.get("triangles", [])
+    if len(triangles) > 16384:
+        raise ValueError("Triangle proxy exceeds research budget")
+    for tri in triangles:
+        if len(tri) != 3 or any(len(v) != 3 or not all(math.isfinite(x) for x in v) for v in tri):
+            raise ValueError("Invalid triangle proxy")
+    visibility = model.get("mesh_visibility")
+    if visibility is not None:
+        n = len(model["patches"])
+        if len(visibility) != n*n or any(v not in (0, 1) for v in visibility):
+            raise ValueError("Invalid static mesh visibility cache")
+        if any(visibility[i*n+j] != visibility[j*n+i] for i in range(n) for j in range(i+1, n)):
+            raise ValueError("Mesh visibility must be symmetric")
 
 
 def reflectance(model, patch):
@@ -97,7 +129,9 @@ def form_factors(model):
             b = patches[j]
             delta = subtract(b["position"], a["position"])
             d2 = dot(delta, delta)
-            if d2 < 1e-10 or segment_blocked(a["position"], b["position"], model.get("blockers", [])):
+            visibility = model.get("mesh_visibility")
+            mesh_hidden = visibility is not None and not visibility[i*n+j]
+            if d2 < 1e-10 or mesh_hidden or segment_blocked(a["position"], b["position"], model.get("blockers", []), model.get("triangles", []) if visibility is None else ()):
                 continue
             direction = [x / math.sqrt(d2) for x in delta]
             ca = max(dot(a["normal"], direction), 0.0)
@@ -109,10 +143,10 @@ def form_factors(model):
     return [[v / correction for v in row] for row in f], 1.0 / correction
 
 
-def light_weight(patch, light, blockers):
+def light_weight(patch, light, blockers, triangles=()):
     delta = subtract(light["position"], patch["position"])
     d2 = dot(delta, delta)
-    if d2 < 1e-10 or segment_blocked(patch["position"], light["position"], blockers):
+    if d2 < 1e-10 or segment_blocked(patch["position"], light["position"], blockers, triangles):
         return 0.0
     distance = math.sqrt(d2)
     cosine = max(dot(patch["normal"], [x / distance for x in delta]), 0.0)
@@ -125,7 +159,7 @@ def direct_flux(model):
     n = len(model["patches"])
     result = [[0.0] * 3 for _ in range(n)]
     for light in model["lights"]:
-        weights = [light_weight(p, light, model.get("blockers", [])) for p in model["patches"]]
+        weights = [light_weight(p, light, model.get("blockers", []), model.get("triangles", [])) for p in model["patches"]]
         cap = max(1.0, sum(weights))
         for i, w in enumerate(weights):
             for c in range(3):

@@ -9,3 +9,6 @@ captures_out/
 gpu_compute/fixtures/lie11-reference.json
 gpu_compute/lie11-*.png
 gpu_compute/lie11-diagnostic.json
+gpu_compute/captures/coded_shard/
+gpu_compute/lie12-*.png
+gpu_compute/lie12-diagnostic.json

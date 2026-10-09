@@ -60,6 +60,9 @@ static func factor_bytes(model: Dictionary) -> PackedByteArray:
             var pb: Vector3=vector(b["position"])
             var d: Vector3=pb-pa
             var d2: float=d.length_squared()
+            var visibility: Array=model.get("mesh_visibility",[])
+            if not visibility.is_empty() and int(visibility[i*n+j])==0:
+                continue
             if d2<0.0000000001 or blocked(pa,pb,model.get("blockers",[])):
                 continue
             var direction: Vector3=d.normalized()
@@ -116,12 +119,35 @@ static func blocker_bytes(model: Dictionary) -> PackedByteArray:
         index+=1
     return output.to_byte_array()
 
+static func triangle_bytes(model: Dictionary) -> PackedByteArray:
+    var output:=PackedFloat32Array()
+    for triangle in model.get("triangles",[]):
+        for point in triangle:
+            var v: Vector3=vector(point)
+            output.append_array(PackedFloat32Array([v.x,v.y,v.z,0.0]))
+    if output.is_empty(): output.resize(12)
+    return output.to_byte_array()
+
 static func valid(model: Dictionary) -> bool:
     if int(model.get("schema",0))!=1:
         return false
     var patches: Array=model.get("patches",[])
     var lights: Array=model.get("lights",[])
     var boxes: Array=model.get("blockers",[])
+    var triangles: Array=model.get("triangles",[])
+    if triangles.size()>16384: return false
+    for triangle in triangles:
+        if not triangle is Array or triangle.size()!=3: return false
+        for point in triangle:
+            if not point is Array or point.size()!=3 or not vector(point).is_finite(): return false
+    var visibility: Array=model.get("mesh_visibility",[])
+    if not visibility.is_empty():
+        var n: int=patches.size()
+        if visibility.size()!=n*n: return false
+        for i in range(n):
+            for j in range(n):
+                if float(visibility[i*n+j])!=0.0 and float(visibility[i*n+j])!=1.0: return false
+                if visibility[i*n+j]!=visibility[j*n+i]: return false
     if patches.is_empty() or patches.size()>1024 or lights.is_empty() or lights.size()>16 or boxes.size()>16:
         return false
     for p in patches:
