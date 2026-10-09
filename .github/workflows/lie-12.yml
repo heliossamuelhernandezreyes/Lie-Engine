@@ -23,8 +23,8 @@ jobs:
           sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb
       - name: Capture actual complex source with neutral grayscale and spatial material codes
         run: |
-          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python tools/create_lie_coded_fixture_blender.py -- /tmp/lie12-source.glb
-          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie12-source.glb --out gpu_compute/captures/coded_shard --azimuth-steps 4 --elevations=20 --resolution 128 --coded-lighting
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/create_lie_coded_fixture_blender.py -- /tmp/lie12-source.glb
+          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input /tmp/lie12-source.glb --out gpu_compute/captures/coded_shard --azimuth-steps 4 --elevations=20 --resolution 128 --coded-lighting
           test -s gpu_compute/captures/coded_shard/code-manifest.json
       - name: Independent float64 oracle with source-triangle occlusion
         run: python3 tools/lie_coded_reference.py gpu_compute/captures/coded_shard

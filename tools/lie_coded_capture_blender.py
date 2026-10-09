@@ -82,7 +82,7 @@ def export_codes(meshes, original_materials, manifest, root):
     if len(selected) != 4 or manifest["resolution"] != [128, 128]:
         raise ValueError("LIE-12 v1 requires four 128-square captures at elevation 20 degrees")
     codes, samples, sources = bytearray(), bytearray(), []
-    mapped, max_distance = 0, 0
+    mapped, max_distance, max_raw_distance, rejected, candidates = 0, 0, 0, 0, 0
     for item in selected:
         def pixels(channel):
             image = bpy.data.images.load(str((root/item["channels"][channel]).resolve()), check_existing=False)
@@ -105,23 +105,33 @@ def export_codes(meshes, original_materials, manifest, root):
                 point = origin + ((x+.5)/128-.5)*manifest["orthographic_scale"]*right + (.5-(y+.5)/128)*manifest["orthographic_scale"]*up + (manifest["linear_depth_meters"]["near"]+z*(manifest["linear_depth_meters"]["far"]-manifest["linear_depth_meters"]["near"]))*forward
                 node = -1
                 if valid:
+                    candidates += 1
                     nearest = bvh.find_nearest(point)
                     if nearest[2] is None:
                         raise ValueError("Capture pixel has no source proxy association")
-                    node = ids[triangle_keys[nearest[2]]]
-                    max_distance = max(max_distance, nearest[3])
-                    mapped += 1
+                    max_raw_distance = max(max_raw_distance, nearest[3])
+                    # Multisample boundaries can mix two valid depths into a
+                    # point between surfaces. Never label that fictitious point.
+                    if nearest[3] > manifest["radius"]*.02:
+                        rejected += 1
+                        valid = False
+                    else:
+                        node = ids[triangle_keys[nearest[2]]]
+                        max_distance = max(max_distance, nearest[3])
+                        mapped += 1
                 gray = max(c[:3]) if valid else 0
                 tint = [v/gray if gray > 1e-9 else 0 for v in c[:3]]
                 # Two vec4: grayscale neutral RGB + validity; RGB material filter + node ID.
                 codes.extend(struct.pack("<8f", gray, gray, gray, float(valid), *tint, node))
                 samples.extend(struct.pack("<8f", (x+.5)/128, (y+.5)/128, z, float(valid), *n, 0))
-    if max_distance > manifest["radius"]*.02:
-        raise ValueError("Depth/proxy mismatch exceeds 2% capture radius: " + str(max_distance))
+    if candidates == 0 or rejected/candidates > .05:
+        raise ValueError("Too many geometrically ambiguous capture pixels: " + str(rejected) + "/" + str(candidates))
     (root/"pixel-codes.bin").write_bytes(codes)
     (root/"sample-normal.bin").write_bytes(samples)
     metadata = {"schema": 1, "sources": sources, "sample_count": 4*128*128,
                 "mapped_valid_pixels": mapped, "patch_count": count, "triangle_count": len(triangles),
+                "rejected_mixed_depth_pixels": rejected, "candidate_valid_pixels": candidates,
+                "rejected_mixed_depth_fraction": rejected/max(candidates, 1), "max_raw_depth_proxy_distance": max_raw_distance,
                 "max_depth_proxy_distance": max_distance, "capture_radius": manifest["radius"],
                 "ortho_scale": manifest["orthographic_scale"], "near": manifest["linear_depth_meters"]["near"],
                 "far": manifest["linear_depth_meters"]["far"], "camera_elevation": 20,

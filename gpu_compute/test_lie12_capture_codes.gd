@@ -143,6 +143,7 @@ func _run() -> void:
         "backend":"Software Vulkan CI; physical-device performance unmeasured","viewport":[near_frame.get_width(),near_frame.get_height()],
         "visible_source_mesh_nodes":0,"source_capture_samples":65536,"mapped_valid_pixels":metadata["mapped_valid_pixels"],
         "transport_nodes":n,"invisible_triangle_proxy":metadata["triangle_count"],"max_depth_proxy_distance":metadata["max_depth_proxy_distance"],
+        "rejected_mixed_depth_pixels":metadata["rejected_mixed_depth_pixels"],"rejected_mixed_depth_fraction":metadata["rejected_mixed_depth_fraction"],
         "scenarios":cases,"floor_red_power_reduction_at_high_absorption":floor_red_drop,"floor_green_power_reduction":floor_green_drop,
         "perspective_area_ratio_at_1_5x_distance":ratio,"native_front_rear_depth_test":"passed",
         "limitations":"Four 128-square views, 256-square reprojection, constant opaque source material colors, clustered diffuse transport, static geometry visibility cache; no native depth writeback, specular, transmission or mobile FPS claim."}
