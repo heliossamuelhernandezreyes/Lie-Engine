@@ -21,6 +21,7 @@ func _ready() -> void:
     var body := StaticBody3D.new()
     body.name = "InvisiblePhysicsProxy"
     var shape := CollisionShape3D.new()
+    shape.name = "CollisionShape3D"
     var capsule := CapsuleShape3D.new()
     capsule.radius = 0.65
     capsule.height = 2.8
