@@ -1,12 +1,18 @@
-# Lie Engine — LIE-01 through LIE-04
+# Lie Engine — LIE-01 through LIE-05
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
 
-## LIE-04 — angular coverage and visibility before reconstruction (current default)
+## LIE-05 — target-camera depth reprojection (current default)
 
-The startup scene `scenes/lie_depth_lab.tscn` uses **two neighboring angular reconstructions** with complementary 4×4 Bayer screen masks. It gradually adjusts their coverage with camera azimuth while preserving Godot's normal Z-buffer. This is dithered coverage, NOT physically continuous view synthesis. Elevation remains nearest-sample.
+The default scene is now `scenes/lie_reprojection_lab.tscn`: rotate the camera with **left/right**, then press **Space** to reconstruct the new view. Two captured angular images are unprojected into 3D, reprojected into the current perspective camera, and fused using a software nearest-depth test (world-space points, bounded 2×2 splats, depth-consistent albedo weighting). The output is a **real 3D surface reconstructed from images**, participating in Godot's ordinary Z-buffer. The original GLB geometry is never rendered in Lie mode.
+
+The code is a deliberately **CPU-heavy research reference**, not a live mobile renderer. Frame-by-frame synthesis has not been made efficient. On a fresh checkout without Blender assets, the lab visibly uses a clearly labeled synthetic fixture rather than hiding an empty scene. Capture a real `assets/captures/demo_shard` bundle with the Blender 4.x command below, reopen/import in Godot, then the lab uses real depth captures. Read [LIE-05 protocol and limitations](docs/LIE_05_REPROJECTION.md).
+
+## LIE-04 — angular coverage and visibility before reconstruction (older lab)
+
+The older scene `scenes/lie_depth_lab.tscn` uses **two neighboring angular reconstructions** with complementary 4×4 Bayer screen masks. It gradually adjusts their coverage with camera azimuth while preserving Godot's normal Z-buffer. This is dithered coverage, NOT physically continuous view synthesis. Elevation remains nearest-sample.
 
 Before loading textures or generating triangles, groups fully outside camera frustum or conclusively hidden by **authored opaque rectangular occluders** may be omitted. The occluder must correspond to a real fully opaque wall. See [LIE-04 technical contract](docs/LIE_04_VISIBILITY.md).
 
@@ -37,8 +43,8 @@ The previous LIE-01 lab is still available at `scenes/lie_lab.tscn`.
 
 1. Install Godot 4.7.2 stable (Compatibility renderer).
 2. Open `project.godot` and run the main scene.
-3. The current depth lab orbits two overlapping surface groups. Press left/right arrows to change the camera orbit and Space to change lighting.
-4. Observe the `az_XX_el_YY` index. Physics uses a separate invisible `StaticBody3D`. The source GLB is not drawn during Lie presentation.
+3. LIE-05: arrows move the camera; **Space** requests a new CPU reprojection. LIE-04 remains available from `scenes/lie_depth_lab.tscn`.
+4. Observe the two source angular codes, number of triangles and CPU build time. The original source mesh is never drawn during Lie rendering. Earlier labs demonstrate independent invisible `StaticBody3D` collisions.
 
 The placeholder deliberately is **not** a photographic asset. The first capability being tested is: **the same 3D object position deterministically retrieves one angular image at a time, without displaying a source 3D mesh.**
 

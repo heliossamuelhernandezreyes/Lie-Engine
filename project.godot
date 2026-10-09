@@ -2,9 +2,9 @@ config_version=5
 
 [application]
 
-config/name="Lie Engine | LIE-03"
-run/main_scene="res://scenes/lie_depth_lab.tscn"
-config/description="Research prototype: reconstructed depth surfaces with regular Godot Z occlusion."
+config/name="Lie Engine | LIE-05"
+run/main_scene="res://scenes/lie_reprojection_lab.tscn"
+config/description="Research prototype: camera-space depth-image reprojection and 3D Z fusion."
 
 [display]
 
