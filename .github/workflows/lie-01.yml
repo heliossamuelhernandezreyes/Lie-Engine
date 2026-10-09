@@ -1,0 +1,49 @@
+name: LIE-01 native acceptance
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python reference tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Install pinned Godot 4.7.2 stable
+        run: |
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+
+      - name: Godot import and parse
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit
+
+      - name: Spatial indexing (native GDScript)
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_view_index.gd
+
+      - name: Invisible 3D collider plus visual-only sprite
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_invisible_proxy.gd
+
+      - name: Native two-angle viewport evidence
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_capture_two_views.gd
+
+      - name: Upload real Godot frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-01-native-angle-captures
+          path: |
+            lie-01-view-*.png
+          if-no-files-found: error
+
+      - name: Headless scene runtime
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 30
