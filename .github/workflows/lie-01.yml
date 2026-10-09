@@ -5,6 +5,10 @@ on:
     branches: [main, "feat/**"]
   pull_request:
 
+concurrency:
+  group: lie-acceptance-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
