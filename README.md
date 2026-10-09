@@ -21,7 +21,7 @@ Requires Blender 4.x and a model in glTF/GLB format:
 blender --background --python tools/lie_capture_blender.py -- \
   --input /absolute/path/to/model.glb \
   --out assets/captures/demo_shard \
-  --azimuth-steps 16 --elevations -30,0,30 --resolution 512
+  --azimuth-steps 16 --elevations=-30,0,30 --resolution 512
 ```
 
 Reopen the Godot project to import the generated PNGs. Their stable paths are `assets/captures/demo_shard/az_00_el_00.png`, etc. The demo then loads these instead of placeholders, selecting the nearest angular view.
@@ -34,6 +34,7 @@ Capture script currently writes **RGBA only** (with baked lighting) and a manife
 python -m unittest discover -s tests -p 'test_*.py' -v
 godot --headless --path . --editor --import --quit
 godot --headless --path . --script res://tests/test_view_index.gd
+godot --headless --path . --script res://tests/test_invisible_proxy.gd
 godot --headless --path . --quit-after 30
 ```
 

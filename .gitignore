@@ -3,6 +3,6 @@
 .DS_Store
 __pycache__/
 *.py[cod]
-assets/captures/
+assets/captures/*
 !assets/captures/.gitkeep
 captures_out/
