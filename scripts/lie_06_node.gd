@@ -15,7 +15,7 @@ func _channels(key: String) -> Dictionary:
     var n_path := "res://assets/captures/%s/%s.normal.png" % [asset_id,key]
     if ResourceLoader.exists(n_path, "Texture2D"):
         var normal_texture: Texture2D = load(n_path) as Texture2D
-        if normal_texture != null and normal_texture.get_size() == source["albedo"].get_size():
+        if normal_texture != null and normal_texture.get_width() == source["albedo"].get_width() and normal_texture.get_height() == source["albedo"].get_height():
             source["normal"] = normal_texture.get_image()
     _cache[key] = source
     return source
