@@ -1,0 +1,1319 @@
+{
+  "schema": 1,
+  "materials": {
+    "neutral": {
+      "absorption_code": 200,
+      "tint_linear": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "red": {
+      "absorption_code": 150,
+      "tint_linear": [
+        1.0,
+        0.025,
+        0.025
+      ]
+    }
+  },
+  "lights": [
+    {
+      "position": [
+        -0.25,
+        1.2,
+        0.25
+      ],
+      "radius": 6.0,
+      "power_rgb": [
+        40.0,
+        40.0,
+        40.0
+      ]
+    }
+  ],
+  "blockers": [],
+  "patches": [
+    {
+      "position": [
+        -0.75,
+        0,
+        -0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.25,
+        0,
+        -0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.25,
+        0,
+        -0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.75,
+        0,
+        -0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.75,
+        0,
+        -0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.25,
+        0,
+        -0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.25,
+        0,
+        -0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.75,
+        0,
+        -0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.75,
+        0,
+        0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.25,
+        0,
+        0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.25,
+        0,
+        0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.75,
+        0,
+        0.25
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.75,
+        0,
+        0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.25,
+        0,
+        0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.25,
+        0,
+        0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        0.75,
+        0,
+        0.75
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "area": 0.25,
+      "size": [
+        0.5,
+        0.5
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "floor"
+    },
+    {
+      "position": [
+        -0.75,
+        0.1875,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -0.25,
+        0.1875,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.25,
+        0.1875,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.75,
+        0.1875,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -0.75,
+        0.5625,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -0.25,
+        0.5625,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.25,
+        0.5625,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.75,
+        0.5625,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -0.75,
+        0.9375,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -0.25,
+        0.9375,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.25,
+        0.9375,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.75,
+        0.9375,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -0.75,
+        1.3125,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -0.25,
+        1.3125,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.25,
+        1.3125,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        0.75,
+        1.3125,
+        -1
+      ],
+      "normal": [
+        0,
+        0,
+        1
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "back"
+    },
+    {
+      "position": [
+        -1,
+        0.1875,
+        -0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.1875,
+        -0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.1875,
+        0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.1875,
+        0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.5625,
+        -0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.5625,
+        -0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.5625,
+        0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.5625,
+        0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.9375,
+        -0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.9375,
+        -0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.9375,
+        0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        0.9375,
+        0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        1.3125,
+        -0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        1.3125,
+        -0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        1.3125,
+        0.25
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        -1,
+        1.3125,
+        0.75
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "red",
+      "surface": "red"
+    },
+    {
+      "position": [
+        1,
+        0.1875,
+        -0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.1875,
+        -0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.1875,
+        0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.1875,
+        0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.5625,
+        -0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.5625,
+        -0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.5625,
+        0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.5625,
+        0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.9375,
+        -0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.9375,
+        -0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.9375,
+        0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        0.9375,
+        0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        1.3125,
+        -0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        1.3125,
+        -0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        1.3125,
+        0.25
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    },
+    {
+      "position": [
+        1,
+        1.3125,
+        0.75
+      ],
+      "normal": [
+        -1,
+        0,
+        0
+      ],
+      "area": 0.1875,
+      "size": [
+        0.5,
+        0.375
+      ],
+      "gray_mean": 0.8,
+      "material": "neutral",
+      "surface": "right"
+    }
+  ]
+}

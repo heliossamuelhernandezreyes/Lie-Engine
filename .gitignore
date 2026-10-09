@@ -6,3 +6,6 @@ __pycache__/
 assets/captures/*
 !assets/captures/.gitkeep
 captures_out/
+gpu_compute/fixtures/lie11-reference.json
+gpu_compute/lie11-*.png
+gpu_compute/lie11-diagnostic.json
