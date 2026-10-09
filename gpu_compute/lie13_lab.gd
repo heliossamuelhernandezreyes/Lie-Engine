@@ -4,6 +4,8 @@ var optics: CompositorEffect
 var optical_name: String="mixed"
 var animate: bool=true
 var optical_time: float=0.0
+var link_transmission: bool=true
+var _transport_sheets: Array=[]
 var _anchor_right:=Vector3.RIGHT
 var _anchor_up:=Vector3.UP
 var _anchor_toward:=Vector3.BACK
@@ -37,6 +39,8 @@ func set_scenario(name: String) -> void:
         "dark": model["lights"][0]["power_rgb"]=[0,0,0]
         "moved": model["lights"][0]["position"]=[.8,.6,.5]
         "filtered": model["optical_sheets"]=[{"center":[0,0,.4],"right":[1,0,0],"up":[0,1,0],"half_width":1.5,"half_height":1.5,"ior":1.5,"thickness":.1,"sigma":[5,.4,.1]}]
+    if link_transmission and name!="filtered" and not _transport_sheets.is_empty():
+        model["optical_sheets"]=_transport_sheets.duplicate(true)
     lighting.call("configure",model)
     _update_label()
 
@@ -89,7 +93,15 @@ func rain_sprites() -> Array:
 
 func set_optical_scene(name: String) -> void:
     optical_name=name
-    if optics!=null: optics.call("set_sprites",optical_sprites(name))
+    if optics!=null:
+        var values: Array=optical_sprites(name)
+        optics.call("set_sprites",values)
+        _transport_sheets=[]
+        for value in values:
+            if int(value["kind"])!=2: _transport_sheets.append(value.duplicate(true))
+        if link_transmission:
+            model["optical_sheets"]=_transport_sheets.duplicate(true)
+            lighting.call("configure",model)
     _update_label()
 
 func _process(delta: float) -> void:

@@ -106,9 +106,12 @@ connections: no refractive light-path bending, caustics, or new specular diffuse
 sources are asserted. Rain drop instances are camera sprites and are deliberately
 not each inserted into the diffuse transport graph.
 
-Visual and transport sheets use the same schema but are explicitly registered
-in their respective consumers; an arbitrary native Sprite3D does not automatically
-become a transport sheet. T toggles a documented transport-only sheet fixture.
+Visual and transport sheets use the same schema. The laboratory registers glass
+and water in both consumers by default, so changing material/thickness also changes
+transmitted illumination. Optical acceptance can temporarily isolate the camera
+consumer; a final coupled GPU/oracle case checks the shared registration. An
+arbitrary native Sprite3D does not automatically become a transport sheet. T
+toggles a documented transport-only sheet fixture.
 The opaque Blender exporter still accepts constant opaque source materials;
 transparent GLB capture/automatic volume extraction is a separate future task.
 

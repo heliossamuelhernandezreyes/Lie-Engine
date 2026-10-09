@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
 from lie_light_transport import solve, validate, room_fixture, closed_solution
-from lie_optics import fresnel, slab, sheet_transmission, validate_sheets
+from lie_optics import fresnel, slab, sheet_transmission, validate_sheets, refraction_probe
 
 
 class RadiusTests(unittest.TestCase):
@@ -54,6 +54,13 @@ class RadiusTests(unittest.TestCase):
 
 
 class OpticsTests(unittest.TestCase):
+    def test_index_matched_displacement_vanishes_and_scales_with_thickness(self):
+        identity=refraction_probe(8,ior=1)
+        self.assertTrue(all(abs(x)<1e-12 for x in identity['uv_offset']))
+        thin=refraction_probe(8,thickness=.025)
+        thick=refraction_probe(8,thickness=.25)
+        self.assertGreater(abs(thick['uv_offset'][0]),abs(thin['uv_offset'][0])*5)
+        self.assertGreater(abs(thin['uv_offset'][0]),0)
     def sheet(self):
         return {'center':[0,0,0], 'right':[1,0,0], 'up':[0,1,0],
                 'half_width':1, 'half_height':1, 'thickness':.2,

@@ -24,6 +24,7 @@ func _run() -> void:
     var reference: Dictionary=parsed
     lab=load("res://lie13_lab.tscn").instantiate() as Node3D
     get_root().add_child(lab)
+    lab.set("link_transmission",false)
     lab.set("animate",false)
     optics=lab.get("optics")
     lighting=lab.get("lighting")
@@ -95,6 +96,19 @@ func _run() -> void:
         if absf(data[index+1+c]-expected_t[c])>.0001: fail("Incorrect GPU Beer transmission"); return
     report["glass_center_fresnel"]=data[index]
     report["glass_center_transmission"]=[data[index+1],data[index+2],data[index+3]]
+    lab.call("set_optical_scene","thick")
+    optics.set("diagnostic_mode",1)
+    await settle()
+    var refracted: Dictionary=await read(optics)
+    var probe: Dictionary=reference["refraction_probe"]
+    var probe_index: int=(int(probe["pixel"][1])*size+int(probe["pixel"][0]))*4
+    var probe_data: PackedFloat32Array=refracted["coefficients"]
+    var refraction_error: float=absf(probe_data[probe_index+2]-float(probe["cos_transmitted"]))
+    for c in range(2): refraction_error=maxf(refraction_error,absf(probe_data[probe_index+c]-float(probe["uv_offset"][c])))
+    if refraction_error>.00001 or probe_data[probe_index+3]<.5: fail("GPU refractive displacement differs from Snell slab oracle"); return
+    report["refraction_uv_and_cos_max_error"]=refraction_error
+    report["refraction_uv_offset"]=[probe_data[probe_index],probe_data[probe_index+1]]
+    optics.set("diagnostic_mode",0)
     report["thickness_image_difference"]=difference(images["glass"],images["thick"])
     if float(report["thickness_image_difference"])<.00001: fail("Thickness does not alter glass"); return
     lab.call("set_optical_scene","layers")
@@ -156,6 +170,22 @@ func _run() -> void:
     if ratio<.2 or ratio>.7: fail("Optical XYZ sprite scale did not follow perspective: "+str(ratio)); return
     save("lie13-glass-far.png")
     report["perspective_optical_coverage_at_1_5x_distance"]=ratio
+    # Default runtime registers each glass/water material in BOTH consumers.
+    # Earlier optical tests isolate camera coefficients from illumination.
+    lab.set("distance_scale",1.0)
+    lab.set("link_transmission",true)
+    lab.call("set_scenario","bounce")
+    lab.call("set_optical_scene","mixed")
+    await settle()
+    var linked: Dictionary=await read(lighting)
+    var linked_values: PackedFloat32Array=linked["irradiance"]
+    var linked_expected: Array=reference["scenarios"]["coupled"]["irradiance"]
+    var linked_error: float=0.0
+    for i in range(linked_expected.size()):
+        for c in range(3): linked_error=maxf(linked_error,absf(linked_values[i*4+c]-float(linked_expected[i][c])))
+    if linked_error>.003: fail("Shared camera/transport material registration differs from oracle"); return
+    report["coupled_glass_water_irradiance_error"]=linked_error
+    save("lie13-coupled.png")
     report["visible_source_meshes"]=0
     report["optical_resolution"]=[256,256]
     report["max_optical_layers_per_pixel"]=4

@@ -11,6 +11,7 @@ var frame_count: int=0
 var failure: String=""
 var time_value: float=0.0
 var environment_power: float=.65
+var diagnostic_mode: int=0
 var _rd: RenderingDevice
 var _shader: RID
 var _pipeline: RID
@@ -117,7 +118,7 @@ func _render_callback(kind: int, render_data: RenderData) -> void:
     var bytes:=PackedInt32Array([SIZE,SIZE,count,int(lighting.get("_light_count"))]).to_byte_array()
     var packed:=PackedFloat32Array()
     for v in [transform.origin,transform.basis.x,transform.basis.y,-transform.basis.z]:
-        packed.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
+        packed.append_array(PackedFloat32Array([v.x,v.y,v.z,float(diagnostic_mode) if packed.is_empty() else 0.0]))
     packed.append_array(PackedFloat32Array([1.0/proj[1].y,proj[1].y/proj[0].x,time_value,environment_power,
         proj[2].z,proj[3].z,proj[2].w,proj[3].w]))
     bytes.append_array(packed.to_byte_array())

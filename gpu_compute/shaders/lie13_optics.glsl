@@ -113,7 +113,7 @@ void main() {
         vec2 atlas_uv=vec2((xy.x*0.5+0.5+float(int(s.animation.x)))/3.0,xy.y*0.5+0.5);
         if(textureLod(normal_atlas,atlas_uv,0.0).a<=0.0) continue;
         for(int k=0;k<LAYERS;k++) {
-            // Tie-break by material data, independently of insertion order.
+            // Distinct-depth sheets are ordered independently of submission order.
             if(t<distances[k]) {
                 for(int j=LAYERS-1;j>k;j--) { distances[j]=distances[j-1]; ids[j]=ids[j-1]; locals[j]=locals[j-1]; }
                 distances[k]=t; ids[k]=i; locals[k]=xy; break;
@@ -160,5 +160,5 @@ void main() {
     vec3 radiance=reflected_radiance(position,reflect(d,n));
     vec3 color=transmission*transmitted+reflection*radiance;
     imageStore(output_color,p,vec4(color,z));
-    if(rank==0) imageStore(diagnostic,p,vec4(f,transmission));
+    if(rank==0) imageStore(diagnostic,p,cfg.eye.w>0.5?vec4(displaced-uv,ct,valid?1.0:0.0):vec4(f,transmission));
 }

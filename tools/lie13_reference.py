@@ -2,9 +2,10 @@
 import argparse
 import copy
 import json
+import math
 from pathlib import Path
 from lie_light_transport import solve
-from lie_optics import slab
+from lie_optics import refraction_probe
 
 
 def scenario(base,name):
@@ -21,6 +22,12 @@ def scenario(base,name):
     elif name=='filtered':
         m['optical_sheets']=[{'center':[0,0,.4],'right':[1,0,0],'up':[0,1,0],
             'half_width':1.5,'half_height':1.5,'ior':1.5,'thickness':.1,'sigma':[5,.4,.1]}]
+    elif name=='coupled':
+        a=math.radians(20)
+        m['optical_sheets']=[]
+        for x,ior,thickness,sigma in [(-.48,1.5,.025,[3,.5,.2]),(.5,1.333,.12,[1.8,.3,.08])]:
+            m['optical_sheets'].append({'center':[x,1.3*math.sin(a),1.3*math.cos(a)],'right':[1,0,0],'up':[0,math.cos(a),-math.sin(a)],
+                'half_width':.44,'half_height':.68,'ior':ior,'thickness':thickness,'sigma':sigma})
     elif name!='bounce': raise ValueError(name)
     return m
 
@@ -29,10 +36,12 @@ def write(root):
     root=Path(root)
     base=json.loads((root/'light-model.json').read_text())
     result={'schema':1,'reference':'Python float64; same patch graph, independent Fresnel/Beer equations and radius transport', 'scenarios':{}}
-    for name in ['direct','bounce','short','legacy','absorbing','dark','filtered']:
+    for name in ['direct','bounce','short','legacy','absorbing','dark','filtered','coupled']:
         m=scenario(base,name)
         result['scenarios'][name]=solve(m,m['bounces'])
         print('LIE-13 ORACLE',name,flush=True)
+    metadata=json.loads((root/'code-manifest.json').read_text())
+    result['refraction_probe']=refraction_probe(metadata['capture_radius']*3.5)
     (root/'lie13-reference.json').write_text(json.dumps(result,separators=(',',':'))+'\n')
 
 if __name__=='__main__':

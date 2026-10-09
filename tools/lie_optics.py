@@ -61,3 +61,21 @@ def sheet_transmission(a, b, sheets):
         transmission = slab(abs(denom)/length, sheet["ior"], sheet["thickness"], sheet["sigma"])["transmission"]
         value = [x*y for x, y in zip(value, transmission)]
     return value
+
+
+def refraction_probe(camera_distance, pixel=(135,128), size=256, thickness=.25, ior=1.5):
+    """Independent flat-slab screen displacement in camera-local coordinates."""
+    uv=[(v+.5)/size for v in pixel]
+    tangent=math.tan(math.pi/6)
+    d=[(uv[0]*2-1)*tangent,(1-uv[1]*2)*tangent,-1]
+    length=math.sqrt(sum(x*x for x in d));d=[x/length for x in d]
+    ci=-d[2]
+    _,ct=fresnel(ci,1,ior)
+    bent=[d[0]/ior,d[1]/ior,-ct]
+    t=(1.3-camera_distance)/d[2]
+    position=[d[0]*t,d[1]*t,camera_distance+d[2]*t]
+    displacement=[(b/ct-x/ci)*thickness for b,x in zip(bent,d)]
+    exit_point=[p+x*max(.01,thickness/ci)+s for p,x,s in zip(position,d,displacement)]
+    z=camera_distance-exit_point[2]
+    shifted=[exit_point[0]/(z*tangent)*.5+.5,-exit_point[1]/(z*tangent)*.5+.5]
+    return {'pixel':list(pixel),'uv_offset':[a-b for a,b in zip(shifted,uv)],'cos_transmitted':ct}

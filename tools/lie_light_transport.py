@@ -1,7 +1,8 @@
 """LIE-11 float64 reference for absorption-coded, finite-patch light transport.
 
 RGB values are linear relative power, not calibrated spectral watts. This is a
-bounded diffuse approximation: no specular reflection, transmission or ray tracing.
+bounded diffuse approximation with optional straight-segment thin-sheet transmission.
+No specular diffuse-source transport or caustic ray tracing.
 """
 from __future__ import annotations
 
