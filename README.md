@@ -1,8 +1,16 @@
-# Lie Engine — LIE-01 through LIE-10
+# Lie Engine — LIE-01 through LIE-11
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-11 — grayscale sprites and absorption-coded light transport
+
+New independent Vulkan lighting laboratory: **the visible surfaces are grayscale Sprite3D images**, with XYZ/normal/area nodes and separate RGB material filters plus absorption codes. Point-light codes inject linear RGB power into nodes; bounded diffuse secondary sources transfer the remaining power to visible neighbors. GPU ping-pong generations preserve the energy budget. No source 3D mesh is drawn in this laboratory.
+
+Run `python3 tools/lie_light_transport.py`, then open `gpu_compute/project.godot` and run `lie11_lab.tscn`. Arrows orbit the camera, WASD moves the light, B switches direct/two-bounce lighting, X changes red-wall absorption, O toggles a blocker, C changes the light color. The previous LIE-10 startup scene remains available. Read [physics, integration and limitations](docs/LIE_11_CODE_LIGHTING.md).
+
+This module is a **coarse, opaque, diffuse RGB approximation**, tested against an independent float64 reference for the same graph. It does not yet replace LIE-10's Blender compositor lighting or implement per-pixel material masks, specular highlights, transmission or mobile performance validation.
 
 ## LIE-10 — complex geometry and GPU relighting (experimental)
 
