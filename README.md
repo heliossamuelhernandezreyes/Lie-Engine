@@ -38,7 +38,7 @@ godot --headless --path . --script res://tests/test_invisible_proxy.gd
 godot --headless --path . --quit-after 30
 ```
 
-GitHub Actions runs these smoke checks for new changes. Success validates import and view-index logic, **not** image quality or Android FPS.
+GitHub Actions also captures two actual Godot viewport PNGs at different camera angles and checks that the selected views produce different pixels. These are visual evidence of the synthetic placeholder, not proof of photorealism.\n\nGitHub Actions runs these smoke checks for new changes. Success validates import and view-index logic, **not** image quality or Android FPS.
 
 Read [architecture and research gates](docs/ARCHITECTURE.md).
 

@@ -32,6 +32,18 @@ jobs:
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_invisible_proxy.gd
 
+      - name: Native two-angle viewport evidence
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_capture_two_views.gd
+
+      - name: Upload real Godot frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-01-native-angle-captures
+          path: |
+            ~/.local/share/godot/app_userdata/Lie Engine | LIE-01/lie-01-view-*.png
+          if-no-files-found: error
+
       - name: Headless scene runtime
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 30
