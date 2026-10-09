@@ -33,7 +33,7 @@ func _process(delta: float) -> void:
 
 func _move_camera() -> void:
     var rad: float = deg_to_rad(yaw_degrees)
-    var distance: float = float(effect.get("_capture_radius"))*6.0
+    var distance: float = float(effect.get("_capture_radius"))*3.5
     camera.position = Vector3(distance*sin(rad),0.0,distance*cos(rad))
     camera.look_at(Vector3.ZERO,Vector3.UP)
     effect.set_view_yaw_degrees(yaw_degrees)

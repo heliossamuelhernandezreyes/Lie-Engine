@@ -8,7 +8,7 @@ const REPROJECTION_SHADER: RDShaderFile = preload("res://shaders/lie09_pipeline.
 const COMPOSITE_SHADER: RDShaderFile = preload("res://shaders/lie09_composite.glsl")
 
 const TEXTURE_SIZE := 256
-const SOURCE_SIZE := 64
+const SOURCE_SIZE := 128
 const VIEWS := 4
 const SAMPLE_COUNT := VIEWS * SOURCE_SIZE * SOURCE_SIZE
 
@@ -123,7 +123,7 @@ func _make_blender_capture() -> void:
 func _camera_data(yaw_degrees: float) -> PackedFloat32Array:
     var data := PackedFloat32Array()
     var angle: float = deg_to_rad(yaw_degrees)
-    var distance: float = _capture_radius*6.0
+    var distance: float = _capture_radius*3.5
     var eye := Vector3(distance*sin(angle),0.0,distance*cos(angle))
     var target_right := Vector3(cos(angle),0.0,-sin(angle))
     var target_forward := -eye.normalized()
