@@ -28,7 +28,8 @@ The Blender material appearance is captured with lighting baked into RGBA. This 
 - **LIE-03 (experimental):** reconstruct sampled 3D triangles from Blender depth; GPU Z-buffer tests overlap of independent nodes. This is a geometry-based research baseline, **not** accurate per-pixel depth at unseen camera angles or an efficiency claim.
 - **LIE-04 (experimental):** neighboring azimuth views composited with complementary dithered GPU coverage; conservative frustum and authored rectangular-wall occlusion before texture loading. This is NOT true novel-view synthesis or generalized Hi-Z occlusion.
 - **LIE-05 (CPU research reference):** 3D points reconstructed from two captured source depth images are projected into the target perspective camera; near-depth samples win and matching-depth colors fuse, then a 3D mesh is built from occupied target cells. Some uncovered areas may be filled by the neighboring capture; unseen geometry, holes, high-speed motion and runtime expense remain unresolved.
-- **LIE-06 candidate:** move per-camera reprojection and visibility onto GPU; adaptive atlas, memory-aware cache, streaming and matched-device frame-time evidence.
+- **LIE-06 (research):** closest four angular/elevation views with per-pixel normal confidence; independently compiled C++17 selector and a real Forward+/Vulkan compute depth-aware four-source color fusion kernel. Reprojection and target-mesh construction are STILL CPU. Check same-camera IoU diagnostic against LIE-05; do not assume improvement.
+- **LIE-07 candidate:** integrate camera-space reproject + z-buffer candidate generation into compute shaders / render pipeline, mobile Vulkan compatibility profiling, atlas + streaming and matched-device evidence.
 - **LIE-07 candidate:** modular animation and skeletal composition.
 
 ## Experimental protocol

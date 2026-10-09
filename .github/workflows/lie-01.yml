@@ -141,6 +141,17 @@ jobs:
           path: lie-05-*.png
           if-no-files-found: error
 
+      - name: LIE-06 real four-view quality regression vs 3D source
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_06_quality.gd
+
+      - name: Preserve four-view quality verification frame
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-06-quality-comparison
+          path: lie-06-angle-45.png
+          if-no-files-found: error
+
       - name: Real source GLB against Lie pixels, matched camera
         run: |
           xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_reference_pair.gd
