@@ -31,8 +31,10 @@ func _check() -> void:
         if tex == null or tex.get_width() <= 0:
             _fail("Missing real Texture2D for " + channel)
             return
-    if bool(lie.get("using_captured_surface")):
-        _fail("Synthetic fixture has wrongly claimed to be photographic")
+    # CI may have generated real Blender captures, while a local checkout
+    # may fall back to synthetic images. Both are explicit modes.
+    if bool(lie.get("using_captured_surface")) != bool(channels["captured"]):
+        _fail("Photographic versus synthetic source provenance is inconsistent")
         return
     lab.set_process(false)
     lie.set_process(false)
