@@ -40,6 +40,7 @@ var frame_count := 0
 func _init() -> void:
     effect_callback_type = EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
     access_resolved_color = true
+    access_resolved_depth = true
     _make_blender_capture()
 
 func set_view_yaw_degrees(degrees: float) -> void:
@@ -219,9 +220,9 @@ func _initialize_gpu() -> bool:
         return false
     var uniforms: Array[RDUniform] = []
     for binding in range(_buffers.size()):
-        if binding == 8:
-            continue
-        uniforms.append(_make_storage_uniform(binding,_buffers[binding]))
+        # The normals buffer is array index 8 but pipeline binding 9:
+        # binding 8 is occupied by the RGBA image.
+        uniforms.append(_make_storage_uniform(9 if binding == 8 else binding,_buffers[binding]))
     uniforms.append(_make_image_uniform(8,_output_texture))
     var filter := RDSamplerState.new()
     filter.min_filter = RenderingDevice.SAMPLER_FILTER_NEAREST
