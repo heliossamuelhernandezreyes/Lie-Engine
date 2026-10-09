@@ -56,6 +56,29 @@ func _run() -> void:
     if hashes[0] == hashes[1] or hashes[1] == hashes[2]:
         _fail("Camera movement did not affect reprojected rendered view")
         return
+    # Preserve same-camera original source geometry for visual review at
+    # exactly 45°; never include source mesh during Lie rendering.
+    var ref_resource: PackedScene = load(
+        "res://assets/captures/demo_shard/source.glb") as PackedScene
+    if ref_resource == null:
+        _fail("Reference GLB is not imported")
+        return
+    var reference: Node3D = ref_resource.instantiate() as Node3D
+    reference.name = "GroundTruthSourceMesh"
+    scene.add_child(reference)
+    node.visible = false
+    var halfway: float = deg_to_rad(45.0)
+    camera.position = Vector3(6.0 * sin(halfway), 1.2, 6.0 * cos(halfway))
+    camera.look_at(Vector3.ZERO, Vector3.UP)
+    for frame in range(12):
+        await process_frame
+    var reference_frame: Image = root.get_texture().get_image()
+    if reference_frame.is_empty() or reference_frame.save_png(
+            "res://lie-05-reference-3d-45.png") != OK:
+        _fail("Could not preserve matched-camera original GLB reference")
+        return
+    reference.visible = false
+    node.visible = true
     print("LIE-05 BLENDER NOVEL VIEW PASS angles=[0,45,90] coverage=%s codes=%s" %
         [str(coverages), str(angle_codes)])
     quit(0)
