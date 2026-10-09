@@ -2,9 +2,9 @@ config_version=5
 
 [application]
 
-config/name="Lie Engine | LIE-05"
-run/main_scene="res://scenes/lie_reprojection_lab.tscn"
-config/description="Research prototype: camera-space depth-image reprojection and 3D Z fusion."
+config/name="Lie Engine | LIE-06"
+run/main_scene="res://scenes/lie_06_lab.tscn"
+config/description="Four-view spatial reconstruction with per-pixel normal confidence; dedicated Vulkan compute lab."
 
 [display]
 

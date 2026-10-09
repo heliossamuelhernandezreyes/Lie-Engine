@@ -1,12 +1,22 @@
-# Lie Engine — LIE-01 through LIE-05
+# Lie Engine — LIE-01 through LIE-06
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
 
-## LIE-05 — target-camera depth reprojection (current default)
+## LIE-06 — multi-view reference + real Vulkan GPU kernel (current default)
 
-The default scene is now `scenes/lie_reprojection_lab.tscn`: rotate the camera with **left/right**, then press **Space** to reconstruct the new view. Two captured angular images are unprojected into 3D, reprojected into the current perspective camera, and fused using a software nearest-depth test (world-space points, bounded 2×2 splats, depth-consistent albedo weighting). The output is a **real 3D surface reconstructed from images**, participating in Godot's ordinary Z-buffer. The original GLB geometry is never rendered in Lie mode.
+The startup scene `scenes/lie_06_lab.tscn` reconstructs a target-camera surface from **up to four nearest azimuth/elevation captures** with angular confidence. When per-pixel normal data is available, samples facing away from the current camera are rejected and grazing angles are attenuated. **Arrows** move the camera; **Space** reprojects on CPU.
+
+A separate **`gpu_compute` Forward+ Vulkan project** runs an actual compute shader that fuses up to four **already projected candidates** per target pixel according to nearest depth, surface confidence and angular weight. This step is really executed on the GPU in CI; the complete projection step remains on CPU in the visible lab. Do not confuse the working GPU compute proof with a fully GPU-driven renderer.
+
+A second Vulkan compute shader `gpu_compute/shaders/project_samples.glsl` performs **per-sample depth unprojection and projection into the current perspective camera**, checked numerically for centered, offset and clipped samples. Its output is not yet connected to the renderer's full screen-space scatter.
+
+The `native/` directory contains a C++17 angular selector, compiled and verified by CTest. It is **not yet wired through GDExtension** into Godot. Production mobile speed, reliable continuous crossfade and silhouette improvements are still unproven; read [Lie 0.6 research gates](docs/LIE_06_RESEARCH.md).
+
+## LIE-05 — target-camera depth reprojection (earlier lab)
+
+The previous scene is `scenes/lie_reprojection_lab.tscn`: rotate the camera with **left/right**, then press **Space** to reconstruct the new view. Two captured angular images are unprojected into 3D, reprojected into the current perspective camera, and fused using a software nearest-depth test (world-space points, bounded 2×2 splats, depth-consistent albedo weighting). The output is a **real 3D surface reconstructed from images**, participating in Godot's ordinary Z-buffer. The original GLB geometry is never rendered in Lie mode.
 
 The code is a deliberately **CPU-heavy research reference**, not a live mobile renderer. Frame-by-frame synthesis has not been made efficient. On a fresh checkout without Blender assets, the lab visibly uses a clearly labeled synthetic fixture rather than hiding an empty scene. Capture a real `assets/captures/demo_shard` bundle with the Blender 4.x command below, reopen/import in Godot, then the lab uses real depth captures. Read [LIE-05 protocol and limitations](docs/LIE_05_REPROJECTION.md).
 
@@ -43,7 +53,7 @@ The previous LIE-01 lab is still available at `scenes/lie_lab.tscn`.
 
 1. Install Godot 4.7.2 stable (Compatibility renderer).
 2. Open `project.godot` and run the main scene.
-3. LIE-05: arrows move the camera; **Space** requests a new CPU reprojection. LIE-04 remains available from `scenes/lie_depth_lab.tscn`.
+3. LIE-06: arrows move the camera; **Space** rebuilds a four-source CPU reprojection. LIE-04 remains available from `scenes/lie_depth_lab.tscn`.
 4. Observe the two source angular codes, number of triangles and CPU build time. The original source mesh is never drawn during Lie rendering. Earlier labs demonstrate independent invisible `StaticBody3D` collisions.
 
 The placeholder deliberately is **not** a photographic asset. The first capability being tested is: **the same 3D object position deterministically retrieves one angular image at a time, without displaying a source 3D mesh.**

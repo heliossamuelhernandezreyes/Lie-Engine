@@ -1,0 +1,6 @@
+config_version=5
+[application]
+config/name="Lie GPU Depth Fusion Acceptance"
+[rendering]
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"

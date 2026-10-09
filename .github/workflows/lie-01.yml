@@ -5,6 +5,10 @@ on:
     branches: [main, "feat/**"]
   pull_request:
 
+concurrency:
+  group: lie-acceptance-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -69,6 +73,32 @@ jobs:
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_reprojection_node.gd
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_05_forward.gd
 
+      - name: LIE-06 C++17 native view selection contract
+        run: |
+          cmake -S native -B /tmp/lie06-cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/lie06-cmake --parallel 2
+          ctest --test-dir /tmp/lie06-cmake --output-on-failure
+
+      - name: LIE-06 four-view angular confidence contract
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_06_node.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_06_selection.gd
+
+      - name: Install software Vulkan compute backend for GPU verification
+        run: |
+          sudo apt-get install -y mesa-vulkan-drivers vulkan-tools
+          vulkaninfo --summary | head -n 70
+
+      - name: 'LIE-06 Vulkan compute: depth and confidence crossfade'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_gpu_fusion.gd
+
+      - name: 'LIE-06 Vulkan compute: source depth projection into target camera'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_gpu_projection.gd
+
       - name: Install Blender for real three-channel fixture
         run: |
           sudo apt-get update -qq
@@ -118,6 +148,17 @@ jobs:
         with:
           name: lie-05-depth-reprojected-frames
           path: lie-05-*.png
+          if-no-files-found: error
+
+      - name: LIE-06 real four-view quality regression vs 3D source
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_06_quality.gd
+
+      - name: Preserve four-view quality verification frame
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-06-quality-comparison
+          path: lie-06-angle-45.png
           if-no-files-found: error
 
       - name: Real source GLB against Lie pixels, matched camera
