@@ -17,11 +17,11 @@ func _run() -> void:
     world.set_process(false)
     var node: Node3D = world.get_node("LieSurfaceNode")
     node.set_process(false)
-    node.asset_id = "demo_shard"
-    node.azimuth_steps = 4
-    node.elevation_degrees = PackedFloat32Array([-30.0, 0.0, 30.0])
+    node.set("asset_id", "demo_shard")
+    node.set("azimuth_steps", 4)
+    node.set("elevation_degrees", PackedFloat32Array([-30.0, 0.0, 30.0]))
     node.position = Vector3(0, 0.5, 0)
-    node.current_view_code = ""
+    node.set("current_view_code", "")
     var camera: Camera3D = world.get_node("LieCamera")
     camera.position = Vector3(0, 1.1, 7.2)
     camera.look_at(Vector3(0, 0.5, 0), Vector3.UP)
@@ -36,7 +36,7 @@ func _run() -> void:
     reference.name = "NativeGodotGLB"
     world.add_child(reference)
     reference.visible = false
-    var key: String = node.current_view_code
+    var key: String = str(node.get("current_view_code"))
     var basis: Transform3D = camera.global_transform
     var outputs: Array[String] = []
     for lie_view in [true, false]:
@@ -44,7 +44,7 @@ func _run() -> void:
         reference.visible = not lie_view
         for i in range(8):
             await process_frame
-        if camera.global_transform != basis or key != node.current_view_code:
+        if camera.global_transform != basis or key != str(node.get("current_view_code")):
             _fail("Matched camera moved between images")
             return
         var image: Image = root.get_texture().get_image()
