@@ -26,8 +26,16 @@ func _run() -> void:
     var cases: Dictionary={}
     var frames: Dictionary={}
     var device: String=""
-    for name in ["direct","bounce","absorbing","moved","cool","dark"]:
-        lab.call("set_scenario",name)
+    for name in ["direct","bounce","moved","absorbing","cool","dark"]:
+        if name=="moved":
+            var moving: Dictionary=lab.get("model")
+            moving["lights"][0]["position"]=[.8,.6,.5]
+            var serial: int=int(lighting.get("_serial"))
+            lighting.call("set_light_codes",moving)
+            if serial!=int(lighting.get("_serial")):
+                _fail("Moving a source rebuilt the geometry/material configuration")
+                return
+        else: lab.call("set_scenario",name)
         for k in range(10): await process_frame
         lighting.call("request_readback")
         var actual: Dictionary={}

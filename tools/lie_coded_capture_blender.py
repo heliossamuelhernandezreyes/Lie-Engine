@@ -74,7 +74,7 @@ def export_codes(meshes, original_materials, manifest, root):
                 continue
             hit = bvh.ray_cast(start+delta*.001, delta.normalized(), delta.length*.998)[0]
             visible[i*count+j] = visible[j*count+i] = int(hit is None)
-    model = {"schema": 1, "bounces": 2, "patches": patches, "materials": materials,
+    model = {"schema": 1, "bounces": 2, "factor_normalization": "symmetric_local", "patches": patches, "materials": materials,
              "triangles": triangles, "mesh_visibility": visible, "blockers": [],
              "lights": [{"position": [-.65, .45, .35], "radius": 6, "power_rgb": [35, 35, 35]}]}
     (root/"light-model.json").write_text(json.dumps(model, separators=(",", ":"), allow_nan=False)+"\n")

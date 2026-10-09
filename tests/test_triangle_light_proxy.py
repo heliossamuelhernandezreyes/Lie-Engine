@@ -47,3 +47,20 @@ class TriangleLightProxy(unittest.TestCase):
         room["mesh_visibility"]=[1]*16
         room["mesh_visibility"][1]=0
         with self.assertRaises(ValueError): t.solve(room)
+
+    def test_local_pair_caps_retain_reciprocity_and_energy_without_global_dimming(self):
+        room=t.room_fixture()
+        global_f,_=t.form_factors(room)
+        room["factor_normalization"]="symmetric_local"
+        local_f,_=t.form_factors(room)
+        for i,p in enumerate(room["patches"]):
+            self.assertLessEqual(sum(local_f[i]),1+1e-12)
+            for j,q in enumerate(room["patches"]):
+                self.assertGreaterEqual(local_f[i][j],global_f[i][j]-1e-12)
+                self.assertAlmostEqual(p["area"]*local_f[i][j],q["area"]*local_f[j][i],places=12)
+        incoming=t.totals([l["power_rgb"] for l in room["lights"]])
+        for step in t.solve(room,8)["energy_by_generation"]:
+            for c in range(3):
+                self.assertLessEqual(step["incoming"][c],incoming[c]+1e-9)
+                self.assertLessEqual(step["outgoing"][c],step["incoming"][c]+1e-9)
+            incoming=step["outgoing"]

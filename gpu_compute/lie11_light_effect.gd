@@ -59,7 +59,7 @@ func configure(model: Dictionary) -> bool:
 
 func set_light_codes(model: Dictionary) -> void:
     # A moving light changes a small persistent buffer; the spatial graph is reused.
-    if not Model.valid(model) or (model["lights"] as Array).size()!=_light_count:
+    if not Model.valid_light_codes(model.get("lights",[])) or (model["lights"] as Array).size()!=_light_count:
         return
     var data: PackedByteArray=Model.light_bytes(model)
     _lock.lock()

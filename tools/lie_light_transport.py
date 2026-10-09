@@ -62,6 +62,8 @@ def segment_blocked(a, b, boxes, triangles=()):
 def validate(model):
     if model.get("schema") != 1 or not 1 <= len(model["patches"]) <= 1024:
         raise ValueError("Unsupported schema or patch count")
+    if model.get("factor_normalization", "global") not in ("global", "symmetric_local"):
+        raise ValueError("Unsupported conservative form-factor normalization")
     if not 1 <= len(model["lights"]) <= 16:
         raise ValueError("Expected 1..16 light codes")
     for p in model["patches"]:
@@ -114,7 +116,7 @@ def reflectance(model, patch):
 
 
 def form_factors(model):
-    """Center quadrature with one global cap preserving area reciprocity.
+    """Center quadrature with reciprocal global or symmetric-pair row caps.
 
     F[i][j] is a fraction of source i's reflected power reaching receiver j.
     Missing row mass escapes. Global scaling is a documented conservative
@@ -139,7 +141,13 @@ def form_factors(model):
             coupling = a["area"] * b["area"] * ca * cb / (math.pi * d2)
             f[i][j] = coupling / a["area"]
             f[j][i] = coupling / b["area"]
-    correction = max(1.0, max(map(sum, f)))
+    rows = list(map(sum, f))
+    correction = max(1.0, max(rows))
+    if model.get("factor_normalization") == "symmetric_local":
+        # Each pair shares one denominator, preserving area reciprocity.
+        # denominator >= row_i for every j guarantees sum_j F_ij <= 1.
+        return [[v / max(1.0, rows[i], rows[j]) for j, v in enumerate(row)]
+                for i, row in enumerate(f)], None
     return [[v / correction for v in row] for row in f], 1.0 / correction
 
 
