@@ -71,6 +71,13 @@ func _run() -> void:
     var reference: Node3D = ref_resource.instantiate() as Node3D
     reference.name = "GroundTruthSourceMesh"
     scene.add_child(reference)
+    # Imported glTF uses PBR, while Lie RGB captures are intentionally unlit.
+    # Supply explicit light to avoid a nearly-black, invalid ground truth.
+    var reference_light := DirectionalLight3D.new()
+    reference_light.name = "OriginalGLBReferenceLight"
+    reference_light.light_energy = 3.0
+    reference_light.rotation_degrees = Vector3(-45, -35, 0)
+    scene.add_child(reference_light)
     node.visible = false
     var halfway: float = deg_to_rad(45.0)
     camera.position = Vector3(6.0 * sin(halfway), 1.2, 6.0 * cos(halfway))
@@ -108,6 +115,9 @@ func _run() -> void:
                 missed += 1
             if in_lie and not in_source:
                 overflow += 1
+    if shared + missed < 20:
+        _fail("Invalid or black original GLB reference: fewer than 20 visible foreground samples")
+        return
     var approx_iou: float = float(shared) / float(maxi(either, 1))
     print("LIE-05 SAME-CAMERA SILHOUETTE DIAGNOSTIC overlap=%.3f missed=%d extra=%d (threshold-based, not PSNR)" %
         [approx_iou, missed, overflow])
