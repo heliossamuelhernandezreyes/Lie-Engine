@@ -15,6 +15,7 @@ var _pipeline: RID
 var _set: RID
 var _buffers: Array[RID]=[]
 var _count: int=0
+var _triangle_count: int=-1
 var _light_count: int=0
 var _bounces: int=2
 var _serial: int=0
@@ -31,16 +32,22 @@ func configure(model: Dictionary) -> bool:
         push_error(failure)
         return false
     var count: int=(model["patches"] as Array).size()
+    var triangle_count: int=(model.get("triangles",[]) as Array).size()
+    if _triangle_count!=-1 and triangle_count!=_triangle_count:
+        failure="Triangle count change requires a new effect allocation"
+        push_error(failure)
+        return false
     if _count!=0 and count!=_count:
         failure="Patch count change requires a new effect allocation"
         push_error(failure)
         return false
     _count=count
+    _triangle_count=triangle_count
     var dims:=PackedInt32Array([count,(model["lights"] as Array).size(),int(model.get("bounces",2)),(model.get("blockers",[]) as Array).size()])
     var config: PackedByteArray=dims.to_byte_array()
-    config.append_array(PackedFloat32Array([0.0025,0.0,0.0,0.0]).to_byte_array())
+    config.append_array(PackedFloat32Array([0.0025,0.0,float((model.get("triangles",[]) as Array).size()),0.0]).to_byte_array())
     var next: Dictionary={0:Model.patch_bytes(model),1:Model.light_bytes(model),
-        2:Model.factor_bytes(model),8:config,9:Model.blocker_bytes(model)}
+        2:Model.factor_bytes(model),8:config,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model)}
     _lock.lock()
     _serial+=1
     next["serial"]=_serial
@@ -52,7 +59,7 @@ func configure(model: Dictionary) -> bool:
 
 func set_light_codes(model: Dictionary) -> void:
     # A moving light changes a small persistent buffer; the spatial graph is reused.
-    if not Model.valid(model) or (model["lights"] as Array).size()!=_light_count:
+    if not Model.valid_light_codes(model.get("lights",[])) or (model["lights"] as Array).size()!=_light_count:
         return
     var data: PackedByteArray=Model.light_bytes(model)
     _lock.lock()
@@ -89,7 +96,7 @@ func _initialize_gpu(data: Dictionary) -> bool:
     caps.resize(16)
     var initial: Array[PackedByteArray]=[
         data[0],data[1],data[2],weights.to_byte_array(),caps.to_byte_array(),
-        float_zeros.to_byte_array(),float_zeros.to_byte_array(),float_zeros.to_byte_array(),data[8],data[9]]
+        float_zeros.to_byte_array(),float_zeros.to_byte_array(),float_zeros.to_byte_array(),data[8],data[9],data[11]]
     var uniforms: Array[RDUniform]=[]
     for binding in range(initial.size()):
         var bytes: PackedByteArray=initial[binding]
@@ -99,12 +106,12 @@ func _initialize_gpu(data: Dictionary) -> bool:
             return false
         _buffers.append(rid)
         allocation_bytes+=bytes.size()
-        uniforms.append(_uniform(binding,rid))
+        uniforms.append(_uniform(11 if binding==10 else binding,rid))
     var format:=RDTextureFormat.new()
     format.width=_count
     format.height=1
     format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
-    format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
+    format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT|RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
     output_rid=_rd.texture_create(format,RDTextureView.new(),[])
     if not output_rid.is_valid():
         failure="Unable to allocate LIE-11 irradiance texture"
@@ -136,7 +143,7 @@ func _render_callback(kind: int, _render_data: RenderData) -> void:
     for key in data:
         if key is int:
             var bytes: PackedByteArray=data[key]
-            _rd.buffer_update(_buffers[key],0,bytes.size(),bytes)
+            _rd.buffer_update(_buffers[10 if key==11 else key],0,bytes.size(),bytes)
     if data.has("lights"):
         _light_count=int(data["lights"])
         _bounces=int(data["bounces"])
@@ -174,6 +181,17 @@ func readback() -> Dictionary:
     var copy: Dictionary=_readback.duplicate()
     _lock.unlock()
     return copy
+
+func diagnostic_reference_codes(values: Array) -> void:
+    # Deliberate oracle substitution for acceptance only, never runtime lighting.
+    if values.size()!=_count: return
+    var data:=PackedFloat32Array()
+    for row in values:
+        data.append_array(PackedFloat32Array([float(row[0]),float(row[1]),float(row[2]),1.0]))
+    RenderingServer.call_on_render_thread(Callable(self,"_write_reference_codes").bind(data.to_byte_array()))
+
+func _write_reference_codes(data: PackedByteArray) -> void:
+    if gpu_ready: _rd.texture_update(output_rid,0,data)
 
 func shutdown() -> void:
     enabled=false

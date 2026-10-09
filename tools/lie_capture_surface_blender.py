@@ -25,6 +25,7 @@ def arguments():
     parser.add_argument("--azimuth-steps", default=16, type=int)
     parser.add_argument("--elevations", default="-30,0,30")
     parser.add_argument("--resolution", default=256, type=int)
+    parser.add_argument("--coded-lighting", action="store_true", help="Export LIE-12 grayscale/material/node contract and invisible lighting proxy")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
     args = parser.parse_args(argv)
     args.angles = [float(v) for v in args.elevations.split(",")]
@@ -240,6 +241,9 @@ def main():
     }
     (args.out / "manifest.json").write_text(
         json.dumps(output, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+    if args.coded_lighting:
+        from lie_coded_capture_blender import export_codes
+        export_codes(meshes, original_materials, output, args.out)
     print(f"LIE-02 BLENDER CAPTURE PASS views={len(items)} channels=3 resolution={args.resolution}")
 
 

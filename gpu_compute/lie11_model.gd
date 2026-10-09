@@ -60,6 +60,9 @@ static func factor_bytes(model: Dictionary) -> PackedByteArray:
             var pb: Vector3=vector(b["position"])
             var d: Vector3=pb-pa
             var d2: float=d.length_squared()
+            var visibility: Array=model.get("mesh_visibility",[])
+            if not visibility.is_empty() and int(visibility[i*n+j])==0:
+                continue
             if d2<0.0000000001 or blocked(pa,pb,model.get("blockers",[])):
                 continue
             var direction: Vector3=d.normalized()
@@ -68,13 +71,18 @@ static func factor_bytes(model: Dictionary) -> PackedByteArray:
             var coupling: float=float(a["area"])*float(b["area"])*ca*cb/(PI*d2)
             factors[i*n+j]=coupling/float(a["area"])
             factors[j*n+i]=coupling/float(b["area"])
+    var rows:=PackedFloat32Array()
+    rows.resize(n)
     for i in range(n):
         var row: float=0.0
         for j in range(n):
             row+=factors[i*n+j]
         largest_row=maxf(largest_row,row)
-    for i in range(factors.size()):
-        factors[i]/=largest_row
+        rows[i]=row
+    for i in range(n):
+        for j in range(n):
+            var cap: float=maxf(1.0,maxf(rows[i],rows[j])) if model.get("factor_normalization", "global")=="symmetric_local" else largest_row
+            factors[i*n+j]/=cap
     return factors.to_byte_array()
 
 static func patch_bytes(model: Dictionary) -> PackedByteArray:
@@ -116,12 +124,36 @@ static func blocker_bytes(model: Dictionary) -> PackedByteArray:
         index+=1
     return output.to_byte_array()
 
+static func triangle_bytes(model: Dictionary) -> PackedByteArray:
+    var output:=PackedFloat32Array()
+    for triangle in model.get("triangles",[]):
+        for point in triangle:
+            var v: Vector3=vector(point)
+            output.append_array(PackedFloat32Array([v.x,v.y,v.z,0.0]))
+    if output.is_empty(): output.resize(12)
+    return output.to_byte_array()
+
 static func valid(model: Dictionary) -> bool:
     if int(model.get("schema",0))!=1:
         return false
+    if model.get("factor_normalization","global") not in ["global","symmetric_local"]: return false
     var patches: Array=model.get("patches",[])
     var lights: Array=model.get("lights",[])
     var boxes: Array=model.get("blockers",[])
+    var triangles: Array=model.get("triangles",[])
+    if triangles.size()>16384: return false
+    for triangle in triangles:
+        if not triangle is Array or triangle.size()!=3: return false
+        for point in triangle:
+            if not point is Array or point.size()!=3 or not vector(point).is_finite(): return false
+    var visibility: Array=model.get("mesh_visibility",[])
+    if not visibility.is_empty():
+        var n: int=patches.size()
+        if visibility.size()!=n*n: return false
+        for i in range(n):
+            for j in range(n):
+                if float(visibility[i*n+j])!=0.0 and float(visibility[i*n+j])!=1.0: return false
+                if visibility[i*n+j]!=visibility[j*n+i]: return false
     if patches.is_empty() or patches.size()>1024 or lights.is_empty() or lights.size()>16 or boxes.size()>16:
         return false
     for p in patches:
@@ -142,14 +174,7 @@ static func valid(model: Dictionary) -> bool:
             return false
         if minf(tint.x,minf(tint.y,tint.z))<0.0 or maxf(tint.x,maxf(tint.y,tint.z))>1.0:
             return false
-    for light in lights:
-        if (light.get("position",[]) as Array).size()!=3 or (light.get("power_rgb",[]) as Array).size()!=3:
-            return false
-        var position: Vector3=vector(light["position"])
-        var power: Vector3=vector(light["power_rgb"])
-        var radius: float=float(light.get("radius",0))
-        if not position.is_finite() or not power.is_finite() or minf(power.x,minf(power.y,power.z))<0 or not is_finite(radius) or radius<=0:
-            return false
+    if not valid_light_codes(lights): return false
     for bounds in boxes:
         if (bounds as Array).size()!=2 or (bounds[0] as Array).size()!=3 or (bounds[1] as Array).size()!=3:
             return false
@@ -158,3 +183,15 @@ static func valid(model: Dictionary) -> bool:
         if not low.is_finite() or not high.is_finite() or low.x>=high.x or low.y>=high.y or low.z>=high.z:
             return false
     return int(model.get("bounces",2))>=0 and int(model.get("bounces",2))<=8
+
+static func valid_light_codes(lights: Array) -> bool:
+    # Light-only updates do not revalidate the O(N^2) immutable visibility cache.
+    if lights.is_empty() or lights.size()>16: return false
+    for light in lights:
+        if not light is Dictionary: return false
+        if (light.get("position",[]) as Array).size()!=3 or (light.get("power_rgb",[]) as Array).size()!=3: return false
+        var position: Vector3=vector(light["position"])
+        var power: Vector3=vector(light["power_rgb"])
+        var radius: float=float(light.get("radius",0))
+        if not position.is_finite() or not power.is_finite() or minf(power.x,minf(power.y,power.z))<0 or not is_finite(radius) or radius<=0: return false
+    return true
