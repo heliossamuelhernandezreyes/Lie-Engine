@@ -219,9 +219,12 @@ func _render_callback(kind: int, render_data: RenderData) -> void:
     _rd.compute_list_end()
     frame_count += 1
 
-func _notification(what: int) -> void:
-    if what == NOTIFICATION_PREDELETE and _rd != null:
-        RenderingServer.call_on_render_thread(_release_gpu)
+func shutdown() -> void:
+    # Call while a strong reference to this effect still exists, not from
+    # NOTIFICATION_PREDELETE: Godot invalidates 'self' during destruction.
+    enabled = false
+    if _rd != null:
+        RenderingServer.call_on_render_thread(Callable(self,"_release_gpu"))
 
 func _release_gpu() -> void:
     if _rd == null:

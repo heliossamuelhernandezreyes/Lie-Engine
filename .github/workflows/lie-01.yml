@@ -114,8 +114,8 @@ jobs:
         with:
           name: lie-08-gpu-viewport-orbit
           path: |
-            lie-08-viewport-0.png
-            lie-08-viewport-35.png
+            gpu_compute/lie-08-viewport-0.png
+            gpu_compute/lie-08-viewport-35.png
           if-no-files-found: error
 
       - name: Install Blender for real three-channel fixture

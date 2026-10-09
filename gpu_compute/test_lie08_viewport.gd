@@ -28,13 +28,17 @@ func _run() -> void:
     if center.b < corner.b + 0.08:
         _fail("No GPU-origin object visible at screen center: "+str(center)+" corner "+str(corner))
         return
-    first.save_png("lie-08-viewport-0.png")
+    if first.save_png(ProjectSettings.globalize_path("res://lie-08-viewport-0.png")) != OK:
+        _fail("Unable to write screenshot 0")
+        return
     lab.set("yaw_degrees",35.0)
     lab.call("_move_camera")
     for i in range(20):
         await process_frame
     var second: Image = get_root().get_texture().get_image()
-    second.save_png("lie-08-viewport-35.png")
+    if second.save_png(ProjectSettings.globalize_path("res://lie-08-viewport-35.png")) != OK:
+        _fail("Unable to write screenshot 35")
+        return
     var delta := 0.0
     for y in range(60,196,4):
         for x in range(60,196,4):
@@ -45,6 +49,9 @@ func _run() -> void:
         _fail("Orbit did not change captured GPU pixels; delta="+str(delta))
         return
     print("LIE-08 VIEWPORT PASS global_device=true composited=true screenshot=true orbit_changed=true delta=",delta)
+    lab.queue_free()
+    for i in range(4):
+        await process_frame
     quit(0)
 
 func _fail(reason: String) -> void:

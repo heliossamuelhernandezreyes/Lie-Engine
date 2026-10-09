@@ -34,3 +34,7 @@ func _move_camera() -> void:
     camera.position = Vector3(4.5*sin(rad),0.0,4.5*cos(rad))
     camera.look_at(Vector3.ZERO,Vector3.UP)
     effect.set_view_yaw_degrees(yaw_degrees)
+
+func _exit_tree() -> void:
+    if effect != null:
+        effect.call("shutdown")
