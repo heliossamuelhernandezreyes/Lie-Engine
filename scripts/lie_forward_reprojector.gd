@@ -53,6 +53,7 @@ static func reconstruct(
         source_hits.append(0)
         var color_image: Image = source.get("albedo")
         var depth_image: Image = source.get("depth")
+        var normal_image: Image = source.get("normal")
         if color_image == null or depth_image == null:
             continue
         if color_image.is_empty() or depth_image.is_empty():
@@ -61,8 +62,8 @@ static func reconstruct(
         var h: int = color_image.get_height()
         if depth_image.get_width() != w or depth_image.get_height() != h:
             continue
-        var strength: float = maxf(0.0, float(source.get("weight", 0.0)))
-        if strength < 0.0001:
+        var source_strength: float = maxf(0.0, float(source.get("weight", 0.0)))
+        if source_strength < 0.0001:
             continue
         var az: int = int(source.get("azimuth", 0))
         var elev: float = float(source.get("elevation", 0.0))
@@ -80,6 +81,24 @@ static func reconstruct(
                 var sample_local: Vector3 = Mesher.pixel_position(
                     u, v, d, capture, az, azimuth_steps, elev)
                 var world_position: Vector3 = node_world * sample_local
+                var strength: float = source_strength
+                # Normal confidence is applied only when a real normal capture
+                # exists. The source normals are Blender-world encoded XYZ.
+                if normal_image != null and normal_image.get_size() == color_image.get_size():
+                    var nc: Color = normal_image.get_pixel(px, py)
+                    var in_blender := Vector3(nc.r*2.0-1.0,
+                        nc.g*2.0-1.0, nc.b*2.0-1.0)
+                    var lie_normal := Vector3(in_blender.x,in_blender.z,-in_blender.y)
+                    if lie_normal.length_squared() > 0.01:
+                        var world_normal: Vector3 = (
+                            node_world.basis.orthonormalized() * lie_normal).normalized()
+                        var view_vector: Vector3 = (camera.global_position-world_position).normalized()
+                        var facing: float = world_normal.dot(view_vector)
+                        # Reject actual reverse-facing surfaces; attenuate
+                        # glancing angles instead of interpolating a backface.
+                        if facing < -0.1:
+                            continue
+                        strength *= clampf((facing+0.15)/0.85,0.05,1.0)
                 if camera.is_position_behind(world_position):
                     continue
                 var current_z: float = -(camera_inverse * world_position).z

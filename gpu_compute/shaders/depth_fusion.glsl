@@ -23,7 +23,7 @@ const float DEPTH_TOLERANCE = 0.07;
 
 void main() {
     uint pixel = gl_GlobalInvocationID.x;
-    if (pixel >= result.pixels.length()) {
+    if (pixel >= uint(result.pixels.length())) {
         return;
     }
     uint first = pixel * 4u;

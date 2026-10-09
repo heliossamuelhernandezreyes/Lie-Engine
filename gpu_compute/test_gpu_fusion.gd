@@ -1,9 +1,6 @@
 extends SceneTree
-# Mandatory GPU execution test; never print PASS on an unsupported backend.
-# Run with Godot --path gpu_compute --rendering-method gl_compatibility? NO.
-# Use --rendering-method gl_compatibility only for non-compute tests;
-# this test requires --rendering-method gl_compatibility override ABSENT,
-# configured Forward+ using --rendering-method gl_compatibility? See project.
+# Mandatory Vulkan compute execution test, never skip unavailable hardware.
+# Run using the dedicated gpu_compute/project.godot (Forward+) under Vulkan.
 func _initialize() -> void:
     call_deferred("_run")
 
