@@ -25,6 +25,8 @@ func _run() -> void:
     var coverages := []
     var hashes := []
     var angle_codes := []
+    var build_times_ms := []
+    var midpoint_hits := []
     for degrees in [0.0, 45.0, 90.0]:
         var radians: float = deg_to_rad(degrees)
         camera.position = Vector3(6.0 * sin(radians), 1.2, 6.0 * cos(radians))
@@ -42,6 +44,9 @@ func _run() -> void:
             return
         coverages.append(covered)
         angle_codes.append(str(node.get("last_code")))
+        build_times_ms.append(float(node.get("last_build_time_usec")) / 1000.0)
+        if absf(degrees - 45.0) < 0.1:
+            midpoint_hits = node.get("last_source_hits")
         for frame in range(10):
             await process_frame
         var frame_image: Image = root.get_texture().get_image()
@@ -79,8 +84,11 @@ func _run() -> void:
         return
     reference.visible = false
     node.visible = true
-    print("LIE-05 BLENDER NOVEL VIEW PASS angles=[0,45,90] coverage=%s codes=%s" %
-        [str(coverages), str(angle_codes)])
+    if midpoint_hits.size() != 2 or int(midpoint_hits[0]) < 1 or int(midpoint_hits[1]) < 1:
+        _fail("45-degree unseen viewpoint did not fuse TWO original captured view sources")
+        return
+    print("LIE-05 BLENDER NOVEL VIEW PASS angles=[0,45,90] coverage=%s codes=%s midpoint_hits=%s cpu_ms=%s" %
+        [str(coverages), str(angle_codes), str(midpoint_hits), str(build_times_ms)])
     quit(0)
 
 func _fail(reason: String) -> void:
