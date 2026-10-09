@@ -34,12 +34,15 @@ func _run() -> void:
         # pixel 2: no foreground.
         [],
         # pixel 3: closer green wins against farther red.
-        [[0,1,0,1,1.5,1,1,1],[1,0,0,1,2.5,1,1,1]]
+        [[0,1,0,1,1.5,1,1,1],[1,0,0,1,2.5,1,1,1]],
+        # pixel 4: at SAME depth a backfacing red surface must not
+        # overpower a properly facing green surface.
+        [[1,0,0,1,1.0,0,1,1],[0,1,0,1,1.0,1,1,1]]
     ])
     var input0: RID = rd.storage_buffer_create(colors.to_byte_array().size(), colors.to_byte_array())
     var input1: RID = rd.storage_buffer_create(props.to_byte_array().size(), props.to_byte_array())
     var output: PackedFloat32Array = PackedFloat32Array()
-    output.resize(4 * 4)
+    output.resize(5 * 4)
     var output_buffer: RID = rd.storage_buffer_create(output.to_byte_array().size(), output.to_byte_array())
     var uniforms := []
     for i in range(3):
@@ -62,7 +65,7 @@ func _run() -> void:
     rd.sync()
     var got: PackedFloat32Array = rd.buffer_get_data(output_buffer).to_float32_array()
     var expected: PackedFloat32Array = PackedFloat32Array([
-        1,0,0,1, 0.25,0,0.75,1, 0,0,0,0, 0,1,0,1
+        1,0,0,1, 0.25,0,0.75,1, 0,0,0,0, 0,1,0,1, 0,1,0,1
     ])
     if got.size() != expected.size():
         _fail("Incorrect GPU output length")
@@ -77,7 +80,7 @@ func _run() -> void:
     rd.free_rid(input0)
     rd.free_rid(input1)
     rd.free_rid(output_buffer)
-    print("LIE-06 GPU PASS actual_compute=true depth_wins=true confidence_crossfade=true empty_alpha=true")
+    print("LIE-06 GPU PASS actual_compute=true depth_wins=true confidence_crossfade=true normal_rejection=true empty_alpha=true")
     quit(0)
 
 func func_add_fixture(colors: PackedFloat32Array, props: PackedFloat32Array, pixels: Array) -> void:
