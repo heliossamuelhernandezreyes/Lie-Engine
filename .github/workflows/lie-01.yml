@@ -117,7 +117,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: lie-05-depth-reprojected-frames
-          path: lie-05-angle-*.png
+          path: lie-05-*.png
           if-no-files-found: error
 
       - name: Real source GLB against Lie pixels, matched camera

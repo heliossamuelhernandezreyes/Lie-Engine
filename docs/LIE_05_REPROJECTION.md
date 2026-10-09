@@ -25,7 +25,7 @@ This is materially different from the LIE-04 two-view Bayer masks: it **reprojec
 
 ## Reproduction and evidence
 
-When working from a repository without generated assets, build the Blender 4.x channels first (see README). To test a real captured asset in Godot, set `azimuth_steps=4` for the CI fixture or export 16 azimuths for the normal lab.
+A new checkout can run the default lab using a visibly labeled synthetic placeholder. To demonstrate actual photographic/depth reprojection, build the Blender 4.x channels first (see README). To test a real captured asset in Godot, set `azimuth_steps=4` for the CI fixture or export 16 azimuths for the normal lab.
 
 ```sh
 python -m unittest discover -s tests -p 'test_*.py' -v
@@ -34,4 +34,4 @@ godot --headless --path . --script res://tests/test_lie_05_forward.gd
 xvfb-run -a godot --path . --script res://tests/test_lie_05_blender_reprojection.gd
 ```
 
-The CI native frames at 0°, 45°, 90° are exported as an artifact. They demonstrate novel camera pose projection and visible geometry, **not** similarity to an unseen-angle ground truth or an improvement over conventional rasterization. The next necessary experiment is matched-camera comparison with the source mesh at unseen angles, with quantitative silhouette and occlusion error.
+The CI native frames at 0°, 45°, 90° plus an **original GLB reference from the same 45° camera** are exported as an artifact. They demonstrate novel camera pose projection and visible geometry, **not** similarity to an unseen-angle ground truth or an improvement over conventional rasterization. The next necessary experiment is matched-camera comparison with the source mesh at unseen angles, with quantitative silhouette and occlusion error.
