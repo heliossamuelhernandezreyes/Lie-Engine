@@ -178,6 +178,9 @@ func _make_image_uniform(binding: int, id: RID) -> RDUniform:
 func _reprojection_file() -> RDShaderFile:
     return REPROJECTION_SHADER
 
+func _composite_file() -> RDShaderFile:
+    return COMPOSITE_SHADER
+
 func _extra_reprojection_uniforms() -> Array[RDUniform]:
     return []
 
@@ -189,7 +192,7 @@ func _initialize_gpu() -> bool:
         push_error("LIE-08 requires RenderingDevice renderer (Vulkan)")
         return false
     var proj_spirv := _reprojection_file().get_spirv()
-    var composite_spirv := COMPOSITE_SHADER.get_spirv()
+    var composite_spirv := _composite_file().get_spirv()
     var proj_error: String = proj_spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
     var composite_error: String = composite_spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
     if proj_error != "" or composite_error != "":

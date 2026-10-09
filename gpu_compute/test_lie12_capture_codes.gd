@@ -120,6 +120,7 @@ func _run() -> void:
         return
     lab.set("yaw_degrees",0.0)
     for k in range(10): await process_frame
+    var native_baseline: Image=get_root().get_texture().get_image()
     var tex:=Image.create(16,16,false,Image.FORMAT_RGBA8)
     tex.fill(Color(0,1,0))
     var sprite:=Sprite3D.new()
@@ -145,6 +146,12 @@ func _run() -> void:
     for k in range(8): await process_frame
     var rear: Image=get_root().get_texture().get_image()
     _save(rear,"lie12-native-rear.png")
+    var base_color: Color=native_baseline.get_pixel(middle.x,middle.y)
+    var rear_color: Color=rear.get_pixel(middle.x,middle.y)
+    var rear_leak: float=absf(base_color.r-rear_color.r)+absf(base_color.g-rear_color.g)+absf(base_color.b-rear_color.b)
+    if rear_leak>.005:
+        _fail("Opaque captured pixel contains color from rear native sprite: "+str(rear_leak))
+        return
     if _difference(front,rear)<.003:
         _fail("Native/capture depth ordering did not react")
         return
@@ -157,6 +164,7 @@ func _run() -> void:
         "rejected_mixed_depth_pixels":metadata["rejected_mixed_depth_pixels"],"rejected_mixed_depth_fraction":metadata["rejected_mixed_depth_fraction"],
         "scenarios":cases,"floor_red_power_reduction_at_high_absorption":floor_red_drop,"floor_green_power_reduction":floor_green_drop,
         "perspective_area_ratio_at_1_5x_distance":ratio,"native_front_rear_depth_test":"passed",
+        "rear_native_color_leak_at_opaque_capture_pixel":rear_leak,
         "limitations":"Four 128-square views, 256-square reprojection, constant opaque source material colors, clustered diffuse transport, static geometry visibility cache; no native depth writeback, specular, transmission or mobile FPS claim."}
     var file: FileAccess=FileAccess.open("res://lie12-diagnostic.json",FileAccess.WRITE)
     file.store_string(JSON.stringify(report,"  "))

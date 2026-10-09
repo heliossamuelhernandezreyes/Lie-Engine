@@ -1,6 +1,7 @@
 extends "res://lie10_blender_effect.gd"
 ## Same GPU reprojection/depth composition, new grayscale/material/node consumer.
 const CodedShader: RDShaderFile=preload("res://shaders/lie12_pipeline.glsl")
+const OpaqueComposite: RDShaderFile=preload("res://shaders/lie12_composite.glsl")
 const ROOT: String="res://captures/coded_shard/"
 var lighting: CompositorEffect
 var metadata: Dictionary={}
@@ -41,6 +42,9 @@ func _make_blender_capture() -> void:
 
 func _reprojection_file() -> RDShaderFile:
     return CodedShader
+
+func _composite_file() -> RDShaderFile:
+    return OpaqueComposite
 
 func _light_data(_mode: int) -> PackedFloat32Array:
     return _pixel_filters
