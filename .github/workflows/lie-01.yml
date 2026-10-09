@@ -44,6 +44,16 @@ jobs:
             lie-01-view-*.png
           if-no-files-found: error
 
+      - name: LIE-03 compile depth mesh scripts
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_depth_mesher.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_depth_node.gd
+
+      - name: LIE-03 depth and invisible physical node validation
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_depth_mesher.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_depth_scene.gd
+
       - name: Install Blender for real three-channel fixture
         run: |
           sudo apt-get update -qq
@@ -61,6 +71,17 @@ jobs:
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_blender_import.gd
+
+      - name: LIE-03 actual red-blue depth occlusion from opposite cameras
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_depth_occlusion.gd
+
+      - name: Preserve opposite-camera Z-occlusion evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-03-depth-occlusion-frames
+          path: lie-03-*.png
+          if-no-files-found: error
 
       - name: Real source GLB against Lie pixels, matched camera
         run: |
