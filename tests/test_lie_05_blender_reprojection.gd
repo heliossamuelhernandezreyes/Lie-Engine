@@ -71,6 +71,16 @@ func _run() -> void:
     var reference: Node3D = ref_resource.instantiate() as Node3D
     reference.name = "GroundTruthSourceMesh"
     scene.add_child(reference)
+    # Captured Lie coordinates are relative to the Blender orbit/bounds
+    # center. Move the original GLB by its mapped center for a fair comparison.
+    var json_text: String = FileAccess.get_file_as_string(
+        "res://assets/captures/demo_shard/manifest.json")
+    var manifest: Variant = JSON.parse_string(json_text)
+    if not manifest is Dictionary or not manifest.has("center_blender"):
+        _fail("Missing capture center required for matched reference alignment")
+        return
+    var center: Array = manifest["center_blender"]
+    reference.position = -Vector3(float(center[0]), float(center[2]), -float(center[1]))
     # Imported glTF uses PBR, while Lie RGB captures are intentionally unlit.
     # Supply explicit light to avoid a nearly-black, invalid ground truth.
     var reference_light := DirectionalLight3D.new()
