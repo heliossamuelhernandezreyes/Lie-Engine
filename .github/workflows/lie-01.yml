@@ -131,6 +131,27 @@ jobs:
           python tools/validate_lie_surface.py assets/captures/demo_shard
           cp /tmp/lie-02-fixture.glb assets/captures/demo_shard/source.glb
 
+      - name: 'LIE-09 import actual Blender captures into GPU viewport project'
+        run: |
+          mkdir -p gpu_compute/captures
+          cp -a assets/captures/demo_shard gpu_compute/captures/demo_shard
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+
+      - name: 'LIE-09 GPU Blender normals + native depth front/rear'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie09_capture.gd
+
+      - name: LIE-09 real capture and occlusion evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-09-blender-depth-native-occlusion
+          path: |
+            gpu_compute/lie-09-real-0.png
+            gpu_compute/lie-09-real-35.png
+            gpu_compute/lie-09-native-front.png
+            gpu_compute/lie-09-native-rear.png
+          if-no-files-found: error
+
       - name: Import Blender capture into Godot and prove real channel selection
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit
