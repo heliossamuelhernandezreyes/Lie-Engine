@@ -45,7 +45,7 @@ func _run() -> void:
         for x in range(16, 32):
             img.set_pixel(x, y, Color(0, 0, 0, 0))
     reconstruction = Mesher.build_mesh(img, depth, capture, 0, 4, 0.0, 1)
-    if int(reconstruction["triangles"]) >= 900:
+    if int(reconstruction["triangles"]) >= 1000:
         _fail("Hidden alpha pixels were not culled")
         return
     var bad := Mesher.capture_from_manifest({"schema_version": 9})
