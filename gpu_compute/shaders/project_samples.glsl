@@ -26,17 +26,17 @@ void main() {
     if(i>=uint(inputs.sample.length()) || i>=uint(output_data.result.length())) {
         return;
     }
-    vec4 sample=inputs.sample[i];
-    if(sample.w<0.5) {
+    vec4 sample_data=inputs.sample[i];
+    if(sample_data.w<0.5) {
         output_data.result[i]=vec4(0.0);
         return;
     }
     vec4 metrics=params.data[8];
     vec4 target=params.data[9];
-    float meters=mix(metrics.y,metrics.z,clamp(sample.z,0.0,1.0));
+    float meters=mix(metrics.y,metrics.z,clamp(sample_data.z,0.0,1.0));
     vec3 world_point=params.data[0].xyz
-        +(sample.x-0.5)*metrics.x*params.data[1].xyz
-        +(0.5-sample.y)*metrics.x*params.data[2].xyz
+        +(sample_data.x-0.5)*metrics.x*params.data[1].xyz
+        +(0.5-sample_data.y)*metrics.x*params.data[2].xyz
         +meters*params.data[3].xyz;
     vec3 relative=world_point-params.data[4].xyz;
     float depth=dot(relative,params.data[7].xyz);
