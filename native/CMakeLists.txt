@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.16)
+project(LieViewMath LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_executable(lie_view_math_test test_view_math.cpp)
+enable_testing()
+add_test(NAME lie_view_math COMMAND lie_view_math_test)
