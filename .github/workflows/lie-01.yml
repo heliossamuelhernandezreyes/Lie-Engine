@@ -47,12 +47,13 @@ jobs:
       - name: Install Blender for real three-channel fixture
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-numpy
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-expr 'import numpy; print("BLENDER NUMPY READY", numpy.__version__)'
 
       - name: Generate one actual Blender glTF fixture and capture channels
         run: |
-          blender --background --python tools/create_lie_fixture_blender.py -- /tmp/lie-02-fixture.glb
-          xvfb-run -a -s '-screen 0 1280x720x24' blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie-02-fixture.glb --out assets/captures/demo_shard --azimuth-steps 4 --elevations=-30,0,30 --resolution 128
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python tools/create_lie_fixture_blender.py -- /tmp/lie-02-fixture.glb
+          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 1280x720x24' blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie-02-fixture.glb --out assets/captures/demo_shard --azimuth-steps 4 --elevations=-30,0,30 --resolution 128
           python tools/validate_lie_surface.py assets/captures/demo_shard
 
       - name: Import Blender capture into Godot and prove real channel selection
