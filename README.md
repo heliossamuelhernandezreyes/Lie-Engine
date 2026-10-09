@@ -1,10 +1,14 @@
-# Lie Engine — LIE-01 through LIE-08
+# Lie Engine — LIE-01 through LIE-09
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
 
-## LIE-08 — active GPU viewport laboratory (experimental branch)
+## LIE-09 — Blender captures, GPU normals and native depth (experimental)
+
+The separate Godot `gpu_compute/` Forward+ project now starts `lie09_lab.tscn`. It loads four actual Blender-generated albedo/depth/normal views (not source triangles), reprojects samples in a GPU compute pipeline and compares Lie depth against a conventional Godot rasterized depth buffer. The automatic test puts a red native cube both in front of and behind the same Lie source. This requires generated `gpu_compute/captures/demo_shard` assets — see [LIE-09 instructions](docs/LIE_09_BLENDER_OCCLUSION.md). No claims of AAA visual quality or faster-than-raster performance.
+
+## LIE-08 — GPU synthetic viewport laboratory (previous milestone)
 
 The *separate* `gpu_compute/` Godot Forward+ project now has `lie08_lab.tscn` as its startup scene. Open that project in Godot 4.7.2 with Vulkan, press **Play** and use left/right arrows to orbit a procedural spherical source. The same global RenderingDevice computes four-view depth projection, z-buffer confidence fusion and an RGBA32F image, and a CompositorEffect displays it directly in the Godot viewport without a CPU image readback or 3D mesh reconstruction each frame. The sphere is a **mathematical fixture, not a Blender asset**.
 
