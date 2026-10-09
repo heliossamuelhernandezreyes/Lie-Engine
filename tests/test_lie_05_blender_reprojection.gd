@@ -82,6 +82,35 @@ func _run() -> void:
             "res://lie-05-reference-3d-45.png") != OK:
         _fail("Could not preserve matched-camera original GLB reference")
         return
+    # Approximate foreground-mask overlap with the native source model.
+    # It is a diagnostic score, not a photometric or perceptual quality test.
+    var lie_frame: Image = Image.load_from_file("res://lie-05-angle-45.png")
+    var shared: int = 0
+    var either: int = 0
+    var missed: int = 0
+    var overflow: int = 0
+    var background := Color("#0a1726")
+    var cx: int = reference_frame.get_width() / 2
+    var cy: int = reference_frame.get_height() / 2
+    for y in range(cy - 185, cy + 185, 2):
+        for x in range(cx - 185, cx + 185, 2):
+            var a: Color = lie_frame.get_pixel(x, y)
+            var b: Color = reference_frame.get_pixel(x, y)
+            var in_lie: bool = (absf(a.r - background.r) + absf(a.g - background.g)
+                + absf(a.b - background.b)) > 0.35
+            var in_source: bool = (absf(b.r - background.r) + absf(b.g - background.g)
+                + absf(b.b - background.b)) > 0.35
+            if in_lie or in_source:
+                either += 1
+            if in_lie and in_source:
+                shared += 1
+            if in_source and not in_lie:
+                missed += 1
+            if in_lie and not in_source:
+                overflow += 1
+    var approx_iou: float = float(shared) / float(maxi(either, 1))
+    print("LIE-05 SAME-CAMERA SILHOUETTE DIAGNOSTIC overlap=%.3f missed=%d extra=%d (threshold-based, not PSNR)" %
+        [approx_iou, missed, overflow])
     reference.visible = false
     node.visible = true
     if midpoint_hits.size() != 2 or int(midpoint_hits[0]) < 1 or int(midpoint_hits[1]) < 1:
