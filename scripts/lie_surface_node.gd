@@ -63,8 +63,8 @@ func update_surface() -> void:
     var step: float = 360.0 / float(azimuth_steps)
     var az_residual: float = wrapf(float(pose["azimuth_degrees"]) -
         float(pose["azimuth_index"]) * step, -180.0, 180.0)
-    var el_residual: float = float(pose["elevation_degrees"]) -
-        float(elevation_degrees[int(pose["elevation_index"])])
+    var el_residual: float = (float(pose["elevation_degrees"])
+        - float(elevation_degrees[int(pose["elevation_index"])]))
     # Residuals are bounded angular fractions. Not a geometric reprojection.
     surface_material.set_shader_parameter("view_delta",
         Vector2(clampf(az_residual / step, -1.0, 1.0),
