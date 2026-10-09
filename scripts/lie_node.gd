@@ -22,7 +22,7 @@ func _ready() -> void:
     visual.shaded = false
     visual.pixel_size = 0.014
     visual.centered = true
-    visual.position.y = 1.4
+    visual.position = Vector3.ZERO
 
 
 func _process(_delta: float) -> void:

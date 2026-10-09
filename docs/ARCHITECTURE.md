@@ -12,6 +12,7 @@ For some mobile scene classes, a *camera-indexed image-based surface* may provid
 - Convention: node-local **+Z front = azimuth zero**, +X = 90 degrees, +Y up.
 - Sampling: equally spaced azimuth indices; user-specified elevation degrees. Nearest angular neighbor. Keys `az_XX_el_YY`.
 - No arbitrary XYZ exact-match lookup: continuous positions cannot yield a finite exact photographic image library.
+- Anchor node origin must coincide with the **capture orbit center** of the visual asset (the demo positions it at the capsule midpoint). Angular selection must not accidentally use the actor's feet.
 - Node remains rigid for this gate. Hierarchical parts, overlaps, skeletal attachment and depth compositing are later capabilities.
 - Texture fallback is deliberately synthetic; it only makes selection behavior visible.
 

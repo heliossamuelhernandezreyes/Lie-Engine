@@ -35,6 +35,9 @@ func _capture() -> void:
             _fail("Could not save viewport PNG")
             return
         frame_hashes.append(FileAccess.get_sha256(filename))
+    if keys[0] != "az_00_el_01" or keys[1] != "az_04_el_01":
+        _fail("Camera indexing must use the visual asset center as node origin")
+        return
     if keys[0] == keys[1] or frame_hashes[0] == frame_hashes[1]:
         _fail("Different camera positions did not change view codes and pixels")
         return

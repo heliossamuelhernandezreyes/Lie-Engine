@@ -32,6 +32,7 @@ func _ready() -> void:
 
     visual_node = LieNode.new()
     visual_node.name = "LieNode_Demo"
+    visual_node.position = Vector3(0, 1.4, 0)
     var sprite := Sprite3D.new()
     sprite.name = "Visual"
     visual_node.add_child(sprite)
