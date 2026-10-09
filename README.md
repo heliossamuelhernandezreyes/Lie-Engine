@@ -10,6 +10,8 @@ The startup scene `scenes/lie_06_lab.tscn` reconstructs a target-camera surface 
 
 A separate **`gpu_compute` Forward+ Vulkan project** runs an actual compute shader that fuses up to four **already projected candidates** per target pixel according to nearest depth, surface confidence and angular weight. This step is really executed on the GPU in CI; the complete projection step remains on CPU in the visible lab. Do not confuse the working GPU compute proof with a fully GPU-driven renderer.
 
+A second Vulkan compute shader `gpu_compute/shaders/project_samples.glsl` performs **per-sample depth unprojection and projection into the current perspective camera**, checked numerically for centered, offset and clipped samples. Its output is not yet connected to the renderer's full screen-space scatter.
+
 The `native/` directory contains a C++17 angular selector, compiled and verified by CTest. It is **not yet wired through GDExtension** into Godot. Production mobile speed, reliable continuous crossfade and silhouette improvements are still unproven; read [Lie 0.6 research gates](docs/LIE_06_RESEARCH.md).
 
 ## LIE-05 — target-camera depth reprojection (earlier lab)
