@@ -7,7 +7,7 @@
 // A production scatter/depth-buffer and renderer integration are NOT here.
 layout(local_size_x=64,local_size_y=1,local_size_z=1) in;
 layout(set=0,binding=0,std430) readonly buffer Samples {
-    vec4 sample[];
+    vec4 points[];
 } inputs;
 layout(set=0,binding=1,std430) readonly buffer CaptureAndCamera {
     // 0 source camera origin, 1 source right, 2 source up,
@@ -23,10 +23,10 @@ layout(set=0,binding=2,std430) buffer Projected {
 
 void main() {
     uint i=gl_GlobalInvocationID.x;
-    if(i>=uint(inputs.sample.length()) || i>=uint(output_data.result.length())) {
+    if(i>=uint(inputs.points.length()) || i>=uint(output_data.result.length())) {
         return;
     }
-    vec4 sample_data=inputs.sample[i];
+    vec4 sample_data=inputs.points[i];
     if(sample_data.w<0.5) {
         output_data.result[i]=vec4(0.0);
         return;
