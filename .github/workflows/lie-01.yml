@@ -54,6 +54,15 @@ jobs:
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_depth_mesher.gd
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_depth_scene.gd
 
+      - name: LIE-04 angular interpolation and conservative group visibility
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_visibility.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_angular_pair.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_depth_node.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_visibility.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_angular_pair.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_04_visibility_pipeline.gd
+
       - name: Install Blender for real three-channel fixture
         run: |
           sudo apt-get update -qq
@@ -81,6 +90,17 @@ jobs:
         with:
           name: lie-03-depth-occlusion-frames
           path: lie-03-*.png
+          if-no-files-found: error
+
+      - name: LIE-04 actual adjacent depth views and Bayer coverage frames
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_04_angular_frames.gd
+
+      - name: Preserve native angular blending evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-04-angular-interpolation-frames
+          path: lie-04-angle-*.png
           if-no-files-found: error
 
       - name: Real source GLB against Lie pixels, matched camera
