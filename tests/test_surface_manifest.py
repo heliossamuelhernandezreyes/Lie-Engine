@@ -11,10 +11,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from validate_lie_surface import validate
 
 
-def tiny_rgba_png(bit_depth: int):
+def tiny_rgba_png(bit_depth: int, channel: str = "albedo"):
     # 1x1 rgba at 8 or 16 bits, no alpha interpolation.
     raw = b"\x00" + bytes([10, 20, 30, 255] if bit_depth == 8
-        else [0, 10, 0, 20, 0, 30, 255, 255])
+        else ([0, 10, 0, 20, 0, 30, 255, 255] if channel == "normal"
+              else [0, 25, 0, 35, 0, 45, 255, 255]))
     def chunk(t, p):
         return struct.pack(">I", len(p)) + t + p + struct.pack(">I", zlib.crc32(t + p) & 0xFFFFFFFF)
     return (b"\x89PNG\r\n\x1a\n"
@@ -31,7 +32,7 @@ class SurfaceManifestTests(unittest.TestCase):
             digests = {}
             for ch in ("albedo", "normal", "depth"):
                 n = f"{key}.{ch}.png"
-                data = tiny_rgba_png(8 if ch == "albedo" else 16)
+                data = tiny_rgba_png(8 if ch == "albedo" else 16, ch)
                 (path / n).write_bytes(data)
                 channels[ch] = n
                 digests[ch] = hashlib.sha256(data).hexdigest()

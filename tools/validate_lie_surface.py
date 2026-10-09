@@ -33,6 +33,8 @@ def validate(root: Path) -> int:
         seen.add(key)
         if key != f"az_{view['azimuth_index']:02d}_el_{view['elevation_index']:02d}":
             raise ValueError("Incorrect angular code " + key)
+        if view["sha256"]["normal"] == view["sha256"]["depth"]:
+            raise ValueError("Normal and depth channels are identical: " + key)
         for ch in ("albedo", "normal", "depth"):
             name = view["channels"][ch]
             if name != key + "." + ch + ".png":

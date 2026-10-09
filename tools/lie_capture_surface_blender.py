@@ -175,6 +175,7 @@ def main():
             if s.material not in replacements:
                 replacements[s.material] = flat_albedo_material(s.material)
             s.material = replacements[s.material]
+    albedo_slots = {o.name: [s.material for s in o.material_slots] for o in meshes}
     nmat = normal_material()
     dmat, camera_origin, camera_direction = depth_material(near, far)
 
@@ -191,7 +192,14 @@ def main():
             for channel, mat, bits in (
                 ("albedo", None, 8), ("normal", nmat, 16), ("depth", dmat, 16)
             ):
-                scene.view_layers[0].material_override = mat
+                # EEVEE 4.0 can reuse stale material_override across repeated
+                # background renders. Change actual source material slots so that
+                # the evaluated render always receives the correct pass material.
+                scene.view_layers[0].material_override = None
+                for obj in meshes:
+                    for slot_id, slot in enumerate(obj.material_slots):
+                        slot.material = albedo_slots[obj.name][slot_id] if mat is None else mat
+                bpy.context.view_layer.update()
                 path = args.out / (code + "." + channel + ".png")
                 render_material_pass(scene, path, bits)
                 sha[channel] = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -205,6 +213,9 @@ def main():
                 "sha256": sha,
             })
     scene.view_layers[0].material_override = None
+    for obj in meshes:
+        for slot_id, slot in enumerate(obj.material_slots):
+            slot.material = albedo_slots[obj.name][slot_id]
     output = {
         "schema_version": 2,
         "generator": "Lie Engine surface capture 0.2",
