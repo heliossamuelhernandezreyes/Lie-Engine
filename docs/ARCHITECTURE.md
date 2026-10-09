@@ -24,7 +24,7 @@ The Blender material appearance is captured with lighting baked into RGBA. This 
 
 ## Next gates (do not claim implemented)
 
-- **LIE-02:** capture + validate alpha/albedo + linear depth + world/object-space normals, camera matrices and near/far conventions; prove reconstruction across unseen angles.
+- **LIE-02 (experimental implementation):** capture + validate alpha/albedo, camera-normalized depth and Blender-world normals, camera matrices and near/far conventions; one-source diffuse relighting and bounded UV parallax. **True reconstruction across unseen angles is NOT yet demonstrated.**
 - **LIE-03:** correct depth write and inter-node occlusion with movable camera; compare to reference 3D.
 - **LIE-04:** physically coherent per-pixel lighting, shadowing, weather and overlapping grouped nodes.
 - **LIE-05:** atlas, texture compression, memory-aware cache, background streaming and device-performance evidence.

@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - name: Python reference tests
@@ -42,6 +42,63 @@ jobs:
           name: lie-01-native-angle-captures
           path: |
             lie-01-view-*.png
+          if-no-files-found: error
+
+      - name: Install Blender for real three-channel fixture
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender python3-numpy
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-expr 'import numpy; print("BLENDER NUMPY READY", numpy.__version__)'
+
+      - name: Generate one actual Blender glTF fixture and capture channels
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python tools/create_lie_fixture_blender.py -- /tmp/lie-02-fixture.glb
+          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 1280x720x24' blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie-02-fixture.glb --out assets/captures/demo_shard --azimuth-steps 4 --elevations=-30,0,30 --resolution 128
+          python tools/validate_lie_surface.py assets/captures/demo_shard
+          cp /tmp/lie-02-fixture.glb assets/captures/demo_shard/source.glb
+
+      - name: Import Blender capture into Godot and prove real channel selection
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_blender_import.gd
+
+      - name: Real source GLB against Lie pixels, matched camera
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_reference_pair.gd
+
+      - name: Upload paired native Godot render evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-02-reference-comparison
+          path: |
+            lie-02-lie-surface.png
+            lie-02-reference-3d.png
+          if-no-files-found: error
+
+      - name: Preserve actual albedo-normal-depth capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-02-blender-surface-fixture
+          path: assets/captures/demo_shard/
+          if-no-files-found: error
+
+      - name: LIE-02 GDScript compilation diagnostic
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_surface_node.gd
+
+      - name: LIE-02 surface node, invisible proxy and changing light
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_surface.gd
+
+      - name: LIE-02 native red-blue lighting framebuffer comparison
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_surface_render.gd
+
+      - name: Upload LIE-02 real native light comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-02-native-light-captures
+          path: lie-02-*.png
           if-no-files-found: error
 
       - name: Headless scene runtime
