@@ -6,6 +6,7 @@ extends Node3D
 const Pair = preload("res://scripts/lie_angular_pair.gd")
 const Mesher = preload("res://scripts/lie_depth_mesher.gd")
 const Forward = preload("res://scripts/lie_forward_reprojector.gd")
+const Synthetic = preload("res://scripts/lie_depth_node.gd")
 const SHADER = preload("res://shaders/lie_reprojection.gdshader")
 
 @export var asset_id := "demo_shard"
@@ -47,11 +48,12 @@ func _process(_delta: float) -> void:
 func _load_capture() -> Dictionary:
     var manifest_path := "res://assets/captures/%s/manifest.json" % asset_id
     if not FileAccess.file_exists(manifest_path):
-        return {}
+        return Mesher.default_capture()
     var json: Variant = JSON.parse_string(FileAccess.get_file_as_string(manifest_path))
     if not json is Dictionary:
-        return {}
-    return Mesher.capture_from_manifest(json)
+        return Mesher.default_capture()
+    var capture: Dictionary = Mesher.capture_from_manifest(json)
+    return capture if not capture.is_empty() else Mesher.default_capture()
 
 func _channels(key: String) -> Dictionary:
     if _cache.has(key):
@@ -60,13 +62,29 @@ func _channels(key: String) -> Dictionary:
     var cp: String = path + ".albedo.png"
     var dp: String = path + ".depth.png"
     if not ResourceLoader.exists(cp, "Texture2D") or not ResourceLoader.exists(dp, "Texture2D"):
-        return {}
+        return _synthetic_channels(key)
     var color: Texture2D = load(cp) as Texture2D
     var depth: Texture2D = load(dp) as Texture2D
     if color == null or depth == null or color.get_size() != depth.get_size():
-        return {}
+        return _synthetic_channels(key)
     var entry: Dictionary = {
-        "albedo": color.get_image(), "depth": depth.get_image()
+        "albedo": color.get_image(), "depth": depth.get_image(), "captured": true
+    }
+    _cache[key] = entry
+    return entry
+
+func _synthetic_channels(key: String) -> Dictionary:
+    # A visible but honestly labeled fallback for a fresh checkout that does
+    # not yet include generated Blender captures. NOT a photographic asset.
+    var index: int = int(key.substr(3, 2))
+    var synthetic: Node3D = Synthetic.new()
+    synthetic.set("azimuth_steps", azimuth_steps)
+    var channels: Dictionary = synthetic.call("_synthetic_view", index)
+    synthetic.free()
+    var entry: Dictionary = {
+        "albedo": (channels["albedo"] as Texture2D).get_image(),
+        "depth": (channels["depth"] as Texture2D).get_image(),
+        "captured": false
     }
     _cache[key] = entry
     return entry
@@ -86,7 +104,7 @@ func rebuild() -> bool:
         using_real_capture = false
         output.mesh = null
         return false
-    using_real_capture = true
+    using_real_capture = bool(source_a.get("captured", false)) and bool(source_b.get("captured", false))
     var first: Dictionary = source_a.duplicate()
     var second: Dictionary = source_b.duplicate()
     first["azimuth"] = int(pair["first"])
