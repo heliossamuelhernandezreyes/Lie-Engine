@@ -2,9 +2,9 @@ config_version=5
 
 [application]
 
-config/name="Lie Engine | LIE-01"
-run/main_scene="res://scenes/lie_lab.tscn"
-config/description="Research prototype: invisible 3D proxy, camera-indexed sprites."
+config/name="Lie Engine | LIE-02"
+run/main_scene="res://scenes/lie_surface_lab.tscn"
+config/description="Research prototype: invisible 3D proxy, indexed albedo/normal/depth surfaces."
 
 [display]
 
