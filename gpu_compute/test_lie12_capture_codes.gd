@@ -118,6 +118,9 @@ func _run() -> void:
     sprite.texture=ImageTexture.create_from_image(tex)
     sprite.pixel_size=.1
     sprite.shaded=false
+    # Fully opaque pixels must join the native depth buffer. Default blended
+    # Sprite3D materials intentionally do not write depth for transparent pixels.
+    sprite.alpha_cut=SpriteBase3D.ALPHA_CUT_DISCARD
     sprite.billboard=BaseMaterial3D.BILLBOARD_ENABLED
     var eye: Vector3=(lab.get("camera") as Camera3D).position
     sprite.position=eye*.4
@@ -126,10 +129,10 @@ func _run() -> void:
     var front: Image=get_root().get_texture().get_image()
     var middle: Vector2i=front.get_size()/2
     var green: Color=front.get_pixel(middle.x,middle.y)
+    _save(front,"lie12-native-front.png")
     if green.g<green.r+.25 or green.g<green.b+.25:
         _fail("Closer native sprite was overwritten by capture compositor")
         return
-    _save(front,"lie12-native-front.png")
     sprite.position=-eye.normalized()*1.5
     for k in range(8): await process_frame
     var rear: Image=get_root().get_texture().get_image()
@@ -184,5 +187,7 @@ func _save(image: Image,name: String) -> void:
 
 func _fail(message: String) -> void:
     failed=true
+    var frame: Image=get_root().get_texture().get_image()
+    if frame!=null: frame.save_png(ProjectSettings.globalize_path("res://lie12-failure.png"))
     printerr("LIE-12 FAIL: ",message)
     quit(1)
