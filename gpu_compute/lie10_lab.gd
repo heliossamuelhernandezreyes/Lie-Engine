@@ -30,7 +30,8 @@ func _process(delta: float) -> void:
     var axis: float = Input.get_axis("ui_left","ui_right")
     if absf(axis)>0.001:
         yaw_degrees = wrapf(yaw_degrees+axis*delta*52.0,0.0,360.0)
-        if Input.is_action_just_pressed("ui_up") or Input.is_action_just_pressed("ui_down"):
+        _move_camera()
+    if Input.is_action_just_pressed("ui_up") or Input.is_action_just_pressed("ui_down"):
         light_mode = 1-light_mode
         effect.set_light_mode(light_mode)
 
