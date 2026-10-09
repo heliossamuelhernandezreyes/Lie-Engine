@@ -109,7 +109,7 @@ not each inserted into the diffuse transport graph.
 Visual and transport sheets use the same schema. The laboratory registers glass
 and water in both consumers by default, so changing material/thickness also changes
 transmitted illumination. Optical acceptance can temporarily isolate the camera
-consumer; a final coupled GPU/oracle case checks the shared registration. An
+consumer; a final coupled GPU/oracle case checks a source moved across the registered sheets. An
 arbitrary native Sprite3D does not automatically become a transport sheet. T
 toggles a documented transport-only sheet fixture.
 The opaque Blender exporter still accepts constant opaque source materials;
@@ -134,8 +134,9 @@ project startup remains the previous lab; launch the LIE-13 scene explicitly.
 
 The LIE-13 workflow generates actual Blender captures, CPU references, imports
 all shaders into Godot/Vulkan, checks GPU irradiance and secondary radii against
-float64, then checks actual optical pixels, thickness, wave animation, ordered
-layers, native/captured depth and perspective size. Evidence is real viewport
+float64, then checks actual optical pixels, a float64 Snell displacement probe, thickness,
+wave animation, ordered layers, native/captured depth, foreground refraction
+sample rejection and perspective size. Evidence is real viewport
 PNG plus machine-readable diagnostics. LIE-11 and LIE-12 regressions also run.
 Software Vulkan is functional evidence, not a claim of mobile or hardware FPS.
 

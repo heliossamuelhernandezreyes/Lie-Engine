@@ -148,16 +148,30 @@ func _run() -> void:
     tex.fill(Color(0,1,0))
     var native:=Sprite3D.new()
     native.texture=ImageTexture.create_from_image(tex)
-    native.pixel_size=.1
+    native.pixel_size=.018
     native.shaded=false
     native.alpha_cut=SpriteBase3D.ALPHA_CUT_DISCARD
     native.billboard=BaseMaterial3D.BILLBOARD_ENABLED
     native.position=camera.position*.4
     lab.add_child(native)
+    var guard: Array=lab.call("optical_sprites","water")
+    guard[0]["wave"]=.15
+    guard[0]["thickness"]=.5
+    optics.call("set_sprites",guard)
+    optics.set("diagnostic_mode",1)
     await settle()
     var green: Color=frame().get_pixelv(midpoint)
     if green.g<green.r+.25 or green.g<green.b+.25: fail("Glass overwrote nearer native sprite"); return
     save("lie13-native-front.png")
+    var guard_data: Dictionary=await read(optics)
+    var guard_coefficients: PackedFloat32Array=guard_data["coefficients"]
+    var rejected: int=0
+    for i in range(guard_coefficients.size()/4):
+        if guard_coefficients[i*4+2]>0 and guard_coefficients[i*4+3]<.5: rejected+=1
+    if rejected==0: fail("Refraction foreground rejection branch was not exercised"); return
+    report["rejected_foreground_refraction_samples"]=rejected
+    optics.set("diagnostic_mode",0)
+    lab.call("set_optical_scene","glass")
     native.queue_free()
     await settle()
     report["native_opaque_depth_test"]="passed"
@@ -176,6 +190,9 @@ func _run() -> void:
     lab.set("link_transmission",true)
     lab.call("set_scenario","bounce")
     lab.call("set_optical_scene","mixed")
+    var linked_model: Dictionary=lab.get("model")
+    linked_model["lights"][0]["position"]=[.1,.65,2.25]
+    lighting.call("set_light_codes",linked_model)
     await settle()
     var linked: Dictionary=await read(lighting)
     var linked_values: PackedFloat32Array=linked["irradiance"]
@@ -185,6 +202,11 @@ func _run() -> void:
         for c in range(3): linked_error=maxf(linked_error,absf(linked_values[i*4+c]-float(linked_expected[i][c])))
     if linked_error>.003: fail("Shared camera/transport material registration differs from oracle"); return
     report["coupled_glass_water_irradiance_error"]=linked_error
+    var transmitted_drop: Array=[0.0,0.0,0.0]
+    for i in range(linked_expected.size()):
+        for c in range(3): transmitted_drop[c]+=float(reference["scenarios"]["coupled_clear"]["total_flux"][i][c])-float(reference["scenarios"]["coupled"]["total_flux"][i][c])
+    if float(transmitted_drop[0])<.00001: fail("Coupled sheets did not filter a crossing primary source"); return
+    report["coupled_rgb_power_reduction_by_sheets"]=transmitted_drop
     save("lie13-coupled.png")
     report["visible_source_meshes"]=0
     report["optical_resolution"]=[256,256]
