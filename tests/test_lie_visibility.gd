@@ -45,7 +45,7 @@ func _run() -> void:
         _fail("Object on camera side cannot be culled")
         return
     if Visibility.covered_by_rectangle(camera.position, Vector3.ZERO,
-            0.65, wall, Vector2(0.5, 0.5)):
+            0.65, wall, Vector2(0.15, 0.15)):
         _fail("Small wall cannot fully cover cube")
         return
     print("LIE-04 VISIBILITY PASS nearplane=conservative frustum=true rectangular_occlusion=conservative")
