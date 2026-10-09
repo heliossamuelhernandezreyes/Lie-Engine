@@ -48,7 +48,12 @@ func _run() -> void:
     if delta < 3.0:
         _fail("Orbit did not change captured GPU pixels; delta="+str(delta))
         return
-    print("LIE-08 VIEWPORT PASS global_device=true composited=true screenshot=true orbit_changed=true delta=",delta)
+    var covered_0: float = _disk_coverage(first,corner)
+    var covered_35: float = _disk_coverage(second,second.get_pixel(8,8))
+    if covered_0 < 0.80 or covered_35 < 0.80:
+        _fail("Large reprojection holes: coverage0=%.3f coverage35=%.3f" % [covered_0,covered_35])
+        return
+    print("LIE-08 VIEWPORT PASS global_device=true composited=true screenshot=true orbit_changed=true delta=",delta," coverage0=",covered_0," coverage35=",covered_35)
     lab.queue_free()
     for i in range(4):
         await process_frame
@@ -57,3 +62,18 @@ func _run() -> void:
 func _fail(reason: String) -> void:
     printerr("LIE-08 VIEWPORT FAIL: ",reason)
     quit(1)
+
+func _disk_coverage(im: Image, background: Color) -> float:
+    var present := 0
+    var measured := 0
+    var cx: int = im.get_width()/2
+    var cy: int = im.get_height()/2
+    for oy in range(-30,31,2):
+        for ox in range(-30,31,2):
+            if ox*ox+oy*oy > 900:
+                continue
+            measured += 1
+            var c: Color = im.get_pixel(cx+ox,cy+oy)
+            if absf(c.r-background.r)+absf(c.g-background.g)+absf(c.b-background.b) > 0.12:
+                present += 1
+    return float(present)/float(maxi(measured,1))

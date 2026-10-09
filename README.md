@@ -1,10 +1,16 @@
-# Lie Engine — LIE-01 through LIE-06
+# Lie Engine — LIE-01 through LIE-08
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
 
-## LIE-06 — multi-view reference + real Vulkan GPU kernel (current default)
+## LIE-08 — active GPU viewport laboratory (experimental branch)
+
+The *separate* `gpu_compute/` Godot Forward+ project now has `lie08_lab.tscn` as its startup scene. Open that project in Godot 4.7.2 with Vulkan, press **Play** and use left/right arrows to orbit a procedural spherical source. The same global RenderingDevice computes four-view depth projection, z-buffer confidence fusion and an RGBA32F image, and a CompositorEffect displays it directly in the Godot viewport without a CPU image readback or 3D mesh reconstruction each frame. The sphere is a **mathematical fixture, not a Blender asset**.
+
+LIE-08 adds screenshot CI validation at 0° and 35°, including a missing-pixel coverage check. The original project `project.godot` still starts the previous CPU LIE-06 lab and stays unchanged. Read [LIE-08 GPU viewport limitations](docs/LIE_08_VIEWPORT.md), especially the lack of Godot-native depth testing and mobile FPS evidence.
+
+## LIE-06 — multi-view reference + real Vulkan GPU kernel (default in original project)
 
 The startup scene `scenes/lie_06_lab.tscn` reconstructs a target-camera surface from **up to four nearest azimuth/elevation captures** with angular confidence. When per-pixel normal data is available, samples facing away from the current camera are rejected and grazing angles are attenuated. **Arrows** move the camera; **Space** reprojects on CPU.
 

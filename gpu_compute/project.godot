@@ -1,6 +1,7 @@
 config_version=5
 [application]
-config/name="Lie GPU Depth Fusion Acceptance"
+config/name="Lie 0.8 GPU Viewport Laboratory"
+run/main_scene="res://lie08_lab.tscn"
 [rendering]
 renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="mobile"

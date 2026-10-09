@@ -8,7 +8,7 @@ const REPROJECTION_SHADER: RDShaderFile = preload("res://shaders/lie07_pipeline.
 const COMPOSITE_SHADER: RDShaderFile = preload("res://shaders/lie08_composite.glsl")
 
 const TEXTURE_SIZE := 256
-const SOURCE_SIZE := 48
+const SOURCE_SIZE := 64
 const VIEWS := 4
 const SAMPLE_COUNT := VIEWS * SOURCE_SIZE * SOURCE_SIZE
 
@@ -146,7 +146,7 @@ func _initialize_gpu() -> bool:
         _storage_buffer(zeros.to_byte_array()),
         _storage_buffer(depth.to_byte_array()),
         _storage_buffer(accum.to_byte_array()),
-        _storage_buffer(PackedInt32Array([TEXTURE_SIZE,TEXTURE_SIZE,1,0]).to_byte_array())
+        _storage_buffer(PackedInt32Array([TEXTURE_SIZE,TEXTURE_SIZE,2,0]).to_byte_array())
     ]
     for item in _buffers:
         if not item.is_valid():
