@@ -1,4 +1,5 @@
 extends RefCounted
+const Optics=preload("res://lie13_optics_model.gd")
 ## Static spatial contract and reciprocal transfer cache. Runtime transport is GPU.
 
 static func vector(value: Array) -> Vector3:
@@ -111,6 +112,12 @@ static func light_bytes(model: Dictionary) -> PackedByteArray:
         index+=1
     return output.to_byte_array()
 
+static func radius_bytes(model: Dictionary) -> PackedByteArray:
+    var output:=PackedFloat32Array()
+    for p in model["patches"]:
+        output.append(float(model["materials"][p["material"]].get("radius_scale",1.0)))
+    return output.to_byte_array()
+
 static func blocker_bytes(model: Dictionary) -> PackedByteArray:
     var output:=PackedFloat32Array()
     output.resize(16*8)
@@ -134,9 +141,15 @@ static func triangle_bytes(model: Dictionary) -> PackedByteArray:
     return output.to_byte_array()
 
 static func valid(model: Dictionary) -> bool:
+    if not Optics.valid(model.get("optical_sheets",[])): return false
     if int(model.get("schema",0))!=1:
         return false
     if model.get("factor_normalization","global") not in ["global","symmetric_local"]: return false
+    if model.has("secondary_radii"):
+        var policy: Dictionary=model["secondary_radii"]
+        for key in ["radius_max","radius_decay","power_reference"]:
+            if not is_finite(float(policy.get(key,0))) or float(policy.get(key,0))<=0: return false
+        if float(policy["radius_decay"])>1: return false
     var patches: Array=model.get("patches",[])
     var lights: Array=model.get("lights",[])
     var boxes: Array=model.get("blockers",[])
@@ -168,6 +181,8 @@ static func valid(model: Dictionary) -> bool:
         var material: Dictionary=model["materials"].get(p.get("material",""),{})
         if material.is_empty():
             return false
+        var radius_scale: float=float(material.get("radius_scale",1))
+        if not is_finite(radius_scale) or radius_scale<0 or radius_scale>1: return false
         var absorption: float=float(material.get("absorption_code",-1))
         var tint: Vector3=vector(material.get("tint_linear",[-1,-1,-1]))
         if not is_finite(absorption) or absorption!=floorf(absorption) or absorption<0.0 or absorption>1000.0 or not tint.is_finite():

@@ -10,6 +10,7 @@ import copy
 import json
 import math
 from pathlib import Path
+from lie_optics import validate_sheets, sheet_transmission
 
 
 def dot(a, b):
@@ -60,12 +61,18 @@ def segment_blocked(a, b, boxes, triangles=()):
 
 
 def validate(model):
+    validate_sheets(model.get("optical_sheets", []))
     if model.get("schema") != 1 or not 1 <= len(model["patches"]) <= 1024:
         raise ValueError("Unsupported schema or patch count")
     if model.get("factor_normalization", "global") not in ("global", "symmetric_local"):
         raise ValueError("Unsupported conservative form-factor normalization")
     if not 1 <= len(model["lights"]) <= 16:
         raise ValueError("Expected 1..16 light codes")
+    radii = model.get("secondary_radii")
+    if radii is not None:
+        if not all(math.isfinite(radii.get(k, float("nan"))) and radii[k] > 0
+                   for k in ("radius_max", "radius_decay", "power_reference")) or radii["radius_decay"] > 1:
+            raise ValueError("Invalid secondary radius policy")
     for p in model["patches"]:
         if len(p["position"]) != 3 or len(p["normal"]) != 3:
             raise ValueError("XYZ and normal must have three components")
@@ -78,6 +85,8 @@ def validate(model):
         if not 0 <= p["gray_mean"] <= 1:
             raise ValueError("Grayscale reflectance must be in [0,1]")
         m = model["materials"][p["material"]]
+        if not math.isfinite(m.get("radius_scale", 1)) or not 0 <= m.get("radius_scale", 1) <= 1:
+            raise ValueError("Material radius scale must be in [0,1]")
         if not isinstance(m["absorption_code"], int) or not 0 <= m["absorption_code"] <= 1000:
             raise ValueError("Absorption code must be an integer in [0,1000]")
         if len(m["tint_linear"]) != 3 or not all(0 <= x <= 1 for x in m["tint_linear"]):
@@ -163,15 +172,18 @@ def light_weight(patch, light, blockers, triangles=()):
     return patch["area"] * cosine * window / (4 * math.pi * max(d2, 0.05 ** 2))
 
 
-def direct_flux(model):
+def direct_flux(model, parents=None):
     n = len(model["patches"])
     result = [[0.0] * 3 for _ in range(n)]
     for light in model["lights"]:
         weights = [light_weight(p, light, model.get("blockers", []), model.get("triangles", [])) for p in model["patches"]]
         cap = max(1.0, sum(weights))
         for i, w in enumerate(weights):
+            if parents is not None and w * max(light["power_rgb"]) > 0:
+                parents[i] = max(parents[i], light["radius"])
+            transmission = sheet_transmission(model["patches"][i]["position"], light["position"], model.get("optical_sheets", []))
             for c in range(3):
-                result[i][c] += light["power_rgb"][c] * w / cap
+                result[i][c] += light["power_rgb"][c] * w / cap * transmission[c]
     return result
 
 
@@ -179,32 +191,69 @@ def totals(values):
     return [sum(row[c] for row in values) for c in range(3)]
 
 
+def secondary_radius(model, i, parent_radius, outgoing):
+    """Artistic finite influence policy; absorption remains multiplicative power.
+
+    Shrink along each contributing path, additionally cap reach by outgoing
+    power. No renormalization restores energy removed by the radial window.
+    """
+    policy = model.get("secondary_radii")
+    if policy is None or max(outgoing) <= 0:
+        return 0.0
+    patch = model["patches"][i]
+    scale = model["materials"][patch["material"]].get("radius_scale", 1)
+    survival = math.sqrt(max(reflectance(model, patch)))
+    return min(parent_radius * policy["radius_decay"] * survival,
+               policy["radius_max"] * math.sqrt(max(outgoing) / policy["power_reference"]),
+               policy["radius_max"]) * scale
+
+
 def solve(model, bounces=2, threshold=0.0):
     if not isinstance(bounces, int) or not 0 <= bounces <= 8 or not math.isfinite(threshold) or threshold < 0:
         raise ValueError("Expected 0..8 bounces and a finite nonnegative threshold")
     f, correction = form_factors(model)
-    direct = direct_flux(model)
+    seed_parents = [0.0] * len(f)
+    direct = direct_flux(model, seed_parents)
     total = copy.deepcopy(direct)
     rho = [reflectance(model, p) for p in model["patches"]]
     frontier = [[row[c] * rho[i][c] for c in range(3)] for i, row in enumerate(direct)]
-    history = [{"incoming": totals(direct), "outgoing": totals(frontier)}]
+    radii = [secondary_radius(model, i, seed_parents[i], frontier[i]) for i in range(len(f))]
+    history = [{"incoming": totals(direct), "outgoing": totals(frontier), "radius_max": max(radii)}]
+    radius_history = [radii[:]]
     for _ in range(bounces):
-        incoming = [[sum(frontier[j][c] * f[j][i] for j in range(len(f))) for c in range(3)] for i in range(len(f))]
+        incoming = [[0.0] * 3 for _ in f]
+        parents = [0.0] * len(f)
+        for j in range(len(f)):
+            for i in range(len(f)):
+                weight = f[j][i]
+                if model.get("secondary_radii"):
+                    distance = math.sqrt(dot(subtract(model["patches"][j]["position"], model["patches"][i]["position"]),
+                                             subtract(model["patches"][j]["position"], model["patches"][i]["position"])))
+                    weight *= max(0.0, 1.0 - (distance / radii[j])**4)**2 if radii[j] > 0 else 0
+                if weight * max(frontier[j]) > 0:
+                    parents[i] = max(parents[i], radii[j])
+                transmission = sheet_transmission(model["patches"][j]["position"], model["patches"][i]["position"], model.get("optical_sheets", [])) if weight > 0 else [1.0]*3
+                for c in range(3): incoming[i][c] += frontier[j][c] * weight * transmission[c]
         frontier = [[row[c] * rho[i][c] for c in range(3)] for i, row in enumerate(incoming)]
         for i in range(len(f)):
             for c in range(3):
                 total[i][c] += incoming[i][c]
             if max(frontier[i]) < threshold:
                 frontier[i] = [0.0] * 3
-        history.append({"incoming": totals(incoming), "outgoing": totals(frontier)})
+        radii = [secondary_radius(model, i, parents[i], frontier[i]) for i in range(len(f))]
+        radius_history.append(radii[:])
+        history.append({"incoming": totals(incoming), "outgoing": totals(frontier), "radius_max": max(radii)})
     irradiance = [[v / p["area"] for v in row] for row, p in zip(total, model["patches"])]
     return {"direct_flux": direct, "total_flux": total, "irradiance": irradiance,
             "energy_by_generation": history, "form_factor_scale": correction,
+            "secondary_radius_by_generation": radius_history,
             "max_row_sum": max(map(sum, f))}
 
 
 def closed_solution(model):
     """Independent dense linear-system oracle for the infinite-bounce limit."""
+    if model.get("secondary_radii") or model.get("optical_sheets"):
+        raise ValueError("Finite power-dependent radii are nonlinear; no fixed-matrix closed solution")
     f, _ = form_factors(model)
     direct = direct_flux(model)
     rho = [reflectance(model, p) for p in model["patches"]]
