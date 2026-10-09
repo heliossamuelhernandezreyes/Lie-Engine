@@ -4,10 +4,16 @@ var optics: CompositorEffect
 var optical_name: String="mixed"
 var animate: bool=true
 var optical_time: float=0.0
+var _anchor_right:=Vector3.RIGHT
+var _anchor_up:=Vector3.UP
+var _anchor_toward:=Vector3.BACK
 
 func _ready() -> void:
     super._ready()
     if camera==null: return
+    _anchor_right=camera.global_basis.x
+    _anchor_up=camera.global_basis.y
+    _anchor_toward=camera.position.normalized()
     optics=Optics.new()
     optics.set("capture",effect)
     optics.set("lighting",lighting)
@@ -39,9 +45,9 @@ func sheet(center: Vector3,right: Vector3,up: Vector3,width: float,height: float
         "half_width":width,"half_height":height,"ior":ior,"thickness":thickness,"sigma":sigma,"kind":kind,"wave":.025 if kind==1 else 0.0,"frequency":7.0}
 
 func optical_sprites(name: String) -> Array:
-    var r: Vector3=camera.global_basis.x
-    var u: Vector3=camera.global_basis.y
-    var toward: Vector3=camera.position.normalized()
+    var r: Vector3=_anchor_right
+    var u: Vector3=_anchor_up
+    var toward: Vector3=_anchor_toward
     var center: Vector3=toward*1.3
     var glass: Dictionary=sheet(center-r*.48,r,u,.44,.68,1.5,.025,[3.0,.5,.2])
     var water: Dictionary=sheet(center+r*.5,r,u,.44,.68,1.333,.12,[1.8,.3,.08],1)
@@ -65,20 +71,20 @@ func optical_sprites(name: String) -> Array:
             var far: Vector3=center-toward*.3
             glass["center"]=[far.x,far.y,far.z]
             return [glass,water]
-        "rain": return rain_sprites(r,u,toward)
+        "rain": return rain_sprites()
     var all: Array=[glass,water]
-    all.append_array(rain_sprites(r,u,toward))
+    all.append_array(rain_sprites())
     return all
 
-func rain_sprites(r: Vector3,u: Vector3,toward: Vector3) -> Array:
+func rain_sprites() -> Array:
     var values: Array=[]
     # Twelve deterministic drops share ONE normal/coverage sprite. XYZ, metre
     # size and thickness differ per instance. No fluid solver or collision claim.
     for i in range(12):
         var x: float=-.95+float(i%4)*.63
         var y: float=-.85+fposmod(float(i/4)*.7-optical_time*.65,2.0)
-        var p: Vector3=toward*(.5+float(i%3)*.6)+r*x+u*y
-        values.append(sheet(p,r,u,.025,.085,1.333,.005,[.3,.06,.015],2))
+        var p: Vector3=_anchor_toward*(.5+float(i%3)*.6)+_anchor_right*x+_anchor_up*y
+        values.append(sheet(p,camera.global_basis.x,camera.global_basis.y,.025,.085,1.333,.005,[.3,.06,.015],2))
     return values
 
 func set_optical_scene(name: String) -> void:

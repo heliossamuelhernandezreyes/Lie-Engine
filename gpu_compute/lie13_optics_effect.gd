@@ -2,7 +2,7 @@ extends CompositorEffect
 ## Opaque depth merge -> four far-to-near dielectric sprite layers -> compose.
 ## Intermediate images are separate to avoid refractive feedback races.
 const Codes=preload("res://lie13_optics_model.gd")
-const Shader: RDShaderFile=preload("res://shaders/lie13_optics.glsl")
+const OpticalShader: RDShaderFile=preload("res://shaders/lie13_optics.glsl")
 const SIZE: int=256
 var capture: CompositorEffect
 var lighting: CompositorEffect
@@ -65,7 +65,7 @@ func _initialize_gpu() -> bool:
     if capture==null or lighting==null or not bool(capture.get("gpu_ready")): return false
     _rd=RenderingServer.get_rendering_device()
     if _rd==null: return false
-    var spirv:=Shader.get_spirv()
+    var spirv:=OpticalShader.get_spirv()
     failure=spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
     if failure!="": push_error(failure); return false
     _shader=_rd.shader_create_from_spirv(spirv)
