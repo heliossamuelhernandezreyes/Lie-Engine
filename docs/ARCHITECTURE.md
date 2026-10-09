@@ -17,7 +17,7 @@ For some mobile scene classes, a *camera-indexed image-based surface* may provid
 
 ## Capture convention
 
-`tools/lie_capture_blender.py` imports a model, determines fixed world-space bounds, orbits an orthographic camera at each sampled direction and writes stable PNG filenames and metadata. Imported models should be authored **upright with +Z front and +Y up**.
+`tools/lie_capture_blender.py` imports a model, determines fixed world-space bounds, orbits an orthographic camera at each sampled direction and writes stable PNG filenames and metadata. Imported models should be authored **upright with +Z front and +Y up in glTF space**. The capture script explicitly maps that Y-up direction into Blender's Z-up coordinates before positioning the capture camera.
 
 The Blender material appearance is captured with lighting baked into RGBA. This is not yet the eventual Lie Surface representation. Correct dynamic relighting will require raw albedo, per-pixel normals in an explicitly documented coordinate space, depth, material metadata, and composition/occlusion policies.
 

@@ -19,7 +19,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from lie_angles import capture_direction, view_code
+from lie_angles import capture_direction, lie_to_blender, view_code
 
 
 def cli() -> argparse.Namespace:
@@ -92,7 +92,7 @@ def main() -> None:
     items = []
     for ei, elevation in enumerate(args.elevation_list):
         for ai in range(args.azimuth_steps):
-            direction = Vector(capture_direction(ai, args.azimuth_steps, elevation))
+            direction = Vector(lie_to_blender(capture_direction(ai, args.azimuth_steps, elevation)))
             camera.location = center + direction * (radius * 4.5)
             camera.rotation_euler = (center - camera.location).to_track_quat("-Z", "Y").to_euler()
             label = view_code(ai, ei)

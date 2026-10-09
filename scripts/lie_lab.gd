@@ -37,6 +37,7 @@ func _ready() -> void:
     add_child(visual_node)
 
     camera = Camera3D.new()
+    camera.name = "LieCamera"
     camera.fov = 52.0
     camera.current = true
     add_child(camera)

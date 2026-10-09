@@ -23,6 +23,14 @@ def capture_direction(azimuth_index: int, azimuth_steps: int, elevation_deg: flo
     return (sin(az) * cos(el), sin(el), cos(az) * cos(el))
 
 
+def lie_to_blender(direction: Sequence[float]) -> tuple[float, float, float]:
+    """glTF Y-up (+Z front) to Blender Z-up (+Y front in camera-space conversion).
+
+    glTF +X -> Blender +X, glTF +Y -> Blender +Z, glTF +Z -> Blender -Y.
+    """
+    return (float(direction[0]), -float(direction[2]), float(direction[1]))
+
+
 def select_view(
     camera_xyz: Sequence[float],
     node_xyz: Sequence[float],

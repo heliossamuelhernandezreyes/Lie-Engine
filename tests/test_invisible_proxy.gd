@@ -10,7 +10,7 @@ func _run() -> void:
     root.add_child(world)
     var body: Node = world.get_node_or_null("InvisiblePhysicsProxy")
     var node: Node = world.get_node_or_null("LieNode_Demo")
-    var camera: Node = world.get_node_or_null("Camera3D")
+    var camera: Node = world.get_node_or_null("LieCamera")
     if not body is StaticBody3D or node == null or not camera is Camera3D:
         _fail("Missing actual physical proxy, camera or Lie node")
         return
