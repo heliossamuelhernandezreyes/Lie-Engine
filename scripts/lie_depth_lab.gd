@@ -1,5 +1,5 @@
 extends Node3D
-## Depth-reconstructed LIE-03 nodes overlap spatially, with genuine GPU Z tests.
+## LIE-04: dithered neighboring depth views, frustum and authored wall culling.
 ## A conventional source model is never drawn. Geometry is generated from depth.
 const LieDepthNode = preload("res://scripts/lie_depth_node.gd")
 
@@ -67,12 +67,19 @@ func _process(delta: float) -> void:
     _position_camera()
     for node in [red_node, blue_node]:
         node.call("update_surface")
-    readout.text = ("LIE-03 | RECONSTRUCTED DEPTH + Z-BUFFER\n"
-        + "Front: %s / %d triangles\n" % [
-            str(red_node.get("current_view_code")), int(red_node.get("current_triangle_count"))]
-        + "Rear:  %s / %d triangles\n" % [
-            str(blue_node.get("current_view_code")), int(blue_node.get("current_triangle_count"))]
-        + "Arrows: orbit | Space: light | Actual source mesh: hidden")
+    readout.text = ("LIE-04 | ANGULAR DITHER + VISIBILITY\n"
+        + "Front: %s -> %s (%.0f%%) | %d tris\n" % [
+            str(red_node.get("current_view_code")), str(red_node.get("next_view_code")),
+            float(red_node.get("view_blend")) * 100.0,
+            int(red_node.get("current_triangle_count"))]
+        + "Rear:  %s -> %s (%.0f%%) | %d tris\n" % [
+            str(blue_node.get("current_view_code")), str(blue_node.get("next_view_code")),
+            float(blue_node.get("view_blend")) * 100.0,
+            int(blue_node.get("current_triangle_count"))]
+        + "Builds %d+%d | rejected updates %d+%d\n" % [
+            int(red_node.get("geometry_builds")), int(blue_node.get("geometry_builds")),
+            int(red_node.get("skipped_for_visibility")), int(blue_node.get("skipped_for_visibility"))]
+        + "Arrows: orbit | Space: light | No original mesh drawn")
 
 func _position_camera() -> void:
     camera.position = Vector3(8.5 * sin(orbit), 3.0, 8.5 * cos(orbit) - 0.45)

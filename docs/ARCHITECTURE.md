@@ -26,9 +26,10 @@ The Blender material appearance is captured with lighting baked into RGBA. This 
 
 - **LIE-02 (experimental implementation):** capture + validate alpha/albedo, camera-normalized depth and Blender-world normals, camera matrices and near/far conventions; one-source diffuse relighting and bounded UV parallax. **True reconstruction across unseen angles is NOT yet demonstrated.**
 - **LIE-03 (experimental):** reconstruct sampled 3D triangles from Blender depth; GPU Z-buffer tests overlap of independent nodes. This is a geometry-based research baseline, **not** accurate per-pixel depth at unseen camera angles or an efficiency claim.
-- **LIE-04:** physically coherent per-pixel lighting, shadowing, weather and overlapping grouped nodes.
-- **LIE-05:** atlas, texture compression, memory-aware cache, background streaming and device-performance evidence.
-- **LIE-06:** modular animation and skeletal composition.
+- **LIE-04 (experimental):** neighboring azimuth views composited with complementary dithered GPU coverage; conservative frustum and authored rectangular-wall occlusion before texture loading. This is NOT true novel-view synthesis or generalized Hi-Z occlusion.
+- **LIE-05 candidate:** physically coherent lighting, shadows/weather, generic GPU occlusion and reprojection without gaps.
+- **LIE-06 candidate:** atlas, texture compression, memory-aware cache, background streaming and device-performance evidence.
+- **LIE-07 candidate:** modular animation and skeletal composition.
 
 ## Experimental protocol
 
