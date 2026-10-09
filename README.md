@@ -1,8 +1,12 @@
-# Lie Engine — LIE-01 through LIE-09
+# Lie Engine — LIE-01 through LIE-10
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-10 — complex geometry and GPU relighting (experimental)
+
+A separate complex Blender-generated GLB is captured as albedo/depth/normals and rendered by Lie's global Vulkan compositor, with two directional light settings. The same original GLB is independently rendered by Godot for silhouette IoU and comparative frame-pacing statistics. The reported CI Vulkan **software driver** timing is not GPU performance evidence. Read [research protocol](docs/LIE_10_QUALITY_BENCH.md). Default startup scene in gpu_compute is `lie10_lab.tscn`. The original Godot project's startup lab remains LIE-06.
 
 ## LIE-09 — Blender captures, GPU normals and native depth (experimental)
 
