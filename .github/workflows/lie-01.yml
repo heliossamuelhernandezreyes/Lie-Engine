@@ -8,7 +8,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
       - name: Python reference tests
@@ -42,6 +42,29 @@ jobs:
           name: lie-01-native-angle-captures
           path: |
             lie-01-view-*.png
+          if-no-files-found: error
+
+      - name: Install Blender for real three-channel fixture
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender
+
+      - name: Generate one actual Blender glTF fixture and capture channels
+        run: |
+          blender --background --python tools/create_lie_fixture_blender.py -- /tmp/lie-02-fixture.glb
+          xvfb-run -a -s '-screen 0 1280x720x24' blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie-02-fixture.glb --out assets/captures/demo_shard --azimuth-steps 4 --elevations=-30,0,30 --resolution 128
+          python tools/validate_lie_surface.py assets/captures/demo_shard
+
+      - name: Import Blender capture into Godot and prove real channel selection
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_blender_import.gd
+
+      - name: Preserve actual albedo-normal-depth capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-02-blender-surface-fixture
+          path: assets/captures/demo_shard/
           if-no-files-found: error
 
       - name: LIE-02 GDScript compilation diagnostic
