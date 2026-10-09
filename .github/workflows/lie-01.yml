@@ -44,6 +44,10 @@ jobs:
             lie-01-view-*.png
           if-no-files-found: error
 
+      - name: LIE-02 GDScript compilation diagnostic
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_surface_node.gd
+
       - name: LIE-02 surface node, invisible proxy and changing light
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_surface.gd
