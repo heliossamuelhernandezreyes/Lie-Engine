@@ -7,6 +7,8 @@ struct Patch { vec4 center_area; vec4 normal_gray; vec4 filter_absorption; };
 struct Light { vec4 position_radius; vec4 power; };
 struct Blocker { vec4 lo; vec4 hi; };
 struct Triangle { vec4 a; vec4 b; vec4 c; };
+struct Sheet { vec4 center_thickness; vec4 right_width; vec4 up_height; vec4 sigma_ior; };
+layout(set=0,binding=13,std430) readonly buffer Sheets { Sheet values[]; } sheets;
 layout(set=0,binding=0,std430) readonly buffer Patches { Patch values[]; } patches;
 layout(set=0,binding=1,std430) readonly buffer Lights { Light values[]; } lights;
 layout(set=0,binding=2,std430) readonly buffer Factors { float values[]; } factors;
@@ -15,12 +17,36 @@ layout(set=0,binding=4,std430) buffer Caps { float values[]; } caps;
 layout(set=0,binding=5,std430) buffer FrontierA { vec4 values[]; } frontier_a;
 layout(set=0,binding=6,std430) buffer FrontierB { vec4 values[]; } frontier_b;
 layout(set=0,binding=7,std430) buffer Received { vec4 values[]; } received;
-layout(set=0,binding=8,std430) readonly buffer Config { ivec4 dims; vec4 tuning; } cfg;
+layout(set=0,binding=8,std430) readonly buffer Config { ivec4 dims; vec4 tuning; vec4 radii; } cfg;
+layout(set=0,binding=12,std430) readonly buffer RadiusScale { float values[]; } radius_scale;
 layout(set=0,binding=9,std430) readonly buffer Blockers { Blocker values[]; } blockers;
 layout(set=0,binding=11,std430) readonly buffer Triangles { Triangle values[]; } triangles;
 layout(rgba32f,set=0,binding=10) uniform writeonly image2D irradiance;
 layout(push_constant,std430) uniform Phase { ivec4 data; } phase;
 const float PI=3.141592653589793;
+
+vec3 transmittance(vec3 a, vec3 b) {
+    vec3 value=vec3(1.0), delta=b-a;
+    float distance=length(delta);
+    if(distance<1e-10) return value;
+    for(int k=0;k<int(cfg.radii.w);k++) {
+        Sheet s=sheets.values[k];
+        vec3 n=cross(s.right_width.xyz,s.up_height.xyz);
+        float denominator=dot(delta,n);
+        if(abs(denominator)<1e-8) continue;
+        float t=dot(s.center_thickness.xyz-a,n)/denominator;
+        if(t<=0.001 || t>=0.999) continue;
+        vec3 local=a+t*delta-s.center_thickness.xyz;
+        if(abs(dot(local,s.right_width.xyz))>s.right_width.w || abs(dot(local,s.up_height.xyz))>s.up_height.w) continue;
+        float ci=clamp(abs(denominator)/distance,0.0,1.0), eta=s.sigma_ior.w;
+        float ct=sqrt(max(0.0,1.0-(1.0-ci*ci)/(eta*eta)));
+        float rs=(ci-eta*ct)/max(ci+eta*ct,1e-8);
+        float rp=(eta*ci-ct)/max(eta*ci+ct,1e-8);
+        float f=(rs*rs+rp*rp)*0.5;
+        value*=pow(1.0-f,2.0)*exp(-s.sigma_ior.rgb*s.center_thickness.w/max(ct,1e-6));
+    }
+    return value;
+}
 
 bool blocked(vec3 a, vec3 b) {
     vec3 delta=b-a;
@@ -64,6 +90,14 @@ vec3 rho(uint i) {
         *clamp(p.normal_gray.w,0.0,1.0);
 }
 
+float reach(uint i, float parent, vec3 power) {
+    if(cfg.tuning.w<0.5) return 0.0;
+    float energy=max(power.r,max(power.g,power.b));
+    vec3 survival=rho(i);
+    float reflection=max(survival.r,max(survival.g,survival.b));
+    return min(min(parent*cfg.radii.y*sqrt(reflection),cfg.radii.x*sqrt(energy/cfg.radii.z)),cfg.radii.x)*radius_scale.values[i];
+}
+
 void main() {
     uint i=gl_GlobalInvocationID.x;
     uint n=uint(cfg.dims.x), count=uint(cfg.dims.y);
@@ -92,9 +126,15 @@ void main() {
     if(i>=n) return;
     if(phase.data.x==2) {
         vec3 incoming=vec3(0.0);
-        for(uint l=0u;l<count;l++) incoming+=lights.values[l].power.rgb*weights.values[l*n+i]/caps.values[l];
+        float parent=0.0;
+        for(uint l=0u;l<count;l++) {
+            vec3 power=lights.values[l].power.rgb;
+            float w=weights.values[l*n+i]/caps.values[l];
+            incoming+=power*w*transmittance(patches.values[i].center_area.xyz,lights.values[l].position_radius.xyz);
+            if(w*max(power.r,max(power.g,power.b))>0.0) parent=max(parent,lights.values[l].position_radius.w);
+        }
         received.values[i]=vec4(incoming,0.0);
-        frontier_a.values[i]=vec4(incoming*rho(i),0.0);
+        frontier_a.values[i]=vec4(incoming*rho(i),reach(i,parent,incoming*rho(i)));
         frontier_b.values[i]=vec4(0.0);
         return;
     }
@@ -102,15 +142,23 @@ void main() {
         // Each generation consumes ONLY the preceding frontier. Never feed
         // accumulated total power back into the transport graph.
         vec3 incoming=vec3(0.0);
+        float parent=0.0;
         for(uint source=0u;source<n;source++) {
-            vec3 power=phase.data.y==0?frontier_a.values[source].rgb:frontier_b.values[source].rgb;
-            incoming+=power*factors.values[source*n+i];
+            vec4 emitted=phase.data.y==0?frontier_a.values[source]:frontier_b.values[source];
+            float weight=factors.values[source*n+i];
+            if(cfg.tuning.w>0.5) {
+                float d=distance(patches.values[source].center_area.xyz,patches.values[i].center_area.xyz);
+                weight*=emitted.w>0.0?pow(max(0.0,1.0-pow(d/emitted.w,4.0)),2.0):0.0;
+            }
+            if(weight>0.0) incoming+=emitted.rgb*weight*transmittance(patches.values[source].center_area.xyz,patches.values[i].center_area.xyz);
+            if(weight*max(emitted.r,max(emitted.g,emitted.b))>0.0) parent=max(parent,emitted.w);
         }
         received.values[i].rgb+=incoming;
         vec3 reflected=incoming*rho(i);
         if(max(reflected.r,max(reflected.g,reflected.b))<cfg.tuning.y) reflected=vec3(0.0);
-        if(phase.data.y==0) frontier_b.values[i]=vec4(reflected,0.0);
-        else frontier_a.values[i]=vec4(reflected,0.0);
+        float radius=reach(i,parent,reflected);
+        if(phase.data.y==0) frontier_b.values[i]=vec4(reflected,radius);
+        else frontier_a.values[i]=vec4(reflected,radius);
         return;
     }
     if(phase.data.x==4) {

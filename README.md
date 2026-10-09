@@ -118,3 +118,8 @@ Read [architecture and research gates](docs/ARCHITECTURE.md).
 ## Licensing
 
 The project is publicly readable. **No software distribution license has been selected yet**. Do not assume public availability permits redistribution of code. Independently sourced Blender assets retain their own licensing requirements.
+
+LIE-13 adds material/energy-dependent secondary radii, thin glass and water
+optical sprite codes, colored straight-segment light transmission and shared
+opaque/transparent depth. Launch `gpu_compute/lie13_lab.tscn` explicitly.
+[Contract, equations, controls and limits](docs/LIE_13_RADII_AND_DIELECTRICS.md).

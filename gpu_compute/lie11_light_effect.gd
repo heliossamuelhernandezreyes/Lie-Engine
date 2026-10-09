@@ -2,6 +2,7 @@ extends CompositorEffect
 ## Node light codes are solved in Vulkan before opaque Sprite3D rendering.
 ## Only input changes are uploaded; all bounce generations stay on the GPU.
 const Model=preload("res://lie11_model.gd")
+const Optics=preload("res://lie13_optics_model.gd")
 const TRANSPORT_SHADER: RDShaderFile=preload("res://shaders/lie11_light_transport.glsl")
 
 var gpu_ready: bool=false
@@ -45,9 +46,11 @@ func configure(model: Dictionary) -> bool:
     _triangle_count=triangle_count
     var dims:=PackedInt32Array([count,(model["lights"] as Array).size(),int(model.get("bounces",2)),(model.get("blockers",[]) as Array).size()])
     var config: PackedByteArray=dims.to_byte_array()
-    config.append_array(PackedFloat32Array([0.0025,0.0,float((model.get("triangles",[]) as Array).size()),0.0]).to_byte_array())
+    var policy: Dictionary=model.get("secondary_radii",{})
+    config.append_array(PackedFloat32Array([0.0025,0.0,float(triangle_count),0.0 if policy.is_empty() else 1.0]).to_byte_array())
+    config.append_array(PackedFloat32Array([float(policy.get("radius_max",1)),float(policy.get("radius_decay",1)),float(policy.get("power_reference",1)),float((model.get("optical_sheets",[]) as Array).size())]).to_byte_array())
     var next: Dictionary={0:Model.patch_bytes(model),1:Model.light_bytes(model),
-        2:Model.factor_bytes(model),8:config,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model)}
+        2:Model.factor_bytes(model),8:config,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model),12:Model.radius_bytes(model),13:Optics.bytes(model.get("optical_sheets",[]))}
     _lock.lock()
     _serial+=1
     next["serial"]=_serial
@@ -96,7 +99,7 @@ func _initialize_gpu(data: Dictionary) -> bool:
     caps.resize(16)
     var initial: Array[PackedByteArray]=[
         data[0],data[1],data[2],weights.to_byte_array(),caps.to_byte_array(),
-        float_zeros.to_byte_array(),float_zeros.to_byte_array(),float_zeros.to_byte_array(),data[8],data[9],data[11]]
+        float_zeros.to_byte_array(),float_zeros.to_byte_array(),float_zeros.to_byte_array(),data[8],data[9],data[11],data[12],data[13]]
     var uniforms: Array[RDUniform]=[]
     for binding in range(initial.size()):
         var bytes: PackedByteArray=initial[binding]
@@ -106,7 +109,7 @@ func _initialize_gpu(data: Dictionary) -> bool:
             return false
         _buffers.append(rid)
         allocation_bytes+=bytes.size()
-        uniforms.append(_uniform(11 if binding==10 else binding,rid))
+        uniforms.append(_uniform(binding+1 if binding>=10 else binding,rid))
     var format:=RDTextureFormat.new()
     format.width=_count
     format.height=1
@@ -143,7 +146,7 @@ func _render_callback(kind: int, _render_data: RenderData) -> void:
     for key in data:
         if key is int:
             var bytes: PackedByteArray=data[key]
-            _rd.buffer_update(_buffers[10 if key==11 else key],0,bytes.size(),bytes)
+            _rd.buffer_update(_buffers[key-1 if key>=11 else key],0,bytes.size(),bytes)
     if data.has("lights"):
         _light_count=int(data["lights"])
         _bounces=int(data["bounces"])
@@ -171,8 +174,9 @@ func _capture_data() -> void:
         return
     var flux: PackedFloat32Array=_rd.buffer_get_data(_buffers[7]).to_float32_array()
     var irradiance: PackedFloat32Array=_rd.texture_get_data(output_rid,0).to_float32_array()
+    var frontier: PackedFloat32Array=_rd.buffer_get_data(_buffers[5 if _bounces%2==0 else 6]).to_float32_array()
     _lock.lock()
-    _readback={"flux":flux,"irradiance":irradiance,"frames":frame_count,
+    _readback={"flux":flux,"irradiance":irradiance,"frontier":frontier,"frames":frame_count,
         "allocation_bytes":allocation_bytes,"device":_rd.get_device_name()}
     _lock.unlock()
 

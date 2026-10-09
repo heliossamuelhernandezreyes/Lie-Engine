@@ -12,3 +12,5 @@ gpu_compute/lie11-diagnostic.json
 gpu_compute/captures/coded_shard/
 gpu_compute/lie12-*.png
 gpu_compute/lie12-diagnostic.json
+gpu_compute/lie13-*.png
+gpu_compute/lie13-diagnostic.json
