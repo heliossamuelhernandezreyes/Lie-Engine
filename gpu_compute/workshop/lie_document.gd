@@ -111,7 +111,7 @@ static func validate(candidate: Variant) -> String:
         if not light is Dictionary or not vector_ok(light.get("position"),-100,100) or not vector_ok(light.get("power_rgb"),0,1000000) or not numeric(light.get("radius")): return "light_values"
     if not Legacy.Model.valid_light_codes(candidate["lights"]): return "lights"
     if not numeric(candidate.get("duration")) or float(candidate["duration"])<.01 or float(candidate["duration"])>600: return "duration"
-    if not numeric(candidate.get("time")) or float(candidate["time"])<0 or float(candidate["time"])>600: return "time"
+    if not numeric(candidate.get("time")) or float(candidate["time"])<0 or float(candidate["time"])>float(candidate["duration"]): return "time"
     if not candidate.get("playing") is bool or not candidate.get("tracks") is Dictionary: return "tracks"
     for id in candidate["tracks"]:
         if not ids.has(id) or not candidate["tracks"][id] is Array or candidate["tracks"][id].size()>256: return "track_id"
@@ -270,7 +270,10 @@ static func track_angle(keys: Array,time_value: float,fallback: float) -> float:
     return float(keys[-1][1])
 
 static func evaluate(candidate: Dictionary,time_value: float=-1) -> Dictionary:
-    var time_now: float=fposmod(float(candidate["time"]) if time_value<0 else time_value,float(candidate["duration"]))
+    var duration: float=float(candidate["duration"])
+    # Paused authoring includes the final key. Playback and an explicit external
+    # clock loop; scrubbing to the endpoint must not silently show the first key.
+    var time_now: float=clampf(float(candidate["time"]),0,duration) if time_value<0 and not candidate["playing"] else fposmod(float(candidate["time"]) if time_value<0 else time_value,duration)
     var remaining: Array=candidate["pieces"].duplicate()
     var joints: Dictionary={}; var poses: Dictionary={}
     for pass_index in range(LIMIT):

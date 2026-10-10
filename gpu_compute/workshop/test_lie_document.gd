@@ -50,6 +50,10 @@ func _initialize() -> void:
     expect((e["joints"]["head"] as Transform3D).is_equal_approx(es["joints"]["head"]),"Parent shape scale does not deform child joint")
     expect((Doc.evaluate(doc.state,.5)["joints"]["arm_l"] as Transform3D).is_equal_approx(Doc.evaluate(doc.state,2.5)["joints"]["arm_l"]),"Absolute-time looping independent of FPS")
     expect(absf(Doc.track_angle([[0,0],[1,40]],.5,0)-20)<.000001,"Interpolated key")
+    var endpoint: Dictionary=Doc.default_state()
+    endpoint["tracks"]["head"]=[[0,0],[2,60]]; endpoint["time"]=2
+    expect(not (Doc.evaluate(endpoint)["joints"]["head"] as Transform3D).is_equal_approx(Doc.evaluate(endpoint,0)["joints"]["head"]),"Paused scrub endpoint shows final key instead of wrapping")
+    expect(not doc.dispatch({"op":"set_time","value":2.1})["ok"],"Authoring time stays within timeline duration")
     var cycle_clear: bool=true
     var example: Dictionary=Doc.default_state()
     for frame in range(120):

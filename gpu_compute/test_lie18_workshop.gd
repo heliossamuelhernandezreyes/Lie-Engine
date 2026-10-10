@@ -163,6 +163,9 @@ func _run() -> void:
         if misplaced>0: _fail("Optical projection disagrees with physical camera rays: "+str(misplaced)); return
         medium_reports[fluid]={"covered_pixels":covered,"misplaced_pixels":misplaced,"optical_resolution":256,"layers_max":4}
         _save(fluid)
+        (lab.get("ui") as CanvasLayer).visible=false
+        await _settle(2); _save(fluid+"-scene")
+        (lab.get("ui") as CanvasLayer).visible=true
     if not _command({"op":"set_settings","values":{"fluid":"off"}}): _fail("Disable optics"); return
     (lab.get("ui") as CanvasLayer).visible=false
     for frame in range(32):

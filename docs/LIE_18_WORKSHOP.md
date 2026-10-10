@@ -100,6 +100,8 @@ Los comandos de persistencia son operaciones individuales; no se incluyen en
 un `batch`. Guardar conserva la revisión y abrir crea una revisión deshacible.
 La pose manual actualiza la clave del tiempo actual cuando ya existe una
 pista; conserva las otras claves. «Registrar clave» también conserva la pista.
+El tiempo de autoría está entre cero y la duración de la pista. Al pausar en
+el extremo final se muestra la última clave; la reproducción sí vuelve al inicio.
 
 ### Agente sin interfaz
 
