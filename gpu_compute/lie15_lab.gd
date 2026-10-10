@@ -22,9 +22,12 @@ var reference_root: Node3D
 var world: WorldEnvironment
 var _dragging: bool=false
 
+func make_capture() -> CompositorEffect:
+    return Capture.new()
+
 func _ready() -> void:
     get_window().size=Vector2i(768,768)
-    effect=Capture.new()
+    effect=make_capture()
     if not bool(effect.get("capture_loaded")):
         push_error("LIE-15 requires captures/robot_master/master.json")
         return
