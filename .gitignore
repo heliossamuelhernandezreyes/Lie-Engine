@@ -49,3 +49,8 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie18-*.png
 /gpu_compute/lie18-*.json
 /gpu_compute/lie18-*.log
+
+# LIE-19 measured transport cache and client responses
+/gpu_compute/lie19-*.png
+/gpu_compute/lie19-*.json
+/gpu_compute/lie19-*.log
