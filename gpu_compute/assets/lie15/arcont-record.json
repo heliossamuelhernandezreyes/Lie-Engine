@@ -1,0 +1,82 @@
+{
+  "archive": {
+    "local_path": null,
+    "mirrored_in_arcont": false,
+    "sha256": null,
+    "size_bytes": null
+  },
+  "asset_type": "model",
+  "compatibility": {
+    "android": true,
+    "godot": true,
+    "unity": true,
+    "unreal": true,
+    "web": true
+  },
+  "dimensions": [
+    "3d",
+    "2_5d"
+  ],
+  "id": "ARC-ASSET-KENNEY-696C714A33FF63A1",
+  "kenney_metadata": {
+    "category": [
+      "3D"
+    ],
+    "features": "🎨",
+    "file_count": 140,
+    "tile_size": null
+  },
+  "license": {
+    "ai_training_allowed": null,
+    "attribution_required": false,
+    "commercial_use": true,
+    "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "modification": true,
+    "name": "CC0-1.0",
+    "notes": "Kenney states game assets on its asset pages are public-domain licensed (CC0); attribution is not required. This adapter additionally requires the individual asset page to contain an explicit Creative Commons CC0 marker before indexing it.",
+    "redistribution_allowed": true,
+    "share_alike": false,
+    "version": "1.0"
+  },
+  "review": {
+    "last_checked": "2026-09-12T09:59:50Z",
+    "license_verified": true,
+    "metadata_verified": true,
+    "notes": "Metadata extracted from the individual official Kenney asset page. Record created only when that page explicitly states Creative Commons CC0."
+  },
+  "schema_version": 1,
+  "source": {
+    "acquired_at": "2026-09-12T09:55:20Z",
+    "asset_url": "https://kenney.nl/assets/factory-kit",
+    "author": "Kenney",
+    "download_url": null,
+    "external_id": "factory-kit",
+    "provider": "Kenney"
+  },
+  "styles": [],
+  "tags": [
+    "kenney",
+    "conveyor"
+  ],
+  "technical": {
+    "animated": null,
+    "animation_count": null,
+    "audio_channels": null,
+    "audio_sample_rate": null,
+    "category_raw": "3D",
+    "collision": null,
+    "features_raw": "🎨",
+    "font_formats": [],
+    "formats": [],
+    "lods": null,
+    "pack_file_count": 140,
+    "pbr": null,
+    "rigged": null,
+    "texture_resolution": null,
+    "triangle_count": null
+  },
+  "themes": [
+    "3D"
+  ],
+  "title": "Factory Kit"
+}

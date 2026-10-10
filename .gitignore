@@ -18,3 +18,16 @@ gpu_compute/captures/rigid_master/
 gpu_compute/lie14-*.png
 gpu_compute/lie14-diagnostic.json
 gpu_compute/lie14-import.log
+
+# LIE-15 reproducible Arcont robot authoring and runtime evidence
+/gpu_compute/assets/lie15/*.glb
+/gpu_compute/assets/lie15/source-triangles.json
+/gpu_compute/captures/robot_master/
+/gpu_compute/lie15-*.png
+/gpu_compute/lie15-*.json
+/gpu_compute/lie15-*.log
+/gpu_compute/assets/lie15/Textures/
+
+# Generated Godot import metadata
+/gpu_compute/**/*.uid
+/gpu_compute/**/*.import
