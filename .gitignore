@@ -54,3 +54,12 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie19-*.png
 /gpu_compute/lie19-*.json
 /gpu_compute/lie19-*.log
+
+# LIE-20 locked sources, editable Blender master and reproducible captures
+/gpu_compute/assets/lie20/*.glb
+/gpu_compute/assets/lie20/*.jpg
+/gpu_compute/assets/lie20/*.blend*
+/gpu_compute/captures/human_master/
+/gpu_compute/lie20-*.png
+/gpu_compute/lie20-*.json
+/gpu_compute/lie20-*.log
