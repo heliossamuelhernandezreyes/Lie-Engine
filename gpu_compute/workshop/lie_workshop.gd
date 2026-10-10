@@ -250,7 +250,7 @@ func _build_ui() -> void:
             var spin:=SpinBox.new(); spin.min_value=.02 if field=="scale" else -360 if field=="rotation_deg" else -10
             spin.max_value=5 if field=="scale" else 360 if field=="rotation_deg" else 10
             spin.step=1 if field=="rotation_deg" else .01; spin.custom_minimum_size=Vector2(60,28); spin.size_flags_horizontal=Control.SIZE_EXPAND_FILL
-            spin.get_line_edit().add_theme_font_size_override("font_size",12); spin.tooltip_text=["X","Y","Z"][axis]
+            spin.get_line_edit().add_theme_font_size_override("font_size",12); spin.get_line_edit().add_theme_constant_override("minimum_character_width",3); spin.tooltip_text=["X","Y","Z"][axis]
             spin.value_changed.connect(_edit_vector.bind(field,axis)); row.add_child(spin); fields[field].append(spin)
     material_choice=OptionButton.new(); material_choice.item_selected.connect(_set_material); right.add_child(material_choice)
     var color:=ColorPickerButton.new(); color_control=color; color.text="Color del material"; color.color=Color(.62,.78,.95).linear_to_srgb(); right.add_child(color)
