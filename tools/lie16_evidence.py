@@ -30,7 +30,7 @@ def make_card(root, frame, width=768):
             image = image.resize((width, width), Image.Resampling.LANCZOS)
         card.paste(image, (index * width, 108))
     draw.text((24, width + 115), 'Fotogramas reales · cadencia de exportación: 25 fps · rendimiento de GPU física pendiente',
-              fill='#a9bac4', font=font(18))
+              fill='#a9bac4', font=font(18 if width >= 768 else 10))
     return card
 
 
@@ -48,7 +48,7 @@ def build(root, destination):
     variance_reduction = (1 - resolved / raw) * 100
     far = report['adaptive_work_and_image_error']['far']
     sample_reduction = (1 - far['adaptive_sample_invocations'] / far['full_sample_invocations']) * 100
-    comparison = Image.new('RGB', (1536, 1428), '#101921')
+    comparison = Image.new('RGB', (1536, 1460), '#101921')
     comparison.paste(make_card(root, 0), (0, 0))
     draw = ImageDraw.Draw(comparison)
     draw.text((24, 930), 'Detalle de la misma imagen · ampliación idéntica en ambos lados', fill='#e4edf0', font=font(24))
