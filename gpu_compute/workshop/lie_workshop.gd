@@ -46,6 +46,11 @@ var _last_instance_bytes:=PackedByteArray()
 var _part_serial: int=1
 var last_command: Dictionary={}
 var last_collisions: Array=[]
+var profiling: bool=false
+var metrics_label: Label
+var profile_control: CheckBox
+var _metrics_time: float=0
+var _apply_state_us: int=0
 
 func _ready() -> void:
     get_window().size=Vector2i(1280,800)
@@ -65,6 +70,15 @@ func _ready() -> void:
     DirAccess.make_dir_recursive_absolute("user://workshop")
 
 func command(request: Variant) -> Dictionary:
+    if request is Dictionary and request.get("op") in ["runtime_profile","runtime_metrics"]:
+        if request.has("expected_revision") and request["expected_revision"]!=document.revision: return {"ok":false,"error":"revision_conflict","revision":document.revision}
+        if request["op"]=="runtime_profile":
+            if not request.get("enabled") is bool: return {"ok":false,"error":"profiling_boolean"}
+            profiling=request["enabled"]
+            if profile_control!=null: profile_control.set_pressed_no_signal(profiling)
+            if effect!=null: effect.set("profile_enabled",profiling)
+            if lighting!=null: lighting.set("profile_enabled",profiling)
+        return {"ok":true,"revision":document.revision,"metrics":runtime_metrics()}
     var before: Dictionary=document.state.duplicate(true)
     var response: Dictionary=document.dispatch(request)
     last_command=response.duplicate(true)
@@ -85,10 +99,21 @@ func agent_snapshot() -> Dictionary:
     data["selected_piece"]=selected
     data["inbox"]=OS.get_user_data_dir()+"/workshop/inbox.json"
     data["outbox"]=OS.get_user_data_dir()+"/workshop/outbox.json"
+    data["runtime_commands"]=["runtime_profile","runtime_metrics"]
+    data["metrics"]=runtime_metrics()
     return data
+
+func runtime_metrics() -> Dictionary:
+    return {"profiling":profiling,"cpu_apply_state_us_latest":_apply_state_us,
+        "lighting":lighting.call("metrics") if lighting!=null else {},
+        "consumer_profile":effect.call("profiling_snapshot") if effect!=null else [],
+        "consumer_bytes":effect.get("allocation_bytes") if effect!=null else 0,
+        "render_resolution":effect.get("render_size") if effect!=null else 0,
+        "note":"GPU timestamps include only Lie passes; optics and Godot frame time are not included."}
 
 func _apply_state(rebuild: bool=false) -> void:
     if camera==null: return
+    var started: int=Time.get_ticks_usec()
     evaluated=Doc.evaluate(document.state)
     _yaw=float(document.state["camera"]["yaw_deg"]); _elevation=float(document.state["camera"]["elevation_deg"]); _distance=float(document.state["camera"]["distance"])
     move_camera()
@@ -106,6 +131,7 @@ func _apply_state(rebuild: bool=false) -> void:
     last_collisions=Collision.diagnostics(document.state,evaluated)
     if status!=null:
         status.text="%d piezas · 2 maestros compartidos\n%d contactos por revisar" % [document.state["pieces"].size(),last_collisions.size()]
+    _apply_state_us=Time.get_ticks_usec()-started
 
 func _rebuild_bodies() -> void:
     for body in _bodies.values(): remove_child(body); body.queue_free()
@@ -140,6 +166,13 @@ func _physics_process(delta: float) -> void:
 func _process(delta: float) -> void:
     _poll_time+=delta
     if _poll_time>=.2: _poll_time=0; _poll_agent()
+    _metrics_time+=delta
+    if _metrics_time>=1 and metrics_label!=null:
+        _metrics_time=0
+        var values: Dictionary=runtime_metrics(); var light: Dictionary=values["lighting"]
+        var timings: Array=values["consumer_profile"].map(func(row: Dictionary): return float(row["consumer_gpu_ns"])/1000000)
+        timings.sort()
+        metrics_label.text="Grafos %d · reutilizados %d\n" % [light.get("graph_rebuilds",0),light.get("graph_reuses",0)]+("Lie: %.1f ms · GPU local" % timings[int(timings.size()/2)] if profiling and not timings.is_empty() else "Midiendo…" if profiling else "Medición GPU desactivada")
 
 func _poll_agent() -> void:
     var path: String="user://workshop/inbox.json"
@@ -147,11 +180,14 @@ func _poll_agent() -> void:
     var file:=FileAccess.open(path,FileAccess.READ)
     if file==null or file.get_length()>1024*1024: return
     var request: Variant=JSON.parse_string(file.get_as_text()); file.close()
+    var request_id: Variant=request.get("request_id") if request is Dictionary else null
+    if request is Dictionary and request.has("request"):
+        request=request["request"]
     DirAccess.remove_absolute(path)
     var result: Dictionary=command(request)
     var output:=FileAccess.open("user://workshop/outbox.json.tmp",FileAccess.WRITE)
     if output==null: return
-    output.store_string(JSON.stringify({"result":result,"snapshot":agent_snapshot()},"  ")); output.close()
+    output.store_string(JSON.stringify({"request_id":request_id,"result":result,"snapshot":agent_snapshot()},"  ",true,true)); output.close()
     DirAccess.rename_absolute("user://workshop/outbox.json.tmp","user://workshop/outbox.json")
 
 func move_camera() -> void:
@@ -172,7 +208,7 @@ func _panel(position: Vector2,size: Vector2) -> VBoxContainer:
     panel.add_theme_stylebox_override("panel",style); ui.add_child(panel)
     var box:=VBoxContainer.new(); box.add_theme_constant_override("separation",8)
     if position.x>1000:
-        var scroll:=ScrollContainer.new(); scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
+        var scroll:=ScrollContainer.new(); scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
         scroll.custom_minimum_size=Vector2(220,660); panel.add_child(scroll)
         box.size_flags_horizontal=Control.SIZE_EXPAND_FILL; scroll.add_child(box)
     else: panel.add_child(box)
@@ -199,6 +235,9 @@ func _build_ui() -> void:
     _button(storage,"Guardar",func(): var r: Dictionary=command({"op":"save_document"}); if r["ok"]: command_result.text="Robot guardado")
     _button(storage,"Abrir",func(): command({"op":"load_document"}))
     status=_label(left,"Preparando maestros…",13)
+    var meter:=CheckBox.new(); profile_control=meter; meter.text="Medir renderizado"; left.add_child(meter)
+    meter.toggled.connect(func(value: bool): command({"op":"runtime_profile","enabled":value}))
+    metrics_label=_label(left,"Medición GPU desactivada",11)
     _label(left,"Arrastra el fondo para orbitar.\nRueda: acercar · Espacio: animar",12)
     var right: VBoxContainer=_panel(Vector2(1016,68),Vector2(248,694))
     title_label=_label(right,"PIEZA",18); title_label.clip_text=true
@@ -210,8 +249,8 @@ func _build_ui() -> void:
         for axis in range(3):
             var spin:=SpinBox.new(); spin.min_value=.02 if field=="scale" else -360 if field=="rotation_deg" else -10
             spin.max_value=5 if field=="scale" else 360 if field=="rotation_deg" else 10
-            spin.step=1 if field=="rotation_deg" else .01; spin.custom_minimum_size=Vector2(68,28)
-            spin.get_line_edit().add_theme_font_size_override("font_size",12); spin.tooltip_text=["X","Y","Z"][axis]
+            spin.step=1 if field=="rotation_deg" else .01; spin.custom_minimum_size=Vector2(60,28); spin.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+            spin.get_line_edit().add_theme_font_size_override("font_size",12); spin.get_line_edit().add_theme_constant_override("minimum_character_width",3); spin.tooltip_text=["X","Y","Z"][axis]
             spin.value_changed.connect(_edit_vector.bind(field,axis)); row.add_child(spin); fields[field].append(spin)
     material_choice=OptionButton.new(); material_choice.item_selected.connect(_set_material); right.add_child(material_choice)
     var color:=ColorPickerButton.new(); color_control=color; color.text="Color del material"; color.color=Color(.62,.78,.95).linear_to_srgb(); right.add_child(color)

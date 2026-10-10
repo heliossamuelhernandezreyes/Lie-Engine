@@ -321,8 +321,14 @@ func _collect_profile() -> void:
     # Godot 4.7.2 Vulkan returns timestampPeriod-scaled NANOSECONDS in
     # drivers/vulkan/rendering_device_driver_vulkan.cpp, despite the reference
     # page describing microseconds. Retain the raw interval for reproducibility.
+    _mutex.lock()
     if begin>=0 and end>begin: _profile_rows.append({"render_frame":frame,"consumer_gpu_ms":float(end-begin)/1000000,"consumer_gpu_ns":end-begin,"cpu_prepare_us":_prepare_us})
     if _profile_rows.size()>180: _profile_rows.pop_front()
+    _mutex.unlock()
+
+func profiling_snapshot() -> Array:
+    _mutex.lock(); var result: Array=_profile_rows.duplicate(true); _mutex.unlock()
+    return result
 
 func _render_callback(kind: int,render_data: RenderData) -> void:
     if kind!=EFFECT_CALLBACK_TYPE_POST_TRANSPARENT: return

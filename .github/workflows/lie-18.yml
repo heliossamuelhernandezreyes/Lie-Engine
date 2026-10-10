@@ -4,7 +4,7 @@ on:
     branches: [main, "feat/**"]
   pull_request:
 concurrency:
-  group: lie18-${{ github.head_ref || github.ref }}
+  group: lie18-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:
   workshop:
@@ -70,15 +70,19 @@ jobs:
           if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie18-import.log; then exit 1; fi
       - name: Actual user controls, live agent protocol, GPU energy/visibility oracle and optical media
         run: xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie18_workshop.gd
+      - name: Cached versus fresh GPU transport, matched timings and external Python client
+        run: xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie19_cache.gd
       - name: Preserve real matched frames and reproducible capture levels
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: lie-18-workshop-evidence
+          name: lie-19-workshop-evidence
           path: |
             gpu_compute/lie18-*.png
             gpu_compute/lie18-*.json
             gpu_compute/lie18-import.log
+            gpu_compute/lie19-*.png
+            gpu_compute/lie19-*.json
             gpu_compute/captures/robot_master/
             gpu_compute/assets/lie15/
             gpu_compute/captures/workshop_cylinder/

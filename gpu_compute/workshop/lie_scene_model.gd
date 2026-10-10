@@ -51,5 +51,14 @@ static func build(candidate: Dictionary,evaluated: Dictionary,masters: Dictionar
         row.append_array(PackedFloat32Array([.5,.5,.5,float(offset),tint.x,tint.y,tint.z,float(m["absorption_code"])/1000,float(m["roughness"]),float(m["metallic"]),float(m["emission"]),1 if i<SLOTS and active else 0]))
         for k in range(28): floats[i*28+k]=row[k]
     model["instance_bytes"]=floats.to_byte_array(); model["poses"]=poses; model["slots"]=types
+    # Exact float32 inputs used by form-factor stages. Material, light, bounce
+    # and optical codes are intentionally absent; active blockers are present.
+    var geometry:=PackedFloat32Array()
+    for p in patches:
+        geometry.append_array(PackedFloat32Array(p["position"]+[p["area"]]+p["normal"]))
+    for i in range(SLOTS):
+        geometry.append_array(floats.slice(i*28,i*28+19))
+        geometry.append(floats[i*28+27])
+    model["geometry_bytes"]=geometry.to_byte_array()
     model["signature"]=JSON.stringify([candidate["pieces"].map(func(p: Dictionary): return [p["id"],p["slot"],p["master"],p["material"]]),candidate["materials"],candidate["lights"],candidate["settings"]["bounces"],candidate["settings"]["fluid"]])
     return model

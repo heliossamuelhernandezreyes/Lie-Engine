@@ -1,8 +1,16 @@
-# Lie Engine — LIE-01 through LIE-17
+# Lie Engine — LIE-01 through LIE-19
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-19 — reusable transport and live client
+
+The workshop retains its reciprocal visibility graph when only lights, materials, bounce count or water codes change. Geometry edits still rebuild it. Input buffers upload only changed bytes; the factor matrix stays GPU-resident. Runtime measurement controls and a Python client expose the same running workshop to users and agents, with correlated replies and revision guards. Actual Vulkan acceptance compares cached transport with fresh recomputation and preserves matched pass timings. Read [LIE-19 controls and measurement limits](docs/LIE_19_TRANSPORT_CACHE.md).
+
+## LIE-18 — assembly and animation workshop
+
+Open `gpu_compute/project.godot` after preparing its two capture masters. Assemble, articulate, animate, relight and save a robot using reusable box/cylinder captures; visible controls and validated agent commands share one document. Blender remains the external authoring tool. Read [workshop setup and API](docs/LIE_18_WORKSHOP.md).
 
 ## LIE-17 — optional contrast-guided edges
 
