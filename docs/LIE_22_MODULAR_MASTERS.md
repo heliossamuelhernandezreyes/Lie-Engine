@@ -16,7 +16,7 @@ godot --path gpu_compute res://lie22_modular_lab.tscn
 
 También se abre mediante «Ojo y pared modular» en el taller de piezas.
 El archivo editable `assets/lie22/modular-masters.blend` contiene originales
-procedurales distribuidos bajo la licencia del proyecto. Diez maestros se
+procedurales distribuidos bajo la licencia del proyecto. Once maestros se
 capturan con 36 direcciones a 96². El paquete compartido contiene posiciones,
 radios, normales, gris, región de material y celda local, con 48 bytes por
 muestra; dos niveles conservan distintos presupuestos de muestras. Las PNG
@@ -61,7 +61,7 @@ cerrados. No se afirma equivalencia anatómica o visual a Cycles.
 La rejilla tiene 6 columnas y 8 filas. Los ladrillos miden 0.24 × 0.065 × 0.11 m.
 Doce módulos de 2 × 2 conservan muestras de sus superficies visibles; la pared
 intacta utiliza 12 instancias de módulo y una del suelo. El modo expandido
-utiliza 48 ladrillos compartidos y suelo. El revestimiento es un maestro de
+utiliza 48 ladrillos, 12 cruces de mortero compartido y suelo. El revestimiento es un maestro de
 superficie capturada con profundidad propia.
 
 Cada celda acumula daño hasta 100. Al destruir una, solo su módulo se expande;
@@ -109,7 +109,7 @@ imagen; el rayo se convierte a la celda visible en coordenadas de la pared.
 ## Verificación
 
 El workflow prepara realmente Blender y ejecuta Vulkan sobre llvmpipe.
-La prueba independiente comprueba 800 muestras contra las superficies fuente,
+La prueba independiente comprueba 880 muestras contra las superficies fuente,
 normalización, finitud, caras interiores y partición de volumen de ladrillo.
 El documento prueba límites, transacciones, historial, persistencia, daño
 acumulado y soporte. La prueba GPU usa botones reales y el agente sobre el

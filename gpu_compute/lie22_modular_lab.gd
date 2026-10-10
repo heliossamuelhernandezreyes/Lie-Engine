@@ -152,6 +152,7 @@ func _instances() -> Array:
             if intact and document.state["grouped"]:
                 _add_instance(list,"tile_coat" if document.state["coating"] else "tile_brick",Transform3D(Basis.IDENTITY,(cell_center(cells[0])+cell_center(cells[3]))*.5),cells[0],true);grouped+=1
             else:
+                if intact:_add_instance(list,"mortar",Transform3D(Basis.IDENTITY,(cell_center(cells[0])+cell_center(cells[3]))*.5))
                 for cell in cells:
                     if graph["supported"].has(cell):_add_instance(list,"coated_brick" if intact and document.state["coating"] else "brick",Transform3D(Basis.IDENTITY,cell_center(cell)),cell)
     var sleeping: int=0
@@ -174,7 +175,7 @@ func _apply() -> void:
     for attempt in range(2):
         instance_data.clear();jobs.clear();work=0
         for entry in list:
-            var pose: Transform3D=entry["pose"];var level: int=1 if coarse_all or str(entry["master"]).begins_with("fragment") else 0
+            var pose: Transform3D=entry["pose"];var level: int=1 if (coarse_all and entry["master"]!="floor") or str(entry["master"]).begins_with("fragment") else 0
             var master: Dictionary=effect.get("catalog")["masters"][entry["master"]];var range_data: Dictionary=master["levels"][level]
             var index: int=instance_data.size()/24
             for v in [pose.basis.x,pose.basis.y,pose.basis.z,pose.origin]:instance_data.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))

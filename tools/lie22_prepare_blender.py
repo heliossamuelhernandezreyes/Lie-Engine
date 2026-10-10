@@ -72,6 +72,13 @@ def masonry(name, tile=False, coated=False):
     return obj
 
 
+def mortar():
+    points, faces, zones, cells = [], [], [], []
+    append_box(points,faces,zones,cells,(0,0,-.001),(.012,PITCH[1]*2,.108),4)
+    append_box(points,faces,zones,cells,(0,0,-.001),(PITCH[0]*2,.011,.108),4)
+    return mesh_object('mortar',points,faces,zones,cells)
+
+
 def eye():
     points, faces, zones = [], [], []
     segments, rings = 128, 48
@@ -226,7 +233,7 @@ def main():
     if not 64<=args.resolution<=192:raise ValueError('Capture resolution outside authoring contract')
     assets=ROOT/'assets/lie22';out=ROOT/'captures/modular22';assets.mkdir(parents=True,exist_ok=True);out.mkdir(parents=True,exist_ok=True)
     bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
-    objects=[eye(),masonry('brick'),masonry('coated_brick',False,True),masonry('tile_brick',True),masonry('tile_coat',True,True)]+fragments()
+    objects=[eye(),masonry('brick'),masonry('coated_brick',False,True),masonry('tile_brick',True),masonry('tile_coat',True,True),mortar()]+fragments()
     points,faces,zones,cells=[],[],[],[]
     append_box(points,faces,zones,cells,(0,-.005,0),(2.4,.01,1.6),7)
     objects.append(mesh_object('floor',points,faces,zones,cells))

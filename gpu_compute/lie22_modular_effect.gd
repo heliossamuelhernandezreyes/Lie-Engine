@@ -113,6 +113,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     if signature==_resident:return
     var work: int=next["work"]
     if work>projection_capacity:
+        _rd.free_rid(_set);_set=RID()
         _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=mini(MAX_WORK,int(ceil(float(work)/65536))*65536)
         _buffer(3,projection_capacity*96);_make_set()
     _rd.buffer_update(_buffers[6],0,256,next["parameters"])

@@ -114,7 +114,7 @@ func _run() -> void:
     expect(lab.call("agent_snapshot")["metrics"]["grouped_modules"]==12 and grouped["instances"]==13,"48 bricks represented by 12 modules plus floor")
     expect(_panels_fit(lab.get("ui")),"Wall controls fit window")
     _command({"op":"set_values","values":{"grouped":false}});await _settle();var expanded: Dictionary=await _read();_image(expanded,"wall-expanded")
-    expect(expanded["instances"]==49,"Expanded mode uses 48 shared brick instances")
+    expect(expanded["instances"]==61,"Expanded mode uses 48 shared bricks, 12 mortar pieces and floor")
     var comparison: Dictionary=_compare(grouped,expanded);results["grouped_vs_expanded"]=comparison
     expect(comparison["iou"]>.95,"Grouping preserves depth silhouette")
     _command({"op":"set_values","values":{"grouped":true,"coating":true}});await _settle();var coated: Dictionary=await _read();_image(coated,"wall-coated");_screen("wall-coated")
