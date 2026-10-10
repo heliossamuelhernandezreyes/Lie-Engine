@@ -85,11 +85,18 @@ func _run() -> void:
             _save("motion-"+mode+"-%02d" % frame)
     var final: Dictionary=await _snapshot()
     if final.is_empty() or int(final["asset_uploads"])!=1 or _meshes(lab)!=0: _fail("Invalid final master / geometry state"); return
+    effect.call("configure_quality",true,true,true,true)
+    await _settle(8)
+    var combined: Dictionary=await _snapshot()
+    if combined.is_empty() or int(combined["counters"][8])<=0 or int(combined["asset_uploads"])!=1:
+        _fail("Combined contrast filter and rigid temporal history failed"); return
+    _save("combined-temporal")
     var report: Dictionary={"experiment":"LIE17-contrast-edges-v1","device":final["device"],"hardware_fps_claim":false,
         "visible_source_meshes":0,"source_capture_resolution":128,"reconstruction_size":384,"output_size":768,
         "analytic_diagonal_mean_rmse_without_filter":before_error/3,"analytic_diagonal_mean_rmse_with_filter":after_error/3,
         "production_shader_fixtures":fixtures,"consumer_timestamp_measurements":timings,"matched_states":states,
         "paired_real_motion_frames":frames,"motion_temporal_enabled":false,"interactive_temporal_default":true,
+        "combined_temporal_accepted_pixels":combined["counters"][8],
         "immutable_master_uploads":final["asset_uploads"],"consumer_bytes":final["allocation_bytes"],
         "extra_image_buffers":0,"known_limits":["The filter adds texture reads; it is not free", "Softening can remove fine detail",
         "Direction is bounded to two source pixels; not a replacement for higher-resolution captures",

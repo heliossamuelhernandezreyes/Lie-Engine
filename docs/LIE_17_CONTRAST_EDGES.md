@@ -8,7 +8,7 @@ de la salida cambia: no se añade una imagen intermedia ni un nuevo despacho.
 El contraste se mide con luminancia perceptual aproximada. En regiones de
 contraste suficiente, cuatro vecinos diagonales estiman una dirección de
 contorno. El filtro toma muestras estrechas y anchas en esa dirección, con
-desplazamientos acotados a un píxel respecto al centro. Se conserva el centro
+desplazamientos acotados a un píxel por eje respecto al centro. Se conserva el centro
 cuando el contraste es bajo o la dirección es indeterminada. Así se evitan
 promedios indiscriminados y se conservan texeles aislados/líneas estrechas en
 los casos de prueba. Esto sigue siendo una aproximación de imagen.
@@ -38,13 +38,17 @@ python3 tools/lie17_evidence.py EXTRACTED_ARTIFACT OUTPUT_DIRECTORY
 Once casos ejecutan el shader real. Tres contornos diagonales se comparan con
 el área exacta de cada píxel, calculada recortando un cuadrado con un semiplano;
 este oráculo no reproduce el algoritmo del filtro. Otros casos comprueban
-color constante, un texel aislado, una línea de un texel, profundidad inválida,+alfa vacío, oclusión nativa completa/parcial y superficie visible delante de
+color constante, un texel aislado, una línea de un texel, profundidad inválida,
+alfa vacío, oclusión nativa completa/parcial y superficie visible delante de
 la escena nativa.
 
 Las grabaciones comparan 48 pares reales con idéntica cámara, pose y entrada
 espacial. Desactivan temporal/jitter para aislar el filtro de bordes; no son
 una medida del efecto combinado con historial. Los 25 fps elegidos para la
 exportación son cadencia de presentación, no rendimiento del motor.
+
+Una comprobación adicional activa el filtro y el historial juntos, exige
+aceptación de historia y conserva un fotograma de ese modo combinado.
 
 La prueba de coste usa bloques apagado/encendido/apagado, conserva 12 intervalos
 del consumidor por bloque y permite revisar la deriva. El intervalo incluye
