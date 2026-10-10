@@ -22,8 +22,8 @@ def lie(p):
 
 def pack(root):
     manifest = json.loads((root/"manifest.json").read_text())
-    if manifest["schema_version"] != 2 or manifest["resolution"] != [96, 96]:
-        raise ValueError("LIE-14 master requires schema-2 96-square capture channels")
+    if manifest["schema_version"] != 2 or manifest["resolution"] != [128, 128]:
+        raise ValueError("LIE-14 master requires schema-2 128-square capture channels")
     near, far = (manifest["linear_depth_meters"][k] for k in ["near", "far"])
     center = Vector(manifest["center_blender"])
     radius, half = .18, .6
@@ -41,15 +41,15 @@ def pack(root):
         right, up, forward = lie(matrix.col[0].xyz), lie(matrix.col[1].xyz), -lie(matrix.col[2].xyz)
         start = len(points)
         scale = manifest["orthographic_scale"]
-        for y in range(96):
-            for x in range(96):
-                pixel = ((95-y)*96+x)*4
+        for y in range(128):
+            for x in range(128):
+                pixel = ((127-y)*128+x)*4
                 rgba = channels["albedo"][pixel:pixel+4]
                 z = channels["depth"][pixel]
                 n = lie(Vector([v*2-1 for v in channels["normal"][pixel:pixel+3]])).normalized()
                 if rgba[3] < .99 or n.length_squared() < .5 or not 0 <= z <= 1:
                     continue
-                p = origin+((x+.5)/96-.5)*scale*right+(.5-(y+.5)/96)*scale*up+(near+z*(far-near))*forward
+                p = origin+((x+.5)/128-.5)*scale*right+(.5-(y+.5)/128)*scale*up+(near+z*(far-near))*forward
                 distance = abs(abs(p.y)-half) if abs(n.y) > .8 else abs(math.hypot(p.x, p.z)-radius)
                 if distance > .006 or abs(p.y) > half+.006:
                     rejected += 1

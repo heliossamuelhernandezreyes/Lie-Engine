@@ -17,3 +17,4 @@ gpu_compute/lie13-diagnostic.json
 gpu_compute/captures/rigid_master/
 gpu_compute/lie14-*.png
 gpu_compute/lie14-diagnostic.json
+gpu_compute/lie14-import.log

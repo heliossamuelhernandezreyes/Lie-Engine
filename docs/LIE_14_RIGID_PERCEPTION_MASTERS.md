@@ -64,7 +64,7 @@ the new articulated consumer is not a unified glass/robot scene renderer.
 
 ```sh
 blender --background --python tools/create_lie_master_fixture_blender.py -- /tmp/lie14-master.glb
-blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie14-master.glb --out gpu_compute/captures/rigid_master --azimuth-steps 12 --elevations=-60,0,60 --resolution 96
+blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie14-master.glb --out gpu_compute/captures/rigid_master --azimuth-steps 12 --elevations=-60,0,60 --resolution 128
 blender --background --python tools/lie_master_pack_blender.py -- gpu_compute/captures/rigid_master
 python3 tools/lie14_reference.py gpu_compute/captures/rigid_master
 godot --path gpu_compute --editor --import --quit
