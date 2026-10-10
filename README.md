@@ -1,8 +1,14 @@
-# Lie Engine — LIE-01 through LIE-12
+# Lie Engine — LIE-01 through LIE-14
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-14 — invisible articulation and perception masters
+
+One fixed Blender cylinder is captured from 36 camera directions, with one neutral image, one normal map and one depth pass per view. Three rigid instances share the same immutable master buffer. An invisible joint hierarchy moves their perception bounds, collision cylinders, image samples and lighting nodes together. The camera-facing reconstruction preserves sample depth and perspective; the bounding box's faces are never displayed. Direct illumination now uses captured normals per pixel, while shrinking diffuse secondary sources remain node-based.
+
+Open `gpu_compute/lie14_lab.tscn` after generating its bundle. Joint/orbit sliders and pose/light/absorption controls support direct interaction. The dedicated workflow compares GPU lighting with a float64 oracle, compares moving silhouettes/depth with independent analytic rays, and checks native depth and master reuse. Read [LIE-14 contract and reproduction](docs/LIE_14_RIGID_PERCEPTION_MASTERS.md). This first gate uses cylindrical masters and kinematic joints; it is not a general modeling editor or a measured mobile optimization.
 
 ## LIE-12 — actual Blender captures consume absorption-coded light
 

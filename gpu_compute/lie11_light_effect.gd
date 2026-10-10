@@ -76,12 +76,18 @@ func _uniform(binding: int, rid: RID, image: bool=false) -> RDUniform:
     u.add_id(rid)
     return u
 
+func _transport_file() -> RDShaderFile:
+    return TRANSPORT_SHADER
+
+func _extra_transport_uniforms() -> Array[RDUniform]:
+    return []
+
 func _initialize_gpu(data: Dictionary) -> bool:
     _rd=RenderingServer.get_rendering_device()
     if _rd==null:
         failure="LIE-11 requires a RenderingDevice renderer"
         return false
-    var spirv:=TRANSPORT_SHADER.get_spirv()
+    var spirv:=_transport_file().get_spirv()
     failure=spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
     if failure!="":
         push_error(failure)
@@ -121,6 +127,7 @@ func _initialize_gpu(data: Dictionary) -> bool:
         return false
     allocation_bytes+=_count*16
     uniforms.append(_uniform(10,output_rid,true))
+    uniforms.append_array(_extra_transport_uniforms())
     _set=_rd.uniform_set_create(uniforms,_shader,0)
     gpu_ready=_set.is_valid() and _pipeline.is_valid()
     if not gpu_ready:

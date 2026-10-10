@@ -1,0 +1,47 @@
+name: LIE-14 rigid masters and perception boxes
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie14-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  articulated-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rigid geometry and all prior Python regressions
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install Blender, Godot and software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie14-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie14-godot.zip -d /tmp/lie14-godot
+          chmod +x /tmp/lie14-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb
+      - name: Capture fixed master from 36 camera directions with one normal map per view
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/create_lie_master_fixture_blender.py -- /tmp/lie14-master.glb
+          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input /tmp/lie14-master.glb --out gpu_compute/captures/rigid_master --azimuth-steps 12 --elevations=-60,0,60 --resolution 96
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie_master_pack_blender.py -- gpu_compute/captures/rigid_master
+      - name: Float64 moving-light oracle and independent analytic camera rays
+        run: python3 tools/lie14_reference.py gpu_compute/captures/rigid_master
+      - name: Import actual Vulkan shaders and all scripts
+        run: |
+          xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie14-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee /tmp/lie14-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' /tmp/lie14-import.log; then exit 1; fi
+      - name: Shared masters, articulated normals, moving shadows, image transitions and native depth
+        run: xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie14-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie14_rigid.gd
+      - name: Preserve actual captures, animation frames and numeric evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-14-rigid-perception-evidence
+          path: |
+            gpu_compute/lie14-*.png
+            gpu_compute/lie14-diagnostic.json
+            gpu_compute/captures/rigid_master/
+            /tmp/lie14-import.log
+          if-no-files-found: warn
