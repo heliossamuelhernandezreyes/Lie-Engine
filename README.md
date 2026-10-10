@@ -1,8 +1,19 @@
-# Lie Engine — LIE-01 through LIE-20
+# Lie Engine — LIE-01 through LIE-21
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-21 — human quality reconstruction
+
+The human workshop now opens `gpu_compute/lie21_human_lab.tscn`: 36 neutral
+384² captures, native Blender tangent frames, weighted elliptical material
+reconstruction and a linear HDR 1024²-to-512² resolve. The invisible head/neck
+rig and shared user/agent commands are retained. The dedicated workflow runs
+the actual LIE-20 baseline and LIE-21 against fixed independent Blender/Cycles
+references, reporting image error, silhouette, memory and software Vulkan cost.
+See [LIE-21 protocol and limits](docs/LIE_21_HUMAN_QUALITY.md). This research
+step does not claim Cycles equivalence, complete human realism or Android FPS.
 
 ## LIE-20 — captured human and invisible deformation
 

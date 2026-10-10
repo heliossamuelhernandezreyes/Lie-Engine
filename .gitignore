@@ -63,3 +63,10 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie20-*.png
 /gpu_compute/lie20-*.json
 /gpu_compute/lie20-*.log
+
+# LIE-21 high-density human captures and actual matched evidence
+/gpu_compute/captures/human_quality/
+/gpu_compute/lie20-baseline/
+/gpu_compute/lie21-*.png
+/gpu_compute/lie21-*.json
+/gpu_compute/lie21-*.log

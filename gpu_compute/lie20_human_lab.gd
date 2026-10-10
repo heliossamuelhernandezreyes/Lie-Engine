@@ -16,12 +16,21 @@ var _texture_connected: bool=false
 
 func _ready() -> void:
     get_window().size=Vector2i(1280,800)
-    effect=HumanEffect.new(512)
+    effect=_create_effect()
     var world:=WorldEnvironment.new();var environment:=Environment.new()
     environment.background_mode=Environment.BG_COLOR;environment.background_color=Color(.015,.022,.033);world.environment=environment
     var compositor:=Compositor.new();compositor.compositor_effects=[effect];world.compositor=compositor;add_child(world)
     camera=Camera3D.new();camera.current=true;camera.fov=35;camera.near=.01;camera.far=5;add_child(camera)
     _build_ui();_apply();DirAccess.make_dir_recursive_absolute("user://human")
+
+func _create_effect() -> CompositorEffect:
+    return HumanEffect.new(512)
+
+func _title_text() -> String:
+    return "LIE  ·  Taller de maestros humanos"
+
+func _caption_text() -> String:
+    return "Apariencia capturada · superficie de deformación invisible"
 
 func _label(parent: Node,text: String,size: int=14) -> Label:
     var label:=Label.new();label.text=text;label.add_theme_font_size_override("font_size",size);parent.add_child(label);return label
@@ -45,7 +54,7 @@ func _slider(parent: Node,key: String,title: String) -> void:
 
 func _build_ui() -> void:
     var ui:=CanvasLayer.new();add_child(ui)
-    var title:=Label.new();title.position=Vector2(24,18);title.text="LIE  ·  Taller de maestros humanos";title.add_theme_font_size_override("font_size",26);ui.add_child(title)
+    var title:=Label.new();title.position=Vector2(24,18);title.text=_title_text();title.add_theme_font_size_override("font_size",26);ui.add_child(title)
     picture=TextureRect.new();picture.position=Vector2(298,70);picture.size=Vector2(684,684);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE
     picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;picture.mouse_filter=Control.MOUSE_FILTER_IGNORE;ui.add_child(picture)
     var left: VBoxContainer=_panel(ui,Vector2(20,70),260)
@@ -79,7 +88,7 @@ func _build_ui() -> void:
     status=_label(right,"Preparando capturas…",12);status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;status.custom_minimum_size.x=225
     _label(right,"Escaneo con ojos cerrados.\nSin cabello ni interior de boca.\nCorrectivos faciales experimentales.",12)
     stats=_label(right,"",11);stats.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;stats.custom_minimum_size.x=225
-    var caption:=Label.new();caption.position=Vector2(310,755);caption.text="Apariencia capturada · superficie de deformación invisible";ui.add_child(caption)
+    var caption:=Label.new();caption.position=Vector2(310,755);caption.text=_caption_text();ui.add_child(caption)
 
 func command(request: Variant) -> Dictionary:
     var result: Dictionary=document.dispatch(request)

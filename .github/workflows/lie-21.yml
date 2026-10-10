@@ -1,0 +1,53 @@
+name: LIE-21 human quality versus Cycles and LIE-20
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie21-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  human_quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender and software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie21-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie21-godot.zip -d /tmp/lie21-godot
+          chmod +x /tmp/lie21-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender mesa-vulkan-drivers xvfb ripgrep python3-pil
+      - name: Shared authoring and agent guards
+        run: /tmp/lie21-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --audio-driver Dummy --path gpu_compute --script res://workshop/test_lie_human_document.gd
+      - name: Baseline captures and high-density captures from identical native Blender master
+        run: |
+          blender --background --python-exit-code 1 --python tools/lie20_prepare_blender.py -- --no-reference
+          blender --background --python-exit-code 1 --python tools/lie21_prepare_blender.py
+      - name: Import shaders and scenes
+        run: |
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie21-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie21-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie21-import.log; then exit 1; fi
+      - name: Actual LIE-20 baseline with same device and independent reference settings
+        run: |
+          xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie21-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie20_human.gd
+          mkdir -p gpu_compute/lie20-baseline
+          mv gpu_compute/lie20-*.png gpu_compute/lie20-diagnostic.json gpu_compute/lie20-baseline/
+      - name: Actual weighted reconstruction, deformation, supersampling and controls
+        run: xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie21-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie21_human.gd
+      - name: Fixed camera and pose quality gates versus baseline and independent Cycles
+        run: python3 tools/lie21_evidence.py gpu_compute
+      - name: Preserve matched evidence and editable master
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-21-human-quality-evidence
+          path: |
+            gpu_compute/lie21-*.png
+            gpu_compute/lie21-*.json
+            gpu_compute/lie21-import.log
+            gpu_compute/lie20-baseline/
+            gpu_compute/captures/human_quality/
+            gpu_compute/assets/lie20/
+          if-no-files-found: warn
