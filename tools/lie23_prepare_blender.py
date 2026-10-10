@@ -54,7 +54,9 @@ def build_face():
                 hit,_,ti,_=bvh.ray_cast(outer_xy,Vector((0,0,-1)),1)
                 if hit is None:raise ValueError('Missing lid attachment')
                 p=(a+inner)*(1-t)+hit*t
-                closed=Vector((inner.x,.00008*sn,math.sqrt(max(RADIUS**2-inner.x**2,1e-8))+.0006))
+                # The two native rims overlap by less than one millimeter.
+                # A positive gap, even 0.16 mm, exposes the iris at close range.
+                closed=Vector((inner.x,-.00045*sn,math.sqrt(max(RADIUS**2-inner.x**2,1e-8))+.0006))
                 delta=(closed-inner)*(1-t)**1.4
                 # A closed lid must lie outside the entire eye hemisphere,
                 # including intermediate rings where the original scan dips.
