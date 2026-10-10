@@ -129,3 +129,9 @@ LIE-13 adds material/energy-dependent secondary radii, thin glass and water
 optical sprite codes, colored straight-segment light transmission and shared
 opaque/transparent depth. Launch `gpu_compute/lie13_lab.tscn` explicitly.
 [Contract, equations, controls and limits](docs/LIE_13_RADII_AND_DIELECTRICS.md).
+
+## LIE-15 · Robot de Arcont
+
+Un asset real de Kenney Factory Kit catalogado en Arcont se convierte en un maestro gris reutilizado por un robot de quince piezas. La cámara Lie reconstruye capturas con profundidad y normales, escala de perspectiva, luz dinámica y brillo GGX. El laboratorio incluye órbita, altura, acercamiento, animación e inspección 3D separada. Los rangos compactos y el descarte antes de iluminar se contrastan contra una imagen base idéntica.
+
+Ver [contrato, controles, reproducción y límites](docs/LIE_15_ARCONT_ROBOT.md). Laboratorio: `gpu_compute/lie15_lab.tscn`; validación real: `.github/workflows/lie-15.yml`.
