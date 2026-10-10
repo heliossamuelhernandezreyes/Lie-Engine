@@ -59,6 +59,15 @@ var profile_enabled: bool=false
 var _profile_rows: Array=[]
 var _last_profile_frame: int=-1
 var _prepare_us: int=0
+var edge_aa_enabled: bool=false
+
+func composite_file() -> RDShaderFile:
+    return CompositeFile
+
+func set_edge_aa(value: bool) -> void:
+    _mutex.lock()
+    edge_aa_enabled=value
+    _mutex.unlock()
 
 func _init(size: int=384) -> void:
     render_size=clampi(size,256,768)
@@ -151,14 +160,15 @@ func _initialize_gpu() -> bool:
     if not capture_loaded or lighting==null or not bool(lighting.get("gpu_ready")): return false
     _rd=RenderingServer.get_rendering_device()
     if _rd==null: return false
-    for code in [PipelineFile,TemporalFile,CompositeFile]:
+    var screen_code: RDShaderFile=composite_file()
+    for code in [PipelineFile,TemporalFile,screen_code]:
         failure+=code.get_spirv().get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
     if failure!="": push_error(failure); return false
     _shader=_rd.shader_create_from_spirv(PipelineFile.get_spirv())
     _pipeline=_rd.compute_pipeline_create(_shader)
     _temporal_shader=_rd.shader_create_from_spirv(TemporalFile.get_spirv())
     _temporal_pipeline=_rd.compute_pipeline_create(_temporal_shader)
-    _composite_shader=_rd.shader_create_from_spirv(CompositeFile.get_spirv())
+    _composite_shader=_rd.shader_create_from_spirv(screen_code.get_spirv())
     _composite_pipeline=_rd.compute_pipeline_create(_composite_shader)
     var camera_bytes:=PackedByteArray(); camera_bytes.resize(112)
     var jobs:=PackedFloat32Array(); jobs.resize(MAX_TASKS*TASK_FLOATS)
@@ -310,6 +320,7 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
     _mutex.lock()
     var poses: Array[Transform3D]=_poses.duplicate()
     var detail: bool=detailed_normals
+    var edges: bool=edge_aa_enabled
     var settings: Dictionary=_settings.duplicate()
     var reset_serial: int=_reset_serial
     _mutex.unlock()
@@ -363,7 +374,7 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
     _rd.compute_list_bind_uniform_set(commands,screen_set,0)
     var push: PackedByteArray=PackedInt32Array([size.x,size.y,render_size,render_size]).to_byte_array()
     push.append_array(PackedFloat32Array([projection[2].z,projection[3].z,projection[2].w,projection[3].w]).to_byte_array())
-    push.append_array(PackedInt32Array([1 if settings["spatial"] else 0,0,0,0]).to_byte_array())
+    push.append_array(PackedInt32Array([1 if settings["spatial"] else 0,1 if edges else 0,0,0]).to_byte_array())
     _rd.compute_list_set_push_constant(commands,push,48)
     _rd.compute_list_dispatch(commands,int(ceil(float(size.x)/8)),int(ceil(float(size.y)/8)),1)
     _rd.compute_list_end()

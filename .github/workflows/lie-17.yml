@@ -1,0 +1,61 @@
+name: LIE-17 contrast-guided edges and measured filter cost
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie17-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  contrast-edges:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python regressions and conservative mip contracts
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install authoring and actual software Vulkan renderer
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie17-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie17-godot.zip -d /tmp/lie17-godot
+          chmod +x /tmp/lie17-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb ripgrep
+      - name: Prepare actual pinned Arcont source
+        run: PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie15_prepare_blender.py
+      - uses: actions/cache/restore@v4
+        id: capture-cache
+        with:
+          path: gpu_compute/captures/robot_master
+          key: lie15-master-128-v1-${{ hashFiles('tools/lie15_prepare_blender.py', 'tools/lie_capture_surface_blender.py', 'gpu_compute/assets/lie15/box-small.glb.base64', 'gpu_compute/assets/lie15/colormap.png.base64') }}
+      - name: Capture sixty neutral camera views if needed
+        if: steps.capture-cache.outputs.cache-hit != 'true'
+        run: PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input gpu_compute/assets/lie15/master-neutral.glb --out gpu_compute/captures/robot_master --azimuth-steps 12 --elevations=-75,-35,0,35,75 --resolution 128
+      - uses: actions/cache/save@v4
+        if: steps.capture-cache.outputs.cache-hit != 'true'
+        with:
+          path: gpu_compute/captures/robot_master
+          key: ${{ steps.capture-cache.outputs.cache-primary-key }}
+      - name: Pack original master and independent triangle/radiometry oracle
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie15_pack_blender.py -- gpu_compute/captures/robot_master
+          python3 tools/lie15_reference.py gpu_compute/captures/robot_master
+          python3 tools/lie16_quality.py gpu_compute/captures/robot_master
+      - name: Import actual quality and temporal shaders
+        run: |
+          xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie17-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie17-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie17-import.log; then exit 1; fi
+      - name: Analytic edge, depth and feature fixtures plus matched motion and timings
+        run: xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie17-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie17_edges.gd
+      - name: Preserve real matched frames and reproducible capture levels
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-17-contrast-edge-evidence
+          path: |
+            gpu_compute/lie17-*.png
+            gpu_compute/lie17-diagnostic.json
+            gpu_compute/lie17-import.log
+            gpu_compute/captures/robot_master/
+            gpu_compute/assets/lie15/
+          if-no-files-found: warn
