@@ -38,6 +38,7 @@ var _previous_eye:=Transform3D()
 var _previous_tan: float=0
 var _previous_poses: Array[Transform3D]=[]
 var _last_jitter:=Vector2.ZERO
+var _render_signature: String=""
 var _lod_counts:=PackedInt32Array([0,0,0])
 var _rd: RenderingDevice
 var _shader: RID
@@ -60,6 +61,27 @@ var _profile_rows: Array=[]
 var _last_profile_frame: int=-1
 var _prepare_us: int=0
 var edge_aa_enabled: bool=false
+
+func pipeline_file() -> RDShaderFile:
+    return PipelineFile
+
+func temporal_file() -> RDShaderFile:
+    return TemporalFile
+
+func instance_capacity() -> int:
+    return Rigid.PARTS
+
+func render_poses() -> Array[Transform3D]:
+    return _poses.duplicate()
+
+func render_signature() -> String:
+    return ""
+
+func probe_codes() -> PackedInt32Array:
+    var probes:=PackedInt32Array()
+    for instance in range(instance_capacity()):
+        for sample in master["probe_samples"]: probes.append_array(PackedInt32Array([int(sample),instance,0,0]))
+    return probes
 
 func composite_file() -> RDShaderFile:
     return CompositeFile
@@ -161,27 +183,25 @@ func _initialize_gpu() -> bool:
     _rd=RenderingServer.get_rendering_device()
     if _rd==null: return false
     var screen_code: RDShaderFile=composite_file()
-    for code in [PipelineFile,TemporalFile,screen_code]:
+    for code in [pipeline_file(),temporal_file(),screen_code]:
         failure+=code.get_spirv().get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
     if failure!="": push_error(failure); return false
-    _shader=_rd.shader_create_from_spirv(PipelineFile.get_spirv())
+    _shader=_rd.shader_create_from_spirv(pipeline_file().get_spirv())
     _pipeline=_rd.compute_pipeline_create(_shader)
-    _temporal_shader=_rd.shader_create_from_spirv(TemporalFile.get_spirv())
+    _temporal_shader=_rd.shader_create_from_spirv(temporal_file().get_spirv())
     _temporal_pipeline=_rd.compute_pipeline_create(_temporal_shader)
     _composite_shader=_rd.shader_create_from_spirv(screen_code.get_spirv())
     _composite_pipeline=_rd.compute_pipeline_create(_composite_shader)
     var camera_bytes:=PackedByteArray(); camera_bytes.resize(112)
-    var jobs:=PackedFloat32Array(); jobs.resize(MAX_TASKS*TASK_FLOATS)
+    var jobs:=PackedFloat32Array(); jobs.resize(instance_capacity()*60*2*TASK_FLOATS)
     var projected:=PackedByteArray(); projected.resize(_projection_capacity*32)
     projected_bytes=projected.size()
     var depth:=PackedInt32Array(); depth.resize(render_size*render_size)
     var sums:=PackedInt32Array(); sums.resize(render_size*render_size*4)
-    var probes:=PackedInt32Array()
-    for instance in range(Rigid.PARTS):
-        for sample in master["probe_samples"]: probes.append_array(PackedInt32Array([int(sample),instance,0,0]))
+    var probes: PackedInt32Array=probe_codes()
     var probe_output:=PackedFloat32Array(); probe_output.resize(probes.size()*2)
     var counters:=PackedInt32Array(); counters.resize(16)
-    var previous_poses:=PackedByteArray(); previous_poses.resize(Rigid.PARTS*64)
+    var previous_poses:=PackedByteArray(); previous_poses.resize(instance_capacity()*64)
     var meta:=PackedByteArray(); meta.resize(render_size*render_size*8)
     var bytes: Array[PackedByteArray]=[samples.to_byte_array(),jobs.to_byte_array(),camera_bytes,
         projected,depth.to_byte_array(),sums.to_byte_array(),probes.to_byte_array(),probe_output.to_byte_array(),
@@ -318,13 +338,20 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
     var tan_y: float=1/absf(projection[1].y)
     var aspect: float=absf(projection[1].y/projection[0].x)
     _mutex.lock()
-    var poses: Array[Transform3D]=_poses.duplicate()
+    var poses: Array[Transform3D]=render_poses()
     var detail: bool=detailed_normals
     var edges: bool=edge_aa_enabled
     var settings: Dictionary=_settings.duplicate()
     var reset_serial: int=_reset_serial
     _mutex.unlock()
-    if poses.size()!=Rigid.PARTS: return
+    if poses.size()!=instance_capacity(): return
+    var signature: String=render_signature()
+    if signature!=_render_signature:
+        _history_valid=false
+        _render_signature=signature
+        _history_resets+=1
+        var probes: PackedInt32Array=probe_codes()
+        _rd.buffer_update(_buffers[6],0,probes.size()*4,probes.to_byte_array())
     var cut: bool=_history_valid and (eye.origin.distance_to(_previous_eye.origin)>.75 or eye.basis.z.dot(_previous_eye.basis.z)<.9 or absf(tan_y-_previous_tan)>.01)
     if cut or reset_serial!=_seen_reset_serial:
         if _history_valid: _history_resets+=1
@@ -335,7 +362,7 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
     _last_jitter=jitter
     var jobs: PackedFloat32Array=_jobs(poses,eye,tan_y,aspect,bool(settings["adaptive"]))
     active_view_tasks=int(jobs.size()/TASK_FLOATS)
-    if active_view_tasks>MAX_TASKS: failure="LIE16 task budget exceeded"; push_error(failure); return
+    if active_view_tasks>instance_capacity()*60*2: failure="LIE16 task budget exceeded"; push_error(failure); return
     _grow_projection(sample_invocations)
     if not jobs.is_empty(): _rd.buffer_update(_buffers[1],0,jobs.size()*4,jobs.to_byte_array())
     var current_camera: PackedByteArray=_camera_bytes(eye,tan_y,aspect,detail,jitter)
@@ -350,9 +377,9 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
     _rd.compute_list_bind_compute_pipeline(commands,_pipeline)
     _rd.compute_list_bind_uniform_set(commands,_set,0)
     for stage in [0,1,2,6,8,9,3,7,4,5]:
-        var push:=PackedInt32Array([stage,active_view_tasks,1,Rigid.PARTS*6]).to_byte_array()
+        var push:=PackedInt32Array([stage,active_view_tasks,1,instance_capacity()*6]).to_byte_array()
         _rd.compute_list_set_push_constant(commands,push,16)
-        var count: int=Rigid.PARTS*6 if stage==5 else render_size*render_size if stage in [0,4,6,7] else sample_invocations
+        var count: int=instance_capacity()*6 if stage==5 else render_size*render_size if stage in [0,4,6,7] else sample_invocations
         if count<=0: continue
         _rd.compute_list_dispatch(commands,int(ceil(float(count)/64)),1,1)
         _rd.compute_list_add_barrier(commands)

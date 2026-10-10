@@ -6,10 +6,10 @@ from mathutils import Matrix,Vector
 from mathutils.bvhtree import BVHTree
 
 def lie(p): return Vector((p.x,p.z,-p.y))
-def pack(root):
+def pack(root, triangle_path=None, master_id='arcont-kenney-factory-box-small-neutral-v1'):
     manifest=json.loads((root/'manifest.json').read_text()); resolution=manifest['resolution'][0]
     if resolution!=128 or manifest['schema_version']!=2: raise ValueError('128px schema-2 required')
-    triangles=json.loads((root.parents[1]/'assets/lie15/source-triangles.json').read_text())
+    triangles=json.loads((triangle_path or root.parents[1]/'assets/lie15/source-triangles.json').read_text())
     verts=[p for tri in triangles for p in tri]; bvh=BVHTree.FromPolygons(verts,[(i,i+1,i+2) for i in range(0,len(verts),3)],all_triangles=True)
     near,far=[manifest['linear_depth_meters'][k] for k in ['near','far']]
     center=Vector(manifest['center_blender']); scale=manifest['orthographic_scale']
@@ -43,6 +43,6 @@ def pack(root):
         patches.append({'position':[v*.5 for v in normal],'normal':normal,'area':1,'gray_mean':sum(p[3] for _,p in selected)/len(selected)})
         probes.append(min(selected,key=lambda q:sum((q[1][k]-normal[k]*.5)**2 for k in range(3)))[0])
     data=b''.join(struct.pack('<8f',*p) for p in points); (root/'master-samples.bin').write_bytes(data)
-    result={'schema':1,'master_id':'arcont-kenney-factory-box-small-neutral-v1','sample_count':len(points),'sample_stride_bytes':32,'views':views,'patches':patches,'bounds':[[-.5]*3,[.5]*3],'collision':{'kind':'box','half_extents':[.5]*3},'probe_samples':probes,'rejected_boundary_pixels':rejected,'normal_space':'object-local Lie XYZ','neutral_lighting':True,'normal_maps_per_view':1,'capture_light_variants_per_view':0,'sample_sha256':hashlib.sha256(data).hexdigest()}
+    result={'schema':1,'master_id':master_id,'sample_count':len(points),'sample_stride_bytes':32,'views':views,'patches':patches,'bounds':[[-.5]*3,[.5]*3],'collision':{'kind':'box','half_extents':[.5]*3},'probe_samples':probes,'rejected_boundary_pixels':rejected,'normal_space':'object-local Lie XYZ','neutral_lighting':True,'normal_maps_per_view':1,'capture_light_variants_per_view':0,'sample_sha256':hashlib.sha256(data).hexdigest()}
     (root/'master.json').write_text(json.dumps(result,indent=2)+'\n'); print('LIE15 MASTER',len(views),'views',len(points),'samples')
 if __name__=='__main__': pack(Path(sys.argv[sys.argv.index('--')+1]).resolve())

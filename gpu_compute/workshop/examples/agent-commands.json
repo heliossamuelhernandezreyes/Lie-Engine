@@ -1,0 +1,14 @@
+{
+  "commands": [
+    {
+      "op": "batch",
+      "expected_revision": 0,
+      "commands": [
+        {"op": "duplicate_piece", "source": "head", "id": "helmet", "values": {"parent": "head", "position": [0, 0.27, 0], "scale": [0.65, 0.08, 0.52], "material": "paint"}},
+        {"op": "set_track", "id": "head", "keys": [[0, 0], [1, 30], [2, 0]]},
+        {"op": "set_settings", "values": {"fluid": "water"}}
+      ]
+    },
+    {"op": "snapshot"}
+  ]
+}

@@ -1,0 +1,87 @@
+name: LIE-18 workshop, shared agent API and GPU transport
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie18-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  workshop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python regressions and conservative mip contracts
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install authoring and actual software Vulkan renderer
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie18-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie18-godot.zip -d /tmp/lie18-godot
+          chmod +x /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb ripgrep
+      - name: Prepare actual pinned Arcont source
+        run: PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie15_prepare_blender.py
+      - uses: actions/cache/restore@v4
+        id: capture-cache
+        with:
+          path: gpu_compute/captures/robot_master
+          key: lie15-master-128-v1-${{ hashFiles('tools/lie15_prepare_blender.py', 'tools/lie_capture_surface_blender.py', 'gpu_compute/assets/lie15/box-small.glb.base64', 'gpu_compute/assets/lie15/colormap.png.base64') }}
+      - name: Capture sixty neutral camera views if needed
+        if: steps.capture-cache.outputs.cache-hit != 'true'
+        run: PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input gpu_compute/assets/lie15/master-neutral.glb --out gpu_compute/captures/robot_master --azimuth-steps 12 --elevations=-75,-35,0,35,75 --resolution 128
+      - uses: actions/cache/save@v4
+        if: steps.capture-cache.outputs.cache-hit != 'true'
+        with:
+          path: gpu_compute/captures/robot_master
+          key: ${{ steps.capture-cache.outputs.cache-primary-key }}
+      - name: Pack original master and independent triangle/radiometry oracle
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie15_pack_blender.py -- gpu_compute/captures/robot_master
+          python3 tools/lie15_reference.py gpu_compute/captures/robot_master
+          python3 tools/lie16_quality.py gpu_compute/captures/robot_master
+      - name: Create editable cylinder source once
+        run: PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie18_prepare_blender.py
+      - uses: actions/cache/restore@v4
+        id: cylinder-cache
+        with:
+          path: gpu_compute/captures/workshop_cylinder
+          key: lie18-cylinder-128-v1-${{ hashFiles('tools/lie18_prepare_blender.py', 'tools/lie_capture_surface_blender.py') }}
+      - name: Capture isolated cylinder master if needed
+        if: steps.cylinder-cache.outputs.cache-hit != 'true'
+        run: PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input gpu_compute/assets/workshop/cylinder.glb --out gpu_compute/captures/workshop_cylinder --azimuth-steps 12 --elevations=-75,-35,0,35,75 --resolution 128
+      - uses: actions/cache/save@v4
+        if: steps.cylinder-cache.outputs.cache-hit != 'true'
+        with:
+          path: gpu_compute/captures/workshop_cylinder
+          key: ${{ steps.cylinder-cache.outputs.cache-primary-key }}
+      - name: Pack cylinder and preserve its conservative capture levels
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie18_pack_blender.py -- gpu_compute/captures/workshop_cylinder
+          python3 tools/lie16_quality.py gpu_compute/captures/workshop_cylinder
+      - name: Headless document, collision, animation and agent acceptance
+        run: |
+          /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --script res://workshop/test_lie_document.gd
+          /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --script res://workshop/lie_agent_cli.gd -- res://workshop/examples/agent-commands.json res://lie18-agent-response.json
+      - name: Import actual quality and temporal shaders
+        run: |
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie18-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie18-import.log; then exit 1; fi
+      - name: Actual user controls, live agent protocol, GPU energy/visibility oracle and optical media
+        run: xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie18_workshop.gd
+      - name: Preserve real matched frames and reproducible capture levels
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-18-workshop-evidence
+          path: |
+            gpu_compute/lie18-*.png
+            gpu_compute/lie18-*.json
+            gpu_compute/lie18-import.log
+            gpu_compute/captures/robot_master/
+            gpu_compute/assets/lie15/
+            gpu_compute/captures/workshop_cylinder/
+            gpu_compute/assets/workshop/
+            gpu_compute/workshop/examples/
+          if-no-files-found: warn
