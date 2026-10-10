@@ -31,3 +31,8 @@ gpu_compute/lie14-import.log
 # Generated Godot import metadata
 /gpu_compute/**/*.uid
 /gpu_compute/**/*.import
+
+# LIE-16 actual renderer evidence
+/gpu_compute/lie16-*.png
+/gpu_compute/lie16-*.json
+/gpu_compute/lie16-*.log

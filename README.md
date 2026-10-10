@@ -1,8 +1,14 @@
-# Lie Engine — LIE-01 through LIE-14
+# Lie Engine — LIE-01 through LIE-16
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-16 — stable capture quality
+
+The Arcont robot gains conservative capture mip levels selected by perceived size, projected sample footprints, per-piece/depth/normal view fusion, four-tap edge reconstruction and a temporal resolve that follows its invisible rigid skeleton. Current/previous owners and depth reject invalid history, while camera cuts and changed light/material codes reset it. No source meshes or generated intermediate frames are used. The dedicated experiment compares original-mesh geometry, static color variation, matched motion frames and consumer timestamps on software Vulkan.
+
+Run `gpu_compute/lie16_lab.tscn` after preparing its bundle; read [controls, reproduction, validation and limits](docs/LIE_16_STABLE_QUALITY.md). Additional quality has a measurable cost; Android and physical-GPU performance remain unmeasured.
 
 ## LIE-14 — invisible articulation and perception masters
 
