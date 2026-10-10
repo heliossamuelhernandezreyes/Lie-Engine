@@ -1,8 +1,12 @@
-# Lie Engine — LIE-01 through LIE-16
+# Lie Engine — LIE-01 through LIE-17
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-17 — optional contrast-guided edges
+
+An optional bounded contour filter is merged into final viewport composition, with per-tap native depth rejection and no extra intermediate image. The dedicated experiment uses analytic pixel-area oracles, thin-feature and occlusion cases, matched real motion frames and off/on/off consumer timings. Read [behavior, reproduction and limits](docs/LIE_17_CONTRAST_EDGES.md), or open `gpu_compute/lie17_lab.tscn` after preparing LIE-16 captures.
 
 ## LIE-16 — stable capture quality
 
