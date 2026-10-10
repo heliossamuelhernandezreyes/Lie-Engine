@@ -85,6 +85,8 @@ An analytic perspective-ray oracle, independent of captured samples, checks body
 silhouette and depth at five camera/pose configurations. Additional checks cover
 quarter-degree view transitions, perceived size, native opaque sprite depth,
 unchanged master upload count during movement and zero visible source meshes.
+An actual camera facing away must reject all perception boxes, render no stale
+captured body pixels and handle an empty capture task list safely.
 Animation frames and actual viewport screenshots are exported with the report.
 
 The lab includes touchable sliders for joints and orbit, pose/light/absorption

@@ -210,6 +210,21 @@ func _run() -> void:
         return
     _save(rear,"lie14-native-rear.png")
     sprite.queue_free()
+    # The actual camera may face away: six-face bounds should reject all parts,
+    # and an empty task list must still render safely without stale samples.
+    lab.set_process(false)
+    camera.look_at(camera.position+Vector3.RIGHT)
+    await _settle()
+    var offscreen: Dictionary=await _snapshot(effect)
+    var offscreen_body_pixels: int=0
+    for owner in offscreen["owners"]:
+        if int(owner)>=0 and int(owner)<3: offscreen_body_pixels+=1
+    if int(offscreen["visible_instances"])!=0 or int(offscreen["active_view_tasks"])!=0 or offscreen_body_pixels!=0:
+        _fail("Perception boxes did not cull parts behind the actual camera")
+        return
+    _save(get_root().get_texture().get_image(),"lie14-offscreen.png")
+    lab.set_process(true)
+    lab.call("move_camera")
     for i in range(12):
         var t: float=float(i)*TAU/12
         lab.set("angles",[-.55+.3*sin(t),1.2+.4*sin(t*.8),-.7+.35*cos(t*.7)])
@@ -230,6 +245,7 @@ func _run() -> void:
         "quarter_degree_camera_steps_mean_rgb_changes":changes,"maximum_camera_step_mean_rgb_change":largest_change,
         "coarse_vs_pixel_normal_mean_rgb_change":normal_image_change,"perspective_area_ratio_at_1_5x_distance":area_ratio,
         "native_depth_test":"passed","rear_sprite_center_color_leak":leak,
+        "offscreen_perception_box_test":"passed","offscreen_capture_body_pixels":offscreen_body_pixels,
         "limitations":"Three rigid cylinder instances; kinematic joints, not a robotics dynamics solver. Diffuse pixel direct light, node indirect light, finite camera samples, point-splat artifacts, mono perspective. No full Blender editor, opaque metal specular, shared native depth writeback, or hardware speed claim."}
     var file: FileAccess=FileAccess.open("res://lie14-diagnostic.json",FileAccess.WRITE)
     file.store_string(JSON.stringify(report,"  "))

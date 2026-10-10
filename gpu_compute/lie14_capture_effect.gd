@@ -172,7 +172,7 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
         failure="LIE-14 perception task budget exceeded"
         push_error(failure)
         return
-    _rd.buffer_update(_buffers[1],0,jobs.size()*4,jobs.to_byte_array())
+    if not jobs.is_empty(): _rd.buffer_update(_buffers[1],0,jobs.size()*4,jobs.to_byte_array())
     var camera:=PackedFloat32Array()
     for v in [eye.origin,eye.basis.x,eye.basis.y,-eye.basis.z]: camera.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     camera.append_array(PackedFloat32Array([tan_y,aspect,.1,100]))
@@ -186,6 +186,7 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
         var push:=PackedInt32Array([stage,active_view_tasks,TASK_STRIDE,6]).to_byte_array()
         _rd.compute_list_set_push_constant(commands,push,16)
         var count: int=6 if stage==5 else SIZE*SIZE if stage==0 or stage==4 or stage>=6 else active_view_tasks*TASK_STRIDE
+        if count<=0: continue
         _rd.compute_list_dispatch(commands,int(ceil(float(count)/64)),1,1)
         _rd.compute_list_add_barrier(commands)
     _rd.compute_list_bind_compute_pipeline(commands,_composite_pipeline)
