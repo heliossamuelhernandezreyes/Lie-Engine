@@ -41,3 +41,10 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie17-*.png
 /gpu_compute/lie17-*.json
 /gpu_compute/lie17-*.log
+
+# LIE-18 generated captures, authoring sources and renderer evidence
+/gpu_compute/captures/workshop_cylinder/
+/gpu_compute/assets/workshop/
+/gpu_compute/lie18-*.png
+/gpu_compute/lie18-*.json
+/gpu_compute/lie18-*.log

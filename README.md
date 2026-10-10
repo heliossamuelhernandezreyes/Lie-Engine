@@ -145,3 +145,16 @@ opaque/transparent depth. Launch `gpu_compute/lie13_lab.tscn` explicitly.
 Un asset real de Kenney Factory Kit catalogado en Arcont se convierte en un maestro gris reutilizado por un robot de quince piezas. La cámara Lie reconstruye capturas con profundidad y normales, escala de perspectiva, luz dinámica y brillo GGX. El laboratorio incluye órbita, altura, acercamiento, animación e inspección 3D separada. Los rangos compactos y el descarte antes de iluminar se contrastan contra una imagen base idéntica.
 
 Ver [contrato, controles, reproducción y límites](docs/LIE_15_ARCONT_ROBOT.md). Laboratorio: `gpu_compute/lie15_lab.tscn`; validación real: `.github/workflows/lie-15.yml`.
+
+## LIE-18: taller de piezas y agentes
+
+El proyecto GPU abre ahora un taller con biblioteca de maestros, piezas
+reutilizables, jerarquía de articulaciones, claves, materiales, agua y lluvia.
+Los controles y agentes comparten comandos JSON validados, transacciones,
+revisión y deshacer/rehacer. Duplicar y animar conserva las capturas.
+
+[Uso, preparación, API y límites](docs/LIE_18_WORKSHOP.md).
+La primera versión incluye el bloque/chapa real de Arcont y un cilindro
+original. Blender es una herramienta externa para preparar maestros.
+El transporte de rebotes se reconstruye en GPU cuando cambia el montaje;
+los fotogramas inactivos reutilizan el resultado.

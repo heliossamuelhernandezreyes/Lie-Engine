@@ -1,7 +1,7 @@
 config_version=5
 [application]
-config/name="Lie 1.0 Complex Model and GPU Relighting Laboratory"
-run/main_scene="res://lie10_lab.tscn"
+config/name="Lie Workshop"
+run/main_scene="res://lie18_workshop.tscn"
 [rendering]
 renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="mobile"
@@ -9,3 +9,6 @@ renderer/rendering_method.mobile="mobile"
 [display]
 window/size/viewport_width=256
 window/size/viewport_height=256
+
+[editor_plugins]
+enabled=PackedStringArray("res://addons/lie_workshop/plugin.cfg")
