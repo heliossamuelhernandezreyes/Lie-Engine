@@ -81,6 +81,12 @@ func run() -> void:
     var difference: float=0
     for i in range(no_sss["color"].size()): difference+=absf(float(no_sss["color"][i])-float(with_sss["color"][i]))
     check(difference>1,"skin scattering changes the actual image")
+    lab.command({"op":"set_values","values":{"shadows":false}});await frames(4)
+    var no_shadows: Dictionary=await read_gpu();write_frame("shadows-off",no_shadows)
+    var shadow_difference: float=0
+    for i in range(no_shadows["color"].size()): shadow_difference+=absf(float(no_shadows["color"][i])-float(with_sss["color"][i]))
+    check(shadow_difference>1,"sample-based shadows change the actual image")
+    lab.command({"op":"set_values","values":{"shadows":true}});await frames(4)
     # Real user slider invokes exactly the same authoring operation.
     var before: int=lab.document.revision;(lab.controls["head_yaw"] as HSlider).value=10
     check(lab.document.state["head_yaw"]==10 and lab.document.revision==before+1,"visible human controls share commands")
@@ -101,7 +107,7 @@ func run() -> void:
     var final: Dictionary=await read_gpu()
     root.get_texture().get_image().save_png("res://lie20-workshop.png")
     report.merge({"checks":checks,"failed":failed,"max_position_error_m":max_error,"allocation_bytes":final["allocation_bytes"],"asset_uploads":final["asset_uploads"],
-        "profile":final["profile"],"device":final["device"],"sss_image_l1_difference":difference,"master":lab.effect.get("master"),"snapshot":lab.agent_snapshot(),
+        "profile":final["profile"],"device":final["device"],"sss_image_l1_difference":difference,"shadow_image_l1_difference":shadow_difference,"master":lab.effect.get("master"),"snapshot":lab.agent_snapshot(),
         "timing_scope":"Lie GPU passes only, software Vulkan; not physical GPU, complete frame time or Android performance."},true)
     var file:=FileAccess.open("res://lie20-diagnostic.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     print("LIE20 HUMAN ","FAIL" if failed else "PASS"," ",checks," checks; Blender deformation error ",max_error," m")

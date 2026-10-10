@@ -63,7 +63,11 @@ Un retrato quieto conserva su imagen GPU sin repetir las siete fases.
 La luz directa usa GGX/Smith/Schlick con filtro de material. La rugosidad se
 deriva artísticamente del antiguo mapa especular del escaneo; no es una medición
 física de la piel. Un depth de 256² construido desde las muestras produce una
-primera sombra propia. La difusión RGB separable filtra luz difusa, preserva
+primera sombra propia.
+La profundidad de cada huella de sombra se evalúa sobre su plano tangente
+geométrico; extender la profundidad central como constante produce bandas
+de sombra propia sobre superficies inclinadas.
+La difusión RGB separable filtra luz difusa, preserva
 el brillo especular y rechaza muestras de profundidad o normal incompatibles.
 Es una aproximación en pantalla, no transporte volumétrico. El ambiente es
 un término aproximado; aún no está conectado al grafo de rebotes humano.

@@ -110,11 +110,18 @@ void main() {
             float front=dot(geometry_normal,normalize(parameters.eye.xyz-world));
             p.world=vec4(world,1);p.normal=vec4(normal,front);p.screen=vec4(0);p.gradient=vec4(0);
             vec3 light_delta=world-parameters.light.xyz;float light_depth=dot(light_delta,parameters.shadow_forward.xyz);
-            if(light_depth>.001) {
+            float light_front=dot(geometry_normal,normalize(-light_delta));
+            if(light_depth>.001 && light_front>.05) {
                 vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
+                // Each captured footprint lies on its geometric tangent plane.
+                // Constant center depth across a footprint causes striped self-
+                // shadows on inclined skin even when the samples are coplanar.
+                float plane=dot(geometry_normal,light_delta);
+                vec2 gradient=vec2(2*1.25*dot(geometry_normal,parameters.shadow_right.xyz),-2*1.25*dot(geometry_normal,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*plane);
                 for(int y=-1;y<=1;y++) for(int x=-1;x<=1;x++) {
                     ivec2 pixel=ivec2(xy)+ivec2(x,y);
-                    if(all(greaterThanEqual(pixel,ivec2(0))) && all(lessThan(pixel,ivec2(SHADOW_SIZE)))) atomicMin(shadow.v[pixel.y*SHADOW_SIZE+pixel.x],floatBitsToUint(light_depth));
+                    float plane_depth=1.0/(1.0/light_depth+dot(gradient,vec2(pixel)+.5-xy));
+                    if(plane_depth>.001 && !isnan(plane_depth) && !isinf(plane_depth) && all(greaterThanEqual(pixel,ivec2(0))) && all(lessThan(pixel,ivec2(SHADOW_SIZE)))) atomicMin(shadow.v[pixel.y*SHADOW_SIZE+pixel.x],floatBitsToUint(plane_depth));
                 }
             }
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.03) {
