@@ -131,6 +131,8 @@ func _run() -> void:
     # Restore a clear showcase while keeping this run's measured counters.
     if not _command({"op":"load_document"}): _fail("Restore saved workshop"); return
     await _settle(8); lab.call("_process",1.1)
+    await _settle(2)
+    if not (lab.get("metrics_label") as Label).text.begins_with("Grafos ") or not "Lie:" in (lab.get("metrics_label") as Label).text: _fail("Visible profiler has no measured duration"); return
     get_root().get_texture().get_image().save_png("res://lie19-workshop.png")
     var rendered: Dictionary=await _read(effect)
     var report: Dictionary={"experiment":"LIE19-transport-cache-v1","device":rendered["device"],"hardware_fps_claim":false,"equivalence_cases":comparisons,"maximum_cached_vs_fresh_error":max_error,"coalesced_edits_verified":true,"idle_lighting_solves":0,"external_python_client_verified":true,"external_revision_conflict_verified":true,"runtime_profiler_shared_with_ui":true,"atomic_commands":checks,"matched_timing_pairs":{"cached":_summary(reused,"transport_gpu_ns"),"forced_rebuild":_summary(forced,"transport_gpu_ns"),"raw_vulkan_nanoseconds":rows},"consumer_gpu":_summary(rendered["profile"],"consumer_gpu_ns"),"metrics":lab.call("runtime_metrics"),"note":"Software Vulkan; Lie pass timings are not total frame time or Android performance."}
