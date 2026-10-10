@@ -224,7 +224,7 @@ func _build_ui() -> void:
     _label(left,"Una pieza, muchas creaciones",15)
     var add_row:=HBoxContainer.new(); left.add_child(add_row)
     _button(add_row,"Bloque",_add_piece.bind("box",false)); _button(add_row,"Chapa",_add_piece.bind("box",true)); _button(add_row,"Cilindro",_add_piece.bind("cylinder",false))
-    _button(left,"Maestro humano · Blender",func(): get_tree().change_scene_to_file("res://lie20_human_lab.tscn"))
+    _button(left,"Maestro humano · calidad",func(): get_tree().change_scene_to_file("res://lie21_human_lab.tscn"))
     _label(left,"ENSAMBLAJE",13)
     part_list=ItemList.new(); part_list.custom_minimum_size=Vector2(214,260); part_list.size_flags_vertical=Control.SIZE_EXPAND_FILL
     part_list.item_selected.connect(_select_part); left.add_child(part_list)

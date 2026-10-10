@@ -14,6 +14,7 @@ import math
 from pathlib import Path
 import struct
 import sys
+import zlib
 
 import bpy
 from mathutils import Vector
@@ -149,20 +150,38 @@ def save_image(path, values, resolution, bits=16):
     image.colorspace_settings.name='Non-Color';image.pixels.foreach_set(values)
     image.filepath_raw=str(path);image.file_format='PNG'
     scene=bpy.context.scene;scene.render.image_settings.color_mode='RGBA';scene.render.image_settings.color_depth=str(bits)
-    image.save_render(str(path), scene=scene)
+    temporary=path.with_name(path.stem+'.writing.png')
+    for attempt in range(3):
+        image.save_render(str(temporary), scene=scene)
+        data=temporary.read_bytes();offset=8;complete=data.startswith(b'\x89PNG\r\n\x1a\n')
+        while complete and offset+12<=len(data):
+            size=struct.unpack_from('>I',data,offset)[0];end=offset+size+12
+            if end>len(data):complete=False;break
+            payload=data[offset+4:end-4]
+            if zlib.crc32(payload)!=struct.unpack_from('>I',data,end-4)[0]:complete=False;break
+            offset=end
+            if payload[:4]==b'IEND':break
+        if complete and offset==len(data) and data[-12:]==b'\x00\x00\x00\x00IEND\xaeB\x60\x82':
+            temporary.replace(path);break
+    else:raise RuntimeError('Incomplete PNG capture: '+str(path))
     bpy.data.images.remove(image)
 
 
-def capture(obj, rest, uvs, color, normal, spec, root, resolution):
+def capture(obj, rest, uvs, color, normal, spec, root, resolution, native_tangents=False, angles=None):
     bpy.context.scene.view_settings.view_transform='Raw'
     mesh=obj.data;mesh.calc_loop_triangles()
     triangles=[tuple(t.vertices) for t in mesh.loop_triangles]
+    loop_frames=[]
+    if native_tangents:
+        mesh.calc_tangents(uvmap='CaptureUV')
+        loop_frames=[[(lie(mesh.loops[k].tangent),mesh.loops[k].bitangent_sign) for k in t.loops] for t in mesh.loop_triangles]
     bvh=BVHTree.FromPolygons(rest,triangles,all_triangles=True)
     ns=[lie(v.normal) for v in mesh.vertices]
     center=Vector((0,.21,0));scale=.52;step=scale/resolution;grid=step*.65
     samples={};views=[]
     for elevation in [-45,0,45]:
         for azimuth in range(0,360,30):
+            if angles is not None and (azimuth,elevation) not in angles:continue
             az,el=math.radians(azimuth),math.radians(elevation)
             direction=Vector((math.sin(az)*math.cos(el),math.sin(el),math.cos(az)*math.cos(el)))
             right=Vector((math.cos(az),0,-math.sin(az)));up=direction.cross(right).normalized()
@@ -185,7 +204,15 @@ def capture(obj, rest, uvs, color, normal, spec, root, resolution):
                     du1,du2=Vector(uvs[indices[1]])-Vector(uvs[indices[0]]),Vector(uvs[indices[2]])-Vector(uvs[indices[0]])
                     determinant=du1.x*du2.y-du1.y*du2.x
                     shading=n.copy()
-                    if abs(determinant)>1e-12:
+                    if native_tangents:
+                        frame=loop_frames[ti]
+                        tangent=sum((t*w for (t,sign),w in zip(frame,bary)),Vector())
+                        tangent=(tangent-n*tangent.dot(n)).normalized()
+                        sign=sum(sign*w for (t,sign),w in zip(frame,bary))
+                        bitangent=n.cross(tangent)*(1 if sign>=0 else -1)
+                        tex=normal.at(uv)*2-Vector((1,1,1));tex.x*=.65;tex.y*=.65;tex.z=.35+.65*tex.z
+                        shading=(tangent*tex.x+bitangent*tex.y+n*tex.z).normalized()
+                    elif abs(determinant)>1e-12:
                         tangent=((b-a)*du2.y-(c-a)*du1.y)/determinant
                         tangent=(tangent-n*tangent.dot(n)).normalized()
                         bitangent=n.cross(tangent)*(1 if determinant>0 else -1)
