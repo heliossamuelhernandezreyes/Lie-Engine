@@ -70,3 +70,11 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie21-*.png
 /gpu_compute/lie21-*.json
 /gpu_compute/lie21-*.log
+
+# LIE-22 generated shared eye/masonry library and native GPU evidence
+/gpu_compute/captures/modular22/
+/gpu_compute/assets/lie22/*.blend*
+/gpu_compute/assets/lie22/source-surfaces.json
+/gpu_compute/lie22-*.png
+/gpu_compute/lie22-*.json
+/gpu_compute/lie22-*.log
