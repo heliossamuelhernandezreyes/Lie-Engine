@@ -20,7 +20,7 @@ jobs:
           unzip -q /tmp/lie16-godot.zip -d /tmp/lie16-godot
           chmod +x /tmp/lie16-godot/Godot_v4.7.2-stable_linux.x86_64
           sudo apt-get update -qq
-          sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb
+          sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb ripgrep
       - name: Prepare actual pinned Arcont source
         run: PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie15_prepare_blender.py
       - uses: actions/cache/restore@v4

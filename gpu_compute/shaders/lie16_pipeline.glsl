@@ -265,6 +265,8 @@ void main() {
         vec2 pixel=vec2(x,y)+vec2(.5);
         float cov=coverage(p,pixel);
         if(cov<.0001) continue;
+        uint weight=uint(round(clamp(p.position.w*cov,0.0,1.0)*FIXED_SCALE));
+        if(weight==0u) continue;
         uint target=uint(y*camera.dims.x+x);
         float z=pixel_depth(p,pixel);
         if(z<camera.lens.z || z>camera.lens.w) continue;
@@ -277,8 +279,6 @@ void main() {
             if(abs(uintBitsToFloat(depths.values[target])-z)>depth_tolerance(z)) continue;
             Sample nearest=samples.values[winner%uint(camera.jitter.z)];
             if(dot(s.normal_node.xyz,nearest.normal_node.xyz)<.95) { atomicAdd(counters.values[5],1u); continue; }
-            uint weight=uint(round(clamp(p.position.w*cov,0.0,1.0)*FIXED_SCALE));
-            if(weight==0u) continue;
             atomicAdd(sums.values[target].x,uint(round(color.x*float(weight))));
             atomicAdd(sums.values[target].y,uint(round(color.y*float(weight))));
             atomicAdd(sums.values[target].z,uint(round(color.z*float(weight))));
