@@ -26,10 +26,12 @@ def build_face():
     old_faces=[tuple(t.vertices) for t in original.data.loop_triangles]
     bvh=BVHTree.FromPolygons(rest,old_faces,all_triangles=True)
     anchors=[]
-    for side in [-1,1]:
-        hit,_,_,_=bvh.ray_cast(Vector((side*.043,.290,.4)),Vector((0,0,-1)),1)
+    # Calibrated from the pinned scan's frontal geometry and texture, not
+    # the approximate coordinates of LIE-20's closed-eye stress corrective.
+    for x in [-.037,.034]:
+        hit,_,_,_=bvh.ray_cast(Vector((x,.301,.4)),Vector((0,0,-1)),1)
         if hit is None:raise ValueError('Missing orbital landmark')
-        anchors.append(Vector((side*.043,.290,hit.z-.0105)))
+        anchors.append(Vector((x,.301,hit.z-.0125)))
     faces=[]
     removed=0
     for f in old_faces:
@@ -54,6 +56,12 @@ def build_face():
                 p=(a+inner)*(1-t)+hit*t
                 closed=Vector((inner.x,.00008*sn,math.sqrt(max(RADIUS**2-inner.x**2,1e-8))+.0006))
                 delta=(closed-inner)*(1-t)**1.4
+                # A closed lid must lie outside the entire eye hemisphere,
+                # including intermediate rings where the original scan dips.
+                target=p+delta;dx,dy=target.x-a.x,target.y-a.y
+                inside=RADIUS**2-dx*dx-dy*dy
+                if inside>0:target.z=max(target.z,a.z+math.sqrt(inside)+.00075)
+                delta=target-p
                 ray,_,ui,_=bvh.ray_cast(Vector((p.x,p.y,.4)),Vector((0,0,-1)),1)
                 tri=old_faces[ui];bary=barycentric(ray,*(rest[k] for k in tri))
                 uv=sum((Vector(uvs[k])*w for k,w in zip(tri,bary)),Vector((0,0)))
