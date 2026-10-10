@@ -1,0 +1,51 @@
+name: LIE-23 integrated eyes and continuous captured eyelids
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie23-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  face:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python regressions
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install Blender and software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie23-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie23-godot.zip -d /tmp/lie23-godot
+          chmod +x /tmp/lie23-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender mesa-vulkan-drivers xvfb ripgrep python3-numpy python3-pil
+      - name: Author attributed open face, eyelids and native shared-eye oracle
+        run: |
+          blender --background --python-exit-code 1 --python tools/lie23_prepare_blender.py
+          python3 tools/lie23_verify_captures.py gpu_compute
+      - name: Atomic face controls and authored playback
+        run: /tmp/lie23-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --audio-driver Dummy --path gpu_compute --script res://workshop/test_lie_face_document.gd
+      - name: Import actual face shader
+        run: |
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie23-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie23-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed|ERROR:' gpu_compute/lie23-import.log; then exit 1; fi
+      - name: Actual Vulkan, native pose comparison, depth blink, skin, iris, live controls and agents
+        run: |
+          xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie23-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie23_face.gd 2>&1 | tee gpu_compute/lie23-gpu.log
+          if rg 'ERROR:|SCRIPT ERROR|Parse Error' gpu_compute/lie23-gpu.log; then exit 1; fi
+      - name: Preserve actual GPU evidence and editable native source
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-23-integrated-face-evidence
+          path: |
+            gpu_compute/lie23-*.png
+            gpu_compute/lie23-*.json
+            gpu_compute/lie23-*.log
+            gpu_compute/captures/face23/
+            gpu_compute/assets/lie23/
+            gpu_compute/assets/lie20/source-lock.json
+            gpu_compute/assets/lie20/LeePerrySmith_License.txt
+          if-no-files-found: warn
