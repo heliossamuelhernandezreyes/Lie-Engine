@@ -131,7 +131,9 @@ func _render_callback(kind: int, render_data: RenderData) -> void:
     var packed:=PackedFloat32Array()
     for v in [transform.origin,transform.basis.x,transform.basis.y,-transform.basis.z]:
         packed.append_array(PackedFloat32Array([v.x,v.y,v.z,float(diagnostic_mode) if packed.is_empty() else 0.0]))
-    packed.append_array(PackedFloat32Array([1.0/proj[1].y,proj[1].y/proj[0].x,render_time,power,
+    # Vulkan's projection carries a Y sign; physical camera rays use the same
+    # positive FOV/aspect convention as the opaque Lie consumer.
+    packed.append_array(PackedFloat32Array([1.0/absf(proj[1].y),absf(proj[1].y/proj[0].x),render_time,power,
         proj[2].z,proj[3].z,proj[2].w,proj[3].w]))
     bytes.append_array(packed.to_byte_array())
     _rd.buffer_update(_config,0,bytes.size(),bytes)

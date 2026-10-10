@@ -171,7 +171,7 @@ func _panel(position: Vector2,size: Vector2) -> VBoxContainer:
     panel.add_theme_stylebox_override("panel",style); ui.add_child(panel)
     var box:=VBoxContainer.new(); box.add_theme_constant_override("separation",8)
     if position.x>1000:
-        var scroll:=ScrollContainer.new(); scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_DISABLED
+        var scroll:=ScrollContainer.new(); scroll.horizontal_scroll_mode=ScrollContainer.SCROLL_MODE_AUTO
         scroll.custom_minimum_size=Vector2(220,660); panel.add_child(scroll)
         box.size_flags_horizontal=Control.SIZE_EXPAND_FILL; scroll.add_child(box)
     else: panel.add_child(box)
@@ -200,16 +200,17 @@ func _build_ui() -> void:
     status=_label(left,"Preparando maestros…",13)
     _label(left,"Arrastra el fondo para orbitar.\nRueda: acercar · Espacio: animar",12)
     var right: VBoxContainer=_panel(Vector2(1016,68),Vector2(248,694))
-    title_label=_label(right,"PIEZA",18)
-    parent_choice=OptionButton.new(); parent_choice.item_selected.connect(_set_parent); right.add_child(parent_choice)
+    title_label=_label(right,"PIEZA",18); title_label.clip_text=true
+    parent_choice=OptionButton.new(); parent_choice.fit_to_longest_item=false; parent_choice.item_selected.connect(_set_parent); right.add_child(parent_choice)
     _button(right,"Acoplar caras",_snap)
     for field in ["position","scale","rotation_deg"]:
         _label(right,{"position":"Posición de articulación","scale":"Tamaño de pieza","rotation_deg":"Orientación"}[field],12)
-        var row:=HBoxContainer.new(); right.add_child(row); fields[field]=[]
+        var row:=HBoxContainer.new(); row.add_theme_constant_override("separation",4); right.add_child(row); fields[field]=[]
         for axis in range(3):
             var spin:=SpinBox.new(); spin.min_value=.02 if field=="scale" else -360 if field=="rotation_deg" else -10
             spin.max_value=5 if field=="scale" else 360 if field=="rotation_deg" else 10
             spin.step=1 if field=="rotation_deg" else .01; spin.custom_minimum_size=Vector2(68,28)
+            spin.get_line_edit().add_theme_font_size_override("font_size",12); spin.tooltip_text=["X","Y","Z"][axis]
             spin.value_changed.connect(_edit_vector.bind(field,axis)); row.add_child(spin); fields[field].append(spin)
     material_choice=OptionButton.new(); material_choice.item_selected.connect(_set_material); right.add_child(material_choice)
     var color:=ColorPickerButton.new(); color_control=color; color.text="Color del material"; color.color=Color(.62,.78,.95).linear_to_srgb(); right.add_child(color)
@@ -221,11 +222,11 @@ func _build_ui() -> void:
     _label(right,"Pose manual de articulación",12)
     angle_slider=HSlider.new(); angle_slider.custom_minimum_size=Vector2(200,24)
     angle_slider.value_changed.connect(_set_angle); right.add_child(angle_slider)
-    _button(right,"Registrar clave en este tiempo",_record_key)
+    _button(right,"Registrar clave",_record_key).tooltip_text="Añade o actualiza la clave del tiempo actual; conserva las demás."
     _label(right,"ILUMINACIÓN Y SUPERFICIES",12)
     var lamp:=HSlider.new(); light_slider=lamp; lamp.min_value=-2; lamp.max_value=2; lamp.step=.02; lamp.value=-1.7; right.add_child(lamp)
     lamp.value_changed.connect(func(value: float): var position: Array=document.state["lights"][0]["position"].duplicate(); position[0]=value; command({"op":"set_light","index":0,"values":{"position":position}}))
-    for pair in [["Rebote de luz","bounces"],["Historial de movimiento","temporal"],["Suavizar contornos","edges"]]:
+    for pair in [["Rebote de luz","bounces"],["Historial temporal","temporal"],["Suavizar contornos","edges"]]:
         var toggle:=CheckBox.new(); toggle.text=pair[0]; toggle.button_pressed=true
         toggle.toggled.connect(_toggle_setting.bind(pair[1])); setting_controls[pair[1]]=toggle; right.add_child(toggle)
     var fluid:=OptionButton.new(); fluid_choice=fluid; for text in ["Sin fluido","Agua con ondas","Lluvia"]: fluid.add_item(text)

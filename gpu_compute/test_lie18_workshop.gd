@@ -27,6 +27,13 @@ func _find_button(node: Node,text: String) -> Button:
         var found: Button=_find_button(child,text)
         if found!=null: return found
     return null
+func _panels_fit(node: Node) -> bool:
+    if node is PanelContainer:
+        var bounds: Rect2=(node as PanelContainer).get_global_rect()
+        if bounds.position.x<0 or bounds.end.x>get_root().size.x or bounds.end.y>get_root().size.y: return false
+    for child in node.get_children():
+        if not _panels_fit(child): return false
+    return true
 func _command(request: Dictionary) -> bool:
     var response: Dictionary=lab.call("command",request)
     checks+=1
@@ -79,6 +86,7 @@ func _run() -> void:
     if error>.00005 or reciprocity>.00001 or row_max>1.00001: _fail("GPU factors vs independent CPU visibility/energy oracle: "+str([error,reciprocity,row_max])); return
     var graphs_before: int=int(lighting.get("graph_rebuilds")); await _settle(8)
     if int(lighting.get("graph_rebuilds"))!=graphs_before: _fail("Idle scene repeatedly rebuilds transport"); return
+    if not _panels_fit(lab.get("ui")): _fail("Workshop panels extend outside the window"); return
     _save("workshop")
     var document: RefCounted=lab.get("document")
     var fingerprint: Dictionary={}
@@ -130,13 +138,25 @@ func _run() -> void:
         if optical_data.is_empty(): _fail("Optical layers not integrated"); return
         var coefficients: PackedFloat32Array=optical_data["coefficients"]
         var covered: int=0
+        var misplaced: int=0
         for pixel in range(coefficients.size()/4):
             if coefficients[pixel*4]>=0:
                 covered+=1
                 for c in range(4):
                     if not is_finite(coefficients[pixel*4+c]) or coefficients[pixel*4+c]<0 or coefficients[pixel*4+c]>1.00001: _fail("Optical coefficients outside bounds"); return
+                if fluid=="water":
+                    # Independent Camera3D projection checks that every covered
+                    # optical pixel intersects the finite horizontal water tile.
+                    var camera: Camera3D=lab.get("camera")
+                    var screen:=Vector2((float(pixel%256)+.5)*get_root().size.x/256,(float(pixel/256)+.5)*get_root().size.y/256)
+                    var origin: Vector3=camera.project_ray_origin(screen)
+                    var ray: Vector3=camera.project_ray_normal(screen)
+                    var t: float=(-1.02-origin.y)/ray.y if absf(ray.y)>1e-8 else -1
+                    var hit: Vector3=origin+ray*t
+                    if t<=0 or absf(hit.x)>1.68 or absf(hit.z-.5)>1.13: misplaced+=1
         if covered==0: _fail("No visible "+fluid+" samples"); return
-        medium_reports[fluid]={"covered_pixels":covered,"optical_resolution":256,"layers_max":4}
+        if misplaced>0: _fail("Optical projection disagrees with physical camera rays: "+str(misplaced)); return
+        medium_reports[fluid]={"covered_pixels":covered,"misplaced_pixels":misplaced,"optical_resolution":256,"layers_max":4}
         _save(fluid)
     if not _command({"op":"set_settings","values":{"fluid":"off"}}): _fail("Disable optics"); return
     (lab.get("ui") as CanvasLayer).visible=false
@@ -150,7 +170,7 @@ func _run() -> void:
         if fingerprint[name]!=effect.get("masters")[name]["sample_sha256"]: _fail("Animation recaptured or changed master"); return
     var report: Dictionary={"experiment":"LIE18-workshop-agent-api-v1","device":final["device"],"hardware_fps_claim":false,
         "visible_source_meshes":0,"immutable_combined_master_uploads":final["asset_uploads"],"capture_packages":fingerprint,
-        "user_duplicate_button_verified":true,"user_cylinder_button_verified":true,"user_animation_keys_preserved":true,"master_switch_verified":true,"live_agent_inbox_outbox_verified":true,"atomic_agent_commands":checks,
+        "user_duplicate_button_verified":true,"user_cylinder_button_verified":true,"user_animation_keys_preserved":true,"workshop_panels_fit_window":true,"master_switch_verified":true,"live_agent_inbox_outbox_verified":true,"atomic_agent_commands":checks,
         "gpu_factor_maximum_cpu_oracle_error":error,"gpu_factor_maximum_area_reciprocity_error":reciprocity,"gpu_factor_maximum_row_sum":row_max,
         "idle_transport_rebuilds":0,"rigid_motion_frames":32,"temporal_accepted_pixels":final["counters"][8],"consumer_bytes":final["allocation_bytes"],
         "optical_media":medium_reports,"snapshot":lab.call("agent_snapshot"),
