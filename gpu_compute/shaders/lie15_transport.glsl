@@ -41,9 +41,9 @@ bool box_hit(vec3 a,vec3 b,Instance s) {
     vec3 p=local_point(a,s),d=local_point(b,s)-p;
     float lo=.001,hi=.999;
     for(int axis=0;axis<3;axis++) {
-        if(abs(d[axis])<1e-10) { if(abs(p[axis])>s.shape[axis]) return false; }
+        if(abs(d[axis])<1e-10) { if(abs(p[axis])>s.shape[axis]-1e-5) return false; }
         else {
-            float u=(-s.shape[axis]-p[axis])/d[axis],v=(s.shape[axis]-p[axis])/d[axis];
+            float u=(-s.shape[axis]+1e-5-p[axis])/d[axis],v=(s.shape[axis]-1e-5-p[axis])/d[axis];
             lo=max(lo,min(u,v)); hi=min(hi,max(u,v));
         }
     }

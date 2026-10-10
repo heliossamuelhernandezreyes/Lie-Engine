@@ -41,9 +41,9 @@ def blocked(a,b,instances):
         low,high=.001,.999
         for axis in range(3):
             if abs(d[axis])<1e-10:
-                if abs(p[axis])>.5: low,high=1,0; break
+                if abs(p[axis])>.49999: low,high=1,0; break
             else:
-                u,v=(-.5-p[axis])/d[axis],(.5-p[axis])/d[axis]
+                u,v=(-.49999-p[axis])/d[axis],(.49999-p[axis])/d[axis]
                 low=max(low,min(u,v)); high=min(high,max(u,v))
         if low<=high: return True
     return False

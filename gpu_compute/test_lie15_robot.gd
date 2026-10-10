@@ -67,6 +67,15 @@ func _run() -> void:
         for i in range(Rigid.PARTS):
             transform_error=maxf(transform_error,bodies[i].global_position.distance_to(poses[i].origin))
             for k in range(3): transform_error=maxf(transform_error,poses[i].basis[k].distance_to(Rigid.Model.vector(expected["instances"][i]["basis"][k])))
+        if node_error>.003:
+            var factors: PackedFloat32Array=Rigid.Model.factor_bytes(lab.get("model")).to_float32_array()
+            var n: int=(expected["irradiance"] as Array).size()
+            var factor_error: float=0
+            for i in range(n):
+                for j in range(n): factor_error=maxf(factor_error,absf(factors[i*n+j]-float(expected["factors"][i][j])))
+                for c in range(3):
+                    if absf(irradiance[i*4+c]-float(expected["irradiance"][i][c]))>.003: print("LIE15 NODE DIFF ",name," node=",i," expected=",expected["irradiance"][i]," actual=",irradiance.slice(i*4,i*4+3)," patch=",lab.get("model")["patches"][i])
+            print("LIE15 FACTOR MAX DIFF ",factor_error)
         if node_error>.003 or direct_error>.003 or display_error>.001 or transform_error>.00001:
             _fail(name+" numerical oracle node="+str(node_error)+" direct="+str(direct_error)+" display="+str(display_error)+" transform="+str(transform_error)); return
         cases[name]={"maximum_node_error":node_error,"maximum_pixel_direct_error":direct_error,"maximum_pixel_display_error":display_error,"maximum_transform_error_m":transform_error}

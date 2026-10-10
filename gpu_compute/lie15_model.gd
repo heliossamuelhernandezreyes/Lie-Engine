@@ -51,7 +51,7 @@ static func blocked(a: Vector3,b: Vector3,poses: Array[Transform3D]) -> bool:
         var inverse: Transform3D=pose.affine_inverse()
         var p: Vector3=inverse*a
         var q: Vector3=inverse*b
-        if Model.blocked(p,q,[[[-.5,-.5,-.5],[.5,.5,.5]]]): return true
+        if Model.blocked(p,q,[[[-.49999,-.49999,-.49999],[.49999,.49999,.49999]]]): return true
     return false
 
 static func scene_model(master: Dictionary,name: String,phase: float=0) -> Dictionary:

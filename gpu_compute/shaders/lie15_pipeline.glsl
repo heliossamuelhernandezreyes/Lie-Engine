@@ -45,9 +45,9 @@ bool box_hit(vec3 a,vec3 b,Instance s) {
     vec3 p=local_point(a,s),d=local_point(b,s)-p;
     float lo=.001,hi=.999;
     for(int axis=0;axis<3;axis++) {
-        if(abs(d[axis])<1e-10) { if(abs(p[axis])>s.shape[axis]) return false; }
+        if(abs(d[axis])<1e-10) { if(abs(p[axis])>s.shape[axis]-1e-5) return false; }
         else {
-            float u=(-s.shape[axis]-p[axis])/d[axis],v=(s.shape[axis]-p[axis])/d[axis];
+            float u=(-s.shape[axis]+1e-5-p[axis])/d[axis],v=(s.shape[axis]-1e-5-p[axis])/d[axis];
             lo=max(lo,min(u,v)); hi=min(hi,max(u,v));
         }
     }
@@ -83,9 +83,21 @@ vec3 direct_at(vec3 p,vec3 n,vec3 base,Instance instance,out vec3 specular) {
         float D=a2/(PI*denom*denom);
         float G=1.0/(1.0+smith_lambda(nv,a2)+smith_lambda(nl,a2));
         vec3 F=f0+(vec3(1)-f0)*pow(1.0-vh,5.0);
-        specular+=li*F*D*G/(4.0*nv);
+        if(dot(n,v)>0.0) specular+=li*F*D*G/(4.0*nv);
     }
     return result;
+}
+vec3 node_indirect(int node) {
+    return max(imageLoad(irradiance,ivec2(node,0)).rgb-imageLoad(direct_irradiance,ivec2(node,0)).rgb,vec3(0));
+}
+vec3 surface_indirect(int node,vec3 p,Instance instance) {
+    if(instance.pbr.w>.5) return node_indirect(node);
+    int offset=int(instance.shape.w);
+    vec2 grid=clamp(vec2(p.x+1.5,offset==90?p.z+1.5:p.y+.5),vec2(0),vec2(3));
+    ivec2 a=ivec2(floor(grid)),b=min(a+ivec2(1),ivec2(3)); vec2 t=fract(grid);
+    vec3 low=mix(node_indirect(offset+a.y*4+a.x),node_indirect(offset+a.y*4+b.x),t.x);
+    vec3 high=mix(node_indirect(offset+b.y*4+a.x),node_indirect(offset+b.y*4+b.x),t.x);
+    return mix(low,high,t.y);
 }
 vec3 sample_light(Sample s,Instance instance,out vec3 direct_value) {
     int node=int(round(s.normal_node.w+instance.shape.w));
@@ -93,7 +105,7 @@ vec3 sample_light(Sample s,Instance instance,out vec3 direct_value) {
     if(camera.dims.w==0) n=patches.values[node].normal_gray.xyz;
     vec3 base=s.point_gray.w*instance.material.rgb,specular;
     direct_value=direct_at(p,n,base,instance,specular);
-    vec3 indirect=max(imageLoad(irradiance,ivec2(node,0)).rgb-imageLoad(direct_irradiance,ivec2(node,0)).rgb,vec3(0));
+    vec3 indirect=surface_indirect(node,p,instance);
     vec3 v=normalize(camera.eye.xyz-p),f0=mix(vec3(.04),base,instance.pbr.y);
     vec3 F=f0+(vec3(1)-f0)*pow(1.0-max(dot(n,v),0.0),5.0);
     vec3 diffuse=(vec3(1)-F)*(1.0-instance.pbr.y)*base*(direct_value+indirect)/PI;

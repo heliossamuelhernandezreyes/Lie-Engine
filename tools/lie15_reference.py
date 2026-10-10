@@ -25,7 +25,7 @@ def display(s,instance,index,model,result,caps,eye):
         li=np.array(light['power_rgb'])*max(0,1-(math.sqrt(d2)/light['radius'])**4)**2/(4*math.pi*max(d2,.0025)*caps[l]); direct+=li*nl
         h=v+wi; h/=np.linalg.norm(h); nh=max(n@h,0); vh=max(v@h,0)
         D=a2/(math.pi*(nh*nh*(a2-1)+1)**2); G=1/(1+lam(nv)+lam(nl)); F=f0+(1-f0)*(1-vh)**5
-        spec+=li*F*D*G/(4*nv)
+        if n@v>0: spec+=li*F*D*G/(4*nv)
     node=int(s[7])+index*6
     indirect=np.maximum(np.array(result['irradiance'][node])-np.array(result['direct_flux'][node])/model['patches'][node]['area'],0)
     F=f0+(1-f0)*(1-max(n@v,0))**5
@@ -74,7 +74,7 @@ def main(root):
         caps=[max(1,sum(light_weight(p,l,instances) for p in model['patches'])) for l in model['lights']]
         model['_instances']=instances; eye,_=camera()
         probes=[display(samples[sample],s,i,model,solution,caps,eye) for i,s in enumerate(instances) for sample in master['probe_samples']]
-        result['scenarios'][name]={'irradiance':solution['irradiance'],'probes':probes,'instances':instances,'energy_by_generation':solution['energy_by_generation']}
+        result['scenarios'][name]={'irradiance':solution['irradiance'],'probes':probes,'factors':transport.form_factors(model)[0],'instances':instances,'energy_by_generation':solution['energy_by_generation']}
     triangles=json.loads((root.parents[1]/'assets/lie15/source-triangles.json').read_text())
     for name,yaw,el,scale,pose in [('base',24,10,1,'bounce'),('front',0,10,1,'bounce'),('pose',24,10,1,'pose'),('orbit',110,10,1,'bounce'),('high',35,65,1,'bounce'),('close',24,10,.7,'bounce'),('far',24,10,1.5,'bounce')]:
         depth,owners=mesh_depth(result['scenarios'][pose]['instances'],triangles,yaw,el,scale)
