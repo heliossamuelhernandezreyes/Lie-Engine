@@ -32,6 +32,10 @@ Necesita los dos maestros preparados. El workflow LIE-18 prepara los assets,
 captura cada maestro aislado, empaqueta sus datos y conserva las fuentes y
 capturas en su artefacto. Las fuentes de cilindro incluyen `.blend` y `.glb`.
 El bloque sigue siendo el asset real Kenney CC0 identificado en LIE-15.
+Para abrir sin regenerar capturas, descarga el artefacto del workflow LIE-18
+y extrae sus carpetas `captures/` y `assets/` dentro de `gpu_compute/` del
+checkout. Abre `gpu_compute/project.godot` con Godot 4.7.2 y ejecuta la escena
+principal, o usa «Abrir taller» en el dock Lie.
 Las fuentes editables están bajo `.gdignore`: Godot no intenta importarlas
 con Blender al abrir el proyecto. Lie carga sus paquetes de capturas.
 
@@ -84,6 +88,7 @@ presupuestos de piezas/óptica excesivos.
 | `set_settings` | `values`: rebotes, calidad y óptica |
 | `set_time` | `value`; pausa y muestra esa pose |
 | `set_playing` | `value`: booleano |
+| `save_document`, `load_document` | `path` opcional bajo `user://workshop/` |
 | `undo`, `redo` | Cambian una transacción completa |
 | `batch` | `commands`, opcional `expected_revision` |
 
@@ -91,6 +96,8 @@ Cada pieza tiene `master`, `parent`, `position` del pivote respecto a su padre,
 `rotation_deg` de reposo, `offset` del centro visible respecto a su pivote,
 `scale` de su geometría, `axis`, `limits_deg`, `angle_deg` y `material`.
 Las ranuras son asignadas por el documento y no son editables.
+Los comandos de persistencia son operaciones individuales; no se incluyen en
+un `batch`. Guardar conserva la revisión y abrir crea una revisión deshacible.
 La pose manual actualiza la clave del tiempo actual cuando ya existe una
 pista; conserva las otras claves. «Registrar clave» también conserva la pista.
 

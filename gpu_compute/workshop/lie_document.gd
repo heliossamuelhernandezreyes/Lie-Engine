@@ -4,7 +4,7 @@ extends RefCounted
 const Legacy=preload("res://lie15_model.gd")
 const LIMIT: int=30
 const SCHEMA: int=1
-const COMMANDS: Array=["add_piece","duplicate_piece","update_piece","remove_piece","set_track","set_key","set_light","set_material","set_camera","set_settings","set_time","set_playing","undo","redo","snapshot","batch"]
+const COMMANDS: Array=["add_piece","duplicate_piece","update_piece","remove_piece","set_track","set_key","set_light","set_material","set_camera","set_settings","set_time","set_playing","save_document","load_document","undo","redo","snapshot","batch"]
 var state: Dictionary
 var revision: int=0
 var _undo: Array[Dictionary]=[]
@@ -143,6 +143,12 @@ func dispatch(request: Variant) -> Dictionary:
     if request.has("expected_revision") and request["expected_revision"]!=revision: return {"ok":false,"error":"revision_conflict","revision":revision}
     var op: String=request["op"]
     if op=="snapshot": return {"ok":true,"snapshot":snapshot()}
+    if op in ["save_document","load_document"]:
+        var path: Variant=request.get("path","user://workshop/robot.lie.json")
+        if not path is String: return {"ok":false,"error":"document_path"}
+        var result: Dictionary=save_document(path) if op=="save_document" else load_document(path)
+        result["revision"]=revision
+        return result
     if op in ["undo","redo"]:
         var source: Array[Dictionary]=_undo if op=="undo" else _redo
         var target: Array[Dictionary]=_redo if op=="undo" else _undo

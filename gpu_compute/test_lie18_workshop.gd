@@ -99,6 +99,11 @@ func _run() -> void:
     if document.get("state")["pieces"].size()!=16: _fail("User duplicate control failed"); return
     _save("duplicated")
     if not _command({"op":"undo"}): _fail("Agent undo failed"); return
+    var save_button: Button=_find_button(lab.get("ui"),"Guardar")
+    if save_button==null: _fail("User save control missing"); return
+    save_button.pressed.emit()
+    if not FileAccess.file_exists("user://workshop/robot.lie.json"): _fail("User save did not write document"); return
+    if not _command({"op":"set_camera","values":{"yaw_deg":50}}) or not _command({"op":"load_document"}) or float(document.get("state")["camera"]["yaw_deg"])!=24: _fail("Agent load does not share user save"); return
     # Editing later poses through the user controls must retain earlier keys.
     if not _command({"op":"set_time","value":0}): _fail("Key time"); return
     lab.set("selected","head"); lab.call("_refresh_ui"); lab.call("_set_angle",12.0); lab.call("_record_key")
@@ -170,7 +175,7 @@ func _run() -> void:
         if fingerprint[name]!=effect.get("masters")[name]["sample_sha256"]: _fail("Animation recaptured or changed master"); return
     var report: Dictionary={"experiment":"LIE18-workshop-agent-api-v1","device":final["device"],"hardware_fps_claim":false,
         "visible_source_meshes":0,"immutable_combined_master_uploads":final["asset_uploads"],"capture_packages":fingerprint,
-        "user_duplicate_button_verified":true,"user_cylinder_button_verified":true,"user_animation_keys_preserved":true,"workshop_panels_fit_window":true,"master_switch_verified":true,"live_agent_inbox_outbox_verified":true,"atomic_agent_commands":checks,
+        "user_duplicate_button_verified":true,"user_save_agent_load_verified":true,"user_cylinder_button_verified":true,"user_animation_keys_preserved":true,"workshop_panels_fit_window":true,"master_switch_verified":true,"live_agent_inbox_outbox_verified":true,"atomic_agent_commands":checks,
         "gpu_factor_maximum_cpu_oracle_error":error,"gpu_factor_maximum_area_reciprocity_error":reciprocity,"gpu_factor_maximum_row_sum":row_max,
         "idle_transport_rebuilds":0,"rigid_motion_frames":32,"temporal_accepted_pixels":final["counters"][8],"consumer_bytes":final["allocation_bytes"],
         "optical_media":medium_reports,"snapshot":lab.call("agent_snapshot"),

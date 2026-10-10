@@ -70,7 +70,7 @@ func command(request: Variant) -> Dictionary:
     last_command=response.duplicate(true)
     if response.get("ok",false):
         var requests: Array=request.get("commands",[]) if request.get("op")=="batch" else [request]
-        if requests.any(func(item: Variant): return item is Dictionary and item.get("op")=="set_time"):
+        if requests.any(func(item: Variant): return item is Dictionary and item.get("op") in ["set_time","load_document"]):
             _fluid_time=float(document.state["time"])
         _apply_state(before["pieces"]!=document.state["pieces"])
         _refresh_ui()
@@ -82,6 +82,7 @@ func agent_snapshot() -> Dictionary:
     data["collisions"]=last_collisions.duplicate(true)
     data["capture_loaded"]=effect!=null and bool(effect.get("capture_loaded"))
     data["visible_source_meshes"]=0
+    data["selected_piece"]=selected
     data["inbox"]=OS.get_user_data_dir()+"/workshop/inbox.json"
     data["outbox"]=OS.get_user_data_dir()+"/workshop/outbox.json"
     return data
@@ -195,8 +196,8 @@ func _build_ui() -> void:
     var history:=HBoxContainer.new(); left.add_child(history)
     _button(history,"Deshacer",func(): command({"op":"undo"})); _button(history,"Rehacer",func(): command({"op":"redo"}))
     var storage:=HBoxContainer.new(); left.add_child(storage)
-    _button(storage,"Guardar",func(): var r: Dictionary=document.save_document(); command_result.text="Guardado" if r["ok"] else str(r))
-    _button(storage,"Abrir",func(): var r: Dictionary=document.load_document(); if r["ok"]: _apply_state(true); _refresh_ui())
+    _button(storage,"Guardar",func(): var r: Dictionary=command({"op":"save_document"}); if r["ok"]: command_result.text="Robot guardado")
+    _button(storage,"Abrir",func(): command({"op":"load_document"}))
     status=_label(left,"Preparando maestros…",13)
     _label(left,"Arrastra el fondo para orbitar.\nRueda: acercar · Espacio: animar",12)
     var right: VBoxContainer=_panel(Vector2(1016,68),Vector2(248,694))
