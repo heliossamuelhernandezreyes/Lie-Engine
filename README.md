@@ -193,3 +193,10 @@ La primera versión incluye el bloque/chapa real de Arcont y un cilindro
 original. Blender es una herramienta externa para preparar maestros.
 El transporte de rebotes se reconstruye en GPU cuando cambia el montaje;
 los fotogramas inactivos reutilizan el resultado.
+
+## LIE-22: shared eye and destructible masonry masters
+
+Open `gpu_compute/lie22_modular_lab.tscn` or the new workshop button after
+preparing the neutral Blender library. The original meshes remain invisible.
+See [LIE-22](docs/LIE_22_MODULAR_MASTERS.md) for shared user/agent controls,
+local fracture, support connectivity, GPU budgets and limitations.
