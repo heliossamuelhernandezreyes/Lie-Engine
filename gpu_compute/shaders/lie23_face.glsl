@@ -130,7 +130,8 @@ void main() {
         if(i>=uint(parameters.counts.x)) return;
         Projection p;
         if(stage==2) {
-            Sample s=source_sample(i);vec3 world,normal,geometry_normal;
+            Sample s=source_sample(i);vec3 world,normal,geometry_normal,footprint_normal;
+            mat3 footprint_transform=mat3(1);
             float radius=s.normal_radius.w;
             if(i>=uint(parameters.gaze.z)) {
                 vec3 local=s.binding.xyz;float r=length(local.xy);int region=int(s.material.w);
@@ -139,7 +140,7 @@ void main() {
                     local.xy*=nr/r;radius*=max(nr/r,(.006-parameters.iris.w)/(.006-.0017));
                 } else if(region==3) {local.xy*=parameters.iris.w/.0017;radius*=parameters.iris.w/.0017;}
                 mat3 rotation=yaw_rotation(parameters.pose.x)*yaw_rotation(parameters.gaze.x)*pitch_rotation(parameters.gaze.y);
-                world=eye_anchor(i)+rotation*local;normal=normalize(rotation*s.normal_radius.xyz);geometry_normal=normalize(rotation*s.geometry_front.xyz);
+                world=eye_anchor(i)+rotation*local;normal=normalize(rotation*s.normal_radius.xyz);geometry_normal=normalize(rotation*s.geometry_front.xyz);footprint_normal=geometry_normal;
             } else {
             uvec3 ids=triangles.v[int(s.binding.w)].xyz;
             vec3 a=deformed.v[ids.x].xyz,b=deformed.v[ids.y].xyz,c=deformed.v[ids.z].xyz;
@@ -148,11 +149,19 @@ void main() {
             if(dot(rest_cross,rest_cross)<1e-18 || dot(now_cross,now_cross)<1e-18) {p.world=vec4(0);p.screen=vec4(0);projected.v[i]=p;return;}
             mat3 rest=mat3(br-ar,cr-ar,normalize(rest_cross));
             mat3 now=mat3(b-a,c-a,normalize(now_cross));
-            mat3 normal_matrix=transpose(inverse(now*inverse(rest)));
+            mat3 deformation=now*inverse(rest);
+            mat3 normal_matrix=transpose(inverse(deformation));
             normal=normalize(normal_matrix*s.normal_radius.xyz);
             geometry_normal=normalize(normal_matrix*s.geometry_front.xyz);
+            footprint_normal=s.geometry_front.xyz;footprint_transform=deformation;
             world=a*s.binding.x+b*s.binding.y+c*s.binding.z;
             }
+            // A captured disk follows the same local affine deformation as
+            // its surface attachment. Replacing it with a fixed-size disk
+            // leaves holes where a blinking lid stretches between samples.
+            vec3 tangent=normalize(cross(footprint_normal,abs(footprint_normal.y)<.9?vec3(0,1,0):vec3(1,0,0)));
+            vec3 footprint_u=footprint_transform*tangent*radius;
+            vec3 footprint_v=footprint_transform*cross(footprint_normal,tangent)*radius;
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(geometry_normal,normalize(parameters.eye.xyz-world));
             p.world=vec4(world,1);p.normal=vec4(normal,front);p.screen=vec4(0);p.gradient=vec4(0);p.geometry=vec4(geometry_normal,0);p.ellipse=vec4(0);
@@ -170,7 +179,7 @@ void main() {
                     float plane_depth=1.0/(1.0/light_depth+dot(gradient,vec2(pixel)+.5-xy));
                     vec2 uv=(vec2(pixel)+.5)/float(SHADOW_SIZE);
                     vec3 ray=parameters.shadow_forward.xyz+parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
-                    float footprint=radius+light_depth*1.25/float(SHADOW_SIZE);
+                    float footprint=max(length(footprint_u),length(footprint_v))+light_depth*1.25/float(SHADOW_SIZE);
                     // A tangent plane is local, not an unbounded occluder.
                     // At grazing angles a single shadow texel can intersect it
                     // centimeters away from the captured skin sample.
@@ -180,16 +189,14 @@ void main() {
             }
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.03) {
                 vec2 xy=project(world,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw));
-                vec3 tangent=normalize(cross(geometry_normal,abs(geometry_normal.y)<.9?vec3(0,1,0):vec3(1,0,0)));
-                vec3 bitangent=cross(geometry_normal,tangent);
                 // Project the captured surface disk, then convolve its
                 // covariance with a subpixel reconstruction footprint.
-                vec2 u=project(world+tangent*radius,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
-                vec2 v=project(world+bitangent*radius,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
+                vec2 u=project(world+footprint_u,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
+                vec2 v=project(world+footprint_v,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
                 float xx=u.x*u.x+v.x*v.x+.20,yy=u.y*u.y+v.y*v.y+.20,off=u.x*u.y+v.x*v.y;
                 float determinant=max(xx*yy-off*off,1e-8);
                 p.ellipse=vec4(yy/determinant,-off/determinant,xx/determinant,0);
-                p.screen=vec4(xy,depth,clamp(sqrt(max(xx,yy)),.5,4));
+                p.screen=vec4(xy,depth,clamp(sqrt(max(xx,yy)),.5,16));
                 float plane=dot(geometry_normal,delta);
                 if(abs(plane)>1e-7) p.gradient.xy=vec2(2*parameters.lens.x*dot(geometry_normal,parameters.right.xyz)/float(parameters.counts.z),-2*parameters.lens.x*dot(geometry_normal,parameters.up.xyz)/float(parameters.counts.w))/plane;
             }

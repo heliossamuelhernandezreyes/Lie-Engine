@@ -53,6 +53,9 @@ profundidad, propietarios y sombra. Las mallas fuente nunca se rasterizan.
 Las muestras deformables siguen la superficie y el rig; las rígidas usan el
 anclaje ocular, mirada y radio de pupila. La imagen interna de 1024² se resuelve
 linealmente a 512² antes de exposición, compresión HDR y conversión sRGB.
+La huella de cada muestra de piel se transforma con la misma deformación
+local que su anclaje; conserva cobertura cuando el párpado se estira. Su
+extensión de búsqueda está limitada a 16 píxeles internos por eje.
 
 Nueve fases: deformación, limpieza, profundidad/sombra, elección de propietario,
 acumulación de material, iluminación, difusión horizontal, difusión/composición
