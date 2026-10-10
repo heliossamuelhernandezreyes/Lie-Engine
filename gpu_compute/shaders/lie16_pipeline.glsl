@@ -29,6 +29,10 @@ layout(set=0,binding=20,std430) buffer Counters { uint values[]; } counters;
 layout(push_constant,std430) uniform Phase { ivec4 data; } phase;
 const float PI=3.141592653589793;
 const float FIXED_SCALE=8192.0;
+// Normalize by resolved coverage BEFORE quantizing color. A tiny contribution
+// must not round an ordinary gray to pure black/white. The 24-bit color sum
+// stays bounded by COLOR_SCALE plus rounding, independent of sample density.
+const float COLOR_SCALE=16777216.0;
 
 
 struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 shape; vec4 material; vec4 pbr; };
@@ -173,7 +177,7 @@ void main() {
         uvec4 sum=sums.values[i];
         if(sum.w>0u && winners.values[i]!=0xffffffffu) owners.values[i]=winners.values[i]/uint(camera.jitter.z);
         ivec2 xy=ivec2(int(i)%camera.dims.x,int(i)/camera.dims.x);
-        imageStore(target_image,xy,sum.w>0u?vec4(vec3(sum.xyz)/float(sum.w),1):vec4(0));
+        imageStore(target_image,xy,sum.w>0u?vec4(vec3(sum.xyz)/COLOR_SCALE,1):vec4(0));
         return;
     }
     if(phase.data.x==6 || phase.data.x==7) {
@@ -184,7 +188,7 @@ void main() {
         if(phase.data.x==6) atomicMin(depths.values[i],bits);
         else if(depths.values[i]==bits && winners.values[i]==0xffffffffu) {
             vec3 e; vec3 color=sample_light(s,instances.values[owner],e);
-            sums.values[i]=uvec4(uvec3(round(color*FIXED_SCALE)),uint(FIXED_SCALE));
+            sums.values[i]=uvec4(uvec3(round(color*COLOR_SCALE)),uint(FIXED_SCALE));
             owners.values[i]=uint(owner);
         }
         return;
@@ -273,16 +277,19 @@ void main() {
         uint bits=floatBitsToUint(z);
         if(phase.data.x==2) { atomicMin(depths.values[target],bits); atomicAdd(counters.values[3],1u); }
         else if(phase.data.x==8 && bits==depths.values[target]) atomicMin(winners.values[target],key);
-        else if(phase.data.x==3) {
+        else if(phase.data.x==3 || phase.data.x==9) {
             uint winner=winners.values[target];
             if(winner==0xffffffffu || winner/uint(camera.jitter.z)!=owner) { atomicAdd(counters.values[4],1u); continue; }
             if(abs(uintBitsToFloat(depths.values[target])-z)>depth_tolerance(z)) continue;
             Sample nearest=samples.values[winner%uint(camera.jitter.z)];
             if(dot(s.normal_node.xyz,nearest.normal_node.xyz)<.95) { atomicAdd(counters.values[5],1u); continue; }
-            atomicAdd(sums.values[target].x,uint(round(color.x*float(weight))));
-            atomicAdd(sums.values[target].y,uint(round(color.y*float(weight))));
-            atomicAdd(sums.values[target].z,uint(round(color.z*float(weight))));
-            atomicAdd(sums.values[target].w,weight);
+            if(phase.data.x==9) atomicAdd(sums.values[target].w,weight);
+            else {
+                float contribution=float(weight)/float(sums.values[target].w)*COLOR_SCALE;
+                atomicAdd(sums.values[target].x,uint(round(color.x*contribution)));
+                atomicAdd(sums.values[target].y,uint(round(color.y*contribution)));
+                atomicAdd(sums.values[target].z,uint(round(color.z*contribution)));
+            }
         }
     }
 }

@@ -73,6 +73,9 @@ func _load_master() -> void:
     if not parsed is Dictionary: return
     master=parsed
     if int(master.get("quality_schema",0))!=1 or (master.get("levels",[]) as Array).size()!=3: return
+    # One winning piece contributes at most the shared master's sample count.
+    # 13-bit coverage must fit uint32 even if every sample collapses to a pixel.
+    if int(master["sample_count"])>524287: failure="LIE16 coverage accumulation capacity exceeded"; return
     var file:=FileAccess.open(ROOT+"quality-samples.bin",FileAccess.READ)
     if file==null or file.get_length()!=int(master["sample_count"])*32: return
     if FileAccess.get_sha256(ROOT+"quality-samples.bin")!=str(master["sample_sha256"]): return
@@ -285,7 +288,10 @@ func _collect_profile() -> void:
         var name: String=_rd.get_captured_timestamp_name(i)
         if name=="lie16-consumer-begin": begin=_rd.get_captured_timestamp_gpu_time(i)
         elif name=="lie16-consumer-end": end=_rd.get_captured_timestamp_gpu_time(i)
-    if begin>=0 and end>begin: _profile_rows.append({"render_frame":frame,"consumer_gpu_ms":float(end-begin)/1000,"cpu_prepare_us":_prepare_us})
+    # Godot 4.7.2 Vulkan returns timestampPeriod-scaled NANOSECONDS in
+    # drivers/vulkan/rendering_device_driver_vulkan.cpp, despite the reference
+    # page describing microseconds. Retain the raw interval for reproducibility.
+    if begin>=0 and end>begin: _profile_rows.append({"render_frame":frame,"consumer_gpu_ms":float(end-begin)/1000000,"consumer_gpu_ns":end-begin,"cpu_prepare_us":_prepare_us})
     if _profile_rows.size()>180: _profile_rows.pop_front()
 
 func _render_callback(kind: int,render_data: RenderData) -> void:
@@ -332,7 +338,7 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
     var commands: int=_rd.compute_list_begin()
     _rd.compute_list_bind_compute_pipeline(commands,_pipeline)
     _rd.compute_list_bind_uniform_set(commands,_set,0)
-    for stage in [0,1,2,6,8,3,7,4,5]:
+    for stage in [0,1,2,6,8,9,3,7,4,5]:
         var push:=PackedInt32Array([stage,active_view_tasks,1,Rigid.PARTS*6]).to_byte_array()
         _rd.compute_list_set_push_constant(commands,push,16)
         var count: int=Rigid.PARTS*6 if stage==5 else render_size*render_size if stage in [0,4,6,7] else sample_invocations

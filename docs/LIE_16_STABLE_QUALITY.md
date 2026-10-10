@@ -19,6 +19,13 @@ profundidad cercana, la misma pieza y normales compatibles. Así se evita que
 el color de una articulación vecina contamine la superficie más cercana. Los
 límites actuales de profundidad y normal están explícitos en el shader.
 
+La cobertura se acumula antes del color. Cada contribución de color se
+normaliza por la cobertura total del píxel y después se cuantiza a 24 bits.
+Esto evita que una contribución débil convierta un gris normal en negro/blanco.
+La suma de color queda acotada independientemente del número de muestras; la
+capacidad de cobertura uint32 se valida al cargar el maestro. El paso adicional
+también se incluye en las mediciones de coste.
+
 La composición final interpola cuatro píxeles de la imagen Lie. Cada uno se
 comprueba contra la profundidad nativa de Godot. Esta reconstrucción suaviza
 bordes a costa de cierta suavidad; no recupera detalle que falta en la captura.
@@ -119,6 +126,13 @@ GPU física, Android ni ventaja universal frente a rasterizar una malla sencilla
 La cadencia elegida al exportar el vídeo/GIF tampoco es una medición del motor.
 Los efectos adicionales tienen coste y cada resultado debe leerse junto con su
 error de imagen, cámara, modo y reserva de memoria.
+
+En Godot 4.7.2 Vulkan, `timestamp_query_result_to_time()` devuelve el resultado
+de `timestampPeriod` en nanosegundos. Se conserva el intervalo crudo y se divide
+entre 1 000 000 para obtener milisegundos. La prueba contrasta el resultado con
+la duración real del bloque y exige al menos ocho muestras válidas, para
+detectar una conversión incorrecta o mediciones vacías. Fuente exacta:
+[driver Vulkan 4.7.2](https://github.com/godotengine/godot/blob/4.7.2-stable/drivers/vulkan/rendering_device_driver_vulkan.cpp).
 
 Las sombras por cajas, iluminación indirecta difusa gruesa y limitaciones de
 metal/reflejos de LIE-15 permanecen. Vidrio/líquidos de LIE-13 siguen separados.

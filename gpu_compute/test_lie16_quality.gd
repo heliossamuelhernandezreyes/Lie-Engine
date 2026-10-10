@@ -201,9 +201,13 @@ func _run() -> void:
     var timings: Dictionary={}
     for mode in ["full","adaptive","adaptive-temporal"]:
         effect.call("configure_quality",mode!="full",mode=="adaptive-temporal",true,mode=="adaptive-temporal")
+        var wall_start: int=Time.get_ticks_usec()
         await _settle(20)
         var actual: Dictionary=await _snapshot()
         timings[mode]=_profile_summary(actual["profile"])
+        var wall_elapsed_ms: float=float(Time.get_ticks_usec()-wall_start)/1000
+        timings[mode]["measured_block_wall_ms"]=wall_elapsed_ms
+        if int(timings[mode]["samples"])<8 or float(timings[mode]["median_consumer_gpu_ms"])>wall_elapsed_ms: _fail("Missing / incorrectly scaled driver timestamps "+mode); return
     effect.set("profile_enabled",false)
     # Two real frame sequences use identical authored camera/pose samples.
     # Output cadence is chosen for viewing; it never represents hardware FPS.
