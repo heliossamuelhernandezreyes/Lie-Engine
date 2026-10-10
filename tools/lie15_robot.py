@@ -1,6 +1,5 @@
 """Float64 robot hierarchy, oriented-box lighting proxies and material contract."""
 import math
-import numpy as np
 from lie_rigid_master import rotation_z,rotation_x,compose,transform
 PARTS=15
 
@@ -34,9 +33,11 @@ def skeleton(phase=0., pose=False):
     return out
 
 def blocked(a,b,instances):
-    for s in instances:
-        columns=np.array(s['basis']); lengths=np.einsum('ij,ij->i',columns,columns)
-        p=columns@(np.array(a)-s['origin'])/lengths; d=columns@(np.array(b)-np.array(a))/lengths
+    for part in instances:
+        columns=part['basis']; lengths=[sum(v*v for v in c) for c in columns]
+        q=[a[k]-part['origin'][k] for k in range(3)]; delta=[b[k]-a[k] for k in range(3)]
+        p=[sum(c[k]*q[k] for k in range(3))/lengths[j] for j,c in enumerate(columns)]
+        d=[sum(c[k]*delta[k] for k in range(3))/lengths[j] for j,c in enumerate(columns)]
         low,high=.001,.999
         for axis in range(3):
             if abs(d[axis])<1e-10:
@@ -48,8 +49,10 @@ def blocked(a,b,instances):
     return False
 
 def normal_world(n,instance):
-    basis=np.array(instance['basis']); v=np.array(n)/np.einsum('ij,ij->i',basis,basis)@basis
-    return (v/np.linalg.norm(v)).tolist()
+    basis=instance['basis']; lengths=[sum(v*v for v in c) for c in basis]
+    v=[sum(n[j]*basis[j][k]/lengths[j] for j in range(3)) for k in range(3)]
+    length=math.sqrt(sum(c*c for c in v))
+    return [c/length for c in v]
 
 def materials(name='bounce'):
     return {'steel':{'tint_linear':[.62,.78,.95],'absorption_code':150,'roughness':.34,'metallic':.85,'emission':0},
@@ -71,8 +74,8 @@ def scene_model(master,name='bounce',phase=0):
     n=len(patches); visibility=[0]*(n*n)
     for i in range(n):
         for j in range(i+1,n):
-            a=np.array(patches[i]['position'])+np.array(patches[i]['normal'])*.003
-            b=np.array(patches[j]['position'])+np.array(patches[j]['normal'])*.003
+            a=[patches[i]['position'][k]+patches[i]['normal'][k]*.003 for k in range(3)]
+            b=[patches[j]['position'][k]+patches[j]['normal'][k]*.003 for k in range(3)]
             value=int(not blocked(a,b,instances)); visibility[i*n+j]=visibility[j*n+i]=value
     # Only the diffuse fraction becomes a secondary emitter. Metallic reflection
     # is evaluated on visible pixels; no fictitious diffuse metallic bounce.
