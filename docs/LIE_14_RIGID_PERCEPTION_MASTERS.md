@@ -46,6 +46,11 @@ cache using current cylinder positions. Pose changes therefore do not reuse an
 obsolete static visibility cache. Primary-source visibility uses the matching
 analytic cylinder solver on GPU, rather than the perception box.
 
+The flat floor and wall sprite receivers use inverse perspective projection at
+each output pixel, eliminating holes from a sparse receiver point grid. Their
+analytic depth participates in the same nearest-depth comparison as captured
+cylinder samples; this does not substitute analytic rendering for the cylinder.
+
 The consumer splits total node irradiance into direct and indirect components.
 It replaces direct node illumination with a per-sample calculation using the
 captured normal, sample position, current primary-light codes, source radius,

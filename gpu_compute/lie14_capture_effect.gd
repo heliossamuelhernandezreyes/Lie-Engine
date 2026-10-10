@@ -19,7 +19,6 @@ var allocation_bytes: int=0
 var active_view_tasks: int=0
 var visible_instances: int=0
 var samples:=PackedFloat32Array()
-var _room_ranges: Array=[]
 var _poses: Array[Transform3D]=[]
 var detailed_normals: bool=true
 var _mutex:=Mutex.new()
@@ -57,16 +56,6 @@ func _load_master() -> void:
         var node: int=roundi(samples[i*8+7])
         var normal:=Vector3(samples[i*8+4],samples[i*8+5],samples[i*8+6])
         if node<0 or node>=18 or not normal.is_finite() or absf(normal.length_squared()-1)>.001: return
-    for wall in [false,true]:
-        var start: int=samples.size()/8
-        for row in range(ROOM_SIDE):
-            for col in range(ROOM_SIDE):
-                var p:=Vector3(-2+(float(col)+.5)*4/ROOM_SIDE,-1.05,-2+(float(row)+.5)*4/ROOM_SIDE)
-                if wall: p=Vector3(p.x,-1+(float(row)+.5)*4/ROOM_SIDE,-2)
-                var n:=Vector3.BACK if wall else Vector3.UP
-                var node: int=int(row*4/ROOM_SIDE)*4+int(col*4/ROOM_SIDE)
-                samples.append_array(PackedFloat32Array([p.x,p.y,p.z,.7,n.x,n.y,n.z,float(node)]))
-        _room_ranges.append({"start":start,"count":ROOM_SIDE*ROOM_SIDE})
     capture_loaded=true
 
 func set_poses(poses: Array[Transform3D]) -> void:
@@ -160,9 +149,6 @@ func _jobs(poses: Array[Transform3D],eye: Transform3D,tan_y: float,aspect: float
             # All supported views participate; no abrupt nearest-frame switch.
             var weight: float=pow(maxf(2*cosine-1,0),2)
             if weight>.00001: data.append_array(PackedFloat32Array([float(view["start"]),float(view["count"]),float(instance),weight]))
-    for i in range(2):
-        var item: Dictionary=_room_ranges[i]
-        data.append_array(PackedFloat32Array([float(item["start"]),float(item["count"]),float(i+3),1]))
     return data
 
 func _render_callback(kind: int,render_data: RenderData) -> void:
@@ -196,10 +182,10 @@ func _render_callback(kind: int,render_data: RenderData) -> void:
     var commands: int=_rd.compute_list_begin()
     _rd.compute_list_bind_compute_pipeline(commands,_pipeline)
     _rd.compute_list_bind_uniform_set(commands,_set,0)
-    for stage in range(6):
+    for stage in [0,1,2,6,3,7,4,5]:
         var push:=PackedInt32Array([stage,active_view_tasks,TASK_STRIDE,6]).to_byte_array()
         _rd.compute_list_set_push_constant(commands,push,16)
-        var count: int=6 if stage==5 else SIZE*SIZE if stage==0 or stage==4 else active_view_tasks*TASK_STRIDE
+        var count: int=6 if stage==5 else SIZE*SIZE if stage==0 or stage==4 or stage>=6 else active_view_tasks*TASK_STRIDE
         _rd.compute_list_dispatch(commands,int(ceil(float(count)/64)),1,1)
         _rd.compute_list_add_barrier(commands)
     _rd.compute_list_bind_compute_pipeline(commands,_composite_pipeline)

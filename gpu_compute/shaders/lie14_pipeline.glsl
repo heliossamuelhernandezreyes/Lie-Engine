@@ -90,6 +90,31 @@ vec3 sample_light(Sample s,Instance instance,out vec3 direct_value) {
     vec3 radiance=s.point_gray.w*instance.material.rgb*(1.0-instance.material.w)*(direct_value+indirect)/PI;
     return radiance/(vec3(1)+radiance);
 }
+bool receiver_at(uint pixel,out Sample s,out int owner,out float depth) {
+    // Flat sprite receivers are sampled by inverse projection, not sparse
+    // point splats. This fills the floor/wall without inventing cylinder data.
+    vec2 uv=(vec2(int(pixel)%camera.dims.x,int(pixel)/camera.dims.x)+vec2(.5))/vec2(camera.dims.xy);
+    vec3 ray=camera.forward.xyz+(uv.x*2.0-1.0)*camera.lens.x*camera.lens.y*camera.right.xyz
+        +(1.0-uv.y*2.0)*camera.lens.x*camera.up.xyz;
+    depth=3.402823e38;
+    owner=-1;
+    for(int k=3;k<5;k++) {
+        int axis=k==3?1:2;
+        float coordinate=k==3?-1.05:-2.0;
+        if(camera.eye[axis]<=coordinate || abs(ray[axis])<1e-10) continue;
+        float t=(coordinate-camera.eye[axis])/ray[axis];
+        vec3 p=camera.eye.xyz+t*ray;
+        bool inside=abs(p.x)<=2.0 && (k==3?abs(p.z)<=2.0:(p.y>=-1.0 && p.y<=3.0));
+        if(!inside || t<camera.lens.z || t>camera.lens.w || t>=depth) continue;
+        depth=t;
+        owner=k;
+        int col=int(clamp(p.x+2.0,0.0,3.99999));
+        int row=int(clamp(k==3?p.z+2.0:p.y+1.0,0.0,3.99999));
+        s.point_gray=vec4(p,.7);
+        s.normal_node=vec4(k==3?vec3(0,1,0):vec3(0,0,1),float(row*4+col));
+    }
+    return owner>=0;
+}
 void main() {
     uint i=gl_GlobalInvocationID.x;
     uint pixels=uint(camera.dims.x*camera.dims.y);
@@ -102,6 +127,23 @@ void main() {
         uvec4 sum=sums.values[i];
         ivec2 xy=ivec2(int(i)%camera.dims.x,int(i)/camera.dims.x);
         imageStore(target_image,xy,sum.w>0u?vec4(vec3(sum.xyz)/float(sum.w),1):vec4(0));
+        return;
+    }
+    if(phase.data.x==6 || phase.data.x==7) {
+        if(i>=pixels) return;
+        Sample s;
+        int owner;
+        float depth;
+        if(!receiver_at(i,s,owner,depth)) return;
+        uint bits=floatBitsToUint(depth);
+        if(phase.data.x==6) atomicMin(depths.values[i],bits);
+        else if(depths.values[i]==bits) {
+            vec3 e;
+            vec3 color=sample_light(s,instances.values[owner],e);
+            uint weight=uint(FIXED_SCALE);
+            sums.values[i]=uvec4(uvec3(round(color*FIXED_SCALE)),weight);
+            owners.values[i]=uint(owner);
+        }
         return;
     }
     if(phase.data.x==5) {

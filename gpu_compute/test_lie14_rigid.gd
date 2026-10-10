@@ -116,10 +116,15 @@ func _run() -> void:
         var depth_error: float=0
         var matching: int=0
         var body_pixels: int=0
+        var receiver_pixels: int=0
+        var receiver_holes: int=0
         for i in range(owners.size()):
             var a: bool=owners[i]>=0 and owners[i]<3
             var b: bool=expected_owners[i]<3
             if a: body_pixels+=1
+            if expected_owners[i]>=3 and expected_owners[i]<=4:
+                receiver_pixels+=1
+                if owners[i]<0: receiver_holes+=1
             if a or b: union_count+=1
             if a and b: intersection+=1
             if a and b and owners[i]==int(expected_owners[i]):
@@ -127,11 +132,12 @@ func _run() -> void:
                 matching+=1
         var iou: float=float(intersection)/maxi(union_count,1)
         depth_error/=maxi(matching,1)
-        if iou<.75 or depth_error>.06:
+        var receiver_hole_fraction: float=float(receiver_holes)/maxi(receiver_pixels,1)
+        if iou<.75 or depth_error>.06 or receiver_hole_fraction>.0001:
             _fail("Captured rigid surface disagrees with analytic camera rays: "+name+" IoU="+str(iou)+" depth="+str(depth_error))
             return
         geometry[name]={"body_silhouette_iou":iou,"mean_body_depth_error_m":depth_error,"body_pixels":body_pixels,
-            "visible_instances":actual["visible_instances"]}
+            "visible_instances":actual["visible_instances"],"receiver_hole_fraction":receiver_hole_fraction}
         _save(get_root().get_texture().get_image(),"lie14-camera-"+name+".png")
     var area_ratio: float=float(geometry["far"]["body_pixels"])/float(geometry["base"]["body_pixels"])
     if area_ratio<.25 or area_ratio>.65:
