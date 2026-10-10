@@ -109,6 +109,10 @@ reales, pares de movimiento y `lie16-diagnostic.json`. Las pruebas cubren:
 - Ocho casos numéricos independientes del shader temporal, incluyendo identidad,
   otra pieza, profundidad incompatible, fondo, corte, reinicio, cambio de luz y
   movimiento de una articulación que necesita su transformación anterior.
+- Tres oráculos del pipeline de color completo: una superficie gris con una
+  sola unidad de cobertura, ocho unidades y una mezcla angular de pesos 1:3.
+  Una superficie emisiva de radiancia 0.25 debe producir gris 0.2 aunque su
+  cobertura sea débil; el gris nunca se convierte en negro por redondeo.
 - Material directo/indirecto contra el oráculo float64 de LIE-15.
 - Siete cámaras contra la malla original; comparación de detalle completo y
   adaptable, trabajo despachado y diferencias de imagen.

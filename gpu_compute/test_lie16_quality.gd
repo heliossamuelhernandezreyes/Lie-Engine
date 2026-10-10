@@ -3,6 +3,7 @@ const Rigid=preload("res://lie15_model.gd")
 const Baseline=preload("res://lie15_capture_effect.gd")
 const Quality=preload("res://lie16_capture_effect.gd")
 const Fixture=preload("res://lie16_temporal_fixture.gd")
+const ColorFixture=preload("res://lie16_color_fixture.gd")
 var failed: bool=false
 var lab: Node3D
 var effect: CompositorEffect
@@ -70,6 +71,10 @@ func _profile_summary(rows: Array) -> Dictionary:
         "scope":"capture reconstruction, temporal resolve and viewport composition; excludes light transport and CPU pose graph"}
 
 func _run() -> void:
+    var color_fixtures: Dictionary=ColorFixture.run()
+    if color_fixtures.has("error"): _fail(str(color_fixtures)); return
+    for name in color_fixtures:
+        if float(color_fixtures[name]["maximum_error"])>.000002: _fail("Weak-coverage color oracle "+name+": "+str(color_fixtures[name])); return
     var fixtures: Dictionary=Fixture.run()
     if fixtures.has("error"): _fail(str(fixtures)); return
     for name in fixtures:
@@ -246,6 +251,7 @@ func _run() -> void:
         "visible_source_meshes":0,"source_capture_resolution":128,"default_reconstruction_size":384,"higher_reconstruction_size":576,
         "capture_views":60,"lighting_capture_variants":0,"immutable_master_uploads_after_motion":final["asset_uploads"],
         "conservative_level_sample_counts":effect.get("master")["level_sample_counts"],"radiometry":radiometry,
+        "numeric_color_fixtures":color_fixtures,
         "geometry_against_original_triangles":geometry,"adaptive_work_and_image_error":work,"temporal":temporal,
         "consumer_timestamp_measurements":timings,"paired_real_motion_frames":frames,
         "higher_resolution_consumer_bytes":high_data["allocation_bytes"],"known_limits":["software Vulkan is not physical GPU / Android performance",
