@@ -1,8 +1,24 @@
-# Lie Engine — LIE-01 through LIE-19
+# Lie Engine — LIE-01 through LIE-20
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-20 — captured human and invisible deformation
+
+A locked, attributed Lee Perry-Smith scan becomes an editable Blender master
+with a head/neck armature and experimental facial correctives. Thirty-six
+neutral camera captures export grayscale, per-point RGB filters, detailed and
+geometric normals, depth and stable surface bindings. Lie deforms and lights
+the captured samples on the GPU; original triangles are never drawn. The
+workshop opens a dedicated human inspector with shared user/agent commands,
+skin diffusion controls, sample-based shadows and independent Blender camera
+and pose references. Static portraits reuse their completed GPU image.
+
+This is a human rendering research gate, **not achieved human hyperrealism**.
+The scan has closed eyes; eyes, hair, mouth interiors, complete facial rigging,
+human indirect transport and Android performance remain open work. Read
+[setup, representation, evidence and limits](docs/LIE_20_HUMAN_MASTER.md).
 
 ## LIE-19 — reusable transport and live client
 
