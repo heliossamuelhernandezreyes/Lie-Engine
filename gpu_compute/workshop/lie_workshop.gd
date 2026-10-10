@@ -69,7 +69,9 @@ func command(request: Variant) -> Dictionary:
     var response: Dictionary=document.dispatch(request)
     last_command=response.duplicate(true)
     if response.get("ok",false):
-        if request is Dictionary and request.get("op")=="set_time": _fluid_time=float(document.state["time"])
+        var requests: Array=request.get("commands",[]) if request.get("op")=="batch" else [request]
+        if requests.any(func(item: Variant): return item is Dictionary and item.get("op")=="set_time"):
+            _fluid_time=float(document.state["time"])
         _apply_state(before["pieces"]!=document.state["pieces"])
         _refresh_ui()
     if command_result!=null: command_result.text="Cambio aplicado · revisión %d" % document.revision if response.get("ok",false) else "No aplicado: "+str(response.get("error"))
@@ -267,6 +269,7 @@ func _refresh_ui() -> void:
     fluid_choice.select(["off","water","rain"].find(document.state["settings"]["fluid"]))
     angle_slider.min_value=float(piece["limits_deg"][0]); angle_slider.max_value=float(piece["limits_deg"][1])
     angle_slider.set_value_no_signal(Doc.track_angle(document.state["tracks"].get(selected,[]),float(document.state["time"]),float(piece["angle_deg"])))
+    timeline.max_value=float(document.state["duration"])
     timeline.set_value_no_signal(float(document.state["time"]))
     play_button.text="Pausar" if document.state["playing"] else "Reproducir"
 
@@ -307,15 +310,12 @@ func _snap() -> void:
     var position: Vector3=Doc.vec(parent["offset"])-Vector3.UP*float(parent["scale"][1])*.5-basis*(Doc.vec(p["offset"])+Vector3.UP*float(p["scale"][1])*.5)
     command({"op":"update_piece","id":selected,"values":{"position":Doc.arr(position)}})
 func _set_angle(value: float) -> void:
-    command({"op":"batch","commands":[{"op":"set_track","id":selected,"keys":[]},{"op":"update_piece","id":selected,"values":{"angle_deg":value}},{"op":"set_playing","value":false}]})
+    var requests: Array=[{"op":"update_piece","id":selected,"values":{"angle_deg":value}},{"op":"set_playing","value":false}]
+    if not document.state["tracks"].get(selected,[]).is_empty():
+        requests.append({"op":"set_key","id":selected,"time":document.state["time"],"angle_deg":value})
+    command({"op":"batch","commands":requests})
 func _record_key() -> void:
-    var keys: Array=document.state["tracks"].get(selected,[]).duplicate(true)
-    var time_value: float=float(document.state["time"])
-    var angle: float=angle_slider.value
-    for i in range(keys.size()-1,-1,-1):
-        if absf(float(keys[i][0])-time_value)<.005: keys.remove_at(i)
-    keys.append([time_value,angle]); keys.sort_custom(func(a: Array,b: Array): return a[0]<b[0])
-    command({"op":"set_track","id":selected,"keys":keys})
+    command({"op":"set_key","id":selected,"time":document.state["time"],"angle_deg":angle_slider.value})
 func _toggle_setting(value: bool,field: String) -> void:
     command({"op":"set_settings","values":{field:(2 if value else 0) if field=="bounces" else value}})
 

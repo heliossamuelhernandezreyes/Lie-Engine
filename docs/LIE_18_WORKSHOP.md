@@ -32,6 +32,8 @@ Necesita los dos maestros preparados. El workflow LIE-18 prepara los assets,
 captura cada maestro aislado, empaqueta sus datos y conserva las fuentes y
 capturas en su artefacto. Las fuentes de cilindro incluyen `.blend` y `.glb`.
 El bloque sigue siendo el asset real Kenney CC0 identificado en LIE-15.
+Las fuentes editables están bajo `.gdignore`: Godot no intenta importarlas
+con Blender al abrir el proyecto. Lie carga sus paquetes de capturas.
 
 La preparación usa las herramientas existentes de Blender. Por maestro se
 capturan 60 vistas neutrales, 128×128, con un mapa normal y profundidad por
@@ -75,6 +77,7 @@ presupuestos de piezas/óptica excesivos.
 | `update_piece` | `id`, `values` |
 | `remove_piece` | `id`; incluye descendientes y sus pistas |
 | `set_track` | `id`, `keys`: pares `[segundos, grados]` |
+| `set_key` | `id`, `time`, `angle_deg`; añade o reemplaza una clave |
 | `set_light` | `index`, `values`: posición, potencia RGB, radio |
 | `set_material` | `name`, `values`: tinte lineal y parámetros |
 | `set_camera` | `values`: `yaw_deg`, `elevation_deg`, `distance` |
@@ -88,6 +91,8 @@ Cada pieza tiene `master`, `parent`, `position` del pivote respecto a su padre,
 `rotation_deg` de reposo, `offset` del centro visible respecto a su pivote,
 `scale` de su geometría, `axis`, `limits_deg`, `angle_deg` y `material`.
 Las ranuras son asignadas por el documento y no son editables.
+La pose manual actualiza la clave del tiempo actual cuando ya existe una
+pista; conserva las otras claves. «Registrar clave» también conserva la pista.
 
 ### Agente sin interfaz
 
@@ -140,6 +145,8 @@ Se avisan penetraciones entre piezas no conectadas y con el piso. Los avisos
 no son un solucionador de dinámica ni bloquean todas las poses posibles.
 Los límites de articulación sí rechazan ediciones inválidas. Las cajas de
 cilindros son conservadoras, así que algunos avisos pueden ser falsos positivos.
+La animación de ejemplo se comprueba en 120 muestras de su ciclo completo:
+los brazos se balancean hacia delante/atrás y no atraviesan el torso o la cadera.
 
 Agua y gotas reutilizan los sprites neutrales de LIE-13. La composición lee la
 salida actual de Lie, conserva profundidad opaca y usa imágenes separadas para

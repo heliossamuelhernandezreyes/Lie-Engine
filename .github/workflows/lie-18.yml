@@ -66,7 +66,7 @@ jobs:
           /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --script res://workshop/lie_agent_cli.gd -- res://workshop/examples/agent-commands.json res://lie18-agent-response.json
       - name: Import actual quality and temporal shaders
         run: |
-          xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie18-import.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie18-import.log
           if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie18-import.log; then exit 1; fi
       - name: Actual user controls, live agent protocol, GPU energy/visibility oracle and optical media
         run: xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie18-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie18_workshop.gd

@@ -50,6 +50,11 @@ func _initialize() -> void:
     expect((e["joints"]["head"] as Transform3D).is_equal_approx(es["joints"]["head"]),"Parent shape scale does not deform child joint")
     expect((Doc.evaluate(doc.state,.5)["joints"]["arm_l"] as Transform3D).is_equal_approx(Doc.evaluate(doc.state,2.5)["joints"]["arm_l"]),"Absolute-time looping independent of FPS")
     expect(absf(Doc.track_angle([[0,0],[1,40]],.5,0)-20)<.000001,"Interpolated key")
+    var cycle_clear: bool=true
+    var example: Dictionary=Doc.default_state()
+    for frame in range(120):
+        if not Collision.diagnostics(example,Doc.evaluate(example,float(frame)/60)).is_empty(): cycle_clear=false
+    expect(cycle_clear,"Default animation has no nonconnected OBB or floor penetration across its cycle")
     var unit:=Transform3D.IDENTITY
     expect(Collision.overlap(unit,Transform3D(Basis(Vector3.UP,.6),Vector3(.4,0,0))),"Rotated OBB overlap")
     expect(not Collision.overlap(unit,Transform3D(Basis.IDENTITY,Vector3(1,0,0))),"Touching OBB is allowed")
@@ -69,5 +74,10 @@ func _initialize() -> void:
     expect(doc.dispatch({"op":"set_material","name":"steel","values":{"roughness":.7}})["ok"],"Agent controls material")
     var valid_keys: Variant=doc.state["pieces"][0]["limits_deg"]
     expect(not doc.dispatch({"op":"update_piece","id":"torso","values":{"angle_deg":200}})["ok"] and doc.state["pieces"][0]["limits_deg"]==valid_keys,"Joint limit rejects bad edit")
+    expect(doc.dispatch({"op":"set_key","id":"head","time":0,"angle_deg":10})["ok"] and doc.dispatch({"op":"set_key","id":"head","time":1,"angle_deg":30})["ok"],"Build keys incrementally")
+    expect(doc.state["tracks"]["head"]==[[0.0,10.0],[1.0,30.0]],"Later pose keeps earlier keys")
+    expect(doc.dispatch({"op":"set_key","id":"head","time":1,"angle_deg":20})["ok"] and doc.state["tracks"]["head"]==[[0.0,10.0],[1.0,20.0]],"Replace current key without duplicates")
+    var track: Array=doc.state["tracks"]["head"].duplicate(true)
+    expect(not doc.dispatch({"op":"set_key","id":"head","time":NAN,"angle_deg":0})["ok"] and not doc.dispatch({"op":"set_key","id":"head","time":1,"angle_deg":200})["ok"] and doc.state["tracks"]["head"]==track,"Reject invalid key atomically")
     if not failed: print("LIE18 DOCUMENT PASS ",checks," acceptance checks")
     quit(1 if failed else 0)

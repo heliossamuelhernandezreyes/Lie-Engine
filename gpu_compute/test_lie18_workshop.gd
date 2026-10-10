@@ -91,6 +91,26 @@ func _run() -> void:
     if document.get("state")["pieces"].size()!=16: _fail("User duplicate control failed"); return
     _save("duplicated")
     if not _command({"op":"undo"}): _fail("Agent undo failed"); return
+    # Editing later poses through the user controls must retain earlier keys.
+    if not _command({"op":"set_time","value":0}): _fail("Key time"); return
+    lab.set("selected","head"); lab.call("_refresh_ui"); lab.call("_set_angle",12.0); lab.call("_record_key")
+    if not _command({"op":"set_time","value":1}): _fail("Later key time"); return
+    lab.call("_set_angle",-18.0); lab.call("_record_key")
+    if document.get("state")["tracks"]["head"]!=[[0.0,12.0],[1.0,-18.0]]: _fail("User pose editor lost earlier animation keys"); return
+    if not _command({"op":"batch","commands":[{"op":"set_track","id":"head","keys":[]},{"op":"update_piece","id":"head","values":{"angle_deg":0}},{"op":"set_time","value":0}]}): _fail("Restore pose"); return
+    await _settle(5)
+    var box_frame: Dictionary=await _snapshot(effect)
+    if not _command({"op":"update_piece","id":"head","values":{"master":"cylinder"}}): _fail("Switch master"); return
+    await _settle(5)
+    var cylinder_frame: Dictionary=await _snapshot(effect)
+    if cylinder_frame["raw_color"]==box_frame["raw_color"]: _fail("Master switch did not alter captured geometry"); return
+    if not _command({"op":"undo"}): _fail("Restore master"); return
+    var cylinder_button: Button=_find_button(lab.get("ui"),"Cilindro")
+    if cylinder_button==null: _fail("Cylinder library control missing"); return
+    cylinder_button.pressed.emit(); await _settle(5)
+    if document.get("state")["pieces"].size()!=16 or document.get("state")["pieces"][-1]["master"]!="cylinder": _fail("Cylinder library control failed"); return
+    _save("assembly")
+    if not _command({"op":"undo"}): _fail("Undo cylinder"); return
     # External file transport operates on the running editor, not a detached UI.
     var inbox:=FileAccess.open("user://workshop/inbox.json",FileAccess.WRITE)
     inbox.store_string(JSON.stringify({"op":"set_camera","expected_revision":document.get("revision"),"values":{"yaw_deg":45}})); inbox.close()
@@ -130,7 +150,7 @@ func _run() -> void:
         if fingerprint[name]!=effect.get("masters")[name]["sample_sha256"]: _fail("Animation recaptured or changed master"); return
     var report: Dictionary={"experiment":"LIE18-workshop-agent-api-v1","device":final["device"],"hardware_fps_claim":false,
         "visible_source_meshes":0,"immutable_combined_master_uploads":final["asset_uploads"],"capture_packages":fingerprint,
-        "user_duplicate_button_verified":true,"live_agent_inbox_outbox_verified":true,"atomic_agent_commands":checks,
+        "user_duplicate_button_verified":true,"user_cylinder_button_verified":true,"user_animation_keys_preserved":true,"master_switch_verified":true,"live_agent_inbox_outbox_verified":true,"atomic_agent_commands":checks,
         "gpu_factor_maximum_cpu_oracle_error":error,"gpu_factor_maximum_area_reciprocity_error":reciprocity,"gpu_factor_maximum_row_sum":row_max,
         "idle_transport_rebuilds":0,"rigid_motion_frames":32,"temporal_accepted_pixels":final["counters"][8],"consumer_bytes":final["allocation_bytes"],
         "optical_media":medium_reports,"snapshot":lab.call("agent_snapshot"),

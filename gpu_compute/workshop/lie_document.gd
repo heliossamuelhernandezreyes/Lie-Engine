@@ -4,7 +4,7 @@ extends RefCounted
 const Legacy=preload("res://lie15_model.gd")
 const LIMIT: int=30
 const SCHEMA: int=1
-const COMMANDS: Array=["add_piece","duplicate_piece","update_piece","remove_piece","set_track","set_light","set_material","set_camera","set_settings","set_time","set_playing","undo","redo","snapshot","batch"]
+const COMMANDS: Array=["add_piece","duplicate_piece","update_piece","remove_piece","set_track","set_key","set_light","set_material","set_camera","set_settings","set_time","set_playing","undo","redo","snapshot","batch"]
 var state: Dictionary
 var revision: int=0
 var _undo: Array[Dictionary]=[]
@@ -56,7 +56,7 @@ static func default_state() -> Dictionary:
         p["scale"]=arr(scale)
         p["material"]=Legacy.material_name(i)
         p["master"]="cylinder" if i in [3,4,5,6,7,8,10,11] else "box"
-        p["axis"]=[0,0,1] if i in [3,5] else [1,0,0]
+        p["axis"]=[1,0,0]
         pieces.append(p); frames.append(frame)
     # Give the mechanical assembly clearance from torso and floor at rest.
     pieces[0]["position"][1]=float(pieces[0]["position"][1])+.12
@@ -209,6 +209,14 @@ static func _apply(next: Dictionary,command: Variant) -> String:
                 if not removed.has(p["id"]): retained.append(p)
             next["pieces"]=retained
             for old_id in removed: next["tracks"].erase(old_id)
+        "set_key":
+            if index<0 or not numeric(command.get("time")) or not numeric(command.get("angle_deg")): return "keyframe"
+            var keys: Array=next["tracks"].get(id,[]).duplicate(true)
+            var time_value: float=float(command["time"])
+            for i in range(keys.size()-1,-1,-1):
+                if absf(float(keys[i][0])-time_value)<.00000001: keys.remove_at(i)
+            keys.append([time_value,float(command["angle_deg"])]); keys.sort_custom(func(a: Array,b: Array): return a[0]<b[0])
+            next["tracks"][id]=keys
         "set_track":
             if index<0 or not command.get("keys") is Array: return "track"
             next["tracks"][id]=command["keys"]
@@ -241,7 +249,8 @@ static func _apply(next: Dictionary,command: Variant) -> String:
 func replace(candidate: Variant) -> Dictionary:
     var error: String=validate(candidate)
     if error!="": return {"ok":false,"error":error}
-    _undo.append(state.duplicate(true)); _redo.clear()
+    _undo.append(state.duplicate(true)); if _undo.size()>64: _undo.pop_front()
+    _redo.clear()
     state=candidate.duplicate(true); revision+=1
     return {"ok":true,"revision":revision}
 
