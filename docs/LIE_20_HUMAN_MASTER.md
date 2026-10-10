@@ -67,6 +67,8 @@ primera sombra propia.
 La profundidad de cada huella de sombra se evalúa sobre su plano tangente
 geométrico; extender la profundidad central como constante produce bandas
 de sombra propia sobre superficies inclinadas.
+La huella se limita a un entorno local de la muestra para que un plano casi
+rasante no se convierta en un oclusor lejano.
 La difusión RGB separable filtra luz difusa, preserva
 el brillo especular y rechaza muestras de profundidad o normal incompatibles.
 Es una aproximación en pantalla, no transporte volumétrico. El ambiente es

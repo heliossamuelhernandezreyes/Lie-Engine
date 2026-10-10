@@ -121,7 +121,14 @@ void main() {
                 for(int y=-1;y<=1;y++) for(int x=-1;x<=1;x++) {
                     ivec2 pixel=ivec2(xy)+ivec2(x,y);
                     float plane_depth=1.0/(1.0/light_depth+dot(gradient,vec2(pixel)+.5-xy));
-                    if(plane_depth>.001 && !isnan(plane_depth) && !isinf(plane_depth) && all(greaterThanEqual(pixel,ivec2(0))) && all(lessThan(pixel,ivec2(SHADOW_SIZE)))) atomicMin(shadow.v[pixel.y*SHADOW_SIZE+pixel.x],floatBitsToUint(plane_depth));
+                    vec2 uv=(vec2(pixel)+.5)/float(SHADOW_SIZE);
+                    vec3 ray=parameters.shadow_forward.xyz+parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
+                    float footprint=s.normal_radius.w+light_depth*1.25/float(SHADOW_SIZE);
+                    // A tangent plane is local, not an unbounded occluder.
+                    // At grazing angles a single shadow texel can intersect it
+                    // centimeters away from the captured skin sample.
+                    bool local_hit=length(parameters.light.xyz+ray*plane_depth-world)<=footprint;
+                    if(local_hit && plane_depth>.001 && !isnan(plane_depth) && !isinf(plane_depth) && all(greaterThanEqual(pixel,ivec2(0))) && all(lessThan(pixel,ivec2(SHADOW_SIZE)))) atomicMin(shadow.v[pixel.y*SHADOW_SIZE+pixel.x],floatBitsToUint(plane_depth));
                 }
             }
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.03) {
