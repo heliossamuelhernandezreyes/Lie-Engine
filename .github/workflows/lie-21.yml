@@ -25,6 +25,7 @@ jobs:
         run: |
           blender --background --python-exit-code 1 --python tools/lie20_prepare_blender.py -- --no-reference
           blender --background --python-exit-code 1 --python tools/lie21_prepare_blender.py
+          python3 tools/lie21_shadow_fixture.py
       - name: Import shaders and scenes
         run: |
           timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie21-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie21-import.log

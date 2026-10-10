@@ -41,7 +41,10 @@ contribución está acotada a 256: incluso el límite de un millón de muestras
 en un solo píxel suma como máximo 256 millones. La cuantización es parte de
 esta aproximación, no una representación de precisión ilimitada.
 
-La sombra usa 512², huellas tangentes locales y nueve comparaciones. La piel
+La sombra usa 512², huellas tangentes locales y nueve comparaciones.
+La profundidad del receptor también se ajusta al rayo de cada comparación
+PCF. Un plano inclinado aislado verifica en GPU que no aparece sombra propia.
+La piel
 difunde irradiancia separadamente del color, conservando el detalle de color
 y el brillo especular. Sus radios RGB en metros se proyectan usando profundidad
 y campo de visión. Sigue siendo difusión en pantalla, sin transporte

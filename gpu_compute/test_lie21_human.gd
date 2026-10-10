@@ -34,7 +34,21 @@ func source_meshes(node: Node) -> int:
 
 func _initialize() -> void: call_deferred("run")
 
+func planar_receiver() -> float:
+    lab=Lab.new();lab.capture_root="res://captures/human_quality/planar-validation/";root.add_child(lab)
+    await frames(12)
+    check(lab.effect.get("gpu_ready"),"actual inclined receiver GPU fixture")
+    var on: Dictionary=await read_gpu();write_frame("plane-shadow-on",on)
+    lab.command({"op":"set_values","values":{"shadows":false}});await frames(4)
+    var off: Dictionary=await read_gpu();write_frame("plane-shadow-off",off)
+    var difference: float=0
+    for i in range(on["color"].size()):difference+=absf(float(on["color"][i])-float(off["color"][i]))
+    check(difference<.1,"isolated inclined plane has no self-shadow bands under PCF")
+    lab.queue_free();await frames(3)
+    return difference
+
 func run() -> void:
+    var plane_error: float=await planar_receiver()
     lab=Lab.new();root.add_child(lab)
     await frames(12)
     check(lab.effect.get("capture_loaded"),"Blender human captures loaded")
@@ -113,7 +127,7 @@ func run() -> void:
     lab.command({"op":"set_values","values":{"head_yaw":10,"jaw_drop":0,"sss":1}});await frames(4)
     var final: Dictionary=await read_gpu()
     root.get_texture().get_image().save_png("res://lie21-workshop.png")
-    report.merge({"checks":checks,"failed":failed,"max_position_error_m":max_error,"allocation_bytes":final["allocation_bytes"],"output_size":final["output_size"],"internal_size":final["internal_size"],"asset_uploads":final["asset_uploads"],
+    report.merge({"checks":checks,"failed":failed,"planar_shadow_l1_difference":plane_error,"max_position_error_m":max_error,"allocation_bytes":final["allocation_bytes"],"output_size":final["output_size"],"internal_size":final["internal_size"],"asset_uploads":final["asset_uploads"],
         "profile":final["profile"],"device":final["device"],"sss_image_l1_difference":difference,"shadow_image_l1_difference":shadow_difference,"master":lab.effect.get("master"),"snapshot":lab.agent_snapshot(),
         "timing_scope":"Lie GPU passes only, software Vulkan; not physical GPU, complete frame time or Android performance."},true)
     var file:=FileAccess.open("res://lie21-diagnostic.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()

@@ -13,6 +13,7 @@ var allocation_bytes: int=0
 var render_size: int=1024
 var output_size: int=512
 var quality_scale: int=2
+var capture_root: String=ROOT
 var output_rid:=RID()
 var _input: Array[PackedByteArray]=[]
 var _rd: RenderingDevice
@@ -29,19 +30,20 @@ var _profile_frame: int=-1
 var _resident_parameters:=PackedByteArray()
 var _include_projection: bool=false
 
-func _init(size: int=512,scale: int=2) -> void:
+func _init(size: int=512,scale: int=2,root_path: String=ROOT) -> void:
+    capture_root=root_path
     output_size=clampi(size,128,768);quality_scale=clampi(scale,1,2)
     render_size=output_size*quality_scale
     effect_callback_type=EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
     _load_master()
 
 func _load_master() -> void:
-    var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(ROOT+"master.json")) if FileAccess.file_exists(ROOT+"master.json") else null
+    var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(capture_root+"master.json")) if FileAccess.file_exists(capture_root+"master.json") else null
     if not parsed is Dictionary: failure="Prepara el maestro humano en Blender."; return
     master=parsed
     if master.get("schema")!=1 or int(master.get("sample_count",0)) not in range(1,1000001) or int(master.get("vertex_count",0)) not in range(3,200001) or int(master.get("triangle_count",0)) not in range(1,400001): failure="Maestro humano fuera de contrato"; return
     for pair in [["vertices.bin",48,"vertex_count"],["triangles.bin",16,"triangle_count"],["samples.bin",80,"sample_count"]]:
-        var path: String=ROOT+str(pair[0]);var file:=FileAccess.open(path,FileAccess.READ)
+        var path: String=capture_root+str(pair[0]);var file:=FileAccess.open(path,FileAccess.READ)
         var metadata: Dictionary=master.get("buffers",{}).get(pair[0],{})
         if file==null or file.get_length()!=int(pair[1])*int(master[pair[2]]) or FileAccess.get_sha256(path)!=metadata.get("sha256"):
             failure="Integridad del maestro: "+str(pair[0]);_input.clear();return

@@ -47,16 +47,22 @@ bool covered(Projection p,vec2 xy) { return footprint_distance(p,xy)<=1; }
 float lambda(float cosine,float a2) {
     return .5*(sqrt(1+a2*max(1-cosine*cosine,0)/max(cosine*cosine,1e-8))-1);
 }
-float visibility(vec3 p) {
+float visibility(vec3 p,vec3 geometric_normal) {
     vec3 d=p-parameters.light.xyz;float z=dot(d,parameters.shadow_forward.xyz);
     if(z<=.001) return 1;
     vec2 uv=project(p,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
     if(any(lessThan(uv,vec2(1))) || any(greaterThan(uv,vec2(SHADOW_SIZE-2)))) return 1;
+    float receiver_plane=dot(geometric_normal,d);
+    if(abs(receiver_plane)<1e-7) return 1;
+    vec2 gradient=vec2(2*1.25*dot(geometric_normal,parameters.shadow_right.xyz),-2*1.25*dot(geometric_normal,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*receiver_plane);
     float result=0;
     for(int y=-1;y<=1;y++) for(int x=-1;x<=1;x++) {
         ivec2 q=clamp(ivec2(uv)+ivec2(x,y),ivec2(0),ivec2(SHADOW_SIZE-1));
         float stored=uintBitsToFloat(shadow.v[q.y*SHADOW_SIZE+q.x]);
-        result+=z<=stored+.0017?1.0:0.0;
+        // PCF taps refer to different rays. The receiver depth must follow
+        // its plane at each tap; a constant center depth creates bands.
+        float receiver_depth=1.0/(1.0/z+dot(gradient,vec2(q)+.5-uv));
+        result+=(receiver_depth<=0 || receiver_depth<=stored+.0015)?1.0:0.0;
     }
     return result/9;
 }
@@ -207,7 +213,7 @@ void main() {
         vec3 p=parameters.eye.xyz+ray*uintBitsToFloat(depths.v[i]),v=normalize(parameters.eye.xyz-p);
         vec3 delta=parameters.light.xyz-p;float distance2=max(dot(delta,delta),.0001);vec3 l=normalize(delta);
         float nl=max(dot(n,l),0),nv=max(dot(n,v),1e-5);
-        float shadow_factor=parameters.options.x>.5?visibility(p+point.geometry.xyz*.0007):1;
+        float shadow_factor=parameters.options.x>.5?visibility(p+point.geometry.xyz*.0007,point.geometry.xyz):1;
         vec3 li=parameters.light_color.rgb*parameters.light.w/(4*PI*distance2)*shadow_factor;
         float roughness=clamp(float(acc.normal_roughness.w)/weight*parameters.options.y,.15,.95),alpha=roughness*roughness,a2=alpha*alpha;
         vec3 h=normalize(v+l);float nh=max(dot(n,h),0),vh=max(dot(v,h),0),denom=nh*nh*(a2-1)+1;

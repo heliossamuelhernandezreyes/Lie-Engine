@@ -1,8 +1,9 @@
 extends "res://lie20_human_lab.gd"
 const QualityEffect=preload("res://lie21_human_effect.gd")
+var capture_root: String="res://captures/human_quality/"
 
 func _create_effect() -> CompositorEffect:
-    return QualityEffect.new(512,2)
+    return QualityEffect.new(512,2,capture_root)
 
 func _title_text() -> String:
     return "LIE  ·  Maestro humano · calidad 21"
