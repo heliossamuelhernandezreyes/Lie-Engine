@@ -47,7 +47,7 @@ def pack(root):
                 rgba = channels["albedo"][pixel:pixel+4]
                 z = channels["depth"][pixel]
                 n = lie(Vector([v*2-1 for v in channels["normal"][pixel:pixel+3]])).normalized()
-                if rgba[3] < .99 or n.length_squared() < .5 or not 0 <= z <= 1:
+                if rgba[3] < .99 or n.length_squared < .5 or not 0 <= z <= 1:
                     continue
                 p = origin+((x+.5)/128-.5)*scale*right+(.5-(y+.5)/128)*scale*up+(near+z*(far-near))*forward
                 distance = abs(abs(p.y)-half) if abs(n.y) > .8 else abs(math.hypot(p.x, p.z)-radius)

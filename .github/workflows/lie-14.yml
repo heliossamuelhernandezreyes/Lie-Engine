@@ -21,10 +21,23 @@ jobs:
           chmod +x /tmp/lie14-godot/Godot_v4.7.2-stable_linux.x86_64
           sudo apt-get update -qq
           sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb
+      - uses: actions/cache/restore@v4
+        id: master-cache
+        with:
+          path: gpu_compute/captures/rigid_master
+          key: lie14-master-128-v1-${{ hashFiles('tools/create_lie_master_fixture_blender.py', 'tools/lie_capture_surface_blender.py', 'tools/lie_angles.py') }}
       - name: Capture fixed master from 36 camera directions with one normal map per view
+        if: steps.master-cache.outputs.cache-hit != 'true'
         run: |
           PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/create_lie_master_fixture_blender.py -- /tmp/lie14-master.glb
           PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input /tmp/lie14-master.glb --out gpu_compute/captures/rigid_master --azimuth-steps 12 --elevations=-60,0,60 --resolution 128
+      - uses: actions/cache/save@v4
+        if: steps.master-cache.outputs.cache-hit != 'true'
+        with:
+          path: gpu_compute/captures/rigid_master
+          key: ${{ steps.master-cache.outputs.cache-primary-key }}
+      - name: Pack shared object-local samples and stable surface nodes
+        run: |
           PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie_master_pack_blender.py -- gpu_compute/captures/rigid_master
       - name: Float64 moving-light oracle and independent analytic camera rays
         run: python3 tools/lie14_reference.py gpu_compute/captures/rigid_master
