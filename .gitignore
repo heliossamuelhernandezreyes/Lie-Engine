@@ -92,3 +92,10 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie24-*.png
 /gpu_compute/lie24-*.json
 /gpu_compute/lie24-*.log
+
+# LIE-25 captures and measured evidence; source acquired separately
+/gpu_compute/captures/anatomy25/
+/gpu_compute/lie25-*.png
+/gpu_compute/lie25-*.json
+/gpu_compute/lie25-*.bin
+/gpu_compute/lie25-*.log

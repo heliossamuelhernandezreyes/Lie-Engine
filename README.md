@@ -1,8 +1,20 @@
-# Lie Engine — LIE-01 through LIE-24
+# Lie Engine — LIE-01 through LIE-25
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-25 — anatomical capture layers
+
+A cropped 3DAnatomyman bust carries four independently captured tissues with
+runtime pigment codes, shared depth, visibility selection and rigid rotation.
+High-resolution source geometry stays offline; an eight-vertex box records
+bounds while captured XYZ shares one rigid transform. The source is acquired
+separately with attribution and a locked hash. Vulkan checks color/light
+changes, hidden-layer ownership and reuse; independent source-geometry rays
+compare frontal silhouettes and unlit pigments. Body rigs, expressions, cut
+surfaces and mobile performance remain open.
+Read [setup, validation and limits](docs/LIE_25_ANATOMICAL_LAYERS.md).
 
 ## LIE-24 — captured facial construction
 
