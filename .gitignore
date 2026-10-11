@@ -78,3 +78,10 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie22-*.png
 /gpu_compute/lie22-*.json
 /gpu_compute/lie22-*.log
+
+# LIE-23 captured open face, native editable sources and measured evidence
+/gpu_compute/captures/face23/
+/gpu_compute/assets/lie23/*.blend*
+/gpu_compute/lie23-*.png
+/gpu_compute/lie23-*.json
+/gpu_compute/lie23-*.log

@@ -200,3 +200,12 @@ Open `gpu_compute/lie22_modular_lab.tscn` or the new workshop button after
 preparing the neutral Blender library. The original meshes remain invisible.
 See [LIE-22](docs/LIE_22_MODULAR_MASTERS.md) for shared user/agent controls,
 local fracture, support connectivity, GPU budgets and limitations.
+
+## LIE-23: integrated eyes, skin tint and continuous captured eyelids
+
+Open `gpu_compute/lie23_face_lab.tscn` after preparing the modified, attributed
+Blender master. One eye library serves two head attachments; captured skin,
+eyelids and eyes share depth, shadows and material reconstruction. User and
+agent controls change gaze, blink, pupil, skin and iris without new captures.
+See [LIE-23](docs/LIE_23_INTEGRATED_FACE.md) for the native Blender oracle,
+continuous blink, guarded API, memory accounting and remaining face limitations.
