@@ -99,3 +99,11 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie25-*.json
 /gpu_compute/lie25-*.bin
 /gpu_compute/lie25-*.log
+
+# LIE-26 full-body capture bank, source segments and measured motion evidence
+/gpu_compute/captures/anatomy26/
+/gpu_compute/lie26-*.png
+/gpu_compute/lie26-*.json
+/gpu_compute/lie26-*.bin
+/gpu_compute/lie26-*.log
+/gpu_compute/lie26-frames/
