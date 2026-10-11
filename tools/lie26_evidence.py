@@ -35,7 +35,7 @@ def main():
         '## Verificación funcional','',
         '- 247 comprobaciones del rig: ejes, jerarquía, límites, objetivos alcanzables e inalcanzables y apoyo de pies.',
         '- 99 comprobaciones Vulkan: posiciones GPU/CPU, huesos rígidos, capas, proxies invisibles, IK, transacciones y una sola carga del banco.',
-        '- 65 pruebas Python: correctas, con una omitida por un maestro externo ausente.',
+        '- 66 pruebas Python: correctas, con una omitida por un maestro externo ausente.',
         '- Cero MeshInstance3D del modelo médico en ejecución. Las referencias de juntas guían capturas y no dibujan polígonos.',
         f'- Backend real de esta ejecución: {gpu["device"]}. Es Vulkan por software.','',
         '## Memoria y estructura','',

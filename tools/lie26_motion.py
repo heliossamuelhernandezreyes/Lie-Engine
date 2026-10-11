@@ -62,6 +62,12 @@ def bindings(points, bones, rigid=False):
             band=bones[child]['band'];t=np.clip(.5+(da-db)/(2*band),0,1)
             first[selected]=parent;second[selected]=child;weight[selected]=t*t*(3-2*t)
             gradient[selected]=(ga-gb)*(6*t*(1-t)/(2*band))[:,None]
+    # The broad torso capsule must not capture the face/eyes. Cranial tissue
+    # attaches rigidly above the neck; only the cervical band blends.
+    neck=(p[:,1]>1.36)&(np.abs(p[:,0])<.11)
+    t=np.clip((p[neck,1]-1.36)/.08,0,1)
+    first[neck]=1;second[neck]=2;weight[neck]=t*t*(3-2*t)
+    gradient[neck]=0;gradient[neck,1]=6*t*(1-t)/.08
     return first,second,weight,gradient
 
 def skeleton_owner(name, center, bones):

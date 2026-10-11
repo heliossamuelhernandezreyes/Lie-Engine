@@ -27,4 +27,8 @@ class AnatomicalBindings(unittest.TestCase):
         a,c,w,g=bindings([[.24,1.0,.10]],rig(),True)
         np.testing.assert_array_equal(a,c);self.assertEqual(w[0],0);self.assertTrue((g==0).all())
 
+    def test_cranium_and_eyes_follow_head(self):
+        a,c,w,g=bindings([[.03,1.505,.16],[0,1.55,.18],[.06,1.46,.14]],rig())
+        self.assertTrue((a==1).all());self.assertTrue((c==2).all());self.assertTrue((w==1).all());self.assertTrue((g==0).all())
+
 if __name__=='__main__':unittest.main()

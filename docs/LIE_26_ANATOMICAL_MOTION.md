@@ -31,6 +31,9 @@ gray/normal/depth/XYZ samples, never the medical source meshes.
   The triangle references are not rasterized or shaded. Camera depth, ownership and
   shadows consume the deformed samples rather than stale rest positions.
 
+Cranial tissue above the cervical band attaches fully to the head, including
+the face and eyes; a broad torso capsule cannot claim those points.
+
 The capsule radius participates in the offline tissue assignment. Nearest bone
 centerlines alone incorrectly associated side torso patches with forearms.
 The regression tests preserve this distinction. Joint limits are authored game
@@ -118,6 +121,9 @@ bindings; sparse binding rejects an already bound bank. Atomic `.pending.npz` ar
 only closed final archives are consumed. Rebinding is idempotent for the skeleton
 footprint adjustment. The complete high-resolution source is retained offline for independent
 references. Only the sparse seam triangles are uploaded as invisible bindings.
+For a later weight correction, `lie26_rebind.py gpu_compute/captures/anatomy26
+--keep-sparse` also updates those logical vertices while preserving their triangle
+and sample references.
 
 Open `res://lie26_motion_lab.tscn`, or select **Movimiento anatómico · FK / IK**
 in the workshop. Controls include layer visibility, palette, orbit, light,
@@ -158,7 +164,7 @@ The delivered evidence contains the exact bank, real GPU frames, comparisons,
 source metadata and logs. Measured delivery: 5,828,568 samples; 444.68 MiB sample buffer; 1,091.79 MiB
 own compositor allocation; 11,412 additional logical vertices and 6,142
 triangles bind 26,787 seam samples. All 247 rig checks and 99 Vulkan functional
-checks passed, as did 65 Python tests with one external-master skip.
+checks passed, as did 66 Python tests with one external-master skip.
 
 **Visual acceptance did not pass.** Global silhouette IoU for skin cases ranges
 from .9721 to .9782; the bone case is .9191, against the .98 target. Joint patches
