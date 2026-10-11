@@ -1,0 +1,58 @@
+name: LIE-24 captured facial construction and compatible modules
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie24-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  modular-face:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python regressions
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install authoring and software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie24-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie24-godot.zip -d /tmp/lie24-godot
+          chmod +x /tmp/lie24-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender mesa-vulkan-drivers xvfb ripgrep python3-numpy python3-pil python3-scipy
+      - name: Capture shared face and compatible nose modules
+        run: |
+          blender --background --python-exit-code 1 --python tools/lie23_prepare_blender.py
+          python3 tools/lie23_verify_captures.py gpu_compute
+          blender --background --python-exit-code 1 --python tools/lie24_prepare_blender.py
+          python3 tools/lie24_verify_captures.py gpu_compute
+      - name: Atomic compatible selections, history and seeded construction
+        run: |
+          /tmp/lie24-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --audio-driver Dummy --path gpu_compute --script res://workshop/test_lie_face_document.gd
+          /tmp/lie24-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --audio-driver Dummy --path gpu_compute --script res://workshop/test_lie_modular_face_document.gd
+      - name: Import the actual shared compute shader
+        run: |
+          xvfb-run -a -s '-screen 0 1280x900x24' /tmp/lie24-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie24-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed|ERROR:' gpu_compute/lie24-import.log; then exit 1; fi
+      - name: Actual module ownership, shared-eye blink and native deformations
+        run: |
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1280x900x24' /tmp/lie24-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie24_modular_face.gd 2>&1 | tee gpu_compute/lie24-gpu.log
+          if rg 'ERROR:|SCRIPT ERROR|Parse Error' gpu_compute/lie24-gpu.log; then exit 1; fi
+      - name: Matched silhouettes and unlit skin, including profiles
+        run: python3 tools/lie24_compare_native.py gpu_compute
+      - name: Preserve captured modules, native master and actual GPU evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-24-modular-face-evidence
+          path: |
+            gpu_compute/lie24-*.png
+            gpu_compute/lie24-*.json
+            gpu_compute/lie24-*.log
+            gpu_compute/captures/face24/
+            gpu_compute/assets/lie24/
+            gpu_compute/assets/lie20/source-lock.json
+            gpu_compute/assets/lie20/LeePerrySmith_License.txt
+          if-no-files-found: warn

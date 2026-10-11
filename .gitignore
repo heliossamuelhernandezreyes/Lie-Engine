@@ -85,3 +85,10 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie23-*.png
 /gpu_compute/lie23-*.json
 /gpu_compute/lie23-*.log
+
+# LIE-24 reproducible facial modules and actual renderer evidence
+/gpu_compute/captures/face24/
+/gpu_compute/assets/lie24/*.blend*
+/gpu_compute/lie24-*.png
+/gpu_compute/lie24-*.json
+/gpu_compute/lie24-*.log
