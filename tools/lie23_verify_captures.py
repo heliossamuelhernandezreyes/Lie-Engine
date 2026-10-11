@@ -20,6 +20,7 @@ def verify(root):
     assert (eye[:,3]==-1).all() and set(eye[:,15])=={1.,2.,3.}
     assert np.max(abs(np.linalg.norm(samples[:,4:7],axis=1)-1))<1e-5 and (samples[:,7]>0).all()
     assert ((samples[:,8]>=0)&(samples[:,8]<=1)).all() and m['lid_sample_count']>100
+    assert m.get('deformation_sample_count',0)>100 and len(m.get('deformation_capture_views',[]))==4
     baseline=oracle['cases'][0];probes=np.array(oracle['skin_probe_indices']);s=face[probes]
     actual=(vertices[triangles[s[:,3].astype(int)],:3]*s[:,:3,None]).sum(1)
     face_error=float(np.linalg.norm(actual-np.array(baseline['skin_positions']),axis=1).max())

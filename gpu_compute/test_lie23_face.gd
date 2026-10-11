@@ -128,6 +128,9 @@ func run() -> void:
     for i in range(13):
         var blink: float=sin(float(i)/12*PI)
         command({"blink":blink});await frames(2);var data: Dictionary=await read_gpu();image(data,"blink-%02d"%i);sequence.append({"index":i,"blink":blink,"time_us":Time.get_ticks_usec(),"gpu_frames":data["frames"]})
+        if i==6:
+            report["closed_close_eye_pixels"]=visible_eyes(data)
+            check(visible_eyes(data)==[0,0],"Captured lids remain closed in the actual eye close-up")
     command({"blink":0,"framing":"bust","head_yaw":20});await frames();var bust: Dictionary=await read_gpu();image(bust,"bust");screenshot("bust")
     check(fit(lab.ui),"Stats and controls fit after rendering")
     check(lab.command({"op":"set_playing","value":true})["ok"],"User playback enabled");await frames(6)
