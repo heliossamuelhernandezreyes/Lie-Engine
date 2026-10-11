@@ -142,7 +142,7 @@ def capture(points,faces,bones,lid,bid,root,resolution,pose=None,reuse=False):
     return np.concatenate(rows) if rows else np.zeros((0,20),np.float32),views
 
 def references(root,bones):
-    size=512;tangent=math.tan(math.radians(35)/2);distance=3.5;target=np.array([0,.82,.09])
+    size=1024;tangent=math.tan(math.radians(35)/2);distance=3.5;target=np.array([0,.82,.09])
     for case in CASES:
         owners=np.full((size,size),-1,np.int32);depths=np.full((size,size),np.inf,np.float32)
         angle=math.radians(case['camera_yaw']);direction=np.array([math.sin(angle),0,math.cos(angle)]);eye=target+direction*distance;right=np.array([math.cos(angle),0,-math.sin(angle)]);up=np.array([0,1,0]);forward=-direction
@@ -168,10 +168,12 @@ def references(root,bones):
         print('NATIVE26',case['name'],flush=True)
 
 def main():
-    parser=argparse.ArgumentParser();parser.add_argument('--input',type=Path,required=True);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--resolution',type=int,default=72);parser.add_argument('--reuse-source',action='store_true');parser.add_argument('--reuse-captures',action='store_true');parser.add_argument('--references-only',action='store_true');parser.add_argument('--no-references',action='store_true');options=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);root=options.out;root.mkdir(parents=True,exist_ok=True)
+    parser=argparse.ArgumentParser();parser.add_argument('--input',type=Path,required=True);parser.add_argument('--out',type=Path,required=True);parser.add_argument('--resolution',type=int,default=72);parser.add_argument('--capture-field',choices=['line','capsules'],default='line');parser.add_argument('--reuse-source',action='store_true');parser.add_argument('--reuse-captures',action='store_true');parser.add_argument('--references-only',action='store_true');parser.add_argument('--no-references',action='store_true');options=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);root=options.out;root.mkdir(parents=True,exist_ok=True)
     if not 48<=options.resolution<=128:raise ValueError('Capture resolution 48..128')
     if hashlib.file_digest(options.input.open('rb'),'sha256').hexdigest()!=SOURCE_SHA:raise ValueError('Unknown anatomy source')
     bones=rig()
+    if options.capture_field=="line":
+        for bone in bones:bone["radius"]=0
     if options.reuse_source or options.references_only:counts=json.loads((root/'source-counts.json').read_text())
     else:
         bpy.ops.wm.open_mainfile(filepath=str(options.input.resolve()),load_ui=False,use_scripts=False);counts=extract(root,bones)
@@ -203,7 +205,7 @@ def main():
         # Reference envelope remains invisible, not a drawn skin proxy.
         corners=[(x*.37,y*.85+.82,z*.21+.09) for x in [-1,1] for y in [-1,1] for z in [-1,1]];faces=[(0,1,3),(0,3,2),(4,6,7),(4,7,5),(0,4,5),(0,5,1),(2,3,7),(2,7,6),(0,2,6),(0,6,4),(1,5,7),(1,7,3)]
         (root/'vertices.bin').write_bytes(b''.join(struct.pack('<24f',*p,*([0.]*21)) for p in corners));(root/'triangles.bin').write_bytes(b''.join(struct.pack('<4I',*f,0) for f in faces))
-        manifest=dict(schema=3,kind='lie-anatomy26-articulated',vertex_stride=96,sample_stride=80,sample_count=count,invocation_count=count,vertex_count=8,triangle_count=12,bone_count=len(bones),bones=bones,layers=layers,capture_views=capture_views,palette=PALETTE,target=[0,.82,.09],source_sha256=SOURCE_SHA,source='https://always3d.gumroad.com/l/haJWL',author='Always3D',license='CC-BY-SA-2.1-JP',license_url='https://creativecommons.org/licenses/by-sa/2.1/jp/',credit='3DAnatomyman by Always3D; derivative of BodyParts3D © DBCLS. Segmented, captured and rigged for Lie.',rig='15-bone authored FK + constrained two-link IK; DQ joints',sample_contract='binding.w=bone0; material.y=weight1; material.z=bone1; gray_filter.yzw=gradient(weight1)',cases=CASES,buffers={name:dict(bytes=(root/name).stat().st_size,sha256=hashlib.file_digest((root/name).open('rb'),'sha256').hexdigest()) for name in ['vertices.bin','triangles.bin','samples.bin']},omissions=['individual fingers','physiological muscle contraction','cloth','ragdoll','cut surfaces','physical GPU performance'])
+        manifest=dict(schema=3,kind='lie-anatomy26-articulated',vertex_stride=96,sample_stride=80,sample_count=count,invocation_count=count,vertex_count=8,triangle_count=12,bone_count=len(bones),bones=bones,layers=layers,capture_views=capture_views,palette=PALETTE,target=[0,.82,.09],source_sha256=SOURCE_SHA,source='https://always3d.gumroad.com/l/haJWL',author='Always3D',license='CC-BY-SA-2.1-JP',license_url='https://creativecommons.org/licenses/by-sa/2.1/jp/',credit='3DAnatomyman by Always3D; derivative of BodyParts3D © DBCLS. Segmented, captured and rigged for Lie.',rig='15-bone authored FK + constrained two-link IK; DQ joints',capture_field=options.capture_field,sample_contract='binding.w=bone0; material.y=weight1; material.z=bone1; gray_filter.yzw=gradient(weight1)',cases=CASES,buffers={name:dict(bytes=(root/name).stat().st_size,sha256=hashlib.file_digest((root/name).open('rb'),'sha256').hexdigest()) for name in ['vertices.bin','triangles.bin','samples.bin']},omissions=['individual fingers','physiological muscle contraction','cloth','ragdoll','cut surfaces','physical GPU performance'])
         (root/'master.json').write_text(json.dumps(manifest,indent=2)+'\n');print('MASTER26',count,flush=True)
     if not options.no_references:references(root,bones)
 

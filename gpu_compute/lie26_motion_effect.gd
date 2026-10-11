@@ -45,7 +45,7 @@ func _load_master() -> void:
     var count: Variant=master.get("sample_count",0)
     if not (count is float or count is int) or not is_finite(float(count)) or count!=floorf(float(count)) or count<1 or count>6000000:
         failure="Cantidad anatómica inválida";return
-    if master.get("schema")!=3 or master.get("kind")!="lie-anatomy26-articulated" or master.get("vertex_stride")!=96 or master.get("sample_stride")!=80 or master.get("invocation_count")!=count or master.get("vertex_count")!=8 or master.get("triangle_count")!=12:
+    if master.get("schema")!=3 or master.get("kind")!="lie-anatomy26-articulated" or master.get("vertex_stride")!=96 or master.get("sample_stride")!=80 or master.get("invocation_count")!=count or master.get("vertex_count",0)<8 or master.get("triangle_count",0)<12 or master.get("vertex_count",0)>2000000 or master.get("triangle_count",0)>2000000:
         failure="Maestro anatómico fuera de contrato";return
     var layers: Variant=master.get("layers")
     if not layers is Array or layers.size()!=4:failure="Capas anatómicas incompletas";return
@@ -67,18 +67,33 @@ func _load_master() -> void:
     for bid in range(15):
         var bone: Variant=bones[bid]
         if not bone is Dictionary or bone.get("id")!=bid or not bone.get("parent") is float or bone["parent"]!=floorf(bone["parent"]) or bone["parent"]>=bid or bone["parent"]<-1 or (bid>0 and bone["parent"]<0):failure="Jerarquía inválida";return
+        for field in ["pivot","end"]:
+            var position: Variant=bone.get(field)
+            if not position is Array or position.size()!=3:failure="Pivote inválido";return
+            for component in position:
+                if not (component is float or component is int) or not is_finite(float(component)) or absf(component)>4:failure="Pivote inválido";return
     var samples: PackedFloat32Array=_input[2].to_float32_array()
     for id in range(4):
         for j in range(int(layers[id]["sample_offset"]),int(layers[id]["sample_offset"]+layers[id]["sample_count"])):
             var i: int=j*20
             for k in range(20):
                 if not is_finite(samples[i+k]):failure="Muestra no finita";return
-            if samples[i+3]!=floorf(samples[i+3]) or samples[i+3]<0 or samples[i+3]>=15 or samples[i+14]!=floorf(samples[i+14]) or samples[i+14]<0 or samples[i+14]>=15 or samples[i+13]<0 or samples[i+13]>1 or samples[i+15]!=id or samples[i+7]<=0 or absf(Vector3(samples[i+16],samples[i+17],samples[i+18]).length()-1)>.0002:
+            if samples[i+3]!=floorf(samples[i+3]) or samples[i+3]<-int(master["triangle_count"]) or samples[i+3]>=15 or samples[i+14]!=floorf(samples[i+14]) or samples[i+14]<0 or samples[i+14]>=15 or samples[i+13]<0 or samples[i+13]>1 or samples[i+15]!=id or samples[i+7]<=0 or absf(Vector3(samples[i+16],samples[i+17],samples[i+18]).length()-1)>.0002:
                 failure="Asociación anatómica inválida";return
+            if samples[i+3]<0 and (absf(samples[i]+samples[i+1]+samples[i+2]-1)>.0002 or minf(samples[i],minf(samples[i+1],samples[i+2]))<-.0001):failure="Coordenadas de junta inválidas";return
+            if samples[i+3]>=0 and samples[i+13]>0 and samples[i+13]<1 and samples[i+3]!=samples[i+14] and master["bones"][int(samples[i+14])]["parent"]!=samples[i+3]:failure="Pesos entre huesos desconectados";return
+    var vertex_data:=_input[0].to_float32_array();var triangle_data:=_input[1].to_int32_array()
+    for i in range(int(master["vertex_count"])):
+        for k in range(24):
+            if not is_finite(vertex_data[i*24+k]):failure="Vértice de junta no finito";return
+        if vertex_data[i*24+3]!=floorf(vertex_data[i*24+3]) or vertex_data[i*24+3]<0 or vertex_data[i*24+3]>=15 or vertex_data[i*24+4]!=floorf(vertex_data[i*24+4]) or vertex_data[i*24+4]<0 or vertex_data[i*24+4]>=15 or vertex_data[i*24+5]<0 or vertex_data[i*24+5]>1:failure="Vértice de junta inválido";return
+    for i in range(int(master["triangle_count"])):
+        for k in range(3):
+            if triangle_data[i*4+k]<0 or triangle_data[i*4+k]>=int(master["vertex_count"]):failure="Triángulo de junta inválido";return
     capture_loaded=true
 
 func configure(parameters: PackedByteArray,bone_packet: PackedByteArray) -> bool:
-    if not capture_loaded or parameters.size()!=320 or parameters.decode_s32(96)!=int(master["sample_count"]) or parameters.decode_s32(100)!=8 or parameters.decode_s32(104)!=render_size or parameters.decode_s32(108)!=render_size:return false
+    if not capture_loaded or parameters.size()!=320 or parameters.decode_s32(96)!=int(master["sample_count"]) or parameters.decode_s32(100)!=int(master["vertex_count"]) or parameters.decode_s32(104)!=render_size or parameters.decode_s32(108)!=render_size:return false
     var values: PackedFloat32Array=parameters.to_float32_array()
     for i in range(values.size()):
         if i not in range(24,28) and not is_finite(values[i]):return false
@@ -152,7 +167,8 @@ func _render_callback(_type: int,_render_data: RenderData) -> void:
     for stage in [0,1,2,3,8,4,5,6,7]:
         var count: int=int(master["vertex_count"]) if stage==0 else int(master["invocation_count"]) if stage in [2,3,8] else maxi(render_size*render_size,1024*1024) if stage==1 else render_size*render_size
         _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,quality_scale,0,0]).to_byte_array(),16)
-        _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
+        var groups: int=int(ceil(float(count)/64));var rows: int=int(ceil(float(groups)/65535))
+        _rd.compute_list_dispatch(list,int(ceil(float(groups)/rows)),rows,1);_rd.compute_list_add_barrier(list)
     _rd.compute_list_end();_rd.capture_timestamp("lie26-end");frame_count+=1;_resident_parameters=packet;_resident_bones=bone_packet
 
 func request_readback(full_projection: bool=false) -> void:

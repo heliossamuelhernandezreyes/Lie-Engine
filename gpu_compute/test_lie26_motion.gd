@@ -6,6 +6,8 @@ var checks: int=0
 var failed: bool=false
 var report: Dictionary={"cases":[]}
 var source:=PackedFloat32Array()
+var joint_vertices:=PackedFloat32Array()
+var joint_triangles:=PackedInt32Array()
 
 func check(value: bool,message: String) -> void:
     checks+=1
@@ -46,6 +48,8 @@ func run() -> void:
     check(mesh_count(lab)==0,"No source geometry drawn")
     if failed:quit(1);return
     source=FileAccess.get_file_as_bytes("res://captures/anatomy26/samples.bin").to_float32_array()
+    joint_vertices=FileAccess.get_file_as_bytes("res://captures/anatomy26/vertices.bin").to_float32_array()
+    joint_triangles=FileAccess.get_file_as_bytes("res://captures/anatomy26/triangles.bin").to_int32_array()
     var baseline: Dictionary=await read_gpu();var original: PackedFloat32Array=baseline["color"].duplicate();image("rest-lit",baseline)
     var idle: int=lab.effect.get("frame_count");await frames(4)
     check(lab.effect.get("frame_count")==idle,"Stopped pose remains GPU resident")
@@ -53,6 +57,7 @@ func run() -> void:
     for case in lab.effect.get("master")["cases"]:
         await change({"pose":case["pose"],"mask":case["mask"],"camera_yaw":case["camera_yaw"],"targets":{},"mode":"manual","unlit":true})
         var data: Dictionary=await read_gpu(true);image(case["name"]+"-unlit",data)
+        var depth_file:=FileAccess.open("res://lie26-"+str(case["name"])+"-depth.bin",FileAccess.WRITE);depth_file.store_buffer(data["depth"].to_byte_array());depth_file.close()
         var owners: PackedInt32Array=data["winners"];var invalid: int=0;var covered: int=0
         for owner in owners:
             if owner<0:continue
@@ -60,9 +65,11 @@ func run() -> void:
             if (int(case["mask"])&(1<<int(source[owner*20+15])))==0:invalid+=1
         check(covered>2000 and invalid==0,"Posed layer mask retains only enabled tissues")
         var projected: PackedFloat32Array=data["projected"];var error: float=0;var finite: bool=true
-        for i in range(0,source.size()/20,997):
+        var probes: Array=range(0,source.size()/20,997);probes.append_array(lab.effect.get("master").get("sparse_joint_bindings",{}).get("probe_samples",[]))
+        for probe in probes:
+            var i: int=int(probe)
             if (int(case["mask"])&(1<<int(source[i*20+15])))==0:continue
-            var expected: Vector3=Rig.sample_position(source,i*20,lab.evaluated["skins"])
+            var expected: Vector3=Rig.sample_position(source,i*20,lab.evaluated["skins"],joint_vertices,joint_triangles)
             var actual:=Vector3(projected[i*24],projected[i*24+1],projected[i*24+2]);finite=finite and actual.is_finite()
             error=maxf(error,expected.distance_to(actual))
             for k in range(24):finite=finite and is_finite(projected[i*24+k])
@@ -70,13 +77,13 @@ func run() -> void:
         var rigid_error: float=0
         for i in range(int(lab.effect.get("master")["layers"][2]["sample_offset"]),int(lab.effect.get("master")["layers"][2]["sample_offset"]+lab.effect.get("master")["layers"][2]["sample_count"]),1543):
             var p:=Vector3(source[i*20],source[i*20+1],source[i*20+2]);var bid: int=int(source[i*20+3]);var t: Transform3D=lab.evaluated["skins"][bid]
-            rigid_error=maxf(rigid_error,(t*p).distance_to(Rig.sample_position(source,i*20,lab.evaluated["skins"])))
+            rigid_error=maxf(rigid_error,(t*p).distance_to(Rig.sample_position(source,i*20,lab.evaluated["skins"],joint_vertices,joint_triangles)))
         check(rigid_error<.000002,"Anatomical bones remain rigid")
         errors.append(error);report["cases"].append({"name":case["name"],"position_error_m":error,"rigid_bone_error_m":rigid_error,"invalid_layer_owners":invalid,"covered_pixels":covered})
         data.clear();projected=PackedFloat32Array()
         await change({"unlit":false});image(case["name"]+"-lit",await read_gpu())
     var revision: int=lab.revision
-    check(not lab.command({"op":"set_values","values":{"light_power":0,"pose":{"right_elbow":145}}})["ok"] and lab.revision==revision and lab.state["light_power"]==35,"Invalid hinge rejects whole transaction")
+    check(not lab.command({"op":"set_values","values":{"light_power":0,"pose":{"right_elbow":145}}})["ok"] and lab.revision==revision and lab.state["light_power"]==70,"Invalid hinge rejects whole transaction")
     check(not lab.command({"op":"set_pose","values":{"right_elbow":NAN}})["ok"],"Nonfinite joint rejected")
     check(not lab.command({"op":"set_values","values":{"targets":{"right_hand":{"position":[0,NAN,0],"pole":[0,1,0]}}}})["ok"],"Nonfinite IK rejected")
     check(not lab.command({"op":"set_pose","values":{"right_elbow":20},"expected_revision":revision-1})["ok"],"Stale pose transaction rejected")
@@ -111,7 +118,7 @@ func run() -> void:
         var data: Dictionary=await read_gpu();var pixels:=PackedByteArray();var values: PackedFloat32Array=data["color"];pixels.resize(values.size())
         for j in range(values.size()):pixels[j]=clampi(roundi(values[j]*255),0,255)
         Image.create_from_data(512,512,false,Image.FORMAT_RGBA8,pixels).save_png("res://lie26-frames/frame-%03d.png"%i)
-    report.merge({"checks":checks,"failed":failed,"allocation_bytes":walk2["allocation_bytes"],"asset_uploads":walk2["asset_uploads"],"device":walk2["device"],"ik":ik,"bone_count":15,"sample_count":lab.effect.get("master")["sample_count"],"visible_source_meshes":mesh_count(lab),"limits":["authored game rig, not physiological motion","individual fingers/cloth/ragdoll pending","no cuts","software Vulkan does not establish physical GPU FPS"]})
+    report.merge({"checks":checks,"failed":failed,"allocation_bytes":walk2["allocation_bytes"],"asset_uploads":walk2["asset_uploads"],"device":walk2["device"],"ik":ik,"sparse_joint_bindings":lab.effect.get("master").get("sparse_joint_bindings",{}),"bone_count":15,"sample_count":lab.effect.get("master")["sample_count"],"visible_source_meshes":mesh_count(lab),"limits":["authored game rig, not physiological motion","individual fingers/cloth/ragdoll pending","no cuts","software Vulkan does not establish physical GPU FPS"]})
     var file:=FileAccess.open("res://lie26-diagnostic.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  "));file.close()
     print("LIE26 MOTION ","FAIL" if failed else "PASS"," ",checks," checks")
     lab.queue_free();await frames(2);quit(1 if failed else 0)

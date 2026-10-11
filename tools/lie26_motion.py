@@ -26,7 +26,8 @@ def rig():
             dict(name=side+'_shin',parent=start,pivot=[sign*.078,.407,.071],end=[sign*.075,.068,.060],band=.06),
             dict(name=side+'_foot',parent=start+1,pivot=[sign*.075,.068,.060],end=[sign*.075,.020,.173],band=.028),
         ]
-    for i,b in enumerate(result):b['id']=i
+    radii=[.115,.165,.09,.055,.045,.055,.055,.045,.055,.095,.060,.070,.095,.060,.070]
+    for i,b in enumerate(result):b['id']=i;b['radius']=radii[i]
     return result
 
 def line_distance(points, bone):
@@ -43,7 +44,7 @@ def bindings(points, bones, rigid=False):
     Only connected parent-child pairs may blend. Fields use metre distances.
     """
     p=np.asarray(points,dtype=np.float64).reshape(-1,3)
-    distances=np.stack([line_distance(p,b)[0] for b in bones],axis=1)
+    distances=np.stack([line_distance(p,b)[0]-b['radius'] for b in bones],axis=1)
     owner=distances.argmin(axis=1)
     if rigid:return owner,owner,np.zeros(len(p)),np.zeros_like(p)
     first=owner.copy();second=owner.copy();weight=np.zeros(len(p));gradient=np.zeros_like(p)
@@ -57,6 +58,7 @@ def bindings(points, bones, rigid=False):
             selected=ids[neighbor==j]
             parent,child=(j,i) if b['parent']==j else (i,j)
             da,ga=line_distance(p[selected],bones[parent]);db,gb=line_distance(p[selected],bones[child])
+            da-=bones[parent]['radius'];db-=bones[child]['radius']
             band=bones[child]['band'];t=np.clip(.5+(da-db)/(2*band),0,1)
             first[selected]=parent;second[selected]=child;weight[selected]=t*t*(3-2*t)
             gradient[selected]=(ga-gb)*(6*t*(1-t)/(2*band))[:,None]

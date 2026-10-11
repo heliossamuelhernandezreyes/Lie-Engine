@@ -6,7 +6,7 @@ var camera: Camera3D
 var texture: Texture2DRD
 var picture: TextureRect
 var status: Label
-var state: Dictionary={"mask":15,"camera_yaw":0.0,"object_yaw":0.0,"light_azimuth":-35.0,"light_power":35.0,"distance":3.5,"unlit":false,"shadows":true,
+var state: Dictionary={"mask":15,"camera_yaw":0.0,"object_yaw":0.0,"light_azimuth":-35.0,"light_power":70.0,"distance":3.5,"unlit":false,"shadows":false,
     "palette":[[.52,.29,.18],[.32,.045,.028],[.72,.64,.47],[.29,.12,.15]],"light_color":[1.0,.88,.76],"pose":{},"targets":{},"mode":"manual","playing":false,"time":0.0,"speed":1.0}
 var skeleton: Skeleton3D
 var evaluated: Dictionary={}
@@ -41,10 +41,10 @@ func _ready() -> void:
             var palette: Array=state["palette"].duplicate(true);var linear:=color.srgb_to_linear();palette[id]=[linear.r,linear.g,linear.b]
             command({"op":"set_values","values":{"palette":palette}}))
     var presets:=HBoxContainer.new();box.add_child(presets)
-    for title in ["Reposo","Codos","Alcanzar"]:
-        var button:=Button.new();button.text=title;presets.add_child(button)
+    for preset_name in ["Reposo","Codos","Alcanzar"]:
+        var button:=Button.new();button.text=preset_name;presets.add_child(button)
         button.pressed.connect(func():
-            var pose: Dictionary={} if title=="Reposo" else {"right_elbow":110,"left_elbow":75} if title=="Codos" else {"right_shoulder":50,"right_elbow":60,"left_abduction":60,"left_elbow":80,"torso_bend":12}
+            var pose: Dictionary={} if preset_name=="Reposo" else {"right_elbow":110,"left_elbow":75} if preset_name=="Codos" else {"right_shoulder":50,"right_elbow":60,"left_abduction":60,"left_elbow":80,"torso_bend":12}
             command({"op":"set_values","values":{"pose":pose,"targets":{},"mode":"manual","playing":false}}))
     var play:=Button.new();play.text="Caminar / pausar";box.add_child(play);controls["play"]=play
     play.pressed.connect(func():command({"op":"set_values","values":{"mode":"walk","playing":not state["playing"]}}))
@@ -110,7 +110,7 @@ func command(request: Variant) -> Dictionary:
                 for component in color:
                     if not (component is int or component is float) or not is_finite(float(component)) or component<0 or component>1:return {"ok":false,"error":"color"}
         else:return {"ok":false,"error":"unknown field"}
-        next[key]=value
+        next[key]=value.duplicate(true) if value is Dictionary or value is Array else value
     state=next;revision+=1;_apply()
     for key in LIMITS:
         if controls.has(key):controls[key].set_value_no_signal(float(state[key]))
@@ -134,7 +134,7 @@ func _apply() -> void:
     for v in [camera.position,camera.basis.x,camera.basis.y,-camera.basis.z]:floats.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     floats.append_array(PackedFloat32Array([tan(deg_to_rad(camera.fov)*.5),1,.01,10,0,0,0,0]))
     var bytes: PackedByteArray=floats.to_byte_array();var master: Dictionary=effect.get("master");var count: int=int(master["sample_count"])
-    bytes.append_array(PackedInt32Array([count,8,effect.get("render_size"),effect.get("render_size")]).to_byte_array())
+    bytes.append_array(PackedInt32Array([count,int(master["vertex_count"]),effect.get("render_size"),effect.get("render_size")]).to_byte_array())
     floats=PackedFloat32Array([deg_to_rad(float(state["object_yaw"])),0,state["mask"],0,light.x,light.y,light.z,state["light_power"]])
     var c: Array=state["light_color"];floats.append_array(PackedFloat32Array([c[0],c[1],c[2],0,.12,.14,.17,1,1 if state["shadows"] else 0,1,1 if state["unlit"] else 0,0]))
     for v in [shadow.basis.x,shadow.basis.y,-shadow.basis.z]:floats.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
@@ -180,7 +180,7 @@ func _update_rig() -> void:
     var bones: Array=effect.get("master")["bones"]
     for i in range(bones.size()):
         skeleton.set_bone_pose_rotation(i,evaluated["locals"][i])
-        skeleton.set_bone_pose_position(i,evaluated["origins"][i]-Rig.vector(bones[i]["pivot"]) if i==0 else Vector3.ZERO)
+        skeleton.set_bone_pose_position(i,evaluated["origins"][i] if i==0 else Rig.vector(bones[i]["pivot"])-Rig.vector(bones[int(bones[i]["parent"])]["pivot"]))
         var pivot: Vector3=Rig.vector(bones[i]["pivot"]);var end: Vector3=Rig.vector(bones[i]["end"])
         var t: Transform3D=evaluated["skins"][i];var orientation:=Basis(Quaternion(Vector3.UP,(end-pivot).normalized()))
         bodies[i].transform=Transform3D(t.basis*orientation,t*((pivot+end)*.5))

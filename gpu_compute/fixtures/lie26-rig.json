@@ -14,7 +14,8 @@
         0.075
       ],
       "band": 0.075,
-      "id": 0
+      "id": 0,
+      "radius": 0.115
     },
     {
       "name": "torso",
@@ -30,7 +31,8 @@
         0.078
       ],
       "band": 0.1,
-      "id": 1
+      "id": 1,
+      "radius": 0.165
     },
     {
       "name": "head",
@@ -46,7 +48,8 @@
         0.1
       ],
       "band": 0.045,
-      "id": 2
+      "id": 2,
+      "radius": 0.09
     },
     {
       "name": "right_upper_arm",
@@ -62,7 +65,8 @@
         0.071
       ],
       "band": 0.055,
-      "id": 3
+      "id": 3,
+      "radius": 0.055
     },
     {
       "name": "right_forearm",
@@ -78,7 +82,8 @@
         0.1
       ],
       "band": 0.043,
-      "id": 4
+      "id": 4,
+      "radius": 0.045
     },
     {
       "name": "right_hand",
@@ -94,7 +99,8 @@
         0.121
       ],
       "band": 0.025,
-      "id": 5
+      "id": 5,
+      "radius": 0.055
     },
     {
       "name": "left_upper_arm",
@@ -110,7 +116,8 @@
         0.071
       ],
       "band": 0.055,
-      "id": 6
+      "id": 6,
+      "radius": 0.055
     },
     {
       "name": "left_forearm",
@@ -126,7 +133,8 @@
         0.1
       ],
       "band": 0.043,
-      "id": 7
+      "id": 7,
+      "radius": 0.045
     },
     {
       "name": "left_hand",
@@ -142,7 +150,8 @@
         0.121
       ],
       "band": 0.025,
-      "id": 8
+      "id": 8,
+      "radius": 0.055
     },
     {
       "name": "right_thigh",
@@ -158,7 +167,8 @@
         0.071
       ],
       "band": 0.085,
-      "id": 9
+      "id": 9,
+      "radius": 0.095
     },
     {
       "name": "right_shin",
@@ -174,7 +184,8 @@
         0.06
       ],
       "band": 0.06,
-      "id": 10
+      "id": 10,
+      "radius": 0.06
     },
     {
       "name": "right_foot",
@@ -190,7 +201,8 @@
         0.173
       ],
       "band": 0.028,
-      "id": 11
+      "id": 11,
+      "radius": 0.07
     },
     {
       "name": "left_thigh",
@@ -206,7 +218,8 @@
         0.071
       ],
       "band": 0.085,
-      "id": 12
+      "id": 12,
+      "radius": 0.095
     },
     {
       "name": "left_shin",
@@ -222,7 +235,8 @@
         0.06
       ],
       "band": 0.06,
-      "id": 13
+      "id": 13,
+      "radius": 0.06
     },
     {
       "name": "left_foot",
@@ -238,7 +252,8 @@
         0.173
       ],
       "band": 0.028,
-      "id": 14
+      "id": 14,
+      "radius": 0.07
     }
   ],
   "cases": [

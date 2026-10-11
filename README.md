@@ -1,8 +1,15 @@
-# Lie Engine — LIE-01 through LIE-25
+# Lie Engine — LIE-01 through LIE-26
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-26 · movimiento anatómico
+
+Cuerpo completo por capas, rig compartido de quince huesos, articulaciones con
+capturas adicionales, límites, IK de manos/pies y marcha procedural. La fuente
+anatómica se usa fuera de ejecución; Lie muestra sus capturas deformadas.
+[Preparación, controles y límites](docs/LIE_26_ANATOMICAL_MOTION.md).
 
 ## LIE-25 — anatomical capture layers
 

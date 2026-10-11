@@ -52,6 +52,14 @@ vec3 skin(vec3 p,Bone a,Bone b,float w,out mat3 rotation) {
     return rotation*p+2*qmul(d,vec4(-r.xyz,r.w)).xyz;
 }
 vec3 skin_sample(Sample s,out mat3 differential) {
+    if(s.binding.w<0) {
+        uvec3 ids=triangles.v[int(-s.binding.w)-1].xyz;
+        vec3 a=vertices.v[ids.x].position_weight.xyz,b=vertices.v[ids.y].position_weight.xyz,c=vertices.v[ids.z].position_weight.xyz;
+        vec3 pa=deformed.v[ids.x*2].xyz,pb=deformed.v[ids.y*2].xyz,pc=deformed.v[ids.z*2].xyz;
+        vec3 n=normalize(cross(b-a,c-a)),pn=normalize(cross(pb-pa,pc-pa));
+        differential=mat3(pb-pa,pc-pa,pn)*inverse(mat3(b-a,c-a,n));
+        return pa*s.binding.x+pb*s.binding.y+pc*s.binding.z;
+    }
     Bone a=bones.v[int(s.binding.w)],b=bones.v[int(s.material.z)];
     float w=s.material.y;vec3 p=skin(s.binding.xyz,a,b,w,differential);
     if(w>0 && w<1 && dot(s.gray_filter.yzw,s.gray_filter.yzw)>0) {
@@ -130,11 +138,12 @@ vec3 scatter(ivec2 p,bool horizontal) {
 }
 
 void main() {
-    uint i=gl_GlobalInvocationID.x,pixels=uint(parameters.counts.z*parameters.counts.w);
+    uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x,pixels=uint(parameters.counts.z*parameters.counts.w);
     int stage=phase.value.x;
     if(stage==0) {
         if(i>=uint(parameters.counts.y)) return;
-        deformed.v[2*i]=vec4(vertices.v[i].position_weight.xyz,1);
+        Vertex v=vertices.v[i];mat3 unused;
+        deformed.v[2*i]=vec4(skin(v.position_weight.xyz,bones.v[int(v.position_weight.w)],bones.v[int(v.lid.x)],v.lid.y,unused),1);
         deformed.v[2*i+1]=vec4(0,1,0,0);
         return;
     }
@@ -158,7 +167,7 @@ void main() {
             // the captured position and its local surface differential.
             mat3 differential;
             world=skin_sample(s,differential);
-            mat3 normal_transform=transpose(inverse(differential));
+            mat3 normal_transform=mat3(cross(differential[1],differential[2]),cross(differential[2],differential[0]),cross(differential[0],differential[1]));
             normal=normalize(normal_transform*s.normal_radius.xyz);
             geometry_normal=normalize(normal_transform*s.geometry_front.xyz);
             footprint_normal=s.geometry_front.xyz;footprint_transform=differential;
@@ -167,10 +176,14 @@ void main() {
             vec3 footprint_v=footprint_transform*cross(footprint_normal,tangent)*radius;
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(geometry_normal,normalize(parameters.eye.xyz-world));
+            // Soft medical surfaces are double-sided after a fold. Keep the
+            // source surface visible and orient its lighting toward the viewer.
+            if(s.material.w!=2 && front<0) {front=-front;geometry_normal=-geometry_normal;normal=-normal;}
             p.world=vec4(world,1);p.normal=vec4(normal,front);p.screen=vec4(0);p.gradient=vec4(0);p.geometry=vec4(geometry_normal,0);p.ellipse=vec4(0);
             p.gradient.z=sqrt(dot(footprint_u,footprint_u)+dot(footprint_v,footprint_v));
             vec3 light_delta=world-parameters.light.xyz;float light_depth=dot(light_delta,parameters.shadow_forward.xyz);
             float light_front=dot(geometry_normal,normalize(-light_delta));
+            if(s.material.w!=2)light_front=abs(light_front);
             if(light_depth>.001 && light_front>.05) {
                 vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
                 // Each captured footprint lies on its geometric tangent plane.
@@ -180,8 +193,8 @@ void main() {
                 vec2 gradient=vec2(2*1.25*dot(geometry_normal,parameters.shadow_right.xyz),-2*1.25*dot(geometry_normal,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*plane);
                 vec2 su=project(world+footprint_u,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE))-xy;
                 vec2 sv=project(world+footprint_v,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE))-xy;
-                float xx=dot(vec2(su.x,sv.x),vec2(su.x,sv.x))+.20;
-                float yy=dot(vec2(su.y,sv.y),vec2(su.y,sv.y))+.20;
+                float xx=dot(vec2(su.x,sv.x),vec2(su.x,sv.x))+(s.material.w==2?.04:.20)*pow(clamp(abs(light_front),0,1),4);
+                float yy=dot(vec2(su.y,sv.y),vec2(su.y,sv.y))+(s.material.w==2?.04:.20)*pow(clamp(abs(light_front),0,1),4);
                 float off=su.x*su.y+sv.x*sv.y,det=max(xx*yy-off*off,1e-8);
                 int bound=int(ceil(clamp(sqrt(max(xx,yy)),.5,16)));
                 for(int y=-bound;y<=bound;y++) for(int x=-bound;x<=bound;x++) {
@@ -205,7 +218,7 @@ void main() {
                 // covariance with a subpixel reconstruction footprint.
                 vec2 u=project(world+footprint_u,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
                 vec2 v=project(world+footprint_v,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
-                float xx=u.x*u.x+v.x*v.x+.20,yy=u.y*u.y+v.y*v.y+.20,off=u.x*u.y+v.x*v.y;
+                float xx=u.x*u.x+v.x*v.x+(s.material.w==2?.04:.20)*pow(clamp(front,0,1),4),yy=u.y*u.y+v.y*v.y+(s.material.w==2?.04:.20)*pow(clamp(front,0,1),4),off=u.x*u.y+v.x*v.y;
                 float determinant=max(xx*yy-off*off,1e-8);
                 p.ellipse=vec4(yy/determinant,-off/determinant,xx/determinant,0);
                 p.screen=vec4(xy,depth,clamp(sqrt(max(xx,yy)),.5,16));

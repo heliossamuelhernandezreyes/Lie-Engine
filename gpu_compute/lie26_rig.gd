@@ -108,7 +108,16 @@ static func packet(evaluated: Dictionary) -> PackedByteArray:
         data.append_array(PackedFloat32Array([q.x,q.y,q.z,q.w,dxyz.x,dxyz.y,dxyz.z,dw]))
     return data.to_byte_array()
 
-static func sample_position(sample: PackedFloat32Array,offset: int,skins: Array) -> Vector3:
+static func sample_position(sample: PackedFloat32Array,offset: int,skins: Array,vertices: PackedFloat32Array=PackedFloat32Array(),triangles: PackedInt32Array=PackedInt32Array()) -> Vector3:
+    if sample[offset+3]<0:
+        var ti: int=int(-sample[offset+3])-1;var p:=Vector3.ZERO
+        for corner in range(3):
+            var vi: int=triangles[ti*4+corner]*24
+            var vertex:=PackedFloat32Array();vertex.resize(20)
+            for axis in range(3):vertex[axis]=vertices[vi+axis]
+            vertex[3]=vertices[vi+3];vertex[14]=vertices[vi+4];vertex[13]=vertices[vi+5]
+            p+=sample_position(vertex,0,skins)*sample[offset+corner]
+        return p
     var a: Transform3D=skins[int(sample[offset+3])];var b: Transform3D=skins[int(sample[offset+14])];var w: float=sample[offset+13]
     var qa: Quaternion=a.basis.get_rotation_quaternion();var qb: Quaternion=b.basis.get_rotation_quaternion()
     var da:=Quaternion(a.origin.x,a.origin.y,a.origin.z,0)*qa*.5;var db:=Quaternion(b.origin.x,b.origin.y,b.origin.z,0)*qb*.5
