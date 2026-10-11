@@ -224,10 +224,11 @@ func _build_ui() -> void:
     _label(left,"Una pieza, muchas creaciones",15)
     var add_row:=HBoxContainer.new(); left.add_child(add_row)
     _button(add_row,"Bloque",_add_piece.bind("box",false)); _button(add_row,"Chapa",_add_piece.bind("box",true)); _button(add_row,"Cilindro",_add_piece.bind("cylinder",false))
-    _button(left,"Maestro humano · calidad",func(): get_tree().change_scene_to_file("res://lie21_human_lab.tscn"))
-    _button(left,"Ojo y pared modular",func(): get_tree().change_scene_to_file("res://lie22_modular_lab.tscn"))
-    _button(left,"Rostro, mirada y parpadeo",func(): get_tree().change_scene_to_file("res://lie23_face_lab.tscn"))
-    _button(left,"Construcción facial modular",func(): get_tree().change_scene_to_file("res://lie24_modular_face_lab.tscn"))
+    var laboratories:=MenuButton.new(); laboratories.text="Laboratorios"; left.add_child(laboratories)
+    var scenes: Array[String]=["res://lie21_human_lab.tscn","res://lie22_modular_lab.tscn","res://lie23_face_lab.tscn","res://lie24_modular_face_lab.tscn"]
+    for title in ["Maestro humano · calidad","Ojo y pared modular","Rostro, mirada y parpadeo","Construcción facial modular"]:
+        laboratories.get_popup().add_item(title)
+    laboratories.get_popup().id_pressed.connect(func(index: int): get_tree().change_scene_to_file(scenes[index]))
     _label(left,"ENSAMBLAJE",13)
     part_list=ItemList.new(); part_list.custom_minimum_size=Vector2(214,192); part_list.size_flags_vertical=Control.SIZE_EXPAND_FILL
     part_list.item_selected.connect(_select_part); left.add_child(part_list)
