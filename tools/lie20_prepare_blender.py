@@ -167,7 +167,8 @@ def save_image(path, values, resolution, bits=16):
     bpy.data.images.remove(image)
 
 
-def capture(obj, rest, uvs, color, normal, spec, root, resolution, native_tangents=False, angles=None):
+def capture(obj, rest, uvs, color, normal, spec, root, resolution, native_tangents=False, angles=None,
+            capture_center=None, capture_scale=.52):
     bpy.context.scene.view_settings.view_transform='Raw'
     mesh=obj.data;mesh.calc_loop_triangles()
     triangles=[tuple(t.vertices) for t in mesh.loop_triangles]
@@ -177,7 +178,8 @@ def capture(obj, rest, uvs, color, normal, spec, root, resolution, native_tangen
         loop_frames=[[(lie(mesh.loops[k].tangent),mesh.loops[k].bitangent_sign) for k in t.loops] for t in mesh.loop_triangles]
     bvh=BVHTree.FromPolygons(rest,triangles,all_triangles=True)
     ns=[lie(v.normal) for v in mesh.vertices]
-    center=Vector((0,.21,0));scale=.52;step=scale/resolution;grid=step*.65
+    center=Vector((0,.21,0)) if capture_center is None else Vector(capture_center)
+    scale=capture_scale;step=scale/resolution;grid=step*.65
     samples={};views=[]
     for elevation in [-45,0,45]:
         for azimuth in range(0,360,30):

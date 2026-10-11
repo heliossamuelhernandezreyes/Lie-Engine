@@ -20,6 +20,67 @@ from lie22_prepare_blender import eye, capture as capture_eye
 
 RADIUS=.012
 
+def capture_lid_poses(face,rest,triangles,regions,uvs,color,normal,spec,anchors,root):
+    """Capture newly exposed lid surfaces and bind them back to the rest pose.
+
+    A rest-only gallery cannot cover a patch hidden behind another part of
+    the scan until the eyelid moves. These are actual localized ray captures,
+    not runtime triangles or an analytic eye mask.
+    """
+    result=[];views=[]
+    rest_bases=[]
+    for ids in triangles:
+        a,b,c=(rest[k] for k in ids)
+        cross=(b-a).cross(c-a)
+        rest_bases.append(Matrix((b-a,c-a,cross.normalized())).transposed()
+            if any(regions[k]>0 for k in ids) and cross.length_squared>=1e-18 else None)
+    for blink in [.5,1.]:
+        face.data.shape_keys.key_blocks['blink'].value=blink
+        bpy.context.view_layer.update()
+        evaluated=face.evaluated_get(bpy.context.evaluated_depsgraph_get())
+        mesh=evaluated.to_mesh();mesh.calc_loop_triangles()
+        if [tuple(t.vertices) for t in mesh.loop_triangles]!=triangles:
+            raise ValueError('Lid capture changed surface identities')
+        positions=[lie(evaluated.matrix_world@v.co) for v in mesh.vertices]
+        source=bpy.data.objects.new('LieLidCapturePose',mesh.copy())
+        bpy.context.collection.objects.link(source)
+        evaluated.to_mesh_clear()
+        transforms=[];inverse_radius=[]
+        for ti,ids in enumerate(triangles):
+            a,b,c=(positions[k] for k in ids)
+            cross=(b-a).cross(c-a)
+            if rest_bases[ti] is None or cross.length_squared<1e-18:
+                transforms.append(None);inverse_radius.append(0.);continue
+            n=cross.normalized()
+            now=Matrix((b-a,c-a,n)).transposed()
+            transform=now@rest_bases[ti].inverted()
+            inverse=transform.inverted()
+            tangent=n.cross(Vector((0,1,0)) if abs(n.y)<.9 else Vector((1,0,0))).normalized()
+            inverse_radius.append(math.sqrt((inverse@tangent).length_squared+(inverse@n.cross(tangent)).length_squared))
+            transforms.append(transform)
+        for side,anchor in enumerate(anchors):
+            folder=root/f'lid-{side}-blink-{blink:.1f}';folder.mkdir(exist_ok=True)
+            captured_triangles,samples,poses=capture(source,positions,uvs,color,normal,spec,folder,128,
+                native_tangents=True,angles={(330,0),(0,0),(30,0)},capture_center=anchor,capture_scale=.05)
+            if captured_triangles!=triangles:raise ValueError('Unstable lid triangle binding')
+            kept=0
+            for sample in samples:
+                ti=int(sample[3]);ids=triangles[ti]
+                if transforms[ti] is None or not any(regions[k]==side+1 for k in ids):continue
+                # Normals transform contravariantly. Bring the captured pose
+                # normal back to rest so runtime can transport it to any pose.
+                transform=transforms[ti]
+                sample[4:7]=list((transform.transposed()@Vector(sample[4:7])).normalized())
+                sample[16:19]=list((transform.transposed()@Vector(sample[16:19])).normalized())
+                sample[7]*=inverse_radius[ti]
+                sample[15]=0.
+                result.append(sample);kept+=1
+            views.append({'blink':blink,'side':side,'resolution':128,'scale':.05,'samples':kept,'views':poses})
+        source_mesh=source.data;bpy.data.objects.remove(source,do_unlink=True);bpy.data.meshes.remove(source_mesh)
+    face.data.shape_keys.key_blocks['blink'].value=0
+    bpy.context.view_layer.update()
+    return result,views
+
 def build_face():
     original,rig,rest,weights,_,_,uvs,color,normal,spec=author()
     original.data.calc_loop_triangles()
@@ -133,6 +194,8 @@ def main():
     face,rig,rest,weights,blink,uvs,color,normal,spec,anchors,regions,removed=build_face()
     triangles,skin,views=capture(face,rest,uvs,color,normal,spec,root,args.resolution,native_tangents=True)
     for s in skin:s[15]=0. # material.w is now a region discriminator
+    extra,lid_views=capture_lid_poses(face,rest,triangles,regions,uvs,color,normal,spec,anchors,root)
+    skin.extend(extra)
     # Capture the same neutral eye master as LIE-22; keep one copy, invoke twice.
     eye_source=eye();eye_source.name='eye'
     fine,_,eye_metadata=capture_eye(eye_source,96,root)
@@ -174,6 +237,7 @@ def main():
              'samples.bin':b''.join(struct.pack('<20f',*s) for s in skin+eye_samples)}
     for name,data in packets.items():(root/name).write_bytes(data)
     manifest={'schema':1,'master_id':'lie-open-face23','capture_resolution':args.resolution,'capture_views':views,
+        'deformation_capture_views':lid_views,'deformation_sample_count':len(extra),
         'sample_count':len(skin)+len(fine),'face_sample_count':len(skin),'eye_sample_count':len(fine),
         'invocation_count':len(skin)+2*len(fine),'vertex_count':len(rest),'triangle_count':len(triangles),
         'buffers':{n:{'bytes':len(d),'sha256':hashlib.sha256(d).hexdigest()} for n,d in packets.items()},

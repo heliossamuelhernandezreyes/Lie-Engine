@@ -28,6 +28,11 @@ rehacer usan el mismo documento que los agentes.
 La piel y los párpados se capturan desde 36 direcciones a 384² con gris,
 filtro regional, normales, profundidad y asociación baricéntrica a la superficie
 invisible. El ojo neutral se captura con el procedimiento de LIE-22 a 96².
+Doce vistas localizadas de 128² capturan ambos párpados con cierre de 0.5 y
+1.0, desde tres direcciones. Estas muestras adicionales se asocian a los mismos
+triángulos y coordenadas baricéntricas de reposo; sus normales y huellas se
+transportan a reposo antes de incorporarse al buffer compartido. Cubren zonas
+que el escaneo oculta en la pose abierta y expone al cerrar.
 Se conserva una única copia de sus muestras en el buffer, invocada para dos
 anclajes. Cambiar color, pupila, mirada, cabeza o parpadeo no necesita más fotos.
 Cada humano puede reutilizar estos maestros y tener sus parámetros propios;
@@ -56,6 +61,9 @@ linealmente a 512² antes de exposición, compresión HDR y conversión sRGB.
 La huella de cada muestra de piel se transforma con la misma deformación
 local que su anclaje; conserva cobertura cuando el párpado se estira. Su
 extensión de búsqueda está limitada a 16 píxeles internos por eje.
+Profundidad y huella usan el plano geométrico del triángulo; la normal suavizada
+capturada se conserva para la iluminación. El cierre exige cero propietarios
+oculares visibles y verifica la misma cobertura al desactivar las sombras.
 
 Nueve fases: deformación, limpieza, profundidad/sombra, elección de propietario,
 acumulación de material, iluminación, difusión horizontal, difusión/composición

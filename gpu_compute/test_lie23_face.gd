@@ -93,6 +93,7 @@ func run() -> void:
     var hc: Array=visible_eyes(half);check(hc[0]+hc[1]<counts[0]+counts[1],"Partial blink reduces eye visibility continuously")
     command({"blink":1});await frames();var closed: Dictionary=await read_gpu();image(closed,"closed");screenshot("closed")
     var cc: Array=visible_eyes(closed);check(cc[0]+cc[1]<maxi(3,int((counts[0]+counts[1])*.02)),"Closed lids occlude eyes through shared depth")
+    check(cc[0]+cc[1]==0,"Pose-aware captured lids cover the entire closed eye")
     check(difference(closed,open)>10,"Blink changes captured geometry and shading")
     # Hidden eyes must not tint the closed lids through weighted material mixing.
     command({"iris_color":[1,0,0]});await frames();var hidden: Dictionary=await read_gpu()
