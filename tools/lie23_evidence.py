@@ -1,5 +1,6 @@
 """Package inspected GPU frames, native references and editable authoring data."""
 import argparse
+import io
 import json
 from pathlib import Path
 import zipfile
@@ -89,7 +90,8 @@ Código y reproducción: https://github.com/heliossamuelhernandezreyes/Lie-Engin
 '''
     (out/'LIE23-Parpados-Validacion.md').write_text(report)
     archive=out/'LIE23-Parpados-Evidencia.zip'
-    with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
+    buffer=io.BytesIO()
+    with zipfile.ZipFile(buffer,'w',zipfile.ZIP_DEFLATED) as z:
         for path in sorted(out.iterdir()):
             if path.is_file() and path!=archive:z.write(path,path.name)
         for path in sorted(after.glob('lie23-*.png')):z.write(path,'Vulkan/'+path.name)
@@ -100,6 +102,9 @@ Código y reproducción: https://github.com/heliossamuelhernandezreyes/Lie-Engin
         for name in ['human-open-eyes.blend','ATTRIBUTION.md']:
             z.write(after/'assets/lie23'/name,'maestro/'+name)
         z.write(after/'assets/lie20/LeePerrySmith_License.txt','maestro/LeePerrySmith_License.txt')
+    archive.write_bytes(buffer.getvalue())
+    with zipfile.ZipFile(archive) as z:
+        assert z.testzip() is None
     print(json.dumps({'files':[str(p) for p in sorted(out.iterdir())],'zip_bytes':archive.stat().st_size}))
 
 
