@@ -96,7 +96,14 @@ func run() -> void:
     check(difference(closed,open)>10,"Blink changes captured geometry and shading")
     # Hidden eyes must not tint the closed lids through weighted material mixing.
     command({"iris_color":[1,0,0]});await frames();var hidden: Dictionary=await read_gpu()
-    check(difference(hidden,closed)<.2,"Hidden iris cannot leak color through closed lids")
+    var hidden_delta: float=difference(hidden,closed)
+    check(hidden_delta<.2,"Hidden iris cannot leak color through closed lids")
+    command({"iris_color":[.22,.57,.76],"shadows":false});await frames();var unshadowed: Dictionary=await read_gpu();image(unshadowed,"closed-no-shadows")
+    check(visible_eyes(unshadowed)==cc,"Shadow controls cannot hide missing eyelid coverage")
+    report["hidden_iris_color_delta"]=hidden_delta
+    report["closed_iris_pixels"]=visible_eyes(closed,2)
+    report["closed_pupil_pixels"]=visible_eyes(closed,3)
+    command({"shadows":true})
     command({"blink":0,"iris_color":[.22,.57,.76]});await frames()
     var brown: Button=button(lab.ui,"Marrón");check(brown!=null,"Actual user iris preset")
     brown.pressed.emit();await frames();var brown_image: Dictionary=await read_gpu();image(brown_image,"brown")

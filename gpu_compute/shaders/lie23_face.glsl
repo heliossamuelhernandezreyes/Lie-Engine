@@ -152,8 +152,11 @@ void main() {
             mat3 deformation=now*inverse(rest);
             mat3 normal_matrix=transpose(inverse(deformation));
             normal=normalize(normal_matrix*s.normal_radius.xyz);
-            geometry_normal=normalize(normal_matrix*s.geometry_front.xyz);
-            footprint_normal=s.geometry_front.xyz;footprint_transform=deformation;
+            // Shading normals are smooth, but a depth footprint belongs to
+            // its actual triangle plane. Treating a smoothed vertex normal as
+            // that plane invents depth offsets across the closing lid folds.
+            geometry_normal=normalize(now_cross);
+            footprint_normal=normalize(rest_cross);footprint_transform=deformation;
             world=a*s.binding.x+b*s.binding.y+c*s.binding.z;
             }
             // A captured disk follows the same local affine deformation as
