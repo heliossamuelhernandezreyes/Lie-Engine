@@ -225,8 +225,8 @@ func _build_ui() -> void:
     var add_row:=HBoxContainer.new(); left.add_child(add_row)
     _button(add_row,"Bloque",_add_piece.bind("box",false)); _button(add_row,"Chapa",_add_piece.bind("box",true)); _button(add_row,"Cilindro",_add_piece.bind("cylinder",false))
     var laboratories:=MenuButton.new(); laboratories.text="Laboratorios"; left.add_child(laboratories)
-    var scenes: Array[String]=["res://lie21_human_lab.tscn","res://lie22_modular_lab.tscn","res://lie23_face_lab.tscn","res://lie24_modular_face_lab.tscn","res://lie25_anatomy_lab.tscn"]
-    for title in ["Maestro humano · calidad","Ojo y pared modular","Rostro, mirada y parpadeo","Construcción facial modular","Anatomía por capas"]:
+    var scenes: Array[String]=["res://lie21_human_lab.tscn","res://lie22_modular_lab.tscn","res://lie23_face_lab.tscn","res://lie24_modular_face_lab.tscn","res://lie25_anatomy_lab.tscn","res://lie26_motion_lab.tscn"]
+    for title in ["Maestro humano · calidad","Ojo y pared modular","Rostro, mirada y parpadeo","Construcción facial modular","Anatomía por capas","Movimiento anatómico · FK / IK"]:
         laboratories.get_popup().add_item(title)
     laboratories.get_popup().id_pressed.connect(func(index: int): get_tree().change_scene_to_file(scenes[index]))
     _label(left,"ENSAMBLAJE",13)
