@@ -80,6 +80,10 @@ python3 tools/lie25_compare_native.py gpu_compute
 godot --path gpu_compute res://lie25_anatomy_lab.tscn
 ```
 
+El importador admite `--references-only` para regenerar únicamente las
+referencias independientes sin reescribir el banco. Los NPZ se publican
+solo después de cerrar sus archivos.
+
 El laboratorio expone selección de capas, pigmentos, cámara, giro y luz.
 Su método `command` comparte la misma operación atómica con los controles:
 
@@ -110,3 +114,29 @@ múltiples personajes y cortes siguen sin medirse o implementarse.
 La memoria del banco y la reserva del compositor se informan aparte del tamaño
 de descarga. Vulkan por software comprueba comportamiento, no rendimiento de
 hardware ni viabilidad móvil. Tampoco equivale a validar realismo anatómico.
+
+## Resultado medido
+
+Banco final: 2,261,244 muestras; 180,899,520 bytes de muestras (172.52 MiB).
+Los recursos del compositor reservan 515,420,992 bytes (491.54 MiB); no es
+la RAM total del proceso ni una proyección de memoria por personaje.
+
+29 comprobaciones Vulkan pasan en llvmpipe (LLVM 20.1.2). Las 61 pruebas
+Python existentes pasan con una omitida por falta de su maestro externo.
+
+| Selección | IoU de silueta | MAE RGB sin luz |
+| --- | --- | --- |
+| 15 | 0.991824 | 0.001990 |
+| 14 | 0.987617 | 0.005781 |
+| 12 | 0.986655 | 0.003051 |
+| 8 | 0.985241 | 0.000995 |
+
+Las cuatro selecciones pasan los umbrales fijados; esto no valida realismo,
+animación ni todos los ángulos. Para empaquetar el banco y los resultados:
+
+```sh
+python3 tools/lie25_evidence.py --project gpu_compute \
+  --source-readme /absolute/README-original.txt \
+  --test-log /absolute/python-tests.log --import-log /absolute/import.log \
+  --out /absolute/lie25-evidence
+```

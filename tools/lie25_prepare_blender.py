@@ -66,6 +66,13 @@ def layer_mesh(layer, bottom):
     return points, triangles, names
 
 
+def save_npz(path, **arrays):
+    # Publish only closed archives, so readers never see an unfinished ZIP.
+    temporary = path.with_suffix('.pending.npz')
+    np.savez_compressed(temporary, **arrays)
+    temporary.replace(path)
+
+
 def main():
     args = argparse.ArgumentParser()
     args.add_argument('--input',type=Path,required=True)
@@ -73,6 +80,7 @@ def main():
     args.add_argument('--resolution',type=int,default=192)
     args.add_argument('--detail-resolution',type=int,default=288)
     args.add_argument('--internal-resolution',type=int,default=448)
+    args.add_argument('--references-only',action='store_true')
     options = args.parse_args(sys.argv[sys.argv.index('--')+1:])
     resolutions = [options.resolution,options.resolution,options.detail_resolution,options.internal_resolution]
     if not all(64 <= value <= 512 for value in resolutions):
@@ -103,6 +111,7 @@ def main():
     for layer_id,(points,triangles,names) in enumerate(raw):
         bvh = BVHTree.FromPolygons([Vector(p)-center for p in points],triangles,all_triangles=True)
         bvhs.append(bvh)
+        if options.references_only:continue
         start, views = len(samples), []
         resolution = resolutions[layer_id]
         for elevation in [-45,0,45]:
@@ -122,18 +131,19 @@ def main():
                         gray[y,x]=1;normal[y,x]=n;depth[y,x]=distance
                         samples.append((*p,-2.,*n,scale/resolution*FOOTPRINT[layer_id],1.,1.,1.,1.,PALETTE[layer_id][3],0.,0.,float(layer_id),*n,1.))
                 view=f'layer{layer_id}-az{azimuth:03d}-el{elevation:+03d}.npz'
-                np.savez_compressed(root/view,gray=gray,normal=normal,depth=depth,direction=np.asarray(direction),right=np.asarray(right),up=np.asarray(up),scale=scale)
+                save_npz(root/view,gray=gray,normal=normal,depth=depth,direction=np.asarray(direction),right=np.asarray(right),up=np.asarray(up),scale=scale)
                 views.append(view)
                 print('CAPTURE',layer_id,azimuth,elevation,len(samples),flush=True)
         layers.append({'id':layer_id,'name':LAYERS[layer_id],'sample_offset':start,'sample_count':len(samples)-start,'source_objects':names,'source_vertices':len(points),'source_triangles':len(triangles),'views':views})
-    half = (high-low)/2
-    corners = [(x*half[0],y*half[1],z*half[2]) for x in [-1,1] for y in [-1,1] for z in [-1,1]]
-    box = [(0,1,3),(0,3,2),(4,6,7),(4,7,5),(0,4,5),(0,5,1),(2,3,7),(2,7,6),(0,2,6),(0,6,4),(1,5,7),(1,7,3)]
-    (root/'vertices.bin').write_bytes(b''.join(struct.pack('<24f',*p,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.) for p in corners))
-    (root/'triangles.bin').write_bytes(b''.join(struct.pack('<4I',*t,0) for t in box))
-    (root/'samples.bin').write_bytes(np.asarray(samples,dtype='<f4').tobytes())
-    master={'schema':3,'kind':'lie-anatomy25-rigid','vertex_stride':96,'sample_stride':80,'sample_count':len(samples),'invocation_count':len(samples),'vertex_count':8,'triangle_count':12,'layers':layers,'palette':PALETTE,'capture_resolution_by_layer':resolutions,'footprint_scale_by_layer':FOOTPRINT,'capture_scale':float(scale),'target':[0,0,0],'pivot':[0,0,0],'source_sha256':source_sha,'source':'https://always3d.gumroad.com/l/haJWL','author':'Always3D','license':'CC-BY-SA-2.1-JP','license_url':'https://creativecommons.org/licenses/by-sa/2.1/jp/','credit':'3DAnatomyman by Always3D; derivative of BodyParts3D © DBCLS. Cropped and captured for Lie.','rig':'rigid-bust-only','omissions':['hair pigment','body rig','facial expressions','cut surfaces','complete game gore'],'buffers':{name:{'bytes':(root/name).stat().st_size,'sha256':hashlib.file_digest((root/name).open('rb'),'sha256').hexdigest()} for name in ['vertices.bin','triangles.bin','samples.bin']}}
-    (root/'master.json').write_text(json.dumps(master,indent=2)+'\n')
+    if not options.references_only:
+        half = (high-low)/2
+        corners = [(x*half[0],y*half[1],z*half[2]) for x in [-1,1] for y in [-1,1] for z in [-1,1]]
+        box = [(0,1,3),(0,3,2),(4,6,7),(4,7,5),(0,4,5),(0,5,1),(2,3,7),(2,7,6),(0,2,6),(0,6,4),(1,5,7),(1,7,3)]
+        (root/'vertices.bin').write_bytes(b''.join(struct.pack('<24f',*p,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.) for p in corners))
+        (root/'triangles.bin').write_bytes(b''.join(struct.pack('<4I',*t,0) for t in box))
+        (root/'samples.bin').write_bytes(np.asarray(samples,dtype='<f4').tobytes())
+        master={'schema':3,'kind':'lie-anatomy25-rigid','vertex_stride':96,'sample_stride':80,'sample_count':len(samples),'invocation_count':len(samples),'vertex_count':8,'triangle_count':12,'layers':layers,'palette':PALETTE,'capture_resolution_by_layer':resolutions,'footprint_scale_by_layer':FOOTPRINT,'capture_scale':float(scale),'target':[0,0,0],'pivot':[0,0,0],'source_sha256':source_sha,'source':'https://always3d.gumroad.com/l/haJWL','author':'Always3D','license':'CC-BY-SA-2.1-JP','license_url':'https://creativecommons.org/licenses/by-sa/2.1/jp/','credit':'3DAnatomyman by Always3D; derivative of BodyParts3D © DBCLS. Cropped and captured for Lie.','rig':'rigid-bust-only','omissions':['hair pigment','body rig','facial expressions','cut surfaces','complete game gore'],'buffers':{name:{'bytes':(root/name).stat().st_size,'sha256':hashlib.file_digest((root/name).open('rb'),'sha256').hexdigest()} for name in ['vertices.bin','triangles.bin','samples.bin']}}
+        (root/'master.json').write_text(json.dumps(master,indent=2)+'\n')
     # Independent perspective rays hit cropped source surfaces, not captures.
     size=512;fov=math.tan(math.radians(35)/2);distance=.95
     for mask in [15,14,12,8]:
@@ -148,9 +158,9 @@ def main():
                     p,n,face,t=bvh.ray_cast(eye,ray,2)
                     if p is not None and t<best:
                         best=t;owners[y,x]=layer_id;depths[y,x]=(eye-p).z
-        np.savez_compressed(root/f'native-mask{mask}.npz',owners=owners,depth=depths)
+        save_npz(root/f'native-mask{mask}.npz',owners=owners,depth=depths)
         print('NATIVE',mask,flush=True)
-    print('ANATOMY_MASTER',len(samples),flush=True)
+    print('ANATOMY_REFERENCES' if options.references_only else 'ANATOMY_MASTER',len(samples),flush=True)
 
 
 if __name__=='__main__':main()

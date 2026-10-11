@@ -123,7 +123,11 @@ void main() {
         if(i>=uint(parameters.counts.x)) return;
         Projection p;
         if(stage==2) {
-            Sample s=source_sample(i);vec3 world,normal,geometry_normal,footprint_normal;
+            Sample s=source_sample(i);
+            if((int(parameters.pose.z)&(1<<int(s.material.w)))==0) {
+                projected.v[i]=Projection(vec4(0),vec4(0),vec4(0),vec4(0),vec4(0),vec4(0));return;
+            }
+            vec3 world,normal,geometry_normal,footprint_normal;
             mat3 footprint_transform=mat3(1);
             float radius=s.normal_radius.w;
             // XYZ captures share a rigid transform; the box records bounds.
