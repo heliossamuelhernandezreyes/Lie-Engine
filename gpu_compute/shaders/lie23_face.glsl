@@ -144,8 +144,22 @@ void main() {
                 } else if(region==3) {local.xy*=parameters.iris.w/.0017;radius*=parameters.iris.w/.0017;}
                 mat3 rotation=yaw_rotation(parameters.pose.x)*yaw_rotation(parameters.gaze.x)*pitch_rotation(parameters.gaze.y);
                 world=eye_anchor(i)+rotation*local;normal=normalize(rotation*s.normal_radius.xyz);geometry_normal=normalize(rotation*s.geometry_front.xyz);footprint_normal=geometry_normal;
+            } else if(s.binding.w==-2.0) {
+                // Rigid regions carry captured XYZ directly. Only regions
+                // that deform need a detailed invisible triangle cage.
+                mat3 rotation=yaw_rotation(parameters.pose.x);
+                world=rotation*(s.binding.xyz-parameters.pivot.xyz)+parameters.pivot.xyz;
+                normal=normalize(rotation*s.normal_radius.xyz);
+                geometry_normal=normalize(rotation*s.geometry_front.xyz);
+                footprint_normal=s.geometry_front.xyz;footprint_transform=rotation;
             } else {
-            uvec3 ids=triangles.v[int(s.binding.w)].xyz;
+            uvec4 triangle=triangles.v[int(s.binding.w)];
+            // A facial slot has exclusive ownership, including its blank
+            // filler. Inactive alternatives contribute no pixels or shadows.
+            if(triangle.w>0u && triangle.w!=uint(parameters.pose.z)+1u) {
+                p.world=vec4(0);p.screen=vec4(0);projected.v[i]=p;return;
+            }
+            uvec3 ids=triangle.xyz;
             vec3 a=deformed.v[2*ids.x].xyz,b=deformed.v[2*ids.y].xyz,c=deformed.v[2*ids.z].xyz;
             vec3 ar=vertices.v[ids.x].position_weight.xyz,br=vertices.v[ids.y].position_weight.xyz,cr=vertices.v[ids.z].position_weight.xyz;
             vec3 rest_cross=cross(br-ar,cr-ar),now_cross=cross(b-a,c-a);
@@ -170,7 +184,7 @@ void main() {
             vec3 tangent=normalize(cross(footprint_normal,abs(footprint_normal.y)<.9?vec3(0,1,0):vec3(1,0,0)));
             vec3 footprint_u=footprint_transform*tangent*radius;
             vec3 footprint_v=footprint_transform*cross(footprint_normal,tangent)*radius;
-            if(i<uint(parameters.gaze.z)) {
+            if(i<uint(parameters.gaze.z) && s.binding.w>=0.0) {
                 // Cholesky factor of the captured rest-tangent covariance.
                 // Pose captures keep both axes when brought back to rest.
                 float a=sqrt(max(s.geometry_front.x,1e-10));

@@ -1,8 +1,31 @@
-# Lie Engine — LIE-01 through LIE-21
+# Lie Engine — LIE-01 through LIE-24
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-24 — captured facial construction
+
+The workshop adds a nose-free skin base and three interchangeable captured
+noses from one compatible facial family. Shared mounting contours and exclusive
+slot ownership keep alternatives separate; common depth resolves eyes, skin
+and nose from the current camera. Rigid facial samples retain captured XYZ
+without a dense deformation cage, while the neck and curved blinking lids
+keep their detailed bindings. Selection, history, saved documents and seeded
+variation use one validated user/agent protocol. Independent Blender assemblies
+and actual Vulkan verify poses, profiles, silhouettes, albedo and hidden assets.
+Read [construction, reproduction and limits](docs/LIE_24_MODULAR_FACE.md).
+Other facial slots, new head proportions, simultaneous characters and Android
+performance remain future work.
+
+## LIE-23 — shared eyes and connected eyelids
+
+One captured eye master serves two attachments in an attributed human bust.
+The connected eyelids follow a curved blink corrective with smooth pose
+normals and localized captures of newly exposed skin. Captured surface depth
+covers the eyes at closure; source meshes remain invisible. The inspector
+shares atomic controls for head, gaze, pupil, iris and skin with its agent API.
+Read [setup and validation](docs/LIE_23_INTEGRATED_FACE.md).
 
 ## LIE-21 — human quality reconstruction
 

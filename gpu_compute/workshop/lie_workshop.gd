@@ -227,6 +227,7 @@ func _build_ui() -> void:
     _button(left,"Maestro humano · calidad",func(): get_tree().change_scene_to_file("res://lie21_human_lab.tscn"))
     _button(left,"Ojo y pared modular",func(): get_tree().change_scene_to_file("res://lie22_modular_lab.tscn"))
     _button(left,"Rostro, mirada y parpadeo",func(): get_tree().change_scene_to_file("res://lie23_face_lab.tscn"))
+    _button(left,"Construcción facial modular",func(): get_tree().change_scene_to_file("res://lie24_modular_face_lab.tscn"))
     _label(left,"ENSAMBLAJE",13)
     part_list=ItemList.new(); part_list.custom_minimum_size=Vector2(214,192); part_list.size_flags_vertical=Control.SIZE_EXPAND_FILL
     part_list.item_selected.connect(_select_part); left.add_child(part_list)

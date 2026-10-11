@@ -9,14 +9,22 @@ var revision: int=0
 var history: Array=[]
 var future: Array=[]
 
+func _limits() -> Dictionary:
+    return LIMITS
+func _master() -> String:
+    return "lie-open-face23"
+func _directory() -> String:
+    return "user://face23"
+
 func snapshot() -> Dictionary:
-    return {"schema":1,"revision":revision,"document":state.duplicate(true),"undo_count":history.size(),"redo_count":future.size(),"master":"lie-open-face23"}
+    return {"schema":1,"revision":revision,"document":state.duplicate(true),"undo_count":history.size(),"redo_count":future.size(),"master":_master()}
 
 func validate(candidate: Variant) -> String:
     if not candidate is Dictionary or candidate.keys().size()!=state.keys().size(): return "document_shape"
-    for key in LIMITS:
+    var limits: Dictionary=_limits()
+    for key in limits:
         var value: Variant=candidate.get(key)
-        if not (value is int or value is float) or not is_finite(float(value)) or float(value)<LIMITS[key][0] or float(value)>LIMITS[key][1]: return "range_"+str(key)
+        if not (value is int or value is float) or not is_finite(float(value)) or float(value)<limits[key][0] or float(value)>limits[key][1]: return "range_"+str(key)
     for key in ["shadows","playing"]:
         if not candidate.get(key) is bool: return "boolean_"+key
     var time: Variant=candidate.get("time")
@@ -35,13 +43,14 @@ func dispatch(request: Variant) -> Dictionary:
         var expected: Variant=request["expected_revision"]
         if not (expected is int or expected is float) or not is_finite(float(expected)) or expected!=revision: return {"ok":false,"error":"revision_conflict","revision":revision}
     var op: String=str(request.get("op",""))
+    var limits: Dictionary=_limits()
     if op=="snapshot": return {"ok":true,"snapshot":snapshot(),"revision":revision}
     if op=="save_document":
-        DirAccess.make_dir_recursive_absolute("user://face23")
-        var file:=FileAccess.open("user://face23/document.json.tmp",FileAccess.WRITE)
+        DirAccess.make_dir_recursive_absolute(_directory())
+        var file:=FileAccess.open(_directory()+"/document.json.tmp",FileAccess.WRITE)
         if file==null: return {"ok":false,"error":"save_failed","revision":revision}
-        file.store_string(JSON.stringify({"schema":1,"master":"lie-open-face23","state":state},"  ",true,true));file.close()
-        var err: Error=DirAccess.rename_absolute("user://face23/document.json.tmp","user://face23/document.json")
+        file.store_string(JSON.stringify({"schema":1,"master":_master(),"state":state},"  ",true,true));file.close()
+        var err: Error=DirAccess.rename_absolute(_directory()+"/document.json.tmp",_directory()+"/document.json")
         return {"ok":err==OK,"error":"" if err==OK else "save_failed","revision":revision}
     if op in ["undo","redo"]:
         var source: Array=history if op=="undo" else future
@@ -54,13 +63,13 @@ func dispatch(request: Variant) -> Dictionary:
         var values: Variant=request.get("values")
         if not values is Dictionary or values.is_empty(): return {"ok":false,"error":"values_object","revision":revision}
         for key in values:
-            if not LIMITS.has(key) and key not in ["shadows","light_color","skin_tint","iris_color","framing"]: return {"ok":false,"error":"unknown_field","revision":revision}
+            if not limits.has(key) and key not in ["shadows","light_color","skin_tint","iris_color","framing"]: return {"ok":false,"error":"unknown_field","revision":revision}
             next[key]=values[key]
     elif op=="set_playing": next["playing"]=request.get("value")
     elif op=="set_time": next["time"]=request.get("value")
     elif op=="load_document":
-        var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string("user://face23/document.json")) if FileAccess.file_exists("user://face23/document.json") else null
-        if not parsed is Dictionary or parsed.get("schema")!=1 or parsed.get("master")!="lie-open-face23": return {"ok":false,"error":"load_contract","revision":revision}
+        var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(_directory()+"/document.json")) if FileAccess.file_exists(_directory()+"/document.json") else null
+        if not parsed is Dictionary or parsed.get("schema")!=1 or parsed.get("master")!=_master(): return {"ok":false,"error":"load_contract","revision":revision}
         if not parsed.get("state") is Dictionary: return {"ok":false,"error":"document_shape","revision":revision}
         next=parsed["state"].duplicate(true)
     else: return {"ok":false,"error":"unknown_operation","revision":revision}
@@ -68,7 +77,7 @@ func dispatch(request: Variant) -> Dictionary:
     if error!="": return {"ok":false,"error":error,"revision":revision}
     # JSON numbers load as floats. Canonical numeric types preserve equality,
     # save/load behavior and undo independently of the command's origin.
-    for key in LIMITS: next[key]=float(next[key])
+    for key in limits: next[key]=float(next[key])
     next["time"]=float(next["time"])
     for key in ["light_color","skin_tint","iris_color"]:next[key]=next[key].map(func(value: Variant):return float(value))
     if next!=state:

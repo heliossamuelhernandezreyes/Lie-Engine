@@ -40,6 +40,18 @@ func _load_master() -> void:
     var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(capture_root+"master.json")) if FileAccess.file_exists(capture_root+"master.json") else null
     if not parsed is Dictionary: failure="Prepara el maestro humano en Blender."; return
     master=parsed
+    if master.has("facial_modules"):
+        var modules: Variant=master["facial_modules"]
+        if not modules is Array or modules.size()!=4:failure="Biblioteca facial inválida";return
+        var end: int=-1
+        for i in range(modules.size()):
+            var module: Variant=modules[i]
+            if not module is Dictionary or module.get("id")!=i or module.get("triangle_group")!=i+1 or module.get("family")!="lee-face-v1" or module.get("slot")!="nose":failure="Familia facial incompatible";return
+            var start: Variant=module.get("sample_offset");var count: Variant=module.get("sample_count")
+            if not (start is int or start is float) or not (count is int or count is float):failure="Rango facial inválido";return
+            if not is_finite(float(start)) or not is_finite(float(count)) or start!=floorf(start) or count!=floorf(count) or start<0 or count<1 or start+count>int(master.get("face_sample_count",0)) or (end>=0 and start!=end):failure="Rango facial inválido";return
+            end=int(start+count)
+        if end!=int(master.get("face_sample_count",0)):failure="Rango facial incompleto";return
     if int(master.get("face_sample_count",0))<1 or int(master.get("eye_sample_count",0))<1 or int(master.get("invocation_count",0))!=int(master.get("face_sample_count",0))+2*int(master.get("eye_sample_count",0)) or int(master.get("invocation_count",0))>1000000 or int(master.get("sample_count",0))!=int(master.get("face_sample_count",0))+int(master.get("eye_sample_count",0)):failure="Contrato de ojos compartidos";return
     if master.get("schema")!=2 or master.get("vertex_stride")!=96 or int(master.get("sample_count",0)) not in range(1,1000001) or int(master.get("vertex_count",0)) not in range(3,200001) or int(master.get("triangle_count",0)) not in range(1,400001): failure="Maestro humano fuera de contrato"; return
     for pair in [["vertices.bin",96,"vertex_count"],["triangles.bin",16,"triangle_count"],["samples.bin",80,"sample_count"]]:
@@ -50,6 +62,7 @@ func _load_master() -> void:
         _input.append(file.get_buffer(file.get_length()))
     var indices: PackedInt32Array=_input[1].to_int32_array()
     for i in range(0,indices.size(),4):
+        if indices[i+3]<0 or indices[i+3]>int(master.get("facial_modules",[]).size()):failure="Grupo facial inválido";return
         for axis in range(3):
             if indices[i+axis]<0 or indices[i+axis]>=int(master["vertex_count"]): failure="Índice de superficie inválido";return
     var samples: PackedFloat32Array=_input[2].to_float32_array()
@@ -57,7 +70,11 @@ func _load_master() -> void:
         for k in range(20):
             if not is_finite(samples[i+k]): failure="Muestra no finita";return
         var skin: bool=i/20<int(master["face_sample_count"])
-        if (skin and (int(samples[i+3])<0 or int(samples[i+3])>=int(master["triangle_count"]) or absf(samples[i]+samples[i+1]+samples[i+2]-1)>.0002)) or (not skin and samples[i+3]!=-1):
+        var rigid: bool=skin and samples[i+3]==-2 and master.get("rigid_sample_encoding")=="local-xyz-head-v1"
+        if rigid:
+            var n:=Vector3(samples[i+16],samples[i+17],samples[i+18])
+            if absf(n.length()-1)>.0002:failure="Normal rígida inválida";return
+        if (skin and not rigid and (samples[i+3]!=floorf(samples[i+3]) or int(samples[i+3])<0 or int(samples[i+3])>=int(master["triangle_count"]) or absf(samples[i]+samples[i+1]+samples[i+2]-1)>.0002)) or (not skin and samples[i+3]!=-1):
             failure="Asociación de captura inválida";return
     capture_loaded=true
 
@@ -67,6 +84,9 @@ func configure(parameters: PackedByteArray) -> bool:
     for i in range(values.size()):
         if i not in range(24,28) and not is_finite(values[i]):return false
     if parameters.decode_float(280)!=float(master["face_sample_count"]) or parameters.decode_float(284)!=float(master["eye_sample_count"]):return false
+    if master.has("facial_modules"):
+        var module: float=parameters.decode_float(120)
+        if module!=floorf(module) or module<0 or module>=master["facial_modules"].size():return false
     _mutex.lock();_parameters=parameters.duplicate();_mutex.unlock()
     return true
 
