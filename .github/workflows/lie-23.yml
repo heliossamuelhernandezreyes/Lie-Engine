@@ -35,6 +35,8 @@ jobs:
         run: |
           xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie23-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie23_face.gd 2>&1 | tee gpu_compute/lie23-gpu.log
           if rg 'ERROR:|SCRIPT ERROR|Parse Error' gpu_compute/lie23-gpu.log; then exit 1; fi
+      - name: Matched native silhouettes and skin albedo, independent of lighting
+        run: python3 tools/lie23_compare_native.py gpu_compute
       - name: Preserve actual GPU evidence and editable native source
         if: always()
         uses: actions/upload-artifact@v4

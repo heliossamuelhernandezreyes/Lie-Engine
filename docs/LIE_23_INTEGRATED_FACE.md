@@ -2,8 +2,14 @@
 
 El ojo de LIE-22 se integra en una versión modificada del maestro humano de
 Lee Perry-Smith / Infinite-Realities, CC BY 3.0. La preparación abre las
-órbitas del escaneo cerrado y añade dos anillos de párpado con un shape key
-de cierre continuo. El escaneo original queda oculto dentro del .blend.
+órbitas del escaneo cerrado y conecta los párpados al borde real del rostro.
+Los vértices geométricos duplicados por costuras UV se unifican, conservando
+las coordenadas de material por esquina. Los remanentes interiores del párpado
+original se eliminan. El cierre usa la clave `blink` y la correctiva
+`blink_arc`, con peso `4*b*(1-b)`: una pose intermedia sigue el globo ocular y
+la pose cerrada recupera la superficie del escaneo. La abertura tiene un
+contorno almendrado, una transición continua y un pliegue superior discreto.
+El escaneo original queda oculto dentro del .blend.
 Esta reconstrucción de párpados es artística; no se presenta como anatomía
 completa ni como equivalencia a Cycles.
 
@@ -31,16 +37,22 @@ invisible. El ojo neutral se captura con el procedimiento de LIE-22 a 96².
 Doce vistas localizadas de 128² capturan ambos párpados con cierre de 0.5 y
 1.0, desde tres direcciones. Estas muestras adicionales se asocian a los mismos
 triángulos y coordenadas baricéntricas de reposo; sus normales y huellas se
-transportan a reposo antes de incorporarse al buffer compartido. Cubren zonas
-que el escaneo oculta en la pose abierta y expone al cerrar.
+transportan a reposo. La huella conserva una covarianza 2D completa en el plano
+tangente; no se sustituye por un círculo conservador más grande. La galería
+amplía cobertura en zonas que la pose abierta oculta y el cierre expone.
+Las claves nativas determinan la forma de la superficie.
 Se conserva una única copia de sus muestras en el buffer, invocada para dos
 anclajes. Cambiar color, pupila, mirada, cabeza o parpadeo no necesita más fotos.
 Cada humano puede reutilizar estos maestros y tener sus parámetros propios;
 esta prueba todavía dibuja un solo busto.
 
-Los buffers son `vertices.bin` (48 bytes/vértice), `triangles.bin`
+Los buffers son `vertices.bin` (96 bytes/vértice, esquema 2), `triangles.bin`
 (16 bytes/triángulo) y `samples.bin` (80 bytes/muestra). Las muestras de piel
-conservan triángulo y coordenadas baricéntricas. Las del ojo conservan posición
+conservan triángulo y coordenadas baricéntricas. Cada vértice guarda posición,
+influencia de cabeza, cierre, correctiva y normales suaves de reposo, medio
+cierre y cierre. Las normales del párpado se interpolan en el rig; la normal
+del escaneo cerrado no se proyecta sobre la superficie nueva. Las UV nativas
+por esquina también se usan al capturar. Las del ojo conservan posición
 local y región esclerótica/iris/pupila. El manifiesto distingue muestras
 almacenadas de invocaciones; estas últimas cuentan dos veces el ojo. El límite
 es un millón de invocaciones y un paquete de parámetros de 320 bytes.
@@ -60,9 +72,14 @@ anclaje ocular, mirada y radio de pupila. La imagen interna de 1024² se resuelv
 linealmente a 512² antes de exposición, compresión HDR y conversión sRGB.
 La huella de cada muestra de piel se transforma con la misma deformación
 local que su anclaje; conserva cobertura cuando el párpado se estira. Su
-extensión de búsqueda está limitada a 16 píxeles internos por eje.
+extensión de búsqueda está limitada a 16 píxeles internos por eje. Además se
+limita la intersección del plano a la huella física de la muestra y el filtro
+subpíxel: una tangente ocular rasante no puede extrapolarse por delante de la
+piel cerrada.
 Profundidad y huella usan el plano geométrico del triángulo; la normal suavizada
-capturada se conserva para la iluminación. El cierre exige cero propietarios
+capturada se conserva para la iluminación de las regiones originales; el
+párpado usa sus normales suaves de pose. La sombra usa un mapa de 1024² y
+la huella elíptica completa proyectada hacia la luz. El cierre exige cero propietarios
 oculares visibles y verifica la misma cobertura al desactivar las sombras.
 
 Nueve fases: deformación, limpieza, profundidad/sombra, elección de propietario,
@@ -97,7 +114,7 @@ por el agente.
 {"op":"set_values","values":{"skin_tint":[0.55,0.42,0.32],"framing":"face"}}
 ```
 
-El .blend conserva rig nativo, shape key de parpadeo y claves pupilares. Blender
+El .blend conserva rig nativo, claves de parpadeo/correctiva y claves pupilares. Blender
 evalúa cinco casos con distintas cabezas, párpados, miradas y pupilas, y exporta
 160 puntos de piel/párpados y 32 por ojo en cada caso. La prueba Vulkan compara
 sus posiciones con las calculadas por GPU; comprueba también que ambos ojos
@@ -105,6 +122,17 @@ sean visibles abiertos, el cierre reduzca su visibilidad y el iris no coloree
 párpados cerrados. Prueba controles reales, material, pupila, cámara, transporte
 de agentes, presupuesto y reutilización. PNG y video de evidencia proceden de
 fotogramas reales; su reproducción no representa FPS móviles.
+
+Además se renderizan las mismas tres poses frontales con triángulos nativos
+en Blender Cycles, con cámara de 35°, distancia 0.48 m y objetivo (0,0.30,0.02).
+La comprobación del maestro exige cero píxeles oculares al cerrar. Lie también
+comprueba cámaras oblicuas de −30° y +30° con sombras desactivadas. Lie exporta
+albedo sin iluminación y se compara con la referencia: IoU de silueta ≥0.985
+y error RGB medio de piel ≤0.03 en escala 0–1. Se excluyen bordes y regiones
+oculares del error de material, pues su material nativo es aproximado. La
+comparación de belleza es visual: no iguala los modelos de iluminación.
+La verificación del paquete también exige aristas compartidas en toda la
+unión orbital y contrasta las cinco deformaciones de forma independiente.
 
 Articulaciones del cuerpo, interior de boca y expresiones emocionales completas
 requieren otros maestros y validación; no se atribuyen a este hito.

@@ -17,6 +17,7 @@ from mathutils.bvhtree import BVHTree
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from lie20_prepare_blender import author, barycentric, blender, capture, lie, ROOT
 from lie22_prepare_blender import eye, capture as capture_eye
+from lie23_eyelids import set_blink
 
 RADIUS=.012
 
@@ -35,7 +36,7 @@ def capture_lid_poses(face,rest,triangles,regions,uvs,color,normal,spec,anchors,
         rest_bases.append(Matrix((b-a,c-a,cross.normalized())).transposed()
             if any(regions[k]>0 for k in ids) and cross.length_squared>=1e-18 else None)
     for blink in [.5,1.]:
-        face.data.shape_keys.key_blocks['blink'].value=blink
+        set_blink(face,blink)
         bpy.context.view_layer.update()
         evaluated=face.evaluated_get(bpy.context.evaluated_depsgraph_get())
         mesh=evaluated.to_mesh();mesh.calc_loop_triangles()
@@ -45,23 +46,20 @@ def capture_lid_poses(face,rest,triangles,regions,uvs,color,normal,spec,anchors,
         source=bpy.data.objects.new('LieLidCapturePose',mesh.copy())
         bpy.context.collection.objects.link(source)
         evaluated.to_mesh_clear()
-        transforms=[];inverse_radius=[]
+        transforms=[]
         for ti,ids in enumerate(triangles):
             a,b,c=(positions[k] for k in ids)
             cross=(b-a).cross(c-a)
             if rest_bases[ti] is None or cross.length_squared<1e-18:
-                transforms.append(None);inverse_radius.append(0.);continue
+                transforms.append(None);continue
             n=cross.normalized()
             now=Matrix((b-a,c-a,n)).transposed()
             transform=now@rest_bases[ti].inverted()
-            inverse=transform.inverted()
-            tangent=n.cross(Vector((0,1,0)) if abs(n.y)<.9 else Vector((1,0,0))).normalized()
-            inverse_radius.append(math.sqrt((inverse@tangent).length_squared+(inverse@n.cross(tangent)).length_squared))
             transforms.append(transform)
         for side,anchor in enumerate(anchors):
             folder=root/f'lid-{side}-blink-{blink:.1f}';folder.mkdir(exist_ok=True)
             captured_triangles,samples,poses=capture(source,positions,uvs,color,normal,spec,folder,128,
-                native_tangents=True,angles={(330,0),(0,0),(30,0)},capture_center=anchor,capture_scale=.05)
+                native_tangents=True,angles={(330,0),(0,0),(30,0)},capture_center=anchor,capture_scale=.05,smooth_regions=regions)
             if captured_triangles!=triangles:raise ValueError('Unstable lid triangle binding')
             kept=0
             for sample in samples:
@@ -71,83 +69,32 @@ def capture_lid_poses(face,rest,triangles,regions,uvs,color,normal,spec,anchors,
                 # normal back to rest so runtime can transport it to any pose.
                 transform=transforms[ti]
                 sample[4:7]=list((transform.transposed()@Vector(sample[4:7])).normalized())
-                sample[16:19]=list((transform.transposed()@Vector(sample[16:19])).normalized())
-                sample[7]*=inverse_radius[ti]
+                # Preserve the inverse-deformed disk as a full covariance in
+                # the orthonormal rest tangent frame, rather than an inflated
+                # isotropic support radius.
+                ids=triangles[ti];ra,rb,rc=(rest[k] for k in ids)
+                rn=(rb-ra).cross(rc-ra).normalized()
+                rt=rn.cross(Vector((0,1,0)) if abs(rn.y)<.9 else Vector((1,0,0))).normalized()
+                rbit=rn.cross(rt)
+                pa,pb,pc=(positions[k] for k in ids)
+                pn=(pb-pa).cross(pc-pa).normalized()
+                pt=pn.cross(Vector((0,1,0)) if abs(pn.y)<.9 else Vector((1,0,0))).normalized()
+                inv=transform.inverted();u,v=inv@pt,inv@pn.cross(pt)
+                x1,y1=u.dot(rt),u.dot(rbit);x2,y2=v.dot(rt),v.dot(rbit)
+                sample[16:19]=[x1*x1+x2*x2,x1*y1+x2*y2,y1*y1+y2*y2]
                 sample[15]=0.
                 result.append(sample);kept+=1
             views.append({'blink':blink,'side':side,'resolution':128,'scale':.05,'samples':kept,'views':poses})
         source_mesh=source.data;bpy.data.objects.remove(source,do_unlink=True);bpy.data.meshes.remove(source_mesh)
-    face.data.shape_keys.key_blocks['blink'].value=0
+    set_blink(face,0)
     bpy.context.view_layer.update()
     return result,views
 
 def build_face():
+    from lie23_eyelids import author_lids
     original,rig,rest,weights,_,_,uvs,color,normal,spec=author()
-    original.data.calc_loop_triangles()
-    old_faces=[tuple(t.vertices) for t in original.data.loop_triangles]
-    bvh=BVHTree.FromPolygons(rest,old_faces,all_triangles=True)
-    anchors=[]
-    # Calibrated from the pinned scan's frontal geometry and texture, not
-    # the approximate coordinates of LIE-20's closed-eye stress corrective.
-    for x in [-.037,.034]:
-        hit,_,_,_=bvh.ray_cast(Vector((x,.301,.4)),Vector((0,0,-1)),1)
-        if hit is None:raise ValueError('Missing orbital landmark')
-        anchors.append(Vector((x,.301,hit.z-.0125)))
-    faces=[]
-    removed=0
-    for f in old_faces:
-        center=sum((rest[k] for k in f),Vector())/3
-        cut=any(((center.x-a.x)/.0155)**2+((center.y-a.y)/.0098)**2<1 and center.z>.035 for a in anchors)
-        if cut:removed+=1
-        else:faces.append(f)
-    blink=[Vector() for _ in rest]
-    regions=[0]*len(rest)
-    segments,rows=96,12
-    for side,a in enumerate(anchors):
-        base=len(rest)
-        for row in range(rows+1):
-            t=row/rows
-            for i in range(segments):
-                phi=2*math.pi*i/segments;cs,sn=math.cos(phi),math.sin(phi)
-                inner=Vector((.0117*cs,(.006 if sn>=0 else .0048)*sn,0))
-                inner.z=math.sqrt(max(RADIUS**2-inner.x**2-inner.y**2,1e-8))+.00045
-                outer_xy=Vector((a.x+.021*cs,a.y+.014*sn,.4))
-                hit,_,ti,_=bvh.ray_cast(outer_xy,Vector((0,0,-1)),1)
-                if hit is None:raise ValueError('Missing lid attachment')
-                p=(a+inner)*(1-t)+hit*t
-                # The two native rims overlap by less than one millimeter.
-                # A positive gap, even 0.16 mm, exposes the iris at close range.
-                closed=Vector((inner.x,-.00045*sn,math.sqrt(max(RADIUS**2-inner.x**2,1e-8))+.0006))
-                delta=(closed-inner)*(1-t)**1.4
-                # A closed lid must lie outside the entire eye hemisphere,
-                # including intermediate rings where the original scan dips.
-                target=p+delta;dx,dy=target.x-a.x,target.y-a.y
-                inside=RADIUS**2-dx*dx-dy*dy
-                if inside>0:target.z=max(target.z,a.z+math.sqrt(inside)+.00075)
-                delta=target-p
-                ray,_,ui,_=bvh.ray_cast(Vector((p.x,p.y,.4)),Vector((0,0,-1)),1)
-                tri=old_faces[ui];bary=barycentric(ray,*(rest[k] for k in tri))
-                uv=sum((Vector(uvs[k])*w for k,w in zip(tri,bary)),Vector((0,0)))
-                rest.append(p);uvs.append(tuple(uv));weights.append(1.);blink.append(delta);regions.append(side+1)
-        for row in range(rows):
-            for i in range(segments):
-                k=base+row*segments+i;ni=base+row*segments+(i+1)%segments
-                faces.extend([(k,ni+segments,ni),(k,k+segments,ni+segments)])
-    mesh=bpy.data.meshes.new('LieOpenFaceSurface');mesh.from_pydata([blender(p) for p in rest],[],faces);mesh.update()
-    face=bpy.data.objects.new('LieHumanOpenEyes',mesh);bpy.context.collection.objects.link(face)
-    layer=mesh.uv_layers.new(name='CaptureUV')
-    for poly in mesh.polygons:
-        poly.use_smooth=True
-        for loop in poly.loop_indices:layer.data[loop].uv=uvs[mesh.loops[loop].vertex_index]
-    for mat in original.data.materials:mesh.materials.append(mat)
-    face.shape_key_add(name='Basis');key=face.shape_key_add(name='blink')
-    for i,p in enumerate(rest):key.data[i].co=blender(p+blink[i])
-    for name,head in [('Neck',False),('Head',True)]:
-        group=face.vertex_groups.new(name=name)
-        for i,w in enumerate(weights):group.add([i],w if head else 1-w,'REPLACE')
-    modifier=face.modifiers.new('LieInvisibleSkinning','ARMATURE');modifier.object=rig
-    original.hide_render=True;original.hide_set(True)
-    return face,rig,rest,weights,blink,uvs,color,normal,spec,anchors,regions,removed
+    face,anchors,blink,arc,regions,removed=author_lids(original,rig,rest,weights,uvs)
+    return face,rig,rest,weights,blink,arc,uvs,color,normal,spec,anchors,regions,removed
 
 def prepare_native_eyes(rig,anchors):
     result=[]
@@ -176,7 +123,7 @@ def prepare_native_eyes(rig,anchors):
     return result
 
 def native_pose(face,rig,eyes,head,blink,yaw,pitch,pupil):
-    face.data.shape_keys.key_blocks['blink'].value=blink
+    set_blink(face,blink)
     bone=rig.pose.bones['Head'];bone.rotation_mode='XYZ';bone.rotation_euler=(0,math.radians(head),0)
     rotation=Matrix.Rotation(math.radians(yaw),4,'Z')@Matrix.Rotation(math.radians(pitch),4,'X')
     for obj in eyes:
@@ -191,9 +138,19 @@ def main():
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:] if '--' in sys.argv else [])
     if not 192<=args.resolution<=384:raise ValueError('Resolution outside capture budget')
     root=ROOT.parents[1]/'captures/face23';root.mkdir(parents=True,exist_ok=True)
-    face,rig,rest,weights,blink,uvs,color,normal,spec,anchors,regions,removed=build_face()
-    triangles,skin,views=capture(face,rest,uvs,color,normal,spec,root,args.resolution,native_tangents=True)
-    for s in skin:s[15]=0. # material.w is now a region discriminator
+    face,rig,rest,weights,blink,arc,uvs,color,normal,spec,anchors,regions,removed=build_face()
+    normal_poses=[]
+    for value in [0.,.5,1.]:
+        set_blink(face,value)
+        evaluated=face.evaluated_get(bpy.context.evaluated_depsgraph_get());mesh=evaluated.to_mesh()
+        normal_poses.append([lie(v.normal).normalized() for v in mesh.vertices])
+        evaluated.to_mesh_clear()
+    set_blink(face,0.)
+    normal_rest,normal_middle,normal_closed=normal_poses
+    triangles,skin,views=capture(face,rest,uvs,color,normal,spec,root,args.resolution,native_tangents=True,smooth_regions=regions)
+    for s in skin:
+        s[15]=0. # material.w is a region discriminator
+        s[16:19]=[1.,0.,1.] # Rest surface disk covariance
     extra,lid_views=capture_lid_poses(face,rest,triangles,regions,uvs,color,normal,spec,anchors,root)
     skin.extend(extra)
     # Capture the same neutral eye master as LIE-22; keep one copy, invoke twice.
@@ -232,11 +189,12 @@ def main():
     for image in bpy.data.images:
         if image.source=='FILE':image.pack()
     bpy.ops.wm.save_as_mainfile(filepath=str(assets/'human-open-eyes.blend'))
-    packets={'vertices.bin':b''.join(struct.pack('<12f',*p,w,*d,float(r),0,0,0,0) for p,w,d,r in zip(rest,weights,blink,regions)),
+    packets={'vertices.bin':b''.join(struct.pack('<24f',*p,w,*d,float(r),*a,0.,*n,0.,*(nc-n),0.,*(nm-(n+nc)*.5),0.)
+             for p,w,d,a,r,n,nm,nc in zip(rest,weights,blink,arc,regions,normal_rest,normal_middle,normal_closed)),
              'triangles.bin':b''.join(struct.pack('<4I',*t,0) for t in triangles),
              'samples.bin':b''.join(struct.pack('<20f',*s) for s in skin+eye_samples)}
     for name,data in packets.items():(root/name).write_bytes(data)
-    manifest={'schema':1,'master_id':'lie-open-face23','capture_resolution':args.resolution,'capture_views':views,
+    manifest={'schema':2,'vertex_stride':96,'master_id':'lie-open-face23','capture_resolution':args.resolution,'capture_views':views,
         'deformation_capture_views':lid_views,'deformation_sample_count':len(extra),
         'sample_count':len(skin)+len(fine),'face_sample_count':len(skin),'eye_sample_count':len(fine),
         'invocation_count':len(skin)+2*len(fine),'vertex_count':len(rest),'triangle_count':len(triangles),
@@ -244,11 +202,15 @@ def main():
         'anchors':[list(a) for a in anchors],'eye_radius':RADIUS,'pivot':[0,.155,0],
         'source_author':'Lee Perry-Smith / Infinite-Realities','source_license':'CC-BY-3.0',
         'modifications':'Orbital openings, procedural blinking lids, reusable eyes, neutral material capture; original closed scan preserved hidden in .blend.',
-        'removed_source_triangles':removed,'lid_sample_count':len(lid_indices),'original_mesh_drawn':False,
+        'orbital_boundary_count':face['orbital_boundary_count'],'blink_corrective':'4*b*(1-b)',
+        'footprint_encoding':'rest-tangent-covariance','removed_source_triangles':removed,'lid_sample_count':len(lid_indices),'original_mesh_drawn':False,
         'limits':['Artistic eyelid reconstruction; not a full anatomical face rig.','Wet-eye clearcoat approximation without corneal refraction.','Skin tint multiplies captured regional color; no melanin model.','No mouth interior, hair, eyelashes or complete facial expressions.']}
     assert manifest['invocation_count']<=1000000 and manifest['lid_sample_count']>100
     (root/'master.json').write_text(json.dumps(manifest,indent=2)+'\n')
     (root/'native-oracle.json').write_text(json.dumps({'skin_probe_indices':probe_indices,'eye_probes':eye_probes,'cases':cases},indent=2)+'\n')
+    (root/'orbital-boundary.json').write_text(json.dumps({'vertices':list(face['orbital_boundary_vertices'])},indent=2)+'\n')
+    from lie23_reference_blender import render_references
+    render_references(face,rig,eyes,root,native_pose)
     print('LIE23 MASTER',json.dumps({k:manifest[k] for k in ['sample_count','face_sample_count','eye_sample_count','invocation_count','vertex_count','triangle_count','lid_sample_count','anchors']}),flush=True)
 
 if __name__=='__main__':main()

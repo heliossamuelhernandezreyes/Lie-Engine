@@ -93,6 +93,14 @@ func run() -> void:
     var hc: Array=visible_eyes(half);check(hc[0]+hc[1]<counts[0]+counts[1],"Partial blink reduces eye visibility continuously")
     command({"blink":1});await frames();var closed: Dictionary=await read_gpu();image(closed,"closed");screenshot("closed")
     var cc: Array=visible_eyes(closed);check(cc[0]+cc[1]<maxi(3,int((counts[0]+counts[1])*.02)),"Closed lids occlude eyes through shared depth")
+    if cc[0]+cc[1]>0:
+        var diagnostic: Dictionary=await read_gpu(true);var residues: Array=[]
+        for pixel in range(diagnostic["winners"].size()):
+            var owner: int=diagnostic["winners"][pixel]
+            if owner<int(m["face_sample_count"]):continue
+            var offset: int=owner*24;var p: PackedFloat32Array=diagnostic["projected"]
+            residues.append({"pixel":[pixel%diagnostic["internal_size"],pixel/diagnostic["internal_size"]],"owner":owner,"world":[p[offset],p[offset+1],p[offset+2]]})
+        report["closed_residue"]=residues
     check(cc[0]+cc[1]==0,"Pose-aware captured lids cover the entire closed eye")
     check(difference(closed,open)>10,"Blink changes captured geometry and shading")
     # Hidden eyes must not tint the closed lids through weighted material mixing.
@@ -101,9 +109,22 @@ func run() -> void:
     check(hidden_delta<.2,"Hidden iris cannot leak color through closed lids")
     command({"iris_color":[.22,.57,.76],"shadows":false});await frames();var unshadowed: Dictionary=await read_gpu();image(unshadowed,"closed-no-shadows")
     check(visible_eyes(unshadowed)==cc,"Shadow controls cannot hide missing eyelid coverage")
+    for yaw in [-30.0,30.0]:
+        command({"camera_yaw":yaw});await frames()
+        var oblique: Dictionary=await read_gpu()
+        check(visible_eyes(oblique)==[0,0],"Closed lids stay opaque from an oblique camera")
+        image(oblique,"closed-left" if yaw<0 else "closed-right")
+    command({"camera_yaw":0.0})
     report["hidden_iris_color_delta"]=hidden_delta
     report["closed_iris_pixels"]=visible_eyes(closed,2)
     report["closed_pupil_pixels"]=visible_eyes(closed,3)
+    # Compare reconstruction to native triangles without lighting differences.
+    lab.diagnostic_mode=1
+    for entry in [["open",0.0],["half-blink",0.5],["closed",1.0]]:
+        command({"blink":entry[1],"sss":0.0});await frames()
+        var neutral: Dictionary=await read_gpu();image(neutral,str(entry[0])+"-albedo")
+    lab.diagnostic_mode=0
+    command({"blink":1.0,"sss":1.0})
     command({"shadows":true})
     command({"blink":0,"iris_color":[.22,.57,.76]});await frames()
     var brown: Button=button(lab.ui,"Marrón");check(brown!=null,"Actual user iris preset")

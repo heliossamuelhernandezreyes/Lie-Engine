@@ -41,8 +41,8 @@ func _load_master() -> void:
     if not parsed is Dictionary: failure="Prepara el maestro humano en Blender."; return
     master=parsed
     if int(master.get("face_sample_count",0))<1 or int(master.get("eye_sample_count",0))<1 or int(master.get("invocation_count",0))!=int(master.get("face_sample_count",0))+2*int(master.get("eye_sample_count",0)) or int(master.get("invocation_count",0))>1000000 or int(master.get("sample_count",0))!=int(master.get("face_sample_count",0))+int(master.get("eye_sample_count",0)):failure="Contrato de ojos compartidos";return
-    if master.get("schema")!=1 or int(master.get("sample_count",0)) not in range(1,1000001) or int(master.get("vertex_count",0)) not in range(3,200001) or int(master.get("triangle_count",0)) not in range(1,400001): failure="Maestro humano fuera de contrato"; return
-    for pair in [["vertices.bin",48,"vertex_count"],["triangles.bin",16,"triangle_count"],["samples.bin",80,"sample_count"]]:
+    if master.get("schema")!=2 or master.get("vertex_stride")!=96 or int(master.get("sample_count",0)) not in range(1,1000001) or int(master.get("vertex_count",0)) not in range(3,200001) or int(master.get("triangle_count",0)) not in range(1,400001): failure="Maestro humano fuera de contrato"; return
+    for pair in [["vertices.bin",96,"vertex_count"],["triangles.bin",16,"triangle_count"],["samples.bin",80,"sample_count"]]:
         var path: String=capture_root+str(pair[0]);var file:=FileAccess.open(path,FileAccess.READ)
         var metadata: Dictionary=master.get("buffers",{}).get(pair[0],{})
         if file==null or file.get_length()!=int(pair[1])*int(master[pair[2]]) or FileAccess.get_sha256(path)!=metadata.get("sha256"):
@@ -79,7 +79,7 @@ func _initialize() -> bool:
     var spirv: RDShaderSPIRV=ShaderFile.get_spirv()
     if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="": failure=spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE);return false
     _shader=_rd.shader_create_from_spirv(spirv);_pipeline=_rd.compute_pipeline_create(_shader)
-    var lengths: Array=[int(master["vertex_count"])*16,int(master["invocation_count"])*96,render_size*render_size*4,render_size*render_size*4,320,512*512*4,render_size*render_size*32]
+    var lengths: Array=[int(master["vertex_count"])*32,int(master["invocation_count"])*96,render_size*render_size*4,render_size*render_size*4,320,1024*1024*4,render_size*render_size*32]
     for data in _input:
         _buffers.append(_rd.storage_buffer_create(data.size(),data));allocation_bytes+=data.size()
     asset_uploads+=1
@@ -120,7 +120,7 @@ func _render_callback(_type: int,_render_data: RenderData) -> void:
     _rd.capture_timestamp("lie23-begin")
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     for stage in [0,1,2,3,8,4,5,6,7]:
-        var count: int=int(master["vertex_count"]) if stage==0 else int(master["invocation_count"]) if stage in [2,3,8] else maxi(render_size*render_size,512*512) if stage==1 else render_size*render_size
+        var count: int=int(master["vertex_count"]) if stage==0 else int(master["invocation_count"]) if stage in [2,3,8] else maxi(render_size*render_size,1024*1024) if stage==1 else render_size*render_size
         _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,quality_scale,0,0]).to_byte_array(),16)
         _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
     _rd.compute_list_end();_rd.capture_timestamp("lie23-end");frame_count+=1;_resident_parameters=packet

@@ -3,7 +3,7 @@
 // The visible representation consists of captured samples. Vertex/triangle
 // buffers bind and deform those samples; they are never rasterized.
 layout(local_size_x=64) in;
-struct Vertex { vec4 position_weight; vec4 lid; vec4 jaw; };
+struct Vertex { vec4 position_weight; vec4 lid; vec4 jaw; vec4 normal_rest; vec4 normal_closed; vec4 normal_arc; };
 struct Sample { vec4 binding; vec4 normal_radius; vec4 gray_filter; vec4 material; vec4 geometry_front; };
 struct Projection { vec4 world; vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
 layout(set=0,binding=0,std430) readonly buffer Vertices { Vertex v[]; } vertices;
@@ -30,7 +30,7 @@ layout(set=0,binding=14,std430) buffer Accumulated { Accumulator v[]; } accumula
 layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
 const float PI=3.141592653589793;
 const uint EMPTY=0xffffffffu;
-const int SHADOW_SIZE=512;
+const int SHADOW_SIZE=1024;
 
 Sample source_sample(uint i) {
     uint face=uint(parameters.gaze.z),eye=uint(parameters.gaze.w);
@@ -115,10 +115,13 @@ void main() {
     int stage=phase.value.x;
     if(stage==0) {
         if(i>=uint(parameters.counts.y)) return;
-        Vertex v=vertices.v[i];vec3 p=v.position_weight.xyz+v.lid.xyz*parameters.pose.y+v.jaw.xyz*parameters.pose.z;
+        Vertex v=vertices.v[i];float blink=parameters.pose.y;
+        vec3 p=v.position_weight.xyz+v.lid.xyz*blink+v.jaw.xyz*(4*blink*(1-blink));
         float c=cos(parameters.pose.x),s=sin(parameters.pose.x);vec3 q=p-parameters.pivot.xyz;
         vec3 rotated=vec3(c*q.x+s*q.z,q.y,-s*q.x+c*q.z)+parameters.pivot.xyz;
-        deformed.v[i]=vec4(mix(p,rotated,v.position_weight.w),1);
+        deformed.v[2*i]=vec4(mix(p,rotated,v.position_weight.w),1);
+        vec3 n=normalize(v.normal_rest.xyz+v.normal_closed.xyz*blink+v.normal_arc.xyz*(4*blink*(1-blink)));
+        deformed.v[2*i+1]=vec4(normalize(mix(n,yaw_rotation(parameters.pose.x)*n,v.position_weight.w)),0);
         return;
     }
     if(stage==1) {
@@ -143,7 +146,7 @@ void main() {
                 world=eye_anchor(i)+rotation*local;normal=normalize(rotation*s.normal_radius.xyz);geometry_normal=normalize(rotation*s.geometry_front.xyz);footprint_normal=geometry_normal;
             } else {
             uvec3 ids=triangles.v[int(s.binding.w)].xyz;
-            vec3 a=deformed.v[ids.x].xyz,b=deformed.v[ids.y].xyz,c=deformed.v[ids.z].xyz;
+            vec3 a=deformed.v[2*ids.x].xyz,b=deformed.v[2*ids.y].xyz,c=deformed.v[2*ids.z].xyz;
             vec3 ar=vertices.v[ids.x].position_weight.xyz,br=vertices.v[ids.y].position_weight.xyz,cr=vertices.v[ids.z].position_weight.xyz;
             vec3 rest_cross=cross(br-ar,cr-ar),now_cross=cross(b-a,c-a);
             if(dot(rest_cross,rest_cross)<1e-18 || dot(now_cross,now_cross)<1e-18) {p.world=vec4(0);p.screen=vec4(0);projected.v[i]=p;return;}
@@ -152,6 +155,8 @@ void main() {
             mat3 deformation=now*inverse(rest);
             mat3 normal_matrix=transpose(inverse(deformation));
             normal=normalize(normal_matrix*s.normal_radius.xyz);
+            if(vertices.v[ids.x].lid.w>0 || vertices.v[ids.y].lid.w>0 || vertices.v[ids.z].lid.w>0)
+                normal=normalize(deformed.v[2*ids.x+1].xyz*s.binding.x+deformed.v[2*ids.y+1].xyz*s.binding.y+deformed.v[2*ids.z+1].xyz*s.binding.z);
             // Shading normals are smooth, but a depth footprint belongs to
             // its actual triangle plane. Treating a smoothed vertex normal as
             // that plane invents depth offsets across the closing lid folds.
@@ -165,9 +170,19 @@ void main() {
             vec3 tangent=normalize(cross(footprint_normal,abs(footprint_normal.y)<.9?vec3(0,1,0):vec3(1,0,0)));
             vec3 footprint_u=footprint_transform*tangent*radius;
             vec3 footprint_v=footprint_transform*cross(footprint_normal,tangent)*radius;
+            if(i<uint(parameters.gaze.z)) {
+                // Cholesky factor of the captured rest-tangent covariance.
+                // Pose captures keep both axes when brought back to rest.
+                float a=sqrt(max(s.geometry_front.x,1e-10));
+                float b=s.geometry_front.y/a;
+                float c=sqrt(max(s.geometry_front.z-b*b,1e-10));
+                footprint_u=footprint_transform*(tangent*a)*radius;
+                footprint_v=footprint_transform*(tangent*b+cross(footprint_normal,tangent)*c)*radius;
+            }
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(geometry_normal,normalize(parameters.eye.xyz-world));
             p.world=vec4(world,1);p.normal=vec4(normal,front);p.screen=vec4(0);p.gradient=vec4(0);p.geometry=vec4(geometry_normal,0);p.ellipse=vec4(0);
+            p.gradient.z=i<uint(parameters.gaze.z)?sqrt(dot(footprint_u,footprint_u)+dot(footprint_v,footprint_v)):radius;
             vec3 light_delta=world-parameters.light.xyz;float light_depth=dot(light_delta,parameters.shadow_forward.xyz);
             float light_front=dot(geometry_normal,normalize(-light_delta));
             if(light_depth>.001 && light_front>.05) {
@@ -177,8 +192,16 @@ void main() {
                 // shadows on inclined skin even when the samples are coplanar.
                 float plane=dot(geometry_normal,light_delta);
                 vec2 gradient=vec2(2*1.25*dot(geometry_normal,parameters.shadow_right.xyz),-2*1.25*dot(geometry_normal,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*plane);
-                for(int y=-1;y<=1;y++) for(int x=-1;x<=1;x++) {
+                vec2 su=project(world+footprint_u,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE))-xy;
+                vec2 sv=project(world+footprint_v,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE))-xy;
+                float xx=dot(vec2(su.x,sv.x),vec2(su.x,sv.x))+.20;
+                float yy=dot(vec2(su.y,sv.y),vec2(su.y,sv.y))+.20;
+                float off=su.x*su.y+sv.x*sv.y,det=max(xx*yy-off*off,1e-8);
+                int bound=int(ceil(clamp(sqrt(max(xx,yy)),.5,16)));
+                for(int y=-bound;y<=bound;y++) for(int x=-bound;x<=bound;x++) {
                     ivec2 pixel=ivec2(xy)+ivec2(x,y);
+                    vec2 q=vec2(pixel)+.5-xy;
+                    if((q.x*q.x*yy-2*q.x*q.y*off+q.y*q.y*xx)/det>1)continue;
                     float plane_depth=1.0/(1.0/light_depth+dot(gradient,vec2(pixel)+.5-xy));
                     vec2 uv=(vec2(pixel)+.5)/float(SHADOW_SIZE);
                     vec3 ray=parameters.shadow_forward.xyz+parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
@@ -212,6 +235,13 @@ void main() {
             if(!inside(xy) || !covered(p,vec2(xy)+.5)) continue;
             float depth=pixel_depth(p,vec2(xy)+.5);
             if(depth<=parameters.lens.z || isnan(depth) || isinf(depth)) continue;
+            // EWA includes a subpixel filter, but it must not turn a local
+            // captured disk into an unbounded plane at a grazing angle.
+            // Otherwise a scleral tangent can appear in front of closed skin.
+            vec2 uv=(vec2(xy)+.5)/vec2(parameters.counts.zw);
+            vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
+            float padding=depth*parameters.lens.x/float(parameters.counts.w);
+            if(length(parameters.eye.xyz+ray*depth-p.world.xyz)>p.gradient.z+padding)continue;
             uint pixel=uint(xy.y*parameters.counts.z+xy.x),bits=floatBitsToUint(depth);
             if(stage==2) atomicMin(depths.v[pixel],bits);
             else if(stage==3) {
@@ -254,6 +284,9 @@ void main() {
         Accumulator acc=accumulated.v[i];float weight=max(float(acc.color_weight.w),1);
         vec3 base=vec3(acc.color_weight.xyz)/weight;
         vec3 n=normalize(vec3(acc.normal_roughness.xyz)/weight*2-1);
+        if(parameters.options.z>.5) {
+            imageStore(diffuse_image,xy,vec4(1));imageStore(specular_image,xy,vec4(0));return;
+        }
         vec2 uv=(vec2(xy)+.5)/vec2(parameters.counts.zw);
         vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
         vec3 p=parameters.eye.xyz+ray*uintBitsToFloat(depths.v[i]),v=normalize(parameters.eye.xyz-p);

@@ -8,7 +8,8 @@ y la declaración original se conserva en `../lie20/LeePerrySmith_License.txt`.
 Sitios indicados por el autor: www.triplegangers.com y www.ir-ltd.net.
 
 Modificaciones: normalización de escala, órbitas abiertas, párpados procedurales
-con parpadeo, rig de cabeza/cuello, ojos reutilizables, claves pupilares y
+con unión geométrica compartida, contorno almendrado, parpadeo y correctiva
+intermedia, rig de cabeza/cuello, ojos reutilizables, claves pupilares y
 capturas neutrales con parámetros de material. El .blend conserva el escaneo
 original oculto. Los ojos son originales procedurales de Lie. La atribución
 de la fuente debe acompañar la distribución del busto y su maestro modificado.

@@ -168,10 +168,14 @@ def save_image(path, values, resolution, bits=16):
 
 
 def capture(obj, rest, uvs, color, normal, spec, root, resolution, native_tangents=False, angles=None,
-            capture_center=None, capture_scale=.52):
+            capture_center=None, capture_scale=.52, smooth_regions=None):
     bpy.context.scene.view_settings.view_transform='Raw'
     mesh=obj.data;mesh.calc_loop_triangles()
     triangles=[tuple(t.vertices) for t in mesh.loop_triangles]
+    # Shared geometric vertices may have distinct material coordinates on
+    # the two sides of an authoring UV seam.
+    uv_layer=mesh.uv_layers.get('CaptureUV')
+    triangle_uvs=[[uv_layer.data[k].uv.copy() for k in tri.loops] for tri in mesh.loop_triangles]
     loop_frames=[]
     if native_tangents:
         mesh.calc_tangents(uvmap='CaptureUV')
@@ -200,13 +204,15 @@ def capture(obj, rest, uvs, color, normal, spec, root, resolution, native_tangen
                     if bary is None or min(bary)<-1e-4: continue
                     n=sum((ns[k]*w for k,w in zip(indices,bary)),Vector()).normalized()
                     front=n.dot(direction)
-                    uv=sum((Vector(uvs[k])*w for k,w in zip(indices,bary)),Vector((0,0)))
+                    corners=triangle_uvs[ti]
+                    uv=sum((coord*w for coord,w in zip(corners,bary)),Vector((0,0)))
                     rgb=Vector(tuple(srgb(v) for v in color.at(uv)))
                     gray=max(rgb);tint=rgb/max(gray,1e-8)
-                    du1,du2=Vector(uvs[indices[1]])-Vector(uvs[indices[0]]),Vector(uvs[indices[2]])-Vector(uvs[indices[0]])
+                    du1,du2=corners[1]-corners[0],corners[2]-corners[0]
                     determinant=du1.x*du2.y-du1.y*du2.x
                     shading=n.copy()
-                    if native_tangents:
+                    smooth_patch = smooth_regions is not None and any(smooth_regions[k]>0 for k in indices)
+                    if native_tangents and not smooth_patch:
                         frame=loop_frames[ti]
                         tangent=sum((t*w for (t,sign),w in zip(frame,bary)),Vector())
                         tangent=(tangent-n*tangent.dot(n)).normalized()
@@ -214,7 +220,7 @@ def capture(obj, rest, uvs, color, normal, spec, root, resolution, native_tangen
                         bitangent=n.cross(tangent)*(1 if sign>=0 else -1)
                         tex=normal.at(uv)*2-Vector((1,1,1));tex.x*=.65;tex.y*=.65;tex.z=.35+.65*tex.z
                         shading=(tangent*tex.x+bitangent*tex.y+n*tex.z).normalized()
-                    elif abs(determinant)>1e-12:
+                    elif not smooth_patch and abs(determinant)>1e-12:
                         tangent=((b-a)*du2.y-(c-a)*du1.y)/determinant
                         tangent=(tangent-n*tangent.dot(n)).normalized()
                         bitangent=n.cross(tangent)*(1 if determinant>0 else -1)

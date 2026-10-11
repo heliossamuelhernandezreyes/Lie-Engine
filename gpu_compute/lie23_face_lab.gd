@@ -14,6 +14,7 @@ var play_button: Button
 var _connected: bool=false
 var _poll_time: float=0
 var _stats_time: float=0
+var diagnostic_mode: int=0 # Offline albedo comparison against native Blender.
 
 func _ready() -> void:
     get_window().size=Vector2i(1280,800);effect=FaceEffect.new()
@@ -104,7 +105,7 @@ func _apply() -> void:
     p.append_array(PackedFloat32Array([tan(deg_to_rad(camera.fov)*.5),1,.01,5,0,.155,0,0]))
     var bytes: PackedByteArray=p.to_byte_array();bytes.append_array(PackedInt32Array([master["invocation_count"],master["vertex_count"],effect.get("render_size"),effect.get("render_size")]).to_byte_array())
     p=PackedFloat32Array([deg_to_rad(s["head_yaw"]),s["blink"],0,s["sss"],light.x,light.y,light.z,s["light_power"]])
-    var c: Array=s["light_color"];p.append_array(PackedFloat32Array([c[0],c[1],c[2],0,.12,.14,.17,s["exposure"],1 if s["shadows"] else 0,s["roughness"],0,0]))
+    var c: Array=s["light_color"];p.append_array(PackedFloat32Array([c[0],c[1],c[2],0,.12,.14,.17,s["exposure"],1 if s["shadows"] else 0,s["roughness"],diagnostic_mode,0]))
     for v in [shadow.basis.x,shadow.basis.y,-shadow.basis.z]:p.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     for key in ["skin_tint","iris_color"]:
         var a: Array=s[key];var color:=Color(a[0],a[1],a[2]).srgb_to_linear();p.append_array(PackedFloat32Array([color.r,color.g,color.b,s["pupil_radius"] if key=="iris_color" else 0]))
