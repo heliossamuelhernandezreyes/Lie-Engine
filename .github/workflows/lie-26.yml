@@ -12,10 +12,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Weight fields and joint gradients
+      - name: Python regressions, weight fields and joint gradients
         run: |
           python -m pip install numpy
-          python -m unittest discover -s tests -p 'test_lie26*.py' -v
+          python -m unittest discover -s tests -p 'test_*.py' -v
       - name: Install pinned Godot
         run: |
           curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip

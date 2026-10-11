@@ -165,6 +165,9 @@ source metadata and logs. Measured delivery: 5,828,568 samples; 444.68 MiB sampl
 own compositor allocation; 11,412 additional logical vertices and 6,142
 triangles bind 26,787 seam samples. All 247 rig checks and 99 Vulkan functional
 checks passed, as did 66 Python tests with one external-master skip.
+The LIE-26 workflow installs NumPy and runs the complete Python suite. Legacy
+standard-library workflows explicitly skip the offline binding module when
+NumPy is unavailable; LIE-26 CI always executes its five regression tests.
 
 **Visual acceptance did not pass.** Global silhouette IoU for skin cases ranges
 from .9721 to .9782; the bone case is .9191, against the .98 target. Joint patches
