@@ -1,0 +1,33 @@
+name: LIE-27 spherical regions and face
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie27-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  regions:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Field boundaries, derivatives and previous regressions
+        run: |
+          python -m pip install numpy
+          python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install pinned Godot
+        run: |
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Compile region laboratory and validate rig
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          for script in lie27_rig.gd lie27_regions_effect.gd lie27_region_overlay.gd lie27_regions_lab.gd test_lie27_gpu.gd; do
+            godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://$script >> import.log 2>&1
+          done
+          cat import.log
+          python -c 'from pathlib import Path; s=Path("import.log").read_text(); assert "SCRIPT ERROR:" not in s and "ERROR:" not in s'
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --script res://test_lie27_regions.gd
+      # Real Vulkan validation requires the separately attributed anatomical bank.

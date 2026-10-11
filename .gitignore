@@ -107,3 +107,11 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie26-*.bin
 /gpu_compute/lie26-*.log
 /gpu_compute/lie26-frames/
+
+# LIE-27 derived anatomy bank and measured region/face evidence
+/gpu_compute/captures/anatomy27/
+/gpu_compute/lie27-*.png
+/gpu_compute/lie27-*.json
+/gpu_compute/lie27-*.bin
+/gpu_compute/lie27-*.log
+/gpu_compute/lie27-frames/

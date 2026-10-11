@@ -1,8 +1,16 @@
-# Lie Engine — LIE-01 through LIE-26
+# Lie Engine — LIE-01 through LIE-27
 
 **Research prototype, not a proven faster renderer.** Lie separates an invisible 3D world (physics and spatial transforms) from a camera-indexed image-based visual layer.
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
+
+## LIE-27 · articulaciones esféricas, párpados y expresiones
+
+El laboratorio añade zonas esféricas con influencia suave, 30 segmentos de
+dedos y controles independientes de párpados, cejas y comisuras. Las superficies
+oculares se capturan fuera de ejecución y comparten el rig y la profundidad de
+Lie. Incluye un modo que muestra las regiones invisibles para inspeccionarlas.
+[Preparación, controles, evidencia y límites](docs/LIE_27_REGIONS_AND_FACE.md).
 
 ## LIE-26 · movimiento anatómico
 
