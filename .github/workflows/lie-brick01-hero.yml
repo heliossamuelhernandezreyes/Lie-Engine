@@ -8,6 +8,7 @@ on:
       - "tools/lie_brick01_native_smoke.py"
       - "tests/test_lie_brick01_sampling.py"
       - "gpu_compute/lie_brick01_*"
+      - "gpu_compute/lie22_modular_effect.gd"
       - "gpu_compute/workshop/lie_agent_session.gd"
   workflow_dispatch:
 permissions:
