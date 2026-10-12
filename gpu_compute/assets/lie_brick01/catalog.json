@@ -3,7 +3,7 @@
   "stride": 80,
   "sample_count": 374913,
   "bytes": 29993040,
-  "sha256": "78ec587b705c145aec509ddedad7ea4a58ea45b82f250bcbbb7c7b945bd3d47b",
+  "sha256": "dace07d4808aa6e6cd17cbff81d34eade956410152c1e1c67105e345821250ba",
   "masters": {
     "brick_full": {
       "levels": [
@@ -65,115 +65,115 @@
       "hero": {
         "front": {
           "samples": 74000,
-          "max_edge_cut_mm": 2.4962,
-          "max_corner_cut_mm": 4.399,
-          "position_variation_mm": 0.7719
+          "max_edge_cut_mm": 2.4324,
+          "max_corner_cut_mm": 3.6992,
+          "position_variation_mm": 0.7341
         },
         "back": {
           "samples": 31250,
-          "max_edge_cut_mm": 2.592,
+          "max_edge_cut_mm": 2.2238,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5625
+          "position_variation_mm": 0.5181
         },
         "top": {
           "samples": 45000,
-          "max_edge_cut_mm": 2.4664,
-          "max_corner_cut_mm": 4.3979,
-          "position_variation_mm": 0.7185
+          "max_edge_cut_mm": 2.4317,
+          "max_corner_cut_mm": 3.6982,
+          "position_variation_mm": 0.6756
         },
         "bottom": {
           "samples": 8400,
-          "max_edge_cut_mm": 2.6775,
+          "max_edge_cut_mm": 2.383,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5298
+          "position_variation_mm": 0.5113
         },
         "left": {
           "samples": 22750,
-          "max_edge_cut_mm": 2.6857,
-          "max_corner_cut_mm": 4.3977,
-          "position_variation_mm": 0.8515
+          "max_edge_cut_mm": 2.2487,
+          "max_corner_cut_mm": 3.6981,
+          "position_variation_mm": 0.76
         },
         "right": {
           "samples": 22750,
-          "max_edge_cut_mm": 2.3798,
+          "max_edge_cut_mm": 2.4314,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5769
+          "position_variation_mm": 0.5964
         }
       },
       "mid": {
         "front": {
           "samples": 9100,
-          "max_edge_cut_mm": 2.4891,
-          "max_corner_cut_mm": 4.3922,
-          "position_variation_mm": 0.7684
+          "max_edge_cut_mm": 2.4268,
+          "max_corner_cut_mm": 3.6934,
+          "position_variation_mm": 0.7304
         },
         "back": {
           "samples": 4500,
-          "max_edge_cut_mm": 2.5787,
+          "max_edge_cut_mm": 2.2132,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.562
+          "position_variation_mm": 0.5145
         },
         "top": {
           "samples": 7020,
-          "max_edge_cut_mm": 2.4475,
-          "max_corner_cut_mm": 4.3846,
-          "position_variation_mm": 0.7158
+          "max_edge_cut_mm": 2.4243,
+          "max_corner_cut_mm": 3.687,
+          "position_variation_mm": 0.6733
         },
         "bottom": {
           "samples": 1100,
-          "max_edge_cut_mm": 2.6204,
+          "max_edge_cut_mm": 2.3342,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5274
+          "position_variation_mm": 0.5081
         },
         "left": {
           "samples": 3015,
-          "max_edge_cut_mm": 2.6692,
-          "max_corner_cut_mm": 4.3821,
-          "position_variation_mm": 0.849
+          "max_edge_cut_mm": 2.2377,
+          "max_corner_cut_mm": 3.685,
+          "position_variation_mm": 0.7573
         },
         "right": {
           "samples": 3015,
-          "max_edge_cut_mm": 2.3694,
+          "max_edge_cut_mm": 2.4207,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5738
+          "position_variation_mm": 0.5932
         }
       },
       "wall": {
         "front": {
           "samples": 1488,
-          "max_edge_cut_mm": 2.451,
-          "max_corner_cut_mm": 4.3432,
-          "position_variation_mm": 0.7679
+          "max_edge_cut_mm": 2.3995,
+          "max_corner_cut_mm": 3.6522,
+          "position_variation_mm": 0.7304
         },
         "back": {
           "samples": 336,
-          "max_edge_cut_mm": 2.3658,
+          "max_edge_cut_mm": 2.0669,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5459
+          "position_variation_mm": 0.5132
         },
         "top": {
           "samples": 629,
-          "max_edge_cut_mm": 2.2723,
-          "max_corner_cut_mm": 4.2417,
-          "position_variation_mm": 0.7196
+          "max_edge_cut_mm": 2.3346,
+          "max_corner_cut_mm": 3.5669,
+          "position_variation_mm": 0.6722
         },
         "bottom": {
           "samples": 180,
-          "max_edge_cut_mm": 2.3078,
+          "max_edge_cut_mm": 2.0331,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5135
+          "position_variation_mm": 0.5056
         },
         "left": {
           "samples": 280,
-          "max_edge_cut_mm": 2.5147,
-          "max_corner_cut_mm": 4.2119,
-          "position_variation_mm": 0.8464
+          "max_edge_cut_mm": 2.1144,
+          "max_corner_cut_mm": 3.5419,
+          "position_variation_mm": 0.7559
         },
         "right": {
           "samples": 280,
-          "max_edge_cut_mm": 2.2162,
+          "max_edge_cut_mm": 2.2993,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5727
+          "position_variation_mm": 0.592
         }
       }
     },
@@ -181,115 +181,115 @@
       "hero": {
         "front": {
           "samples": 35400,
-          "max_edge_cut_mm": 2.7843,
-          "max_corner_cut_mm": 4.3986,
-          "position_variation_mm": 0.8741
+          "max_edge_cut_mm": 2.3129,
+          "max_corner_cut_mm": 3.6988,
+          "position_variation_mm": 0.79
         },
         "back": {
           "samples": 15000,
-          "max_edge_cut_mm": 2.4775,
+          "max_edge_cut_mm": 2.3468,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5924
+          "position_variation_mm": 0.5827
         },
         "top": {
           "samples": 21600,
-          "max_edge_cut_mm": 2.7819,
-          "max_corner_cut_mm": 4.3974,
-          "position_variation_mm": 0.801
+          "max_edge_cut_mm": 2.3467,
+          "max_corner_cut_mm": 3.6978,
+          "position_variation_mm": 0.7473
         },
         "bottom": {
           "samples": 4060,
-          "max_edge_cut_mm": 2.7363,
+          "max_edge_cut_mm": 2.303,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5719
+          "position_variation_mm": 0.5532
         },
         "left": {
           "samples": 22750,
-          "max_edge_cut_mm": 2.7828,
-          "max_corner_cut_mm": 4.3977,
-          "position_variation_mm": 0.8485
+          "max_edge_cut_mm": 2.3471,
+          "max_corner_cut_mm": 3.6981,
+          "position_variation_mm": 0.8127
         },
         "right": {
           "samples": 22750,
-          "max_edge_cut_mm": 2.4991,
+          "max_edge_cut_mm": 2.095,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.581
+          "position_variation_mm": 0.5349
         }
       },
       "mid": {
         "front": {
           "samples": 4340,
-          "max_edge_cut_mm": 2.7762,
-          "max_corner_cut_mm": 4.3884,
-          "position_variation_mm": 0.871
+          "max_edge_cut_mm": 2.3064,
+          "max_corner_cut_mm": 3.6902,
+          "position_variation_mm": 0.7865
         },
         "back": {
           "samples": 2160,
-          "max_edge_cut_mm": 2.4704,
+          "max_edge_cut_mm": 2.3335,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5847
+          "position_variation_mm": 0.5788
         },
         "top": {
           "samples": 3348,
-          "max_edge_cut_mm": 2.763,
-          "max_corner_cut_mm": 4.3823,
-          "position_variation_mm": 0.7997
+          "max_edge_cut_mm": 2.3357,
+          "max_corner_cut_mm": 3.6851,
+          "position_variation_mm": 0.7455
         },
         "bottom": {
           "samples": 520,
-          "max_edge_cut_mm": 2.64,
+          "max_edge_cut_mm": 2.2348,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5676
+          "position_variation_mm": 0.5501
         },
         "left": {
           "samples": 3015,
-          "max_edge_cut_mm": 2.7672,
-          "max_corner_cut_mm": 4.3821,
-          "position_variation_mm": 0.846
+          "max_edge_cut_mm": 2.336,
+          "max_corner_cut_mm": 3.685,
+          "position_variation_mm": 0.8099
         },
         "right": {
           "samples": 3015,
-          "max_edge_cut_mm": 2.4923,
+          "max_edge_cut_mm": 2.0847,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.578
+          "position_variation_mm": 0.5317
         }
       },
       "wall": {
         "front": {
           "samples": 720,
-          "max_edge_cut_mm": 2.7199,
-          "max_corner_cut_mm": 4.3325,
-          "position_variation_mm": 0.8739
+          "max_edge_cut_mm": 2.262,
+          "max_corner_cut_mm": 3.6432,
+          "position_variation_mm": 0.7853
         },
         "back": {
           "samples": 156,
-          "max_edge_cut_mm": 2.3245,
+          "max_edge_cut_mm": 2.1428,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.579
+          "position_variation_mm": 0.5774
         },
         "top": {
           "samples": 306,
-          "max_edge_cut_mm": 2.5133,
-          "max_corner_cut_mm": 4.2127,
-          "position_variation_mm": 0.7969
+          "max_edge_cut_mm": 2.2038,
+          "max_corner_cut_mm": 3.5425,
+          "position_variation_mm": 0.7438
         },
         "bottom": {
           "samples": 120,
-          "max_edge_cut_mm": 2.2513,
+          "max_edge_cut_mm": 1.9841,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.5576
+          "position_variation_mm": 0.5473
         },
         "left": {
           "samples": 280,
-          "max_edge_cut_mm": 2.5855,
-          "max_corner_cut_mm": 4.2119,
-          "position_variation_mm": 0.8451
+          "max_edge_cut_mm": 2.2112,
+          "max_corner_cut_mm": 3.5419,
+          "position_variation_mm": 0.8081
         },
         "right": {
           "samples": 280,
-          "max_edge_cut_mm": 2.4253,
+          "max_edge_cut_mm": 1.9693,
           "max_corner_cut_mm": 0.0,
-          "position_variation_mm": 0.573
+          "position_variation_mm": 0.5307
         }
       }
     }

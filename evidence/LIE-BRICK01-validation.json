@@ -39,63 +39,63 @@
   "view_captures": {
     "ThreeQuarter": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-ThreeQuarter.png",
-      "sha256": "2691cec9cd1f00a3cf0d35e9529d80deb904998f41f8f5a3c5ad5c4a3835f130",
-      "opaque_pixels": 134464,
+      "sha256": "76f382a61bab8d303bee3329ba27aff09598ca793f72a10271f0508e2aecee9c",
+      "opaque_pixels": 134521,
       "bounds": [
         244,
-        397,
-        840,
-        731
+        398,
+        839,
+        730
       ]
     },
     "Front": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-Front.png",
-      "sha256": "e88cbe6113079155d5574e1d4313cea1c1cea91ef5134bffc97b059b555ada13",
-      "opaque_pixels": 97767,
+      "sha256": "5e9accfd52b2c63a2ebd677b52851911e925166555cec85637200d69b3a67077",
+      "opaque_pixels": 98559,
       "bounds": [
-        250,
-        455,
-        831,
-        625
+        252,
+        454,
+        828,
+        626
       ]
     },
     "Top": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-Top.png",
-      "sha256": "045c2d8010e22095fdedfe340163df53e0a765ed7e6860ca3dbb31e873694ccb",
-      "opaque_pixels": 157321,
+      "sha256": "3779c56a846150e019d688d6cbd4a3bafd85f3b65156bd528fc8f0d6c9c74dbb",
+      "opaque_pixels": 158769,
       "bounds": [
         235,
-        314,
-        843,
-        760
+        315,
+        842,
+        756
       ]
     },
     "RakingLight": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-RakingLight.png",
-      "sha256": "c5233953044d82573e7d4df0841e7e917a6738dffce7bdab1cf7d7eebd4e9b08",
-      "opaque_pixels": 119486,
+      "sha256": "b51c6a3e0f0b195fb5894ec4944adc5ba926f3c7d7b07ce12ad39819fdf3f861",
+      "opaque_pixels": 119531,
       "bounds": [
-        251,
-        424,
-        841,
-        703
+        252,
+        425,
+        840,
+        702
       ]
     },
     "Half": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-Half.png",
-      "sha256": "87597f16ce7e7f21840f461d3c739cb1fe62a2777458079a590ddc7ea4010e53",
-      "opaque_pixels": 293805,
+      "sha256": "d19bdc93331461ba6f8792cbca1cc2713a3b1b2996c9a5c3fc6832bc19956882",
+      "opaque_pixels": 293808,
       "bounds": [
-        153,
-        310,
-        875,
-        880
+        154,
+        312,
+        873,
+        879
       ]
     }
   },
   "lod_hero_count": 204150,
   "lod_far_count": 3193,
-  "bank_sha256": "78ec587b705c145aec509ddedad7ea4a58ea45b82f250bcbbb7c7b945bd3d47b",
+  "bank_sha256": "dace07d4808aa6e6cd17cbff81d34eade956410152c1e1c67105e345821250ba",
   "hero_photo_indistinguishable": false,
   "hero_visual_acceptance": "PENDING direct reference-photo A/B and silhouette inspection",
   "physical_GPU_benchmark": false
