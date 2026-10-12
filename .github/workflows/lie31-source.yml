@@ -7,7 +7,7 @@ on:
       - ".github/workflows/lie31-source.yml"
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 jobs:
   source:
     runs-on: ubuntu-latest
@@ -18,6 +18,22 @@ jobs:
         run: |
           python -m pip install pillow
           python tools/lie31_acquire_pbr.py --directory /tmp/lie31-source --resolution 4k
+      - name: Publish source proof and compact original-material preview (not an LIE screenshot)
+        if: success()
+        run: |
+          mkdir -p evidence
+          cp /tmp/lie31-source/source-lock.json evidence/LIE31-source-lock.json
+          python - <<'PY'
+          from pathlib import Path
+          import base64
+          src=Path('/tmp/lie31-source/SOURCE_ONLY_preview.jpg').read_bytes()
+          Path('evidence/LIE31-source-preview.jpg.base64').write_text(base64.b64encode(src).decode('ascii')+'\\n')
+          PY
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add evidence/LIE31-source-lock.json evidence/LIE31-source-preview.jpg.base64
+          git commit -m "LIE31: preserve photographic 4K source provenance and preview [skip ci]"
+          git push origin HEAD:experiment/lie31-hd-source-wall
       - uses: actions/upload-artifact@v4
         if: always()
         with:
