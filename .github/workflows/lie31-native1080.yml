@@ -3,8 +3,8 @@ on:
   push:
     branches: ["experiment/lie31-hd-source-wall"]
     paths:
-      - ".github/workflows/lie31-native960.yml"
-      - "tools/lie31_native960_smoke.py"
+      - ".github/workflows/lie31-native1080.yml"
+      - "tools/lie31_native1080_smoke.py"
       - "gpu_compute/lie31_fullhd_*"
   workflow_dispatch:
 concurrency:
@@ -44,7 +44,7 @@ jobs:
         run: |
           xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
             python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab lie31hd --directory /tmp/lie31hd-native --audio-driver Dummy
-            python tools/lie31_native960_smoke.py --directory /tmp/lie31hd-native
+            python tools/lie31_native1080_smoke.py --directory /tmp/lie31hd-native
           '
       - name: Save tested authentic native 960 outputs in Git
         if: success()
