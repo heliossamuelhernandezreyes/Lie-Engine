@@ -1,0 +1,16 @@
+{
+  "renderer": "Native Godot 4.7.2 software Vulkan LIE compositor",
+  "image": "/tmp/lie30-native/LIE30-Wall-Godot.png",
+  "image_sha256": "3973a4d4eb1c2d71295a1e2ecae79ec42f7da5b47a3a9a3013f74abf877df3d5",
+  "instances": 127,
+  "master_banks": 1,
+  "source_masters": 3,
+  "sample_invocations": 688262,
+  "seed_change_modified_pixels": true,
+  "alpha_coverage_previous": 77179,
+  "alpha_coverage_mortar": 81108,
+  "detail_capture": "/tmp/lie30-native/LIE30-Brick-Closeup-Godot.png",
+  "detail_sha256": "d7a9112f02ec0bd9a34a4a4d828cf010f0f419df320fedf4ff7125aff789db66",
+  "seed_restore_exact": true,
+  "physical_gpu_performance_claim": false
+}
