@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/lie34-scan.yml"
       - "tools/lie34_scan_acquire.py"
+      - "tools/lie34_draco_probe.py"
   workflow_dispatch:
 permissions:
   contents: write
@@ -16,8 +17,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Download original CC BY photogrammetry GLB and inspect geometry
         run: |
-          python -m pip install trimesh numpy pillow
+          python -m pip install trimesh numpy pillow DracoPy
           python tools/lie34_scan_acquire.py --directory /tmp/lie34-photogrammetry
+          python tools/lie34_draco_probe.py /tmp/lie34-photogrammetry/flat-roof-reference.glb
       - name: Record SHA256 and true source polygon count
         if: success()
         run: |
