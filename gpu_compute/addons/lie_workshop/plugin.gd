@@ -13,6 +13,8 @@ func _enter_tree() -> void:
     building.pressed.connect(func():EditorInterface.play_custom_scene("res://lie28_building_lab.tscn"));dock.add_child(building)
     var robot:=Button.new();robot.text="Abrir robot modular · R1"
     robot.pressed.connect(func():EditorInterface.play_custom_scene("res://lie_robot_lab.tscn"));dock.add_child(robot)
+    var explore:=Button.new();explore.text="Recorrer casa con robot · R2"
+    explore.pressed.connect(func():EditorInterface.play_custom_scene("res://lie_robot_world_lab.tscn"));dock.add_child(explore)
     var hint:=Label.new(); hint.text="Piezas · articulaciones · animación\nControles compartidos con agentes"; dock.add_child(hint)
     add_control_to_dock(DOCK_SLOT_LEFT_UL,dock)
 func _exit_tree() -> void:

@@ -9,6 +9,9 @@ capture bank and independent geometry/material checks.
 The modular robot laboratory is `lie_robot_lab.tscn` (`--lab robot`). Read
 `docs/LIE_ROBOT_MASTERKIT.md` and its checkpoint before restoring its separate
 bank. Keep the robot namespace independent of concurrent numbered experiments.
+The collision/exploration scene is `lie_robot_world_lab.tscn` (`--lab robot_world`).
+Read `docs/LIE_ROBOT_WORLD.md` and its checkpoint for the refined/shared banks,
+physics control contract, source-only collision meshes and reproduction.
 
 Read `docs/AGENT_WORKFLOW.md` before controlling a live desktop. External
 agents and desktop widgets must use the existing validated `command()`

@@ -1,0 +1,203 @@
+{
+  "schema": 1,
+  "date": "2026-10-12",
+  "branch": "experiment/lie-robot-world",
+  "base_branch": "experiment/lie-robot-modular",
+  "base_commit": "74d0f63918151ad79b7c65b258afdcf406995a07",
+  "base_tree": "06664bc91045eda1c779d5b6af8c1aae9e3c6191",
+  "publication": "Stacked draft PR on R1/33 and LIE28/28; no main merge",
+  "scene": "gpu_compute/lie_robot_world_lab.tscn",
+  "godot": "4.7.2",
+  "blender": "4.3.2",
+  "package": {
+    "bytes": 205584541,
+    "sha256": "b45da71ed976cb22100bb2b1fe730928999349975ddbbec76e109201901f1a21",
+    "files": 120,
+    "native_checks": 413,
+    "journey_frames": 32
+  },
+  "capture_banks": {
+    "robot_refined": {
+      "bytes": 40281696,
+      "sha256": "a9856c712ac8ac60d162548e5c55c1959cbf6cc76c64e43ee336ceddcf8009c2",
+      "sample_count": 419601,
+      "stride": 96
+    },
+    "robot_world": {
+      "bytes": 43890240,
+      "sha256": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
+      "sample_count": 457190,
+      "stride": 96
+    }
+  },
+  "saved_files": [
+    {
+      "file_name": "R2-Robot-Casa.zip",
+      "library_file_id": "libfile_ce7f5020d7948191a1d72bc7cd0ed14e",
+      "file_id": "file_000000009360822fbdf2055f5e44cc31",
+      "current_version_number": 0,
+      "path": "/R2-Robot-Casa.zip"
+    },
+    {
+      "file_name": "R2-Robot-Casa.png",
+      "library_file_id": "libfile_8c2360d6a88c819197fddd158bc5f458",
+      "file_id": "file_00000000a89481f89d0c42c366a37eca",
+      "current_version_number": 0,
+      "path": "/R2-Robot-Casa.png"
+    },
+    {
+      "file_name": "R2-Recorrido.gif",
+      "library_file_id": "libfile_713638be209481918fb998905b634915",
+      "file_id": "file_0000000000e481f5b9c635e6c3ebcdc4",
+      "current_version_number": 0,
+      "path": "/R2-Recorrido.gif"
+    },
+    {
+      "file_name": "R2-Pinzas.png",
+      "library_file_id": "libfile_a523c6c305148191b05f99273b8ed1e8",
+      "file_id": "file_0000000052b481f6beae41d21b13583f",
+      "current_version_number": 0,
+      "path": "/R2-Pinzas.png"
+    }
+  ],
+  "verification": {
+    "robot-world-motion-verification": {
+      "checks": 3019,
+      "door_passed": true,
+      "failed": false,
+      "max_ik_error_m": 1.63403996111811e-07,
+      "max_stance_xz_drift_m": 0.0,
+      "note": "Actual Godot CharacterBody3D physics against authored collision triangles; no renderer/FPS claim.",
+      "plant_failure_frames": 0
+    },
+    "robot-world-gpu-verification": {
+      "boundary_depth_misses": 2,
+      "boundary_probes": 34,
+      "checks": 5584,
+      "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "failed": false,
+      "floor_checked_pixels": 3002,
+      "floor_missing_pixels": 0,
+      "max_geometric_normal_error": 0.000651712412945926,
+      "max_matching_wall_depth_error_m": 3.814697265625e-06,
+      "max_position_error_m": 2.73142802598159e-07,
+      "note": "Actual software Vulkan. Interior probes require physical plane agreement in a 2-pixel cross; boundary errors are retained separately. No physical GPU/Android FPS claim.",
+      "wall_depth_matches": 50,
+      "wall_depth_probes": 84
+    },
+    "robot-capture-verification": {
+      "masters": 7,
+      "sample_count": 419601,
+      "library_bytes": 40281696,
+      "source_points": 840,
+      "source_material_points": 342,
+      "max_surface_error_m": 1.1641532182693481e-06,
+      "max_material_error": 4.1838540803640356e-05,
+      "verified_glbs": 7,
+      "maps_4k": 8,
+      "shaft_barrel_coverage": [
+        {
+          "normals": 48,
+          "maximum_angular_gap_rad": 0.13090038299560547
+        },
+        {
+          "normals": 48,
+          "maximum_angular_gap_rad": 0.13090038299560547
+        }
+      ],
+      "original_mesh_drawn": false
+    },
+    "robot-gpu-verification": {
+      "checks": 1669,
+      "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "failed": false,
+      "floor_checked_pixels": 1009,
+      "floor_missing_pixels": 0,
+      "max_geometric_normal_error": 0.000154327703057788,
+      "max_position_error_m": 2.38883785641519e-07,
+      "note": "Actual software Vulkan; no physical GPU performance claim."
+    },
+    "robot-source-export-verification": {
+      "parts": 79,
+      "cables": 6,
+      "max_native_pose_vertex_error_m": 6.582856953827931e-08,
+      "baked_walk_phases": 16,
+      "native_snapshot_sha256": "3e216affba6421012ef3d0913b9507cb51776a9dae74165b1c73fceb0edbad54",
+      "note": "Original editable geometry export; not an engine rendering or performance result."
+    },
+    "robot-world-bank-verification": {
+      "robot_samples_unchanged": 419601,
+      "building_samples_exactly_converted": 37589,
+      "bytes": 43890240,
+      "samples": 457190,
+      "sha256": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
+      "collision_triangles": 1812,
+      "collision_source": "Original authored triangles; no convex hull sealing door/window holes",
+      "original_mesh_drawn": false
+    }
+  },
+  "native_checks": 413,
+  "journey_frames": 32,
+  "native_metrics": {
+    "camera_fraction": 0.53515625,
+    "colliders": 75,
+    "configured": true,
+    "environment_instances": 71,
+    "ik": {
+      "left_foot": {
+        "actual": [
+          0.13492904603481293,
+          0.10333284735679626,
+          -0.09651389718055725
+        ],
+        "clamped": false,
+        "hinge_deg": 40.59111934155225,
+        "requested": [
+          0.13492904603481293,
+          0.10333289206027985,
+          -0.09651388227939606
+        ],
+        "residual_m": 4.71216097253091e-08
+      },
+      "right_foot": {
+        "actual": [
+          -0.13492095470428467,
+          0.10333281755447388,
+          -0.04632924497127533
+        ],
+        "clamped": false,
+        "hinge_deg": 42.521788217127316,
+        "requested": [
+          -0.13492095470428467,
+          0.10333289206027985,
+          -0.04632924869656563
+        ],
+        "residual_m": 7.45988799621955e-08
+      }
+    },
+    "instances": 150,
+    "lod": 1,
+    "robot_instances": 79,
+    "sample_invocations": 1204749,
+    "visible_source_meshes": 0
+  },
+  "native_memory_bytes": 381565760,
+  "python_tests": 72,
+  "python_skips": 1,
+  "agent_cpu_checks": 20,
+  "rig_checks": 3734,
+  "restore": "Check saved ZIP SHA256; copy captures/robot_refined and captures/robot_world into gpu_compute/captures; launch --lab robot_world in a disposable session. No earlier asset package needed to run this scene.",
+  "limits": [
+    "Software Vulkan, no physical GPU/Android FPS result",
+    "Capsule body approximation; no per-hand/armor/cable collision or elastic cable physics",
+    "Flat-world/20 mm threshold calibration; no general stairs/jump/terrain controller",
+    "Coarse LIE28 construction, approximate support bounds, 512 shadow map and analytic reflections",
+    "Two measured brick-boundary depth misses retained separately; 50 interior probes agree",
+    "Blender animation is the rig preview; actual world journey is retained as native snapshots/PNGs",
+    "No main integration or Android build"
+  ],
+  "original_sources_preserved": [
+    "R1-Robot-Maestros.zip",
+    "LIE28-Assets-Maestros.zip"
+  ]
+}

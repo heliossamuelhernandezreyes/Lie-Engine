@@ -1,6 +1,7 @@
 extends Node3D
 ## UI and agent edits share this validated document. Source meshes stay offline.
 const Effect=preload("res://lie28_building_effect.gd")
+const Assembly=preload("res://lie28_building_assembly.gd")
 const LIMITS={"camera_yaw":[-180,180],"camera_elevation":[-10,85],"distance_factor":[.6,2],"light_azimuth":[-180,180],"light_power":[.25,3],"exposure":[.5,4],"variation":[0,.4],"explode":[0,1]}
 const MODES=["house","wall","master","fragments"]
 var state: Dictionary={"mode":"house","master":"brick","camera_yaw":32.0,"camera_elevation":25.0,"distance_factor":1.0,"light_azimuth":-35.0,"light_power":1.0,"exposure":2.0,"variation":.1,"explode":0.0,"roof":true,"shadows":true}
@@ -88,42 +89,8 @@ func command(request: Variant) -> Dictionary:
     if next!=state:state=next;revision+=1;_apply();_refresh()
     return {"ok":true,"revision":revision}
 
-func _add(list: Array,master: String,origin: Vector3,yaw: float=0,scale: Vector3=Vector3.ONE) -> void:
-    list.append({"master":master,"pose":Transform3D(Basis(Vector3.UP,yaw).scaled_local(scale),origin)})
 func _instances() -> Array:
-    var list: Array=[]
-    match state["mode"]:
-        "master":_add(list,state["master"],Vector3.ZERO)
-        "fragments":
-            for i in range(4):
-                var master: String="fragment_%d"%i;var offset: Array=effect.get("catalog")["masters"][master]["origin_offset"];var center:=Vector3(offset[0],offset[1],offset[2])
-                var spread:=Vector3(-.075 if i%2==0 else .075,-.085 if i<2 else .085,.015 if i%2==0 else -.015)
-                _add(list,master,center+spread*state["explode"])
-        "wall":
-            for row in range(3):
-                for col in range(3):
-                    var master: String="wall"
-                    if col==0:master="door_head" if row==2 else "door_base"
-                    elif col==2 and row==1:master="window_wall"
-                    _add(list,master,Vector3(col-1,row*.8+.4,0))
-            for col in range(3):_add(list,"slab",Vector3(col-1,-.05,0))
-        "house":
-            for row in range(3):
-                for col in range(4):
-                    var master: String="wall"
-                    if col==1:master="door_head" if row==2 else "door_base"
-                    elif col==3 and row==1:master="window_wall"
-                    _add(list,master,Vector3(col-1.5,row*.8+.4,1.56));_add(list,"window_wall" if col==1 and row==1 else "wall",Vector3(col-1.5,row*.8+.4,-1.56),PI)
-                for col in range(3):
-                    var master: String="window_wall" if col==1 and row==1 else "wall"
-                    _add(list,master,Vector3(2.06,row*.8+.4,1-col),PI/2);_add(list,master,Vector3(-2.06,row*.8+.4,col-1),-PI/2)
-                for corner in [[-2.12,1.62,0],[2.12,1.62,PI/2],[2.12,-1.62,PI],[-2.12,-1.62,-PI/2]]:_add(list,"corner",Vector3(corner[0],row*.8+.4,corner[1]),corner[2])
-            for x in range(4):
-                for z in range(3):
-                    _add(list,"slab",Vector3(x-1.5,-.05,z-1))
-                    if state["roof"]:_add(list,"slab",Vector3((x-1.5)*1.06,2.45,(z-1)*1.08),0,Vector3(1.06,1,1.08))
-            _add(list,"lintel",Vector3(-.5,1.96,1.56))
-    return list
+    return Assembly.build(state,effect.get("catalog"))
 
 func _apply() -> void:
     if camera==null or not effect.get("capture_loaded"):return

@@ -6,6 +6,8 @@ var checks: int=0
 var failed: bool=false
 var max_position_error: float=0
 var max_normal_error: float=0
+func source_bank() -> String:return lab.effect.capture_root()+"library.bin"
+func work_budget() -> int:return 750000
 func _initialize() -> void:call_deferred("run")
 func expect(ok: bool,label: String) -> void:
     checks+=1
@@ -25,7 +27,7 @@ func meshes(node: Node) -> int:
 func verify(data: Dictionary) -> void:
     expect(not data.is_empty(),"Actual rendering-device readback")
     if data.is_empty():return
-    var source: PackedFloat32Array=FileAccess.get_file_as_bytes("res://captures/robot_modular/library.bin").to_float32_array();var objects: PackedFloat32Array=data["instance_packet"];var curves: PackedFloat32Array=data["curve_packet"]
+    var source: PackedFloat32Array=FileAccess.get_file_as_bytes(source_bank()).to_float32_array();var objects: PackedFloat32Array=data["instance_packet"];var curves: PackedFloat32Array=data["curve_packet"]
     for p in data["probes"]:
         var s: int=p["sample"]*24;var i: int=p["instance"]*24;var local:=Vector3(source[s],source[s+1],source[s+2]);var normal:=Vector3(source[s+4],source[s+5],source[s+6]);var shade:=Vector3(source[s+20],source[s+21],source[s+22])
         var position: Vector3;var basis: Basis
@@ -36,7 +38,7 @@ func verify(data: Dictionary) -> void:
         var error: float=position.distance_to(Vector3(p["position"][0],p["position"][1],p["position"][2]));max_position_error=maxf(max_position_error,error);expect(error<.0003,"Captured sample follows CPU pose/curve oracle")
         var transform: Basis=basis.inverse().transposed();var expected: Vector3=(transform*normal).normalized();var actual:=Vector3(p["geometric_normal"][0],p["geometric_normal"][1],p["geometric_normal"][2]);var nerror: float=expected.distance_to(actual);max_normal_error=maxf(max_normal_error,nerror);expect(nerror<.015,"Inverse-Jacobian geometric normal")
         expected=(transform*shade).normalized();actual=Vector3(p["shading_normal"][0],p["shading_normal"][1],p["shading_normal"][2]);expect(expected.distance_to(actual)<.015,"Captured shading normal remains independent")
-    expect(data["asset_uploads"]==1 and data["sample_invocations"]<=750000,"Resident bank and work budget")
+    expect(data["asset_uploads"]==1 and data["sample_invocations"]<=work_budget(),"Resident bank and work budget")
     var colors: PackedFloat32Array=data["color"];var owned: int=0;var finite: bool=true
     for i in range(0,colors.size(),4):
         if colors[i+3]>.5:owned+=1

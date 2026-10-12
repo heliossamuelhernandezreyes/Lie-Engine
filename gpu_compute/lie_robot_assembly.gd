@@ -81,11 +81,11 @@ static func build(catalog: Dictionary,state: Dictionary) -> Dictionary:
     var evaluated: Dictionary=Rig.evaluate(catalog["rig"],pose,targets);var list: Array=[];var origins: Array=evaluated["origins"]
     # Torso / pelvis / helmet: repeated source armor, exposed support frames.
     for sign in [-1,1]:
-        piece(list,evaluated,"plate_flat",1,Vector3(sign*.108,.245,.098),Vector3(.92,1.05,1.05),Vector3(0,sign*.10,-sign*.08))
+        piece(list,evaluated,"plate_flat",1,Vector3(sign*.098,.245,.098),Vector3(.88,.98,1.05),Vector3(0,sign*.15,-sign*.11))
         piece(list,evaluated,"plate_shell",1,Vector3(sign*.12,.245,-.068),Vector3(1,1.13,1),Vector3(0,PI,0))
         link(list,"shaft",anchored(evaluated,0,Vector3(sign*.13,.03,0)),anchored(evaluated,1,Vector3(sign*.13,.32,0)),1.05,1)
     piece(list,evaluated,"plate_bracket",1,Vector3(0,.255,.12),Vector3(.60,1.05,.70))
-    piece(list,evaluated,"plate_flat",1,Vector3(0,.035,.06),Vector3(.90,.45,.9))
+    piece(list,evaluated,"plate_flat",1,Vector3(0,.035,.06),Vector3(.72,.45,.9))
     piece(list,evaluated,"joint",0,Vector3(0,.03,0),Vector3(1.45,.8,1.25))
     piece(list,evaluated,"plate_flat",0,Vector3(0,.01,.078),Vector3(1.5,.5,1))
     piece(list,evaluated,"joint",2,Vector3(0,-.055,0),Vector3(.52,.55,.52))
@@ -105,10 +105,13 @@ static func build(catalog: Dictionary,state: Dictionary) -> Dictionary:
         piece(list,evaluated,"joint",hand,Vector3(0,-.015,0),Vector3(.34,.42,.34),Vector3(0,0,PI/2))
         piece(list,evaluated,"plate_bracket",hand,Vector3(0,-.055,.025),Vector3(.60,.55,.60))
         for finger in range(3):
-            var base: Vector3=anchored(evaluated,hand,Vector3((finger-1)*.028,-.105,.025));var hand_basis: Basis=frame(evaluated,hand).basis
-            var q:=Basis(Vector3.RIGHT,-state["grip"]*.95);var mid: Vector3=base+hand_basis*q*Vector3(0,-.055,0)
-            var tip: Vector3=mid+hand_basis*q*q*Vector3(0,-.050,0)
-            link(list,"shaft",base,mid,.33,hand);link(list,"shaft",mid,tip,.28,hand)
+            # Two anterior fingers oppose a posterior thumb; all reuse the shaft.
+            var thumb: bool=finger==2;var local:=Vector3(0,-.103,-.031) if thumb else Vector3((finger*2-1)*.027,-.105,.047)
+            var base: Vector3=anchored(evaluated,hand,local);var hand_basis: Basis=frame(evaluated,hand).basis
+            var angle: float=-.05-state["grip"]*.26 if thumb else state["grip"]*.32
+            var q:=Basis(Vector3.RIGHT,angle);var mid: Vector3=base+hand_basis*q*Vector3(0,-.052,0)
+            var tip: Vector3=mid+hand_basis*q*q*Vector3(0,-.043,0)
+            link(list,"shaft",base,mid,.37,hand);link(list,"shaft",mid,tip,.32,hand)
         var thigh: int=9 if side==0 else 12;var shin: int=thigh+1;var foot: int=thigh+2
         for bone in [thigh,shin]:
             piece(list,evaluated,"joint",bone,Vector3.ZERO,Vector3(.85,.84,.85),Vector3(0,0,PI/2))
@@ -117,7 +120,7 @@ static func build(catalog: Dictionary,state: Dictionary) -> Dictionary:
         link(list,"shaft",origins[thigh],origins[shin],1.05,thigh);link(list,"shaft",origins[shin],origins[foot],.94,shin)
         piece(list,evaluated,"plate_bracket",shin,Vector3(0,.015,.068),Vector3(1,1,.85))
         piece(list,evaluated,"joint",foot,Vector3.ZERO,Vector3(.58,.65,.58),Vector3(0,0,PI/2))
-        piece(list,evaluated,"plate_flat",foot,Vector3(0,-.065,.075),Vector3(.92,.97,1.3),Vector3(PI/2,0,0))
+        piece(list,evaluated,"plate_flat",foot,Vector3(0,-.0842,.075),Vector3(.92,.97,1.3),Vector3(-PI/2,0,0))
     var frames:=PackedFloat32Array();var paths: Array=[]
     if state["cables"]:
         var specs: Array=[]
@@ -131,6 +134,7 @@ static func build(catalog: Dictionary,state: Dictionary) -> Dictionary:
             var path: Dictionary=cable_path(a,b,bow,spec[5]);var index: int=paths.size();paths.append(path);frames.append_array(path["packet"])
             list.append({"master":"cable","pose":Transform3D.IDENTITY,"bone":int(spec[0]),"curve":index,"radius_scale":1.0,"emission":0.0})
     if state["focus"]=="arm":list=list.filter(func(p: Dictionary):return p["bone"] in [3,4,5])
+    elif state["focus"]=="hand":list=list.filter(func(p: Dictionary):return p["bone"]==5)
     elif state["focus"]=="head":list=list.filter(func(p: Dictionary):return p["bone"]==2)
     if state["focus"]=="master":
         list=[];frames.clear();paths=[]

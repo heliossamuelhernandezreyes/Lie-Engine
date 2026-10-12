@@ -8,7 +8,7 @@ var _active_jobs:=PackedInt32Array()
 var _active_instances:=PackedFloat32Array()
 var _active_curves:=PackedFloat32Array()
 
-func capture_root() -> String:return "res://captures/robot_modular/"
+func capture_root() -> String:return "res://captures/robot_refined/" if FileAccess.file_exists("res://captures/robot_refined/catalog.json") else "res://captures/robot_modular/"
 func sample_stride() -> int:return 96
 func shader_resource() -> RDShaderFile:return RobotShader
 func maximum_output_size() -> int:return 1024

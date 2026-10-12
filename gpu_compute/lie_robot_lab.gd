@@ -51,7 +51,7 @@ func _ui() -> void:
     picture=TextureRect.new();picture.position=Vector2(298,70);picture.size=Vector2(684,684);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;ui.add_child(picture)
     var left: VBoxContainer=_panel(ui,Vector2(20,70));_label(left,"ARTICULACIÓN Y MAESTROS",13).add_theme_color_override("font_color",Color(.4,.85,1))
     var views:=HBoxContainer.new();left.add_child(views)
-    for pair in [["body","Robot"],["arm","Brazo"],["head","Cabeza"]]:
+    for pair in [["body","Robot"],["arm","Brazo"],["head","Cabeza"],["hand","Pinza"]]:
         var focus: String=pair[0];_button(views,pair[1],func():command({"op":"set_values","values":{"focus":focus}}))
     var poses:=HBoxContainer.new();left.add_child(poses)
     for pair in [["manual","Manual"],["walk","Caminar"],["reach","Alcance"]]:
@@ -92,7 +92,7 @@ func _refresh() -> void:
     if _joint_slider!=null:
         _joint_slider.min_value=Rig.LIMITS[_selected_joint][0];_joint_slider.max_value=Rig.LIMITS[_selected_joint][1];_joint_slider.set_value_no_signal(state["pose"].get(_selected_joint,0))
 func validate(next: Dictionary) -> String:
-    if next["mode"] not in ["manual","walk","reach"] or next["focus"] not in ["body","arm","head","master"]:return "mode_or_focus"
+    if next["mode"] not in ["manual","walk","reach"] or next["focus"] not in ["body","arm","head","hand","master"]:return "mode_or_focus"
     if not next["master"] is String or not effect.get("catalog").get("masters",{}).has(next["master"]):return "master"
     for key in LIMITS:
         var value: Variant=next[key]
@@ -126,6 +126,7 @@ func _apply() -> void:
     _model=Assembly.build(effect.get("catalog"),state);var parts: Array=_model["parts"]
     var target:=Vector3(0,.95,0);var distance: float=3.35
     if state["focus"]=="arm":target=_model["rig"]["origins"][4]+Vector3(0,-.02,0);distance=1.6
+    elif state["focus"]=="hand":target=_model["rig"]["origins"][5]+Basis(_model["rig"]["rotations"][5])*Vector3(0,-.13,.025);distance=.48
     elif state["focus"]=="head":target=_model["rig"]["origins"][2]+Vector3(0,.05,0);distance=.68
     elif state["focus"]=="master":
         target=Vector3.ZERO;var size: Array=effect.get("catalog")["masters"][state["master"]]["bounds_size"];distance=maxf(maxf(size[0],size[1]),size[2])*2.7
@@ -155,7 +156,7 @@ func agent_snapshot() -> Dictionary:
         var pose: Transform3D=p["pose"];parts.append({"master":p["master"],"bone":p["bone"],"curve":p["curve"],"radius_scale":p["radius_scale"],"basis":[Rig.array(pose.basis.x),Rig.array(pose.basis.y),Rig.array(pose.basis.z)],"origin":Rig.array(pose.origin)})
     var paths: Array=[]
     for p in _model.get("paths",[]):paths.append({"length":p["length"],"requested_length":p["requested_length"],"clamped":p["clamped"],"endpoints":p["endpoints"]})
-    return {"state":state.duplicate(true),"revision":revision,"metrics":_metrics.duplicate(true),"assembly":parts,"curve_frames":Array(_model.get("curves",PackedFloat32Array())),"cable_paths":paths,"commands":["snapshot","set_values","set_pose"],"control_contract":{"modes":["manual","walk","reach"],"focus":["body","arm","head","master"],"booleans":["playing","cables","floor","shadows","foot_ik","unlit"],"masters":masters.keys(),"limits":LIMITS,"pose_limits":Rig.LIMITS}}
+    return {"state":state.duplicate(true),"revision":revision,"metrics":_metrics.duplicate(true),"assembly":parts,"curve_frames":Array(_model.get("curves",PackedFloat32Array())),"cable_paths":paths,"commands":["snapshot","set_values","set_pose"],"control_contract":{"modes":["manual","walk","reach"],"focus":["body","arm","head","hand","master"],"booleans":["playing","cables","floor","shadows","foot_ik","unlit"],"masters":masters.keys(),"limits":LIMITS,"pose_limits":Rig.LIMITS}}
 func _process(delta: float) -> void:
     if effect.get("gpu_ready") and not _connected:texture=Texture2DRD.new();texture.texture_rd_rid=effect.get("output_rid");picture.texture=texture;_connected=true
     if state["playing"]:

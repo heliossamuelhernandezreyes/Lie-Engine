@@ -1,5 +1,10 @@
 # R1 · modular robot masterkit
 
+R2 adds refined shafts, opposing grippers, corrected soles and a separate
+collision/exploration scene. See `LIE_ROBOT_WORLD.md`; the original R1 bank and
+saved package remain preserved. The robot editor prefers `robot_refined` when
+available and adds a dedicated hand view, with the same validated controls.
+
 A complete industrial humanoid is assembled from three armor masters, a
 cylindrical joint, a piston/shaft and a corrugated cable. The native LIE
 compositor reconstructs captured surfaces; original source meshes are not
