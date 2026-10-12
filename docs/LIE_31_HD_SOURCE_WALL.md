@@ -39,3 +39,14 @@ After validating the full-density individual-brick master and 126-brick wall, cr
 - Existing LIE renderer still enforces 128 instances, 750,000 total sample invocations and 512 × 512 output.
 - Two levels may lose fine detail in the repeated wall; the dense master is intended for one-object hero closeup.
 - Hardware GPU, Android, 1920 × 1080 native output, original downloaded scanned geometry and clustered LOD speedups are not yet established.
+
+## Completed native source-to-compositor experiments
+
+- CC0 real 4096×4096 RGB, normals, height, roughness maps downloaded and SHA-256 verified. Source lock in `evidence/LIE31-source-lock.json`.
+- `tools/lie31_capture_hd.py` selected a red brick face from the real wall photograph, rejected excessive grout, reconstructed height-displaced sample positions and transported maps into the unchanged LIE 80-byte sample format.
+- Immutable bank: `gpu_compute/assets/lie31/hd_bank.zlib`, `gpu_compute/assets/lie31/catalog.json`, SHA-256 of raw bank `1e42875f3d099980a126700e991e5c755d7620631f7a58a4ab08ea77a74abb82` (check against current committed catalog after reruns).
+- Full brick: 40,520 hero samples; 3,568 wall samples. Entire bank: 73,214 samples, 5,857,120 bytes, reused by 127 wall instances (126 bricks plus mortar).
+- Native software Vulkan wall: 437,306 invocations per frame configuration, deterministic seeded tint and exact repeatability.
+- Separate native 960×960 square compositor ran successfully: https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38270458144. Unscaled outputs: `evidence/LIE31-Wall-Native-960-Square.png` and `evidence/LIE31-Brick-Native-960-Square.png`. It is neither 1920×1080 nor physically GPU-benchmarked.
+- 1080×1080 experiment had an empty PNG and was rejected. It would exceed a typical Vulkan 65,535-workgroup dispatch limit with the current single-dispatch strategy; later tiling/split-compute is required.
+- The user-requested photogrammetry scanned **individual 3D mesh** (Sketchfab Kosmoso/Corsicana) is still **NOT** acquired. The delivered source is photogrammetry-derived CC0 PBR surface maps with an independently generated heightfield brick. Future tests should import an authorized truly scanned mesh and benchmark geometric/silhouette fidelity.
