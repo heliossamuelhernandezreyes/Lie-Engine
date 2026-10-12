@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse,json,subprocess,sys,time
 from pathlib import Path
 
-LABS={"workshop":"lie18_workshop.tscn","lie31hd":"lie31_fullhd_lab.tscn","lie32":"lie32_cluster_lab.tscn",**{f"lie{i}":name for i,name in [(20,"lie20_human_lab.tscn"),(21,"lie21_human_lab.tscn"),(22,"lie22_modular_lab.tscn"),(23,"lie23_face_lab.tscn"),(24,"lie24_modular_face_lab.tscn"),(25,"lie25_anatomy_lab.tscn"),(26,"lie26_motion_lab.tscn"),(27,"lie27_regions_lab.tscn"),(28,"lie28_building_lab.tscn"),(29,"lie29_brick_wall_lab.tscn"),(30,"lie30_masonry_lab.tscn"),(31,"lie31_hd_lab.tscn")]}}
+LABS={"workshop":"lie18_workshop.tscn","lie31hd":"lie31_fullhd_lab.tscn","lie32":"lie32_cluster_lab.tscn","lie32hd":"lie32_hd_cluster_lab.tscn",**{f"lie{i}":name for i,name in [(20,"lie20_human_lab.tscn"),(21,"lie21_human_lab.tscn"),(22,"lie22_modular_lab.tscn"),(23,"lie23_face_lab.tscn"),(24,"lie24_modular_face_lab.tscn"),(25,"lie25_anatomy_lab.tscn"),(26,"lie26_motion_lab.tscn"),(27,"lie27_regions_lab.tscn"),(28,"lie28_building_lab.tscn"),(29,"lie29_brick_wall_lab.tscn"),(30,"lie30_masonry_lab.tscn"),(31,"lie31_hd_lab.tscn")]}}
 
 def launch(godot: str,project: Path,directory: Path,lab: str,timeout: float=60,audio_driver: str|None=None) -> dict:
     project=project.resolve();directory=directory.resolve()
