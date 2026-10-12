@@ -161,7 +161,7 @@ func _apply() -> void:
     _metrics={"instances":list.size(),"sample_invocations":work,"lod":level_used,"masters":effect.get("catalog")["masters"].size(),"visible_source_meshes":0,"configured":configured}
 func agent_snapshot() -> Dictionary:
     var masters: Dictionary=effect.get("catalog").get("masters",{}) if effect!=null else {}
-    return {"state":state.duplicate(true),"revision":revision,"metrics":_metrics.duplicate(),"commands":["snapshot","set_values"],"control_contract":{"modes":MODES,"booleans":["roof","shadows"],"masters":masters.keys(),"limits":LIMITS}}
+    return {"physical_proxy":"one BoxShape3D", "collider_count":1 if has_node("InvisibleBrick/OnlyCollider") else 0,"state":state.duplicate(true),"revision":revision,"metrics":_metrics.duplicate(),"commands":["snapshot","set_values"],"control_contract":{"modes":MODES,"booleans":["roof","shadows"],"masters":masters.keys(),"limits":LIMITS}}
 func _process(delta: float) -> void:
     if effect.get("gpu_ready") and not _connected:
         texture=Texture2DRD.new();texture.texture_rd_rid=effect.get("output_rid");picture.texture=texture;_connected=true
