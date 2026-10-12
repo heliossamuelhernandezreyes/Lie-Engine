@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 374913,
+  "bytes": 29993040,
+  "sha256": "78ec587b705c145aec509ddedad7ea4a58ea45b82f250bcbbb7c7b945bd3d47b",
+  "masters": {
+    "brick_full": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 204150
+        },
+        {
+          "start": 204150,
+          "count": 27750
+        },
+        {
+          "start": 231900,
+          "count": 3193
+        }
+      ],
+      "bounds_size": [
+        0.24,
+        0.07,
+        0.12
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ],
+      "collision_proxy": "exactly one BoxShape3D"
+    },
+    "brick_half": {
+      "levels": [
+        {
+          "start": 235093,
+          "count": 121560
+        },
+        {
+          "start": 356653,
+          "count": 16398
+        },
+        {
+          "start": 373051,
+          "count": 1862
+        }
+      ],
+      "bounds_size": [
+        0.115,
+        0.07,
+        0.12
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ],
+      "collision_proxy": "exactly one BoxShape3D"
+    }
+  },
+  "face_sample_report": {
+    "brick_full": {
+      "hero": {
+        "front": {
+          "samples": 74000,
+          "max_edge_cut_mm": 2.4962,
+          "max_corner_cut_mm": 4.399,
+          "position_variation_mm": 0.7719
+        },
+        "back": {
+          "samples": 31250,
+          "max_edge_cut_mm": 2.592,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5625
+        },
+        "top": {
+          "samples": 45000,
+          "max_edge_cut_mm": 2.4664,
+          "max_corner_cut_mm": 4.3979,
+          "position_variation_mm": 0.7185
+        },
+        "bottom": {
+          "samples": 8400,
+          "max_edge_cut_mm": 2.6775,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5298
+        },
+        "left": {
+          "samples": 22750,
+          "max_edge_cut_mm": 2.6857,
+          "max_corner_cut_mm": 4.3977,
+          "position_variation_mm": 0.8515
+        },
+        "right": {
+          "samples": 22750,
+          "max_edge_cut_mm": 2.3798,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5769
+        }
+      },
+      "mid": {
+        "front": {
+          "samples": 9100,
+          "max_edge_cut_mm": 2.4891,
+          "max_corner_cut_mm": 4.3922,
+          "position_variation_mm": 0.7684
+        },
+        "back": {
+          "samples": 4500,
+          "max_edge_cut_mm": 2.5787,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.562
+        },
+        "top": {
+          "samples": 7020,
+          "max_edge_cut_mm": 2.4475,
+          "max_corner_cut_mm": 4.3846,
+          "position_variation_mm": 0.7158
+        },
+        "bottom": {
+          "samples": 1100,
+          "max_edge_cut_mm": 2.6204,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5274
+        },
+        "left": {
+          "samples": 3015,
+          "max_edge_cut_mm": 2.6692,
+          "max_corner_cut_mm": 4.3821,
+          "position_variation_mm": 0.849
+        },
+        "right": {
+          "samples": 3015,
+          "max_edge_cut_mm": 2.3694,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5738
+        }
+      },
+      "wall": {
+        "front": {
+          "samples": 1488,
+          "max_edge_cut_mm": 2.451,
+          "max_corner_cut_mm": 4.3432,
+          "position_variation_mm": 0.7679
+        },
+        "back": {
+          "samples": 336,
+          "max_edge_cut_mm": 2.3658,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5459
+        },
+        "top": {
+          "samples": 629,
+          "max_edge_cut_mm": 2.2723,
+          "max_corner_cut_mm": 4.2417,
+          "position_variation_mm": 0.7196
+        },
+        "bottom": {
+          "samples": 180,
+          "max_edge_cut_mm": 2.3078,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5135
+        },
+        "left": {
+          "samples": 280,
+          "max_edge_cut_mm": 2.5147,
+          "max_corner_cut_mm": 4.2119,
+          "position_variation_mm": 0.8464
+        },
+        "right": {
+          "samples": 280,
+          "max_edge_cut_mm": 2.2162,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5727
+        }
+      }
+    },
+    "brick_half": {
+      "hero": {
+        "front": {
+          "samples": 35400,
+          "max_edge_cut_mm": 2.7843,
+          "max_corner_cut_mm": 4.3986,
+          "position_variation_mm": 0.8741
+        },
+        "back": {
+          "samples": 15000,
+          "max_edge_cut_mm": 2.4775,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5924
+        },
+        "top": {
+          "samples": 21600,
+          "max_edge_cut_mm": 2.7819,
+          "max_corner_cut_mm": 4.3974,
+          "position_variation_mm": 0.801
+        },
+        "bottom": {
+          "samples": 4060,
+          "max_edge_cut_mm": 2.7363,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5719
+        },
+        "left": {
+          "samples": 22750,
+          "max_edge_cut_mm": 2.7828,
+          "max_corner_cut_mm": 4.3977,
+          "position_variation_mm": 0.8485
+        },
+        "right": {
+          "samples": 22750,
+          "max_edge_cut_mm": 2.4991,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.581
+        }
+      },
+      "mid": {
+        "front": {
+          "samples": 4340,
+          "max_edge_cut_mm": 2.7762,
+          "max_corner_cut_mm": 4.3884,
+          "position_variation_mm": 0.871
+        },
+        "back": {
+          "samples": 2160,
+          "max_edge_cut_mm": 2.4704,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5847
+        },
+        "top": {
+          "samples": 3348,
+          "max_edge_cut_mm": 2.763,
+          "max_corner_cut_mm": 4.3823,
+          "position_variation_mm": 0.7997
+        },
+        "bottom": {
+          "samples": 520,
+          "max_edge_cut_mm": 2.64,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5676
+        },
+        "left": {
+          "samples": 3015,
+          "max_edge_cut_mm": 2.7672,
+          "max_corner_cut_mm": 4.3821,
+          "position_variation_mm": 0.846
+        },
+        "right": {
+          "samples": 3015,
+          "max_edge_cut_mm": 2.4923,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.578
+        }
+      },
+      "wall": {
+        "front": {
+          "samples": 720,
+          "max_edge_cut_mm": 2.7199,
+          "max_corner_cut_mm": 4.3325,
+          "position_variation_mm": 0.8739
+        },
+        "back": {
+          "samples": 156,
+          "max_edge_cut_mm": 2.3245,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.579
+        },
+        "top": {
+          "samples": 306,
+          "max_edge_cut_mm": 2.5133,
+          "max_corner_cut_mm": 4.2127,
+          "position_variation_mm": 0.7969
+        },
+        "bottom": {
+          "samples": 120,
+          "max_edge_cut_mm": 2.2513,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.5576
+        },
+        "left": {
+          "samples": 280,
+          "max_edge_cut_mm": 2.5855,
+          "max_corner_cut_mm": 4.2119,
+          "position_variation_mm": 0.8451
+        },
+        "right": {
+          "samples": 280,
+          "max_edge_cut_mm": 2.4253,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.573
+        }
+      }
+    }
+  },
+  "source": "CC0 Poly Haven Red Brick original photographic 4K albedo/normal/height/roughness",
+  "source_url": "https://polyhaven.com/a/red_brick",
+  "license": "CC0 1.0",
+  "geometry": "LIE physically displaced and procedurally eroded six-faced surfaces",
+  "source_mesh_drawn": false,
+  "scanned_individual_3d_mesh": false,
+  "collision_proxy_count_per_active_brick": 1,
+  "hero_quality_accepted": false,
+  "quality_caveat": "Native validation of shape is mandatory; never imply photo-indistinguishability without photo A/B test",
+  "crop_uv": [
+    0.461494140625,
+    0.4598828125,
+    0.588310546875,
+    0.486953125
+  ]
+}
