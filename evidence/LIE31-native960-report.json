@@ -1,0 +1,16 @@
+{
+  "renderer": "Actual Godot 4.7.2 LIE Software Vulkan",
+  "native_screen_size": [
+    960,
+    960
+  ],
+  "not_1920x960": true,
+  "not_upscaled": true,
+  "wall_png": "/tmp/lie31hd-native/LIE31-Wall-Native-960-Square.png",
+  "wall_sha256": "ac8c6061867132a30b3633e8ab72e47a2763b8a24434fadaae2f2a7c786b1512",
+  "brick_png": "/tmp/lie31hd-native/LIE31-Brick-Native-960-Square.png",
+  "brick_sha256": "a22a2b495e2a6f8c988155e6064be06c67267ed2d50704f53f5f254f80fd0828",
+  "sample_invocations_wall": 437306,
+  "instances_wall": 127,
+  "physical_gpu_benchmark": false
+}
