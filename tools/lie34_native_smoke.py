@@ -24,7 +24,7 @@ def run(directory:Path):
         raise RuntimeError("Native scan GPU not ready: "+log.read_text(errors="replace")[-6000:])
     assert snap["lab"]=="lie34",snap["lab"]
     assert snap["metrics"]["instances"]==1,snap["metrics"]
-    assert snap["metrics"]["sample_invocations"]==140000,snap["metrics"]
+    assert snap["metrics"]["sample_invocations"]==540000,snap["metrics"]
     assert snap["metrics"]["configured"],snap["metrics"]
     assert snap["runtime"]["asset_uploads"]==1,snap["runtime"]
 
@@ -40,9 +40,12 @@ def run(directory:Path):
         return p,hashlib.sha256(p.read_bytes()).hexdigest(),coverage
 
     image,firstsha,coverage=shot("LIE34-Real-Photogrammetry-Native1080.png")
-    response=ask({"op":"set_values","values":{"camera_yaw":-35.0}})
+    response=ask({"op":"set_values","values":{"camera_yaw":-35.0,"distance_factor":1.9}})
     assert response["result"]["ok"],response
     angled,secondsha,secondcoverage=shot("LIE34-Scan-Rotated-Native1080.png")
+    far=ask({"op":"snapshot"})["snapshot"]
+    assert far["metrics"]["sample_invocations"]==120000,far["metrics"]
+    assert far["metrics"]["lod"]==1,far["metrics"]
     assert secondsha!=firstsha,"Camera rotation did not alter actual scan image"
     report={
        "renderer":"Actual Godot 4.7.2 LIE Vulkan Software",
@@ -50,7 +53,9 @@ def run(directory:Path):
        "source_original_vertices":2994426,
        "source_type":"Authentic photogrammetry of full building, NOT a single brick",
        "license":"CC BY 4.0 — Matthew Guertin",
-       "actual_LIE_sample_invocations":140000,
+       "actual_LIE_sample_invocations_near":540000,
+       "actual_LIE_sample_invocations_far":120000,
+       "distance_adaptive_lod":True,
        "sample_uploads":1,
        "native_size":[1080,1080],
        "unscaled":True,
