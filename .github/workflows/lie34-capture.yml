@@ -30,7 +30,7 @@ jobs:
           p=Path('gpu_compute/captures/lie34scan/catalog.json')
           m=json.loads(p.read_text())
           assert m['source_original_triangles']==5500320
-          assert m['sample_count']==182000
+          assert m['sample_count']==660000
           assert m['license']=='CC BY 4.0'
           assert m['source_albedo_dimensions'][0]>=1024
           print('Genuine LIE sample bank:',m['sample_count'],'samples',m['bytes'],'bytes; original triangles:',m['source_original_triangles'])
@@ -53,7 +53,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git add -f gpu_compute/assets/lie34/scanned_facade_bank.zlib gpu_compute/assets/lie34/catalog.json
           git add evidence/LIE34-scan-capture-metrics.json
-          git commit -m "LIE34: preserve real 5.5M triangle scan captured as 182K LIE samples [skip ci]"
+          git commit -m "LIE34: preserve real 5.5M triangle scan captured as 660K LIE samples [skip ci]"
           git push origin HEAD:experiment/lie34-real-scan-reference
       - uses: actions/upload-artifact@v4
         if: always()
