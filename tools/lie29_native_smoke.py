@@ -20,7 +20,7 @@ def run(directory: Path) -> dict:
                     raise
                 time.sleep(.3)
 
-    for attempt in range(120):
+    for attempt in range(35):
         response = call({"op": "snapshot"})
         snap = response["snapshot"]
         if snap.get("runtime", {}).get("gpu_ready"):
@@ -29,6 +29,10 @@ def run(directory: Path) -> dict:
             raise RuntimeError(snap["runtime"]["failure"])
         time.sleep(.5)
     else:
+        log = directory / "godot.log"
+        print("Final native snapshot:", json.dumps(snap, indent=2), flush=True)
+        if log.exists():
+            print("Native Godot log (tail):", log.read_text(errors="replace")[-16000:], flush=True)
         raise RuntimeError("Native GPU compositor did not initialize")
 
     assert snap["lab"] == "lie29", snap["lab"]
