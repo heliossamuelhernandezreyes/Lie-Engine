@@ -27,13 +27,75 @@ Rigid skeleton captures keep their hand owner unless assigned to a digit.
 Each eyelid patch reuses an exact native skin boundary. Seven rings converge
 to an almond opening. Closed and midpoint targets follow a shell around the
 native eyeball, with interior rings kept in front of that shell. Three views
-at each of three blink states supply eighteen 96×96 orbital galleries.
+at each of three blink states supply eighteen 160×160 orbital galleries.
 Their gray, normal, depth, source position and triangle bindings are saved.
 Samples follow sparse barycentric references. Common depth handles ocular
 occlusion; closing never hides or deletes eyeball samples.
 The orbital sample radius is `.68` capture pixels; this closes sparse
 coverage gaps along the fully closed seam without altering eye visibility
 flags or using an eye mask.
+
+### Intact orbital skin and ocular materials (correction)
+
+The initial eye-circle result was a coverage defect. Native triangles were
+cut by their centroids but old captured skin points were removed using a
+separate ellipse. These contours disagreed. The correction welds coincident
+source positions for topology analysis, recaptures the native head from the
+kept triangles, and joins the moving lid to their exact boundary. The cut is
+limited to the actual eyelid area (18.5×9 mm radii). Thirty native head galleries
+use 160×160 captures, plus three 512×512 perspective orbital galleries, and eighteen dense eyelid galleries use 160×160 within
+a 45 mm capture window. The source file is never overwritten.
+
+Rest and closed smooth normals share the native boundary normal. Their
+interpolated shading follows the same facial/head transforms as position.
+This removes the radial triangle shading in the original large patch.
+
+Captured blink-state footprints are transported back to the rest tangent
+plane before storage. Their symmetric covariance uses the previously unused
+`gray_filter.yzw` of lid barycentric samples. The shader transports it forward
+once, and limits each lid footprint to its deformed reference triangle. This
+prevents closed-state captures from shrinking at the corners or extending
+beyond their actual surface. Visible pixels still come from captured samples;
+the high-resolution source mesh is not rasterized at runtime.
+Fixed image grids can miss subpixel triangles. Adaptive local normal-ray
+captures provide conservative coverage for these faces, constrained to each
+deformed reference triangle. They preserve the captured material and smooth
+normal while preventing a corner from uncovering the globe underneath.
+Adaptive lid disks retain up to 64 projected pixels of support before the
+triangle clip; the general 16-pixel cap cut off valid samples at face zoom.
+Upper and lower contact rims overlap by an authored 0.2 mm at full closure.
+This closes cracks between their independently sampled curved seam segments
+while keeping the exact outer boundary and all native eyeball captures.
+The corrected blink bank uses `connected-orbit-overlap-v3`.
+
+An intact-skin gate retains inner anatomy in the bank but suppresses captured
+footprints crossing the source external skin envelope while skin is active.
+The envelope uses first external intersections from the head center and
+fifteen anterior capture directions; it does not use the closest dermal face,
+which could be an internal skin wall. Head-local ocular ellipsoids additionally
+allow only skin/lid and the actual eyeball in the intact ocular region. Source
+orbital muscle/nerve overlaps therefore cannot replace either visible surface.
+Disabling the skin layer removes this gate and exposes the original anatomy.
+Partial cuts or per-region damage maps are not implemented.
+
+Actual eyeball captures carry material identity `geometry_front.w=10`, assigned
+by native triangle BVH membership on the Internal layer. Skin/globe overlap
+points are not relabeled as eye tissue. A separate 96-byte ocular uniform
+provides warm-white sclera, a configurable iris, dark pupil and wet-surface
+roughness. Iris fibers and the pupil use source-space positions on the curved
+captured globe; changing the interior-tissue palette does not recolor the eye.
+`eyes` contains `sclera`, `iris`, `pupil` RGB arrays and `roughness` in `.08–.6`;
+invalid values reject the complete transaction.
+
+Independent source-triangle rays classify skin and globe at thirteen poses
+and camera orbits. The material boundary can be crossed by a projected sample
+footprint, so exact labels are compared outside a conservative 16-pixel
+footprint band. Inside that band, only skin or the actual eyeball is permitted.
+Every protected pixel still rejects muscle, skeleton, other internal tissue
+and missing coverage. A separate test requires zero visible ocular pixels at
+full closure in frontal, tilted-head and both lateral views. Blue and green
+iris changes must preserve every non-ocular output pixel exactly; another
+test exposes internal tissues with skin disabled.
 
 Facial fields use ellipsoids for the brows, lip corners and lower face, with
 the same compact influence. They move soft tissue captures before the shared
@@ -75,6 +137,14 @@ blender -b --disable-autoexec --python tools/lie27_eye_reference_blender.py -- \
   --input /path/3DAnatomyman_English.blend --root gpu_compute/captures/anatomy27
 OPENBLAS_NUM_THREADS=1 python tools/lie27_reference.py \
   gpu_compute/captures/anatomy27 --fixture gpu_compute/fixtures/lie27-rig.json
+blender -b --disable-autoexec --python tools/lie27_skin_eyes.py -- \
+  --input /path/3DAnatomyman_English.blend --base gpu_compute/captures/anatomy27 \
+  --out gpu_compute/captures/anatomy27_intact
+# Use the corrected bank as anatomy27 before the following validation commands.
+OPENBLAS_NUM_THREADS=1 python tools/lie27_reference.py \
+  gpu_compute/captures/anatomy27 --fixture gpu_compute/fixtures/lie27-rig.json
+blender -b --disable-autoexec --python tools/lie27_coverage_reference.py -- \
+  --root gpu_compute/captures/anatomy27
 python -m unittest discover -s tests -p 'test_*.py' -v
 godot --headless --path gpu_compute --editor --import --quit
 godot --headless --path gpu_compute --script res://test_lie27_regions.gd
@@ -94,20 +164,20 @@ Recorded bank and local validation, 2026-10-11:
 
 | Measurement | Result |
 |---|---|
-| Captured samples | 5,874,182 |
-| Binding vertices / triangles | 15,907 / 13,846; source meshes stay offline |
-| Runtime asset buffers | 471,683,168 bytes |
-| Compositor allocation | 1,153,556,400 bytes, 1.074 GiB; engine overhead excluded |
-| Increase over LIE-26 | 8,726,896 bytes, 8.323 MiB |
+| Captured samples | 5,994,561 |
+| Binding vertices / triangles | 12,309 / 7,678; source meshes stay offline |
+| Runtime asset buffers | 480,869,392 bytes |
+| Compositor allocation | 1,174,183,968 bytes, 1.094 GiB; engine overhead excluded |
+| Increase over LIE-26 | 29,354,464 bytes, 27.995 MiB |
 | Output / internal image | 512×512 / 1024×1024 |
-| New orbital galleries | 18 at 96×96 |
+| New orbital galleries | 18 at 160×160 plus adaptive source-triangle captures |
 | Python suite | 72 tests, one external-asset test skipped |
 | Godot CPU rig | 888 checks passed |
-| Software Vulkan | 103 checks passed; five scripts compile cleanly |
-| Maximum GPU / NumPy probe position error | 0.334 micrometres across nine cases |
-| Native eye pixels, open | left 4,535; right 4,504 at internal resolution |
-| Native eye pixels, closed | zero on both sides |
-| Native eye pixels, left wink | left zero; right 4,504 |
+| Software Vulkan | 151 checks passed; five scripts compile cleanly |
+| Maximum GPU / NumPy probe position error | 0.333 micrometres across nine cases |
+| Native eye pixels, open | left 6,513; right 6,501 at internal resolution |
+| Native eye pixels, closed | zero on both sides in frontal, tilted and ±35° views |
+| Native eye pixels, left wink | left zero; right 6,501 |
 
 These buffers are allocated by one laboratory instance. Sharing the asset
 bank across many enemies is not implemented or measured in this change.

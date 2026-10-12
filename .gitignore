@@ -110,6 +110,8 @@ gpu_compute/lie14-import.log
 
 # LIE-27 derived anatomy bank and measured region/face evidence
 /gpu_compute/captures/anatomy27/
+/gpu_compute/captures/anatomy27_intact/
+/gpu_compute/captures/anatomy27_before/
 /gpu_compute/lie27-*.png
 /gpu_compute/lie27-*.json
 /gpu_compute/lie27-*.bin

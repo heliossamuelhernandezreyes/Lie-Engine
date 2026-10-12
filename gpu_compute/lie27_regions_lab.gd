@@ -7,7 +7,7 @@ var texture: Texture2DRD
 var picture: TextureRect
 var status: Label
 var state: Dictionary={"mask":15,"camera_yaw":0.0,"object_yaw":0.0,"light_azimuth":-35.0,"light_power":70.0,"distance":3.5,"unlit":false,"shadows":false,
-    "palette":[[.52,.29,.18],[.32,.045,.028],[.72,.64,.47],[.29,.12,.15]],"light_color":[1.0,.88,.76],"pose":{},"targets":{},"mode":"manual","playing":false,"time":0.0,"speed":1.0,"focus":"body","show_regions":false,"face_playing":false,"face":{"blink_left":0.0,"blink_right":0.0,"smile":0.0,"frown":0.0,"brow_up":0.0,"brow_down":0.0,"jaw_open":0.0}}
+    "palette":[[.52,.29,.18],[.32,.045,.028],[.72,.64,.47],[.29,.12,.15]],"light_color":[1.0,.88,.76],"pose":{},"targets":{},"mode":"manual","playing":false,"time":0.0,"speed":1.0,"focus":"body","show_regions":false,"face_playing":false,"eyes":{"sclera":[.82,.84,.78],"iris":[.16,.06,.015],"pupil":[.002,.002,.003],"roughness":.18},"face":{"blink_left":0.0,"blink_right":0.0,"smile":0.0,"frown":0.0,"brow_up":0.0,"brow_down":0.0,"jaw_open":0.0}}
 var skeleton: Skeleton3D
 var evaluated: Dictionary={}
 var bodies: Array[AnimatableBody3D]=[]
@@ -68,6 +68,13 @@ func _ready() -> void:
             command({"op":"set_values","values":{"face":values,"face_playing":false}}))
     var blink_button:=Button.new();blink_button.text="Parpadeo automático";box.add_child(blink_button)
     blink_button.pressed.connect(func():command({"op":"set_values","values":{"face_playing":not state["face_playing"]}}))
+    for key in ["sclera","iris","pupil"]:
+        var row:=HBoxContainer.new();box.add_child(row)
+        var label:=Label.new();label.text={"sclera":"Blanco del ojo","iris":"Color del iris","pupil":"Color de pupila"}[key];label.custom_minimum_size.x=170;row.add_child(label)
+        var picker:=ColorPickerButton.new();var rgb: Array=state["eyes"][key];picker.color=Color(rgb[0],rgb[1],rgb[2]).linear_to_srgb();picker.custom_minimum_size=Vector2(65,32);row.add_child(picker);controls["eye_"+key]=picker
+        picker.color_changed.connect(func(value: Color):
+            var eyes: Dictionary=state["eyes"].duplicate(true);var linear: Color=value.srgb_to_linear();eyes[key]=[linear.r,linear.g,linear.b]
+            command({"op":"set_values","values":{"eyes":eyes}}))
     var presets:=HBoxContainer.new();box.add_child(presets)
     for preset_name in ["Reposo","Codos","Alcanzar"]:
         var button:=Button.new();button.text=preset_name;presets.add_child(button)
@@ -134,6 +141,13 @@ func command(request: Variant) -> Dictionary:
             for field in value:
                 var amount: Variant=value[field]
                 if field not in FACE_KEYS or not (amount is int or amount is float) or not is_finite(float(amount)) or amount<0 or amount>1:return {"ok":false,"error":"face range"}
+        elif key=="eyes":
+            if not value is Dictionary or value.size()!=4 or not value.has("roughness"):return {"ok":false,"error":"eye fields"}
+            for field in ["sclera","iris","pupil"]:
+                if not value.get(field) is Array or value[field].size()!=3:return {"ok":false,"error":"eye color"}
+                for component in value[field]:
+                    if not (component is int or component is float) or not is_finite(float(component)) or component<0 or component>1:return {"ok":false,"error":"eye color"}
+            if not (value["roughness"] is int or value["roughness"] is float) or not is_finite(float(value["roughness"])) or value["roughness"]<.08 or value["roughness"]>.6:return {"ok":false,"error":"eye roughness"}
         elif key=="focus":
             if value not in ["body","face","hand"]:return {"ok":false,"error":"focus"}
         elif key in ["unlit","shadows","playing","show_regions","face_playing"]:
@@ -161,6 +175,9 @@ func command(request: Variant) -> Dictionary:
         for axis in range(3):controls["ik%d"%axis].set_value_no_signal(state["targets"]["right_hand"]["position"][axis])
     for key in FACE_KEYS:
         if controls.has("face_"+key):controls["face_"+key].set_value_no_signal(float(state["face"][key]))
+    for key in ["sclera","iris","pupil"]:
+        if controls.has("eye_"+key):
+            var rgb: Array=state["eyes"][key];controls["eye_"+key].color=Color(rgb[0],rgb[1],rgb[2]).linear_to_srgb()
     return {"ok":true,"revision":revision}
 
 func _apply() -> void:
@@ -189,7 +206,10 @@ func _apply() -> void:
     var face_values:=PackedFloat32Array()
     for key in FACE_KEYS:face_values.append(float(state["face"][key]))
     face_values.append(0)
-    if not effect.call("configure",bytes,Rig.packet(evaluated),face_values.to_byte_array()):status.text="Paquete rechazado"
+    var eye_values:=PackedFloat32Array()
+    for key in ["sclera","iris","pupil"]:
+        var rgb: Array=state["eyes"][key];eye_values.append_array(PackedFloat32Array([rgb[0],rgb[1],rgb[2],state["eyes"]["roughness"] if key=="sclera" else 0]))
+    if not effect.call("configure",bytes,Rig.packet(evaluated),face_values.to_byte_array(),eye_values.to_byte_array()):status.text="Paquete rechazado"
     if overlay!=null:overlay.queue_redraw()
 
 func _process(delta: float) -> void:

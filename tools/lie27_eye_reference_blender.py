@@ -14,7 +14,7 @@ def main():
     bpy.ops.wm.open_mainfile(filepath=str(args.input.resolve()),load_ui=False,use_scripts=False)
     points,faces=geometry(bpy.data.objects['eyeball']);tree=BVHTree.FromPolygons(points.tolist(),faces.tolist(),all_triangles=True)
     data=np.memmap(args.root/'samples.bin',dtype='<f4',mode='r').reshape(-1,20)
-    candidates=np.flatnonzero((data[:,3]>=0)&np.all(data[:,:3]>=points.min(0)-.00003,axis=1)&np.all(data[:,:3]<=points.max(0)+.00003,axis=1))
+    candidates=np.flatnonzero((data[:,3]>=0)&(data[:,15]==3)&np.all(data[:,:3]>=points.min(0)-.00003,axis=1)&np.all(data[:,:3]<=points.max(0)+.00003,axis=1))
     result={'left':[],'right':[],'tolerance_m':.00003,'source_sha256':SOURCE_SHA,'method':'distance to native eyeball triangle BVH; direct captures only'}
     for index in candidates:
         hit,normal,triangle,distance=tree.find_nearest(Vector(data[index,:3]),.00003)

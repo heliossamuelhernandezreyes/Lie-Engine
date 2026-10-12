@@ -32,6 +32,9 @@ layout(set=0,binding=15,std430) readonly buffer Bones {Bone v[];} bones;
 layout(set=0,binding=16,std430) readonly buffer FaceControls {vec4 values0;vec4 values1;} face;
 struct Region {vec4 center_channel;vec4 radii;vec4 delta;};
 layout(set=0,binding=17,std430) readonly buffer FacialRegions {Region v[];} regions;
+layout(set=0,binding=18,std430) readonly buffer OcularMaterial {
+    vec4 sclera;vec4 iris;vec4 pupil;vec4 shape;vec4 right_center;vec4 left_center;
+} ocular;
 float channel_value(int c) {return c<4?face.values0[c]:face.values1[c-4];}
 vec3 facial_position(vec3 p,out mat3 differential) {
     differential=mat3(1);vec3 result=p;
@@ -91,6 +94,17 @@ vec3 skin_sample(Sample s,out mat3 differential) {
     return p;
 }
 vec3 base_color(Sample s) {
+    if(s.geometry_front.w==10) {
+        vec3 center=s.binding.x<0?ocular.right_center.xyz:ocular.left_center.xyz;
+        vec3 local=s.binding.xyz-center;float r=length(local.xy);
+        if(local.z<ocular.shape.z || r>ocular.shape.x) return ocular.sclera.rgb;
+        float angle=atan(local.y,local.x),t=r/ocular.shape.x;
+        float fibers=.86+.14*sin(angle*43+sin(angle*7)*2+t*17);
+        vec3 iris=ocular.iris.rgb*fibers;
+        iris*=mix(1.0,.30,smoothstep(.88,1.0,t));
+        float pupil=smoothstep(ocular.shape.y-.00015,ocular.shape.y+.00015,r);
+        return mix(ocular.pupil.rgb,iris,pupil);
+    }
     int layer=int(s.material.w);
     vec3 pigment=layer==0?parameters.tissue0.rgb:layer==1?parameters.tissue1.rgb:layer==2?parameters.tissue2.rgb:parameters.tissue3.rgb;
     return clamp(s.gray_filter.x*pigment,vec3(0),vec3(1));
@@ -109,6 +123,29 @@ float footprint_distance(Projection p,vec2 xy) {
     return q.x*q.x*p.ellipse.x+2*q.x*q.y*p.ellipse.y+q.y*q.y*p.ellipse.z;
 }
 bool covered(Projection p,vec2 xy) { return footprint_distance(p,xy)<=1; }
+float ocular_depth(uint index,Projection p,vec3 ray,float plane_depth) {
+    if(samples.v[index].geometry_front.w!=10)return plane_depth;
+    // A captured ocular disk is curved. Its tangent plane can protrude at
+    // grazing rays even inside its finite footprint. Use a local osculating
+    // sphere anchored to the captured position and native geometric normal.
+    vec3 n=p.geometry.xyz*p.geometry.w;float radius=.01545;
+    vec3 center=p.world.xyz-n*radius,d=parameters.eye.xyz-center;
+    float a=dot(ray,ray),b=dot(d,ray),c=dot(d,d)-radius*radius,disc=b*b-a*c;
+    if(disc<0)return plane_depth;
+    float root=sqrt(disc),near=(-b-root)/a,far=(-b+root)/a;
+    return abs(near-plane_depth)<abs(far-plane_depth)?near:far;
+}
+bool lid_support(uint index,vec3 hit) {
+    Sample s=samples.v[index];if(s.binding.w>=0)return true;
+    uvec3 ids=triangles.v[int(-s.binding.w)-1].xyz;
+    if(vertices.v[ids.x].normal_rest.w!=1)return true;
+    vec3 a=deformed.v[ids.x*2].xyz,b=deformed.v[ids.y*2].xyz,c=deformed.v[ids.z*2].xyz;
+    vec3 u=b-a,v=c-a,p=hit-a;float uv=dot(u,v),den=dot(u,u)*dot(v,v)-uv*uv;
+    if(abs(den)<1e-20)return false;
+    float y=(dot(v,v)*dot(p,u)-uv*dot(p,v))/den;
+    float z=(dot(u,u)*dot(p,v)-uv*dot(p,u))/den;
+    return y>=-.0001 && z>=-.0001 && y+z<=1.0001;
+}
 float lambda(float cosine,float a2) {
     return .5*(sqrt(1+a2*max(1-cosine*cosine,0)/max(cosine*cosine,1e-8))-1);
 }
@@ -169,7 +206,14 @@ void main() {
         }
         mat3 ignored;rest=facial_position(rest,ignored);
         deformed.v[2*i]=vec4(skin(rest,bones.v[int(v.position_weight.w)],bones.v[int(v.lid.x)],v.lid.y,unused),1);
-        deformed.v[2*i+1]=vec4(0,1,0,0);
+        vec3 smooth_normal=vec3(0,1,0);
+        if(v.normal_rest.w==1) {
+            float blink=channel_value(1-int(v.jaw.w));
+            smooth_normal=mix(v.normal_closed.xyz,v.normal_arc.xyz,blink);
+            mat3 cofactor=mat3(cross(ignored[1],ignored[2]),cross(ignored[2],ignored[0]),cross(ignored[0],ignored[1]));
+            smooth_normal=normalize(unused*cofactor*smooth_normal);
+        }
+        deformed.v[2*i+1]=vec4(smooth_normal,0);
         return;
     }
     if(stage==1) {
@@ -182,7 +226,7 @@ void main() {
         Projection p;
         if(stage==2) {
             Sample s=source_sample(i);
-            if((int(parameters.pose.z)&(1<<int(s.material.w)))==0) {
+            if((int(parameters.pose.z)&(1<<int(s.material.w)))==0 || ((int(parameters.pose.z)&1)!=0 && s.geometry_front.w==20)) {
                 projected.v[i]=Projection(vec4(0),vec4(0),vec4(0),vec4(0),vec4(0),vec4(0));return;
             }
             vec3 world,normal,geometry_normal,footprint_normal;
@@ -194,17 +238,33 @@ void main() {
             world=skin_sample(s,differential);
             mat3 normal_transform=mat3(cross(differential[1],differential[2]),cross(differential[2],differential[0]),cross(differential[0],differential[1]));
             normal=normalize(normal_transform*s.normal_radius.xyz);
+            if(s.binding.w<0) {
+                uvec3 ids=triangles.v[int(-s.binding.w)-1].xyz;
+                if(vertices.v[ids.x].normal_rest.w==1)
+                    normal=normalize(deformed.v[ids.x*2+1].xyz*s.binding.x+deformed.v[ids.y*2+1].xyz*s.binding.y+deformed.v[ids.z*2+1].xyz*s.binding.z);
+            }
             geometry_normal=normalize(normal_transform*s.geometry_front.xyz);
             footprint_normal=s.geometry_front.xyz;footprint_transform=differential;
             vec3 tangent=normalize(cross(footprint_normal,abs(footprint_normal.y)<.9?vec3(0,1,0):vec3(1,0,0)));
             vec3 footprint_u=footprint_transform*tangent*radius;
             vec3 footprint_v=footprint_transform*cross(footprint_normal,tangent)*radius;
+            if(s.binding.w<0) {
+                uvec3 ids=triangles.v[int(-s.binding.w)-1].xyz;
+                if(vertices.v[ids.x].normal_rest.w==1 && s.gray_filter.y>0) {
+                    float a=sqrt(s.gray_filter.y),b=s.gray_filter.z/a;
+                    float c=sqrt(max(s.gray_filter.w-b*b,1e-20));
+                    vec3 bitangent=cross(footprint_normal,tangent);
+                    footprint_u=footprint_transform*(tangent*a+bitangent*b);
+                    footprint_v=footprint_transform*bitangent*c;
+                }
+            }
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(geometry_normal,normalize(parameters.eye.xyz-world));
+            float normal_sign=front<0?-1:1;
             // Soft medical surfaces are double-sided after a fold. Keep the
             // source surface visible and orient its lighting toward the viewer.
             if(s.material.w!=2 && front<0) {front=-front;geometry_normal=-geometry_normal;normal=-normal;}
-            p.world=vec4(world,1);p.normal=vec4(normal,front);p.screen=vec4(0);p.gradient=vec4(0);p.geometry=vec4(geometry_normal,0);p.ellipse=vec4(0);
+            p.world=vec4(world,1);p.normal=vec4(normal,front);p.screen=vec4(0);p.gradient=vec4(0);p.geometry=vec4(geometry_normal,normal_sign);p.ellipse=vec4(0);
             p.gradient.z=sqrt(dot(footprint_u,footprint_u)+dot(footprint_v,footprint_v));
             vec3 light_delta=world-parameters.light.xyz;float light_depth=dot(light_delta,parameters.shadow_forward.xyz);
             float light_front=dot(geometry_normal,normalize(-light_delta));
@@ -233,11 +293,12 @@ void main() {
                     // A tangent plane is local, not an unbounded occluder.
                     // At grazing angles a single shadow texel can intersect it
                     // centimeters away from the captured skin sample.
-                    bool local_hit=length(parameters.light.xyz+ray*plane_depth-world)<=footprint;
+                    vec3 hit=parameters.light.xyz+ray*plane_depth;
+                    bool local_hit=length(hit-world)<=footprint && lid_support(i,hit);
                     if(local_hit && plane_depth>.001 && !isnan(plane_depth) && !isinf(plane_depth) && all(greaterThanEqual(pixel,ivec2(0))) && all(lessThan(pixel,ivec2(SHADOW_SIZE)))) atomicMin(shadow.v[pixel.y*SHADOW_SIZE+pixel.x],floatBitsToUint(plane_depth));
                 }
             }
-            if(depth>parameters.lens.z && depth<parameters.lens.w && front>.03) {
+            if(depth>parameters.lens.z && depth<parameters.lens.w && front>(s.material.w==0?.003:.03)) {
                 vec2 xy=project(world,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw));
                 // Project the captured surface disk, then convolve its
                 // covariance with a subpixel reconstruction footprint.
@@ -246,7 +307,16 @@ void main() {
                 float xx=u.x*u.x+v.x*v.x+(s.material.w==2?.04:.20)*pow(clamp(front,0,1),4),yy=u.y*u.y+v.y*v.y+(s.material.w==2?.04:.20)*pow(clamp(front,0,1),4),off=u.x*u.y+v.x*v.y;
                 float determinant=max(xx*yy-off*off,1e-8);
                 p.ellipse=vec4(yy/determinant,-off/determinant,xx/determinant,0);
-                p.screen=vec4(xy,depth,clamp(sqrt(max(xx,yy)),.5,16));
+                // Adaptive lid captures cover an entire source triangle.
+                // At face zoom their valid disk can exceed the general
+                // 16-pixel splat budget. Keep its support before the exact
+                // triangle clip; truncating it leaves uncovered lid corners.
+                bool captured_lid=false;
+                if(s.binding.w<0) {
+                    uvec3 ids=triangles.v[int(-s.binding.w)-1].xyz;
+                    captured_lid=vertices.v[ids.x].normal_rest.w==1;
+                }
+                p.screen=vec4(xy,depth,clamp(sqrt(max(xx,yy)),.5,captured_lid?64.0:16.0));
                 float plane=dot(geometry_normal,delta);
                 if(abs(plane)>1e-7) p.gradient.xy=vec2(2*parameters.lens.x*dot(geometry_normal,parameters.right.xyz)/float(parameters.counts.z),-2*parameters.lens.x*dot(geometry_normal,parameters.up.xyz)/float(parameters.counts.w))/plane;
             }
@@ -264,8 +334,10 @@ void main() {
             // Otherwise a scleral tangent can appear in front of closed skin.
             vec2 uv=(vec2(xy)+.5)/vec2(parameters.counts.zw);
             vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
+            depth=ocular_depth(i,p,ray,depth);
             float padding=depth*parameters.lens.x/float(parameters.counts.w);
             if(length(parameters.eye.xyz+ray*depth-p.world.xyz)>p.gradient.z+padding)continue;
+            if(!lid_support(i,parameters.eye.xyz+ray*depth))continue;
             uint pixel=uint(xy.y*parameters.counts.z+xy.x),bits=floatBitsToUint(depth);
             if(stage==2) atomicMin(depths.v[pixel],bits);
             else if(stage==3) {
@@ -280,13 +352,14 @@ void main() {
             if((int(parameters.pose.z)&(1<<int(s.material.w)))==0) {
                 projected.v[i]=Projection(vec4(0),vec4(0),vec4(0),vec4(0),vec4(0),vec4(0));return;
             }
-                if(s.material.w!=source_sample(owner).material.w)continue;
+                if(s.material.w!=source_sample(owner).material.w || ((s.geometry_front.w==10)!=(source_sample(owner).geometry_front.w==10)))continue;
                 float g=exp(-2*footprint_distance(p,vec2(xy)+.5));
                 uint weight=max(uint(round(256*g)),1u);vec3 base=base_color(s);
                 uvec3 color=uvec3(round(base*float(weight)));
                 uvec3 normal=uvec3(round((p.normal.xyz*.5+.5)*float(weight)));
                 atomicAdd(accumulated.v[pixel].color_weight.x,color.x);atomicAdd(accumulated.v[pixel].color_weight.y,color.y);atomicAdd(accumulated.v[pixel].color_weight.z,color.z);atomicAdd(accumulated.v[pixel].color_weight.w,weight);
-                atomicAdd(accumulated.v[pixel].normal_roughness.x,normal.x);atomicAdd(accumulated.v[pixel].normal_roughness.y,normal.y);atomicAdd(accumulated.v[pixel].normal_roughness.z,normal.z);atomicAdd(accumulated.v[pixel].normal_roughness.w,uint(round(clamp(s.material.x,0,1)*float(weight))));
+                float roughness=s.geometry_front.w==10?ocular.sclera.w:s.material.x;
+                atomicAdd(accumulated.v[pixel].normal_roughness.x,normal.x);atomicAdd(accumulated.v[pixel].normal_roughness.y,normal.y);atomicAdd(accumulated.v[pixel].normal_roughness.z,normal.z);atomicAdd(accumulated.v[pixel].normal_roughness.w,uint(round(clamp(roughness,0,1)*float(weight))));
             }
         }
         return;
@@ -321,7 +394,7 @@ void main() {
         float nl=max(dot(n,l),0),nv=max(dot(n,v),1e-5);
         float shadow_factor=parameters.options.x>.5?visibility(p+point.geometry.xyz*.0007,point.geometry.xyz):1;
         vec3 li=parameters.light_color.rgb*parameters.light.w/(4*PI*distance2)*shadow_factor;
-        float roughness=clamp(float(acc.normal_roughness.w)/weight*parameters.options.y,.15,.95),alpha=roughness*roughness,a2=alpha*alpha;
+        float roughness=clamp(float(acc.normal_roughness.w)/weight*parameters.options.y,s.geometry_front.w==10?.08:.15,.95),alpha=roughness*roughness,a2=alpha*alpha;
         vec3 h=normalize(v+l);float nh=max(dot(n,h),0),vh=max(dot(v,h),0),denom=nh*nh*(a2-1)+1;
         vec3 F=vec3(.04)+(vec3(1)-vec3(.04))*pow(1-vh,5);
         float D=a2/(PI*denom*denom),G=1/(1+lambda(nv,a2)+lambda(nl,a2));

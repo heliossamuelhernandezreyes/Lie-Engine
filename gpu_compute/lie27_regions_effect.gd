@@ -30,6 +30,8 @@ var _resident_parameters:=PackedByteArray()
 var _bone_packet:=PackedByteArray()
 var _face_packet:=PackedByteArray()
 var _resident_face:=PackedByteArray()
+var _eye_packet:=PackedByteArray()
+var _resident_eye:=PackedByteArray()
 var _resident_bones:=PackedByteArray()
 var _include_projection: bool=false
 var _probe_indices:=PackedInt32Array()
@@ -81,6 +83,7 @@ func _load_master() -> void:
             var i: int=j*20
             for k in range(20):
                 if not is_finite(samples[i+k]):failure="Muestra no finita";return
+            if (samples[i+19]!=1 and samples[i+19]!=10 and samples[i+19]!=20) or (samples[i+19]==10 and id!=3) or (samples[i+19]==20 and id==0):failure="Identidad de material/integridad inválida";return
             if samples[i+3]!=floorf(samples[i+3]) or samples[i+3]<-int(master["triangle_count"]) or samples[i+3]>=int(master["bone_count"]) or samples[i+14]!=floorf(samples[i+14]) or samples[i+14]<0 or samples[i+14]>=int(master["bone_count"]) or samples[i+13]<0 or samples[i+13]>1 or samples[i+15]!=id or samples[i+7]<=0 or absf(Vector3(samples[i+16],samples[i+17],samples[i+18]).length()-1)>.0002:
                 failure="Asociación anatómica inválida";return
             if samples[i+3]<0 and (absf(samples[i]+samples[i+1]+samples[i+2]-1)>.0002 or minf(samples[i],minf(samples[i+1],samples[i+2]))<-.0001):failure="Coordenadas de junta inválidas";return
@@ -93,7 +96,12 @@ func _load_master() -> void:
     for i in range(int(master["triangle_count"])):
         for k in range(3):
             if triangle_data[i*4+k]<0 or triangle_data[i*4+k]>=int(master["vertex_count"]):failure="Triángulo de junta inválido";return
-    if master.get("region_contract")!="compact-sphere-cubic-v1" or master.get("blink_contract")!="connected-orbit-closed-mid-v1":failure="Contrato regional inválido";return
+    if master.get("region_contract")!="compact-sphere-cubic-v1" or master.get("blink_contract")!="connected-orbit-overlap-v3" or master.get("skin_integrity_contract")!="native-triangle-boundary-v2" or master.get("ocular_contract")!="native-eyeball-material-v1" or master.get("skin_gate_contract")!="native-footprint-envelope-v1":failure="Contrato regional/ocular inválido";return
+    if not master.get("eyes") is Array or master["eyes"].size()!=2:failure="Centros oculares inválidos";return
+    for center in master["eyes"]:
+        if not center is Array or center.size()!=3:failure="Centro ocular inválido";return
+        for v in center:
+            if not (v is int or v is float) or not is_finite(float(v)) or absf(v)>4:failure="Centro ocular inválido";return
     var zones: Variant=master.get("facial_regions")
     if not zones is Array or zones.size()!=9:failure="Regiones faciales inválidas";return
     for zone in zones:
@@ -104,7 +112,12 @@ func _load_master() -> void:
                 if not (v is int or v is float) or not is_finite(v) or absf(v)>4 or (field=="radii" and v<=0):failure="Región facial inválida";return
     capture_loaded=true
 
-func configure(parameters: PackedByteArray,bone_packet: PackedByteArray,face_packet: PackedByteArray) -> bool:
+func configure(parameters: PackedByteArray,bone_packet: PackedByteArray,face_packet: PackedByteArray,eye_packet: PackedByteArray) -> bool:
+    if eye_packet.size()!=48:return false
+    var eye_values: PackedFloat32Array=eye_packet.to_float32_array()
+    for v in eye_values:
+        if not is_finite(v) or v<0 or v>1:return false
+    if eye_values[3]<.08 or eye_values[3]>.6:return false
     if face_packet.size()!=32:return false
     for v in face_packet.to_float32_array():
         if not is_finite(v) or v<0 or v>1:return false
@@ -126,7 +139,7 @@ func configure(parameters: PackedByteArray,bone_packet: PackedByteArray,face_pac
         var q:=Quaternion(bone_values[bid*8],bone_values[bid*8+1],bone_values[bid*8+2],bone_values[bid*8+3])
         var d:=Quaternion(bone_values[bid*8+4],bone_values[bid*8+5],bone_values[bid*8+6],bone_values[bid*8+7])
         if absf(q.length_squared()-1)>.0001 or absf(q.dot(d))>.0001:return false
-    _mutex.lock();_parameters=parameters.duplicate();_bone_packet=bone_packet.duplicate();_face_packet=face_packet.duplicate();_mutex.unlock()
+    _mutex.lock();_parameters=parameters.duplicate();_bone_packet=bone_packet.duplicate();_face_packet=face_packet.duplicate();_eye_packet=eye_packet.duplicate();_mutex.unlock()
     return true
 
 func _uniform(binding: int,rid: RID,is_image: bool=false) -> RDUniform:
@@ -156,7 +169,11 @@ func _initialize() -> bool:
     for zone in master["facial_regions"]:
         zones.append_array(PackedFloat32Array([zone["center"][0],zone["center"][1],zone["center"][2],zone["channel"],zone["radii"][0],zone["radii"][1],zone["radii"][2],0,zone["delta"][0],zone["delta"][1],zone["delta"][2],0]))
     var zone_bytes: PackedByteArray=zones.to_byte_array();_buffers.append(_rd.storage_buffer_create(zone_bytes.size(),zone_bytes));allocation_bytes+=zone_bytes.size()
-    uniforms.append(_uniform(16,_buffers[11]));uniforms.append(_uniform(17,_buffers[12]));_set=_rd.uniform_set_create(uniforms,_shader,0)
+    var eye_bytes:=PackedByteArray();eye_bytes.resize(48)
+    var shape:=PackedFloat32Array([.006,.00225,.010,0])
+    for center in master["eyes"]:shape.append_array(PackedFloat32Array([center[0],center[1],center[2],0]))
+    eye_bytes.append_array(shape.to_byte_array());_buffers.append(_rd.storage_buffer_create(96,eye_bytes));allocation_bytes+=96
+    uniforms.append(_uniform(16,_buffers[11]));uniforms.append(_uniform(17,_buffers[12]));uniforms.append(_uniform(18,_buffers[13]));_set=_rd.uniform_set_create(uniforms,_shader,0)
     gpu_ready=_set.is_valid() and _pipeline.is_valid();return gpu_ready
 
 func _collect_profile() -> void:
@@ -175,15 +192,16 @@ func _collect_profile() -> void:
 
 func _render_callback(_type: int,_render_data: RenderData) -> void:
     if not capture_loaded or (not gpu_ready and not _initialize()): return
-    _mutex.lock();var packet: PackedByteArray=_parameters.duplicate();var bone_packet: PackedByteArray=_bone_packet.duplicate();var face_packet: PackedByteArray=_face_packet.duplicate();_mutex.unlock()
-    if packet.size()!=320 or bone_packet.size()!=int(master["bone_count"])*32: return
+    _mutex.lock();var packet: PackedByteArray=_parameters.duplicate();var bone_packet: PackedByteArray=_bone_packet.duplicate();var face_packet: PackedByteArray=_face_packet.duplicate();var eye_packet: PackedByteArray=_eye_packet.duplicate();_mutex.unlock()
+    if packet.size()!=320 or bone_packet.size()!=int(master["bone_count"])*32 or eye_packet.size()!=48: return
     _collect_profile()
     # A still portrait stays GPU-resident. Compare the last consumed packet;
     # coalesced user/agent edits only render their final evaluated state.
-    if packet==_resident_parameters and bone_packet==_resident_bones and face_packet==_resident_face: return
+    if packet==_resident_parameters and bone_packet==_resident_bones and face_packet==_resident_face and eye_packet==_resident_eye: return
     _rd.buffer_update(_buffers[7],0,packet.size(),packet)
     _rd.buffer_update(_buffers[10],0,bone_packet.size(),bone_packet)
     _rd.buffer_update(_buffers[11],0,32,face_packet)
+    _rd.buffer_update(_buffers[13],0,48,eye_packet)
     _rd.capture_timestamp("lie27-begin")
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     for stage in [0,1,2,3,8,4,5,6,7]:
@@ -191,7 +209,7 @@ func _render_callback(_type: int,_render_data: RenderData) -> void:
         _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,quality_scale,0,0]).to_byte_array(),16)
         var groups: int=int(ceil(float(count)/64));var rows: int=int(ceil(float(groups)/65535))
         _rd.compute_list_dispatch(list,int(ceil(float(groups)/rows)),rows,1);_rd.compute_list_add_barrier(list)
-    _rd.compute_list_end();_rd.capture_timestamp("lie27-end");frame_count+=1;_resident_parameters=packet;_resident_bones=bone_packet;_resident_face=face_packet
+    _rd.compute_list_end();_rd.capture_timestamp("lie27-end");frame_count+=1;_resident_parameters=packet;_resident_bones=bone_packet;_resident_face=face_packet;_resident_eye=eye_packet
 
 func set_probe_indices(indices: PackedInt32Array) -> void:
     _mutex.lock();_probe_indices=indices.duplicate();_mutex.unlock()

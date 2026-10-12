@@ -44,12 +44,12 @@ def finger_rig(objects):
         bones[hand]['end']=np.mean(roots[1:],axis=0).tolist();bones[hand]['radius']=.025
     return bones
 
-def orbital_patches(points,faces,eyes):
+def orbital_patches(points,faces,eyes,width=.026,height=.024):
     from collections import Counter,defaultdict
     keep=faces.copy();patches=[]
     for eye in eyes:
         center=points[keep].mean(1)
-        cut=((center[:,0]-eye[0])/.026)**2+((center[:,1]-eye[1])/.024)**2<1
+        cut=((center[:,0]-eye[0])/width)**2+((center[:,1]-eye[1])/height)**2<1
         cut&=center[:,2]>.125
         removed=keep[cut];keep=keep[~cut]
         # Include incident fans if the native cut touches itself at a vertex.
@@ -76,12 +76,16 @@ def orbital_patches(points,faces,eyes):
             return np.arctan2(d[:,0]*e[:,1]-d[:,1]*e[:,0],np.sum(d*e,axis=1)).sum()/math.tau
         enclosing=[loop for loop in loops if abs(winding(loop))>.9]
         if not enclosing:raise ValueError('Orbital rim does not surround the native eyeball')
-        loop=max(enclosing,key=len);outer=points[loop];theta=np.arctan2((outer[:,1]-eye[1])/.024,(outer[:,0]-eye[0])/.026)
+        loop=max(enclosing,key=len);outer=points[loop];theta=np.arctan2((outer[:,1]-eye[1])/height,(outer[:,0]-eye[0])/width)
         area=np.sum(outer[:,0]*np.roll(outer[:,1],-1)-np.roll(outer[:,0],-1)*outer[:,1])
         if area<0:outer=outer[::-1];theta=theta[::-1]
         rest=[];closed=[];middle=[];n=len(outer);rings=7;radius=.0172
         def target(angle,blink):
-            x=eye[0]+.0152*np.cos(angle);y=eye[1]+.0060*np.sin(angle)*(1-blink)
+            x=eye[0]+.0152*np.cos(angle)
+            # Independently sampled upper/lower rims approximate a curved
+            # seam with different segments. Give their captured tissue a
+            # 0.2 mm contact overlap at closure, avoiding geometric cracks.
+            y=eye[1]+(.0060*(1-blink)-.0002*blink)*np.sin(angle)
             z=eye[2]+np.sqrt(np.maximum(radius**2-(x-eye[0])**2-(y-eye[1])**2,1e-7))+.0007
             return np.stack([x,y,z],axis=1)
         for j in range(rings):
@@ -102,11 +106,19 @@ def orbital_patches(points,faces,eyes):
         patches.append(dict(rest=np.asarray(rest),closed=np.asarray(closed),middle=np.asarray(middle),faces=np.asarray(fs,np.int32),boundary=outer,eye=eye))
     return keep,patches
 
-def capture_patch(patch,vertex_offset,tri_offset,root,side):
-    rest=patch['rest'];faces=patch['faces'];eye=patch['eye'];scale=.075;resolution=96;rows=[];counts=[]
+def capture_patch(patch,vertex_offset,tri_offset,root,side,scale=.075,resolution=96):
+    rest=patch['rest'];faces=patch['faces'];eye=patch['eye'];rows=[];counts=[]
     for blink in [0,.5,1]:
         posed=rest+(patch['closed']-rest)*blink+(patch['middle']-(rest+patch['closed'])*.5)*(4*blink*(1-blink))
         tree=BVHTree.FromPolygons(posed.tolist(),faces.tolist(),all_triangles=True)
+        inverse_cov=[]
+        for ids in faces:
+            a,b,c=rest[ids];pa,pb,pc=posed[ids];rn=np.cross(b-a,c-a);rn/=np.linalg.norm(rn)
+            pn=np.cross(pb-pa,pc-pa);pn/=max(np.linalg.norm(pn),1e-15)
+            tangent=np.cross(rn,[0,1,0] if abs(rn[1])<.9 else [1,0,0]);tangent/=np.linalg.norm(tangent);basis=np.column_stack([tangent,np.cross(rn,tangent)])
+            pt=pb-pa;pt/=max(np.linalg.norm(pt),1e-15);posed_basis=np.column_stack([pt,np.cross(pn,pt)])
+            jac=np.column_stack([pb-pa,pc-pa,pn])@np.linalg.inv(np.column_stack([b-a,c-a,rn]))
+            matrix=posed_basis.T@jac@basis;inverse=np.linalg.pinv(matrix,rcond=1e-8);inverse_cov.append(inverse@inverse.T)
         for az in [-45,0,45]:
             angle=math.radians(az);direction=Vector((math.sin(angle),0,math.cos(angle)));right=Vector((math.cos(angle),0,-math.sin(angle)));up=Vector((0,1,0));count=0
             gray=np.full((resolution,resolution),np.nan,np.float32);normals=np.full((resolution,resolution,3),np.nan,np.float32)
@@ -122,9 +134,29 @@ def capture_patch(patch,vertex_offset,tri_offset,root,side):
                     rn/=np.linalg.norm(rn)
                     gray[y,x]=1;normals[y,x]=rn;depth[y,x]=distance;xyz[y,x]=bc@rest[ids];triangle[y,x]=tri_offset+ti;bary[y,x]=bc
                     row=np.zeros(20,np.float32);row[:3]=bc;row[3]=-(tri_offset+ti+1);row[4:7]=rn;row[7]=scale/resolution*.68;row[8]=1;row[12]=.55;row[14]=2;row[15]=0;row[16:19]=rn;row[19]=1;rows.append(row);count+=1
+                    # Captured pixel footprints live in the POSED tangent
+                    # plane. Undo that Jacobian before storing rest-space
+                    # covariance; applying a pose twice shrinks corner disks.
+                    posed_normal=np.asarray(normal);cov=inverse_cov[ti]*(row[7]/max(abs(posed_normal@np.asarray(direction)),.3))**2
+                    row[9:12]=[cov[0,0],cov[0,1],cov[1,1]]
             name=f'orbital-{side}-{int(blink*100):03d}-{az:+03d}.npz'
             np.savez_compressed(root/name,gray=gray,normal=normals,depth=depth,rest_xyz=xyz,triangle=triangle,barycentric=bary)
             counts.append(dict(blink=blink,azimuth=az,resolution=resolution,samples=count,file=name,sha256=hashlib.sha256((root/name).read_bytes()).hexdigest()))
+        # Subpixel triangles can be missed by every fixed image grid. Capture
+        # a local normal ray for each valid face, with a conservative disk
+        # clipped to that triangle at runtime. This preserves small corners.
+        count=0
+        for ti,ids in enumerate(faces):
+            a,b,c=posed[ids];pn=np.cross(b-a,c-a);area=np.linalg.norm(pn)
+            if area<1e-12:continue
+            pn/=area;center=(a+b+c)/3
+            hit,normal,hit_ti,distance=tree.ray_cast(Vector(center+pn*.000002),Vector(-pn),.000004)
+            if hit is None or hit_ti!=ti:continue
+            rn=np.cross(rest[ids[1]]-rest[ids[0]],rest[ids[2]]-rest[ids[0]]);length=np.linalg.norm(rn)
+            if length<1e-12:continue
+            rn/=length;bc=barycentric(np.asarray(hit),*posed[ids]);radius=np.linalg.norm(posed[ids]-center,axis=1).max()+scale/resolution*.5
+            cov=inverse_cov[ti]*radius**2;row=np.zeros(20,np.float32);row[:3]=bc;row[3]=-(tri_offset+ti+1);row[4:7]=rn;row[7]=radius;row[8]=1;row[9:12]=[cov[0,0],cov[0,1],cov[1,1]];row[12]=.55;row[14]=2;row[16:19]=rn;row[19]=1;rows.append(row);count+=1
+        counts.append(dict(blink=blink,method='adaptive-native-triangle-normal-ray',samples=count))
         del tree
     return np.asarray(rows,np.float32),counts
 
