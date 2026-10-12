@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Acquire the licensed source 5.5M triangle Draco mesh
         run: |
-          python -m pip install --quiet numpy pillow DracoPy
+          python -m pip install --quiet numpy pillow DracoPy trimesh
           python tools/lie34_scan_acquire.py --directory /tmp/lie34-input
       - name: Convert ORIGINAL scan triangles and atlas into 80-byte LIE surface samples
         run: |
