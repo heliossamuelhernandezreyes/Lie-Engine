@@ -1,0 +1,67 @@
+name: LIE29 Native Brick Wall
+on:
+  push:
+    branches: ["experiment/lie29-deterministic-brick-wall"]
+    paths-ignore: ["evidence/**"]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  lie29-native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot 4.7.2 and software Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python -m pip install pillow
+      - name: Verify immutable source bank and Python layout
+        run: |
+          python tools/lie29_restore_bank.py
+          python -m unittest discover -s tests -p 'test_lie29_brick_layout.py' -v
+      - name: Godot import and GDScript syntax
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > godot-import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie29_brick_wall_lab.gd >> godot-import.log 2>&1
+          cat godot-import.log
+          python - <<'PY'
+          from pathlib import Path
+          log=Path('godot-import.log').read_text()
+          assert 'SCRIPT ERROR:' not in log, log
+          PY
+      - name: Execute real Godot software Vulkan compositor
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          VK_ICD_FILENAMES: /usr/share/vulkan/icd.d/lvp_icd.x86_64.json
+        run: |
+          xvfb-run -a -s "-screen 0 1600x900x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab lie29 --directory /tmp/lie29-native --audio-driver Dummy
+            python tools/lie29_native_smoke.py --directory /tmp/lie29-native
+          '
+      - name: Preserve native screenshot in GitHub
+        if: success()
+        run: |
+          mkdir -p evidence
+          cp /tmp/lie29-native/LIE29-Wall-Godot.png evidence/LIE29-Wall-Godot.png
+          cp /tmp/lie29-native/LIE29-validation.json evidence/LIE29-validation.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add evidence/LIE29-Wall-Godot.png evidence/LIE29-validation.json
+          git commit -m "LIE29: publish native verified wall screenshot [skip ci]"
+          git push origin HEAD:experiment/lie29-deterministic-brick-wall
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie29-native-evidence
+          path: |
+            /tmp/lie29-native/*.png
+            /tmp/lie29-native/*.json
+            /tmp/lie29-native/godot.log
+            godot-import.log
+          if-no-files-found: warn
