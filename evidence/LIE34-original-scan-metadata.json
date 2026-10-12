@@ -1,0 +1,31 @@
+{
+  "original_source_url": "https://huggingface.co/datasets/Matt1up/drone-building-scans/resolve/main/flat-roof/model/flat-roof.glb",
+  "project": "https://github.com/Matt1Up/drone-building-scans-dataset",
+  "author": "Matthew Guertin",
+  "license": "CC BY 4.0",
+  "commercial_allowed_with_attribution": true,
+  "photogrammetry": true,
+  "asset_kind": "Entire photographed building with brick facade",
+  "NOT_a_single_scanned_brick": true,
+  "original_sha256": "6c712d16b9ede8f5083d7fc82787cf75b913865b157f48db08a61f2154c6bd73",
+  "bytes": 21822576,
+  "original_meshes": 1,
+  "original_triangles": 5500320,
+  "original_vertices": 2994426,
+  "world_bounds_m_or_units": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "material_classes": [
+    "PBRMaterial"
+  ],
+  "source_glb_rendered_through_LIE": false
+}
