@@ -21,10 +21,11 @@ sharing one BoxShape3D resource.
 
 ## Launch with the actual asset bank restored
 
-Unpack `LIE28-Assets-Maestros.zip` into `gpu_compute/` as documented in
-`docs/LIE_28_MODULAR_BUILDING.md` (match SHA-256 in its checkpoint first).
+Restore the compact CC0-attributed LIE28 brick subset shipped in the repository.
+The restore script verifies exact bytes and SHA-256 before writing the native bank.
 
 ```sh
+python tools/lie29_restore_bank.py
 godot --headless --path gpu_compute --editor --import --quit
 python tools/lie_agent_launch.py --godot /path/to/godot --lab lie29 \
   --directory /absolute/path/lie29-live
@@ -35,3 +36,12 @@ python tools/lie_workshop_client.py --directory /absolute/path/lie29-live \
 The image MUST originate from `op=capture` in a live native compositor session;
 a generated rendering is not valid laboratory evidence. Until that command runs,
 the branch has *source only*, not a validated screenshot.
+
+## Verified native evidence
+
+GitHub Actions run `38250137472` executed native Godot 4.7.2 with Mesa
+software Vulkan and finished successfully. The actual unmodified compositor
+image is committed as `evidence/LIE29-Wall-Godot.png` and its SHA-256 plus
+reproducible seed-change/restore checks are in `evidence/LIE29-validation.json`.
+This is not a physical-GPU throughput benchmark or a cinematic-quality model.
+At running-bond ends, half-brick termination is not yet implemented.
