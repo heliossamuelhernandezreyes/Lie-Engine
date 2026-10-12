@@ -27,5 +27,58 @@
   "material_classes": [
     "PBRMaterial"
   ],
+  "mesh_local_bounds": [
+    [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ]
+  ],
+  "mesh_local_extents": [
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "scene_nodes": [
+    {
+      "node": "0",
+      "mesh": "Mesh_0_Part_0",
+      "matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    }
+  ],
   "source_glb_rendered_through_LIE": false
 }
