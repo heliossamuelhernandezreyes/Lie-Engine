@@ -4,6 +4,12 @@
 
 Lie is developed **on Godot 4.7.2**; its asset addressing and capture pipeline are kept independent of individual game projects. ARCONT can serve as an external testing/research laboratory, not as embedded game code.
 
+The current desktop entry is `gpu_compute/project.godot` (LIE-27).
+[Agent/desktop controls and restoration](docs/AGENT_WORKFLOW.md) describe the
+persistent native session, shared controls and separately saved capture bank.
+[Checkpoint and next face investigation](docs/checkpoints/LIE27_CONTINUATION.md)
+preserve results, limitations and the practical shading diagnosis.
+
 ## LIE-27 · articulaciones esféricas, párpados y expresiones
 
 El laboratorio añade zonas esféricas con influencia suave, 30 segmentos de

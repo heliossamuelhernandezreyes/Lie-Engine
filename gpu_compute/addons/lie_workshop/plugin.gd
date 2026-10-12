@@ -7,6 +7,8 @@ func _enter_tree() -> void:
     var button:=Button.new(); button.text="Abrir taller"
     button.pressed.connect(func(): EditorInterface.play_custom_scene("res://lie18_workshop.tscn"))
     dock.add_child(button)
+    var anatomy:=Button.new();anatomy.text="Abrir anatomía y rostro · LIE-27"
+    anatomy.pressed.connect(func():EditorInterface.play_custom_scene("res://lie27_regions_lab.tscn"));dock.add_child(anatomy)
     var hint:=Label.new(); hint.text="Piezas · articulaciones · animación\nControles compartidos con agentes"; dock.add_child(hint)
     add_control_to_dock(DOCK_SLOT_LEFT_UL,dock)
 func _exit_tree() -> void:

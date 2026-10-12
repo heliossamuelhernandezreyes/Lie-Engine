@@ -111,9 +111,18 @@ func _ready() -> void:
     status=Label.new();status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;status.custom_minimum_size.x=276;box.add_child(status)
     var limit:=Label.new();limit.text="Expresiones aproximadas.\nMandíbula y dedos pendientes de afinación.\nModelo anatómico sin ropa.";limit.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;box.add_child(limit)
     var back:=Button.new();back.text="Volver al taller";back.pressed.connect(func():get_tree().change_scene_to_file("res://lie18_workshop.tscn"));box.add_child(back)
+    var storage:=HBoxContainer.new();box.add_child(storage)
+    var save:=Button.new();save.text="Guardar estado";storage.add_child(save);save.pressed.connect(_store_agent_state.bind("save_state"))
+    var load:=Button.new();load.text="Abrir estado";storage.add_child(load);load.pressed.connect(_store_agent_state.bind("load_state"))
     _build_rig()
     overlay=preload("res://lie27_region_overlay.gd").new();overlay.set("lab",self);overlay.mouse_filter=Control.MOUSE_FILTER_IGNORE;ui.add_child(overlay)
     _apply()
+
+func _store_agent_state(op: String) -> void:
+    var agent: Node=get_node_or_null("/root/LieAgent")
+    if agent==null:return
+    var result: Dictionary=await agent.call("dispatch",{"op":op})
+    status.text="Estado guardado" if result.get("ok",false) and op=="save_state" else "Estado abierto" if result.get("ok",false) else str(result.get("error","error"))
 
 func command(request: Variant) -> Dictionary:
     if not request is Dictionary:return {"ok":false,"error":"request"}

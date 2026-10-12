@@ -1,0 +1,49 @@
+{
+  "schema": 1,
+  "checkpoint": "LIE27-face-eyebrows-chin",
+  "renderer_commit": "fc5ab4b18d3efcf5d57c862cf9a2ff1cc86566f0",
+  "archive": {
+    "filename": "LIE27-Experimento.zip",
+    "bytes": 204290609,
+    "sha256": "9630bab0563bce3e983e8f261a46aa43596aa696391c283552583eabd7456a5d"
+  },
+  "bank_directory": "gpu_compute/captures/anatomy27",
+  "bank_sample_count": 5996289,
+  "buffers": {
+    "samples.bin": {
+      "bytes": 479703120,
+      "sha256": "7147db5a8c320c834e2666bac3d6946c98c583c0f9d3740216476907a316ae09"
+    },
+    "vertices.bin": {
+      "bytes": 1181664,
+      "sha256": "6c607b1089fb19c56d29d87d298a9da73f759f55c928d9b734b105b9b9a9b8bd"
+    },
+    "triangles.bin": {
+      "bytes": 122848,
+      "sha256": "0487d3bbe73bb37ad31420a0c29a7613c359bfd4910c67a78a2632847c552911"
+    }
+  },
+  "source_sha256": "a47d7ea9ae4082b793d4d45761c4c73db96707bb5f03c279b4133053c6c3e193",
+  "credit": "3DAnatomyman by Always3D; derivative of BodyParts3D \u00a9 DBCLS. Segmented, captured and rigged for Lie.",
+  "license": "CC-BY-SA-2.1-JP",
+  "validation": {
+    "python_tests": 72,
+    "external_asset_skips": 1,
+    "cpu_rig_checks": 888,
+    "software_vulkan_checks": 172,
+    "physical_gpu_performance_measured": false,
+    "whole_character_visual_acceptance": false
+  },
+  "continuation": "docs/checkpoints/LIE27_CONTINUATION.md",
+  "agent_verification": {
+    "headless_command_checks": 20,
+    "native_desktop_checks": 42,
+    "external_python_client": true,
+    "all_lie27_state_fields_exercised": true,
+    "ik_and_playback_exercised": true,
+    "state_and_scene_restoration_verified": true,
+    "checkpoint_neutral_pixels_preserved": true,
+    "native_window_sha256": "96618646330ee925a7c87f3f13dfdaa3b0ddf018aef3f8507028f48d3a40c227",
+    "external_os_mouse_automation_verified": false
+  }
+}

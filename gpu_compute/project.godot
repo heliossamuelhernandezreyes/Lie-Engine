@@ -1,7 +1,9 @@
 config_version=5
 [application]
 config/name="Lie Workshop"
-run/main_scene="res://lie18_workshop.tscn"
+run/main_scene="res://lie27_regions_lab.tscn"
+[autoload]
+LieAgent="*res://workshop/lie_agent_session.gd"
 [rendering]
 renderer/rendering_method="forward_plus"
 renderer/rendering_method.mobile="mobile"
