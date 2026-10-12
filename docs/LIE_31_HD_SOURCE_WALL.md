@@ -44,7 +44,7 @@ After validating the full-density individual-brick master and 126-brick wall, cr
 
 - CC0 real 4096×4096 RGB, normals, height, roughness maps downloaded and SHA-256 verified. Source lock in `evidence/LIE31-source-lock.json`.
 - `tools/lie31_capture_hd.py` selected a red brick face from the real wall photograph, rejected excessive grout, reconstructed height-displaced sample positions and transported maps into the unchanged LIE 80-byte sample format.
-- Immutable bank: `gpu_compute/assets/lie31/hd_bank.zlib`, `gpu_compute/assets/lie31/catalog.json`, SHA-256 of raw bank `1e42875f3d099980a126700e991e5c755d7620631f7a58a4ab08ea77a74abb82` (check against current committed catalog after reruns).
+- Immutable bank: `gpu_compute/assets/lie31/hd_bank.zlib`, `gpu_compute/assets/lie31/catalog.json`, SHA-256 of raw bank `608558a3e33083de0809c18f896001bb44d7216d2a1c9fd52e4a76dfd08eda77` (check against current committed catalog after reruns).
 - Full brick: 40,520 hero samples; 3,568 wall samples. Entire bank: 73,214 samples, 5,857,120 bytes, reused by 127 wall instances (126 bricks plus mortar).
 - Native software Vulkan wall: 437,306 invocations per frame configuration, deterministic seeded tint and exact repeatability.
 - Separate native 960×960 square compositor ran successfully: https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38270458144. Unscaled outputs: `evidence/LIE31-Wall-Native-960-Square.png` and `evidence/LIE31-Brick-Native-960-Square.png`. It is neither 1920×1080 nor physically GPU-benchmarked.
