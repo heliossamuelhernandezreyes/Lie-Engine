@@ -1,0 +1,27 @@
+name: LIE31 HD Source Acquisition
+on:
+  push:
+    branches: ["experiment/lie31-hd-source-wall"]
+    paths:
+      - "tools/lie31_acquire_pbr.py"
+      - ".github/workflows/lie31-source.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire genuine public-domain photographic PBR 4K material
+        run: |
+          python -m pip install pillow
+          python tools/lie31_acquire_pbr.py --directory /tmp/lie31-source --resolution 4k
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie31-source-pbr-and-provenance
+          path: |
+            /tmp/lie31-source/*
+          if-no-files-found: warn
