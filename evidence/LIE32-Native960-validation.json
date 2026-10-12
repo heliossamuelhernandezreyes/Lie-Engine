@@ -1,0 +1,17 @@
+{
+  "renderer": "Actual Godot 4.7.2 Vulkan software LIE",
+  "native_output": [
+    960,
+    960
+  ],
+  "upscaled": false,
+  "sources": "Prebaked CC0-derived 4 shared module masters",
+  "wall_sha256": "6ea9d352012d83aa6768cceecd766908b03cd0be917adca317312e0e6760589b",
+  "detail_sha256": "674c6b2c1daafb6100814d707893d3984f9a141e23350ff47b4eadc3c66cdb66",
+  "wall_opaque_pixels": 76649,
+  "detail_opaque_pixels": 187197,
+  "module_instances": 4,
+  "underlying_bricks": 504,
+  "sample_invocations": 394880,
+  "physical_gpu_fps_benchmark": false
+}

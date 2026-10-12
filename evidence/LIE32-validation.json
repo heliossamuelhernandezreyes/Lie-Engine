@@ -1,0 +1,20 @@
+{
+  "renderer": "Native Godot 4.7.2 software Vulkan compositor",
+  "provenance": "LIE31 real CC0 PBR samples, now reduced and baked into 4 module variants",
+  "wall_image": "/tmp/lie32-native/LIE32-Cluster-Wall-4Modules.png",
+  "wall_sha256": "f0e61ab89edf94bc8a246a970611f69d33a35734655ebc67542d66c4d78481ab",
+  "one_module_closeup": "/tmp/lie32-native/LIE32-Cluster-One-Module-Closeup.png",
+  "one_module_sha256": "58da9232c89ee0f0e9ad0cfdafd079b17c6f1f6cbca61975daec1dda7deca4cc",
+  "source_bricks_per_module": 126,
+  "combined_bricks": 504,
+  "instance_count": 4,
+  "baked_variants": 4,
+  "sample_invocations": 394880,
+  "opaque_pixels": 21939,
+  "theoretical_individual_invocations_for_4_modules": 1749224,
+  "source_meshes_rendered": 0,
+  "seed_changes_pixels": true,
+  "seed_replays_identically": true,
+  "physical_gpu_speedup_measured": false,
+  "source_output_square_px": 512
+}

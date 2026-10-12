@@ -17,6 +17,8 @@ func _enter_tree() -> void:
     masonry.pressed.connect(func():EditorInterface.play_custom_scene("res://lie30_masonry_lab.tscn"));dock.add_child(masonry)
     var hd:=Button.new();hd.text="LIE31 · Ladrillo HD"
     hd.pressed.connect(func():EditorInterface.play_custom_scene("res://lie31_hd_lab.tscn"));dock.add_child(hd)
+    var cluster:=Button.new();cluster.text="LIE32 · Muro conjunto"
+    cluster.pressed.connect(func():EditorInterface.play_custom_scene("res://lie32_cluster_lab.tscn"));dock.add_child(cluster)
     var hint:=Label.new(); hint.text="Piezas · articulaciones · animación\nControles compartidos con agentes"; dock.add_child(hint)
     add_control_to_dock(DOCK_SLOT_LEFT_UL,dock)
 func _exit_tree() -> void:
