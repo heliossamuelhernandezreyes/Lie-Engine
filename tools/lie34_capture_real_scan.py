@@ -22,7 +22,7 @@ SOURCE=ROOT/"gpu_compute/assets/lie34"
 OUTPUT=ROOT/"gpu_compute/captures/lie34scan"
 SOURCE_CREDIT="Drone Building Scans — Matthew Guertin, 2026. CC BY 4.0."
 STRIDE=80
-SAMPLE_COUNTS=(140000,42000)
+SAMPLE_COUNTS=(540000,120000)
 
 
 def unpack_glb(path):
@@ -114,7 +114,7 @@ def encode_samples(points,faces,vertex_normals,texcoords,albedo,rough_texture,
     world=np.column_stack((local[:,0],local[:,2],-local[:,1])).astype(np.float32)
     nr=np.column_stack((normals[:,0],normals[:,2],-normals[:,1])).astype(np.float32)
 
-    radius=np.clip(np.sqrt(total/max(count,1))*scale*1.15,.001,.045)
+    radius=np.clip(np.sqrt(total/max(count,1))*scale*1.05,.001,.045)
     support=np.zeros((count,4),dtype=np.float32)
     dominant=np.argmax(np.abs(nr),axis=1)
     for axis,(a,b) in enumerate(((2,1),(0,2),(0,1))):
