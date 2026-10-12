@@ -1,0 +1,11 @@
+{
+  "renderer": "Native Godot 4.7.2 software Vulkan LIE compositor",
+  "image": "/tmp/lie29-native/LIE29-Wall-Godot.png",
+  "image_sha256": "405b6a07b83ae7cf148e0cf143b22e452ed664887181b66b30e9d5369bce8a78",
+  "instances": 120,
+  "master_banks": 1,
+  "sample_invocations": 678000,
+  "seed_change_modified_pixels": true,
+  "seed_restore_exact": true,
+  "physical_gpu_performance_claim": false
+}
