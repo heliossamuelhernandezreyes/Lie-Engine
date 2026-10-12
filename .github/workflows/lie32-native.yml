@@ -1,0 +1,90 @@
+name: LIE32 Native Shared Wall Clusters
+on:
+  push:
+    branches: ["experiment/lie32-shared-masonry-clusters"]
+    paths:
+      - ".github/workflows/lie32-native.yml"
+      - "tools/lie32_bake_wall_clusters.py"
+      - "tools/lie32_native_smoke.py"
+      - "gpu_compute/lie32_cluster_*"
+  workflow_dispatch:
+concurrency:
+  group: lie32-modules-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  module-bake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Godot and Vulkan software renderer
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python -m pip install numpy pillow
+      - name: Restore original high fidelity CC0 PBR source and bake joint samples
+        run: |
+          python tools/lie31_restore_hd.py
+          python tools/lie32_bake_wall_clusters.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path("gpu_compute/captures/lie32cluster/catalog.json").read_text())
+          assert len(p["masters"])==4
+          assert p["sample_count"]<150000
+          print("LIE32 master sample count",p["sample_count"])
+          PY
+      - name: Godot import and compile validation
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > godot-import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie32_cluster_lab.gd >> godot-import.log 2>&1
+          cat godot-import.log
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("godot-import.log").read_text()
+          assert "SCRIPT ERROR:" not in s,s
+          PY
+      - name: Validate real native Vulkan joint-wall compositor and seeded variation
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x900x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab lie32 --directory /tmp/lie32-native --audio-driver Dummy
+            python tools/lie32_native_smoke.py --directory /tmp/lie32-native
+          '
+      - name: Publish four immutable module masters and native compositor screenshot
+        if: success()
+        run: |
+          mkdir -p evidence gpu_compute/assets/lie32
+          python - <<'PY'
+          from pathlib import Path
+          import zlib
+          src=Path("gpu_compute/captures/lie32cluster/library.bin").read_bytes()
+          Path("gpu_compute/assets/lie32/module_bank.zlib").write_bytes(zlib.compress(src,9))
+          PY
+          cp gpu_compute/captures/lie32cluster/catalog.json gpu_compute/assets/lie32/catalog.json
+          cp /tmp/lie32-native/LIE32-Cluster-Wall-4Modules.png evidence/LIE32-Cluster-Wall-4Modules.png
+          cp /tmp/lie32-native/LIE32-validation.json evidence/LIE32-validation.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f gpu_compute/assets/lie32/module_bank.zlib gpu_compute/assets/lie32/catalog.json
+          git add evidence/LIE32-Cluster-Wall-4Modules.png evidence/LIE32-validation.json
+          git commit -m "LIE32: measured seeded native four wall modules and shared sample bank [skip ci]"
+          git push origin HEAD:experiment/lie32-shared-masonry-clusters
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie32-native-modules-evidence
+          path: |
+            /tmp/lie32-native/*.png
+            /tmp/lie32-native/*.json
+            /tmp/lie32-native/godot.log
+            gpu_compute/captures/lie32cluster/catalog.json
+            godot-import.log
+          if-no-files-found: warn
