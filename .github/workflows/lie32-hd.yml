@@ -1,0 +1,70 @@
+name: LIE32 Native 960 Wall Clusters
+on:
+  push:
+    branches: ["experiment/lie32-shared-masonry-clusters"]
+    paths:
+      - ".github/workflows/lie32-hd.yml"
+      - "tools/lie32_hd_smoke.py"
+      - "gpu_compute/lie32_hd_cluster_*"
+  workflow_dispatch:
+concurrency:
+  group: lie32-hd-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  native960:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install software Vulkan with Godot 4.7.2
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python -m pip install pillow
+      - name: Load SHA-256 checked baked PBR modules and compile
+        run: |
+          python tools/lie32_restore_modules.py
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie32_hd_cluster_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('import.log').read_text()
+          assert "SCRIPT ERROR:" not in s,s
+          PY
+      - name: Execute native 960 square four-module and close-up compositor
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab lie32hd --directory /tmp/lie32-hd-native --audio-driver Dummy
+            python tools/lie32_hd_smoke.py --directory /tmp/lie32-hd-native
+          '
+      - name: Preserve unscaled native 960 square outputs
+        if: success()
+        run: |
+          mkdir -p evidence
+          cp /tmp/lie32-hd-native/LIE32-4Modules-Native960.png evidence/LIE32-4Modules-Native960.png
+          cp /tmp/lie32-hd-native/LIE32-Module-Detail-Native960.png evidence/LIE32-Module-Detail-Native960.png
+          cp /tmp/lie32-hd-native/LIE32-Native960-validation.json evidence/LIE32-Native960-validation.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add evidence/LIE32-4Modules-Native960.png evidence/LIE32-Module-Detail-Native960.png evidence/LIE32-Native960-validation.json
+          git commit -m "LIE32: real native 960-pixel wall-module compositor [skip ci]"
+          git push origin HEAD:experiment/lie32-shared-masonry-clusters
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie32-960-hd-evidence
+          path: |
+            /tmp/lie32-hd-native/*.png
+            /tmp/lie32-hd-native/*.json
+            /tmp/lie32-hd-native/godot.log
+            import.log
+          if-no-files-found: warn
