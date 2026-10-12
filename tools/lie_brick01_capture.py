@@ -157,6 +157,86 @@ def bake_face(maps,rect,dims,face,nx,ny,hero):
     }
 
 
+
+def bake_edge_bridges(maps,rect,dims,profile):
+    """Join six eroded face patches with 12 physically sampled round bevels.
+
+    Surface samples traverse actual 3D arcs and are NOT source mesh triangles.
+    The missing border in v2 was a real gap: six independently inset photos
+    did not share enough surface at their seams.
+    """
+    length,height,depth=dims
+    halves=np.asarray([length,height,depth],dtype=np.float32)/2
+    rows={"hero":(510,15),"mid":(150,8),"wall":(43,5)}
+    nlong,arc_steps=rows[profile]
+    chunks=[]
+    individual=[]
+    for along in range(3):
+        fixed=[a for a in range(3) if a!=along]
+        A,B=fixed
+        for sign_a in (-1,1):
+            for sign_b in (-1,1):
+                n=max(28,round(nlong*2*halves[along]/length))
+                t=clustered_grid(n)
+                theta=np.linspace(.018,np.pi/2-.018,arc_steps,dtype=np.float32)
+                T,TH=np.meshgrid(t,theta)
+                point=np.zeros((*T.shape,3),dtype=np.float32)
+                point[...,along]=(T-.5)*2*halves[along]
+                point[...,A]=sign_a*halves[A]
+                point[...,B]=sign_b*halves[B]
+                wave=(np.sin(point[...,0]*137+point[...,1]*97+point[...,2]*119)
+                      +.22*np.sin(point[...,0]*607-point[...,2]*311+point[...,1]*287))
+                bevel=(.00115+.00024*wave).astype(np.float32)
+                # Carry the same eroded front/top/left corner through all
+                # three adjoining bevels.
+                corner_distance=np.sqrt(((point[...,0]+length/2)/.012)**2+
+                                        ((height/2-point[...,1])/.009)**2+
+                                        ((depth/2-point[...,2])/.011)**2)
+                bevel+=.0037*np.maximum(1-corner_distance,0)**1.45
+                point[...,A]-=sign_a*bevel*np.sin(TH)
+                point[...,B]-=sign_b*bevel*np.cos(TH)
+                nr=np.zeros_like(point)
+                nr[...,A]=sign_a*np.sin(TH)
+                nr[...,B]=sign_b*np.cos(TH)
+                nr=normalize(nr)
+                left,top,right,bottom=rect
+                texture_u=left+.06*(right-left)+(right-left)*.88*T
+                texture_v=top+(bottom-top)*(.08+.84*TH/(np.pi/2))
+                photo_rgb=linear(bilinear(maps["color"],texture_u,texture_v))
+                rough=np.clip(bilinear(maps["roughness"],texture_u,texture_v)[...,0],.22,.97)
+                # Samples must overlap over the bevel width and along
+                # nonuniform arc length, but avoid blurring large flat faces.
+                dist_u=np.linalg.norm(np.gradient(point,axis=1),axis=-1)
+                dist_v=np.linalg.norm(np.gradient(point,axis=0),axis=-1)
+                rad=np.clip(np.maximum(dist_u,dist_v)*1.4,.00035,.0033)
+                # Clip each sample to an appropriate local support patch.
+                support=np.zeros((*T.shape,4),dtype=np.float32)
+                dominant=np.argmax(np.abs(nr),axis=-1)
+                for axis,(a,b) in enumerate(((2,1),(0,2),(0,1))):
+                    selected=dominant==axis
+                    limit=rad[selected]*2.4
+                    support[selected,0]=point[selected,a]-limit
+                    support[selected,1]=point[selected,b]-limit
+                    support[selected,2]=point[selected,a]+limit
+                    support[selected,3]=point[selected,b]+limit
+                arr=np.zeros((*T.shape,20),dtype="<f4")
+                arr[...,0:3]=point
+                arr[...,3]=rad
+                arr[...,4:7]=nr
+                arr[...,7]=1
+                arr[...,8]=3
+                arr[...,10]=rough
+                arr[...,12:15]=np.clip(photo_rgb,0,1)
+                arr[...,15]=1
+                arr[...,16:20]=support
+                if not np.isfinite(arr).all():raise ValueError("Nonfinite edge samples")
+                flattened=arr.reshape(-1,20)
+                chunks.append(flattened)
+                individual.append({"edge_axis":along,"fixed_signs":[sign_a,sign_b],
+                                   "samples":int(len(flattened))})
+    return np.concatenate(chunks,axis=0),individual
+
+
 def build(source:Path,destination:Path):
     maps=load_maps(source)
     color=(maps["color"]*255).clip(0,255).astype(np.uint8)
@@ -177,6 +257,12 @@ def build(source:Path,destination:Path):
                                     hero=profile_name=="hero")
                 bank.frombytes(arr.tobytes());count+=len(arr)
                 face_report[master][profile_name][face]=stats
+            # Physical 3D edge/side face continuity, not painted junctions.
+            bridges,bridge_report=bake_edge_bridges(maps,rect,dims,profile_name)
+            bank.frombytes(bridges.tobytes())
+            count+=len(bridges)
+            face_report[master][profile_name]["edge_bridges"]={
+                "total_samples":len(bridges),"strips":bridge_report}
             levels.append({"start":start,"count":count})
             print("LIE-BRICK01",master,profile_name,count,flush=True)
         masters[master]={"levels":levels,"bounds_size":list(dims),
