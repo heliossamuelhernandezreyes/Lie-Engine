@@ -91,6 +91,10 @@ jobs:
             cp evidence/LIE-BRICK01-ThreeQuarter.png evidence/LIE-BRICK01-V1-ThreeQuarter.png
             cp evidence/LIE-BRICK01-Top.png evidence/LIE-BRICK01-V1-Top.png
           fi
+          if [ -f evidence/LIE-BRICK01-ThreeQuarter.png ] && [ ! -f evidence/LIE-BRICK01-V2-ThreeQuarter.png ]; then
+            cp evidence/LIE-BRICK01-ThreeQuarter.png evidence/LIE-BRICK01-V2-ThreeQuarter.png
+            cp evidence/LIE-BRICK01-Top.png evidence/LIE-BRICK01-V2-Top.png
+          fi
           cp /tmp/lie-brick01-native/LIE-BRICK01-*.png evidence/
           cp /tmp/lie-brick01-native/LIE-BRICK01-validation.json evidence/
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
