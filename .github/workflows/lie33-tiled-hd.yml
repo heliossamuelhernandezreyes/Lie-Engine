@@ -29,7 +29,7 @@ jobs:
           unzip -q godot.zip -d godot-bin
           chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
           python -m pip install pillow
-      - name: Load SHA-256 checked baked PBR modules and compile
+      - name: Verify SHA-256 LIE31 PBR source bank and compile
         run: |
           python -m unittest discover -s tests -p 'test_lie33_tiled_dispatch.py' -v
           python tools/lie31_restore_hd.py
@@ -41,7 +41,7 @@ jobs:
           s=Path('import.log').read_text()
           assert "SCRIPT ERROR:" not in s,s
           PY
-      - name: Execute native 1080 square four-module and close-up compositor
+      - name: Execute genuine 1080-square LIE31 full-brick wall and hero
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
         run: |
@@ -53,12 +53,12 @@ jobs:
         if: success()
         run: |
           mkdir -p evidence
-          cp /tmp/lie33-native/LIE33-4Modules-Native1080.png evidence/LIE33-4Modules-Native1080.png
-          cp /tmp/lie33-native/LIE33-Module-Detail-Native1080.png evidence/LIE33-Module-Detail-Native1080.png
-          cp /tmp/lie33-native/LIE33-Native1080-validation.json evidence/LIE33-Native1080-validation.json
+          cp /tmp/lie33-native/LIE33-Wall-Native-1080-Square.png evidence/LIE33-Wall-Native-1080-Square.png
+          cp /tmp/lie33-native/LIE33-Brick-Native-1080-Square.png evidence/LIE33-Brick-Native-1080-Square.png
+          cp /tmp/lie33-native/LIE33-native1080-report.json evidence/LIE33-native1080-report.json
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add evidence/LIE33-4Modules-Native1080.png evidence/LIE33-Module-Detail-Native1080.png evidence/LIE33-Native1080-validation.json
+          git add evidence/LIE33-Wall-Native-1080-Square.png evidence/LIE33-Brick-Native-1080-Square.png evidence/LIE33-native1080-report.json
           git commit -m "LIE33: real native 1080-pixel wall-module compositor [skip ci]"
           git push origin HEAD:experiment/lie33-tiled-hd-compositor
       - uses: actions/upload-artifact@v4
