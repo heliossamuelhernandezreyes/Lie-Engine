@@ -1,0 +1,39 @@
+name: LIE34 Real Photogrammetry Scan Acquisition
+on:
+  push:
+    branches: ["experiment/lie34-real-scan-reference"]
+    paths:
+      - ".github/workflows/lie34-scan.yml"
+      - "tools/lie34_scan_acquire.py"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download original CC BY photogrammetry GLB and inspect geometry
+        run: |
+          python -m pip install trimesh numpy pillow
+          python tools/lie34_scan_acquire.py --directory /tmp/lie34-photogrammetry
+      - name: Record SHA256 and true source polygon count
+        if: success()
+        run: |
+          mkdir -p evidence
+          cp /tmp/lie34-photogrammetry/source-lock.json evidence/LIE34-original-scan-license.json
+          cp /tmp/lie34-photogrammetry/mesh-inspection.json evidence/LIE34-original-scan-metadata.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add evidence/LIE34-original-scan-license.json evidence/LIE34-original-scan-metadata.json
+          git commit -m "LIE34: confirm original CC BY photogrammetry geometry and hash [skip ci]"
+          git push origin HEAD:experiment/lie34-real-scan-reference
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie34-licensed-original-scanned-building
+          path: |
+            /tmp/lie34-photogrammetry/*.glb
+            /tmp/lie34-photogrammetry/*.json
+          if-no-files-found: warn
