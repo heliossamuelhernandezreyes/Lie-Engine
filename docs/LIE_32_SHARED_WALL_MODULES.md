@@ -63,3 +63,14 @@ Once CI publishes a finalized master bank, use
   functional bricks near the player.
 - Support more than four modules with full occlusion and virtual residency,
   once the material reconstruction quality is acceptable.
+
+## Verified native release: second sampling candidate
+
+- CI workflow native 512 run: https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38271487796
+- Actual 512 output: `evidence/LIE32-Cluster-Wall-4Modules.png` and `evidence/LIE32-Cluster-One-Module-Closeup.png`.
+- Native high-res 960 × 960 run: https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38271835997
+- Actual high-res: `evidence/LIE32-4Modules-Native960.png` and `evidence/LIE32-Module-Detail-Native960.png` with SHA-256 report.
+- Native 4-module output: **4 compositor instances, 504 underlying brick appearances, 394,880 invocations**. Each of four reusable variants has 98,720 samples; sample bank total 394,880 samples = 31,590,400 uncompressed bytes.
+- The original fully instanced LIE31 single wall requires 437,306 invocations per wall, so four copies would naïvely request 1,749,224 (well beyond its per-scene cap). This is a count comparison only, NOT a measured physical-GPU speedup.
+- Images show that higher-resolution output substantially improves legibility. The 960px single-module screenshot makes joints readable; the four-module view still exhibits aliasing and reduced surface fidelity compared with individual LIE31 samples. Do not claim visual parity.
+- Four pre-baked module variants consume more source-bank storage than one common brick; this is an explicit VRAM-vs-invocation tradeoff. Hardware validation is needed.
