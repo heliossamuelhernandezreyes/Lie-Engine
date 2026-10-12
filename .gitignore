@@ -117,3 +117,12 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie27-*.bin
 /gpu_compute/lie27-*.log
 /gpu_compute/lie27-frames/
+
+# LIE-28 generated native building sources, captures and renderer evidence
+/gpu_compute/assets/lie28/*
+!/gpu_compute/assets/lie28/.gdignore
+/gpu_compute/captures/building28/
+/gpu_compute/lie28-*.png
+/gpu_compute/lie28-*.json
+/gpu_compute/lie28-*.bin
+/gpu_compute/lie28-*.log
