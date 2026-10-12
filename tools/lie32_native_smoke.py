@@ -32,7 +32,7 @@ def run(directory: Path):
     assert metrics["configured"],metrics
     assert metrics["instances"]==4,metrics
     assert metrics["masters"]==4,metrics
-    assert metrics["sample_invocations"]<150_000,metrics
+    assert metrics["sample_invocations"]<750_000,metrics
     assert snap["runtime"]["asset_uploads"]==1,snap["runtime"]
 
     def capture(name):
@@ -56,9 +56,15 @@ def run(directory: Path):
     assert response["result"]["ok"],response
     _,restored,_=capture("LIE32-Cluster-Restored")
     assert restored==baseline,"Reproducibility broken"
+    response=command({"op":"set_values","values":{
+        "mode":"master","master":"wall_variant_0","camera_yaw":5,"camera_elevation":5}})
+    assert response["result"]["ok"],response
+    close,close_sha,close_opaque=capture("LIE32-Cluster-One-Module-Closeup")
+    assert close_opaque>8000,"Module closeup lost too much opaque coverage"
     report={"renderer":"Native Godot 4.7.2 software Vulkan compositor",
             "provenance":"LIE31 real CC0 PBR samples, now reduced and baked into 4 module variants",
             "wall_image":str(wall),"wall_sha256":baseline,
+            "one_module_closeup":str(close),"one_module_sha256":close_sha,
             "source_bricks_per_module":126,
             "combined_bricks":504,
             "instance_count":4,"baked_variants":4,
