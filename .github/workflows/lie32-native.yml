@@ -70,11 +70,12 @@ jobs:
           PY
           cp gpu_compute/captures/lie32cluster/catalog.json gpu_compute/assets/lie32/catalog.json
           cp /tmp/lie32-native/LIE32-Cluster-Wall-4Modules.png evidence/LIE32-Cluster-Wall-4Modules.png
+          cp /tmp/lie32-native/LIE32-Cluster-One-Module-Closeup.png evidence/LIE32-Cluster-One-Module-Closeup.png
           cp /tmp/lie32-native/LIE32-validation.json evidence/LIE32-validation.json
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
           git add -f gpu_compute/assets/lie32/module_bank.zlib gpu_compute/assets/lie32/catalog.json
-          git add evidence/LIE32-Cluster-Wall-4Modules.png evidence/LIE32-validation.json
+          git add evidence/LIE32-Cluster-Wall-4Modules.png evidence/LIE32-Cluster-One-Module-Closeup.png evidence/LIE32-validation.json
           git commit -m "LIE32: measured seeded native four wall modules and shared sample bank [skip ci]"
           git push origin HEAD:experiment/lie32-shared-masonry-clusters
       - uses: actions/upload-artifact@v4
