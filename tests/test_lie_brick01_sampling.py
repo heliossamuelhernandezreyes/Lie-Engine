@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"tools"))
-from lie_brick01_capture import bake_face, DIMS, PROFILES, clustered_grid
+from lie_brick01_capture import bake_face, bake_edge_bridges, DIMS, PROFILES, clustered_grid
 
 
 class HeroCaptureGeometry(unittest.TestCase):
@@ -51,6 +51,16 @@ class HeroCaptureGeometry(unittest.TestCase):
                 self.assertTrue(np.all(pts[:,16]<=pts[:,18]))
                 self.assertTrue(np.all(pts[:,17]<=pts[:,19]))
                 self.assertTrue(np.isfinite(pts).all())
+
+    def test_twelve_real_3d_edge_bridges(self):
+        for shape in DIMS.values():
+            bridge,info=bake_edge_bridges(self.maps,self.rect,shape,"wall")
+            self.assertEqual(len(info),12)
+            self.assertGreater(len(bridge),1000)
+            self.assertTrue(np.isfinite(bridge).all())
+            self.assertTrue(np.all(bridge[:,3]>0))
+            self.assertTrue(np.all(bridge[:,16]<=bridge[:,18]))
+            self.assertLessEqual(np.max(np.abs(bridge[:,4:7])),1.0001)
 
     def test_source_levels_are_in_order(self):
         self.assertEqual(list(PROFILES),["hero","mid","wall"])
