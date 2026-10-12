@@ -6,29 +6,29 @@
   "master_full_levels": [
     {
       "start": 0,
-      "count": 204150
+      "count": 258990
     },
     {
-      "start": 204150,
-      "count": 27750
+      "start": 258990,
+      "count": 36358
     },
     {
-      "start": 231900,
-      "count": 3193
+      "start": 295348,
+      "count": 5173
     }
   ],
   "master_half_levels": [
     {
-      "start": 235093,
-      "count": 121560
+      "start": 300521,
+      "count": 202680
     },
     {
-      "start": 356653,
-      "count": 16398
+      "start": 503201,
+      "count": 29134
     },
     {
-      "start": 373051,
-      "count": 1862
+      "start": 532335,
+      "count": 4182
     }
   ],
   "native_pixels": [
@@ -39,63 +39,63 @@
   "view_captures": {
     "ThreeQuarter": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-ThreeQuarter.png",
-      "sha256": "76f382a61bab8d303bee3329ba27aff09598ca793f72a10271f0508e2aecee9c",
-      "opaque_pixels": 134521,
+      "sha256": "ade2621253b8db28f03581ec8731def25e06c142ae630cd2b50d1e689a284444",
+      "opaque_pixels": 136521,
       "bounds": [
-        244,
-        398,
-        839,
-        730
+        243,
+        395,
+        840,
+        731
       ]
     },
     "Front": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-Front.png",
-      "sha256": "5e9accfd52b2c63a2ebd677b52851911e925166555cec85637200d69b3a67077",
-      "opaque_pixels": 98559,
+      "sha256": "4da268b834766ce414866c84e209825da2b97152a4fc1b0f537f8d660d8f4aa7",
+      "opaque_pixels": 98989,
       "bounds": [
-        252,
+        251,
         454,
-        828,
+        829,
         626
       ]
     },
     "Top": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-Top.png",
-      "sha256": "3779c56a846150e019d688d6cbd4a3bafd85f3b65156bd528fc8f0d6c9c74dbb",
-      "opaque_pixels": 158769,
+      "sha256": "1e077d674b9d1f655eb4097cc06267d69cd61e61035aa8b44c45c110416bae77",
+      "opaque_pixels": 159617,
       "bounds": [
-        235,
-        315,
-        842,
-        756
+        233,
+        313,
+        844,
+        760
       ]
     },
     "RakingLight": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-RakingLight.png",
-      "sha256": "b51c6a3e0f0b195fb5894ec4944adc5ba926f3c7d7b07ce12ad39819fdf3f861",
-      "opaque_pixels": 119531,
+      "sha256": "8b747e1c4bcc85c6176a33e631d3faafbd04fb2635b4697521950ad496e904d6",
+      "opaque_pixels": 121233,
       "bounds": [
-        252,
-        425,
-        840,
-        702
+        250,
+        422,
+        841,
+        704
       ]
     },
     "Half": {
       "path": "/tmp/lie-brick01-native/LIE-BRICK01-Half.png",
-      "sha256": "d19bdc93331461ba6f8792cbca1cc2713a3b1b2996c9a5c3fc6832bc19956882",
-      "opaque_pixels": 293808,
+      "sha256": "05fa8c3e7aa158c1631e5bbbbf5fccafa8c82411bdea29926a4fd67473cd2bc0",
+      "opaque_pixels": 297647,
       "bounds": [
-        154,
-        312,
-        873,
-        879
+        151,
+        307,
+        874,
+        883
       ]
     }
   },
-  "lod_hero_count": 204150,
-  "lod_far_count": 3193,
-  "bank_sha256": "dace07d4808aa6e6cd17cbff81d34eade956410152c1e1c67105e345821250ba",
+  "lod_hero_count": 258990,
+  "lod_far_count": 5173,
+  "bank_sha256": "5b585ccacefd63845804a651432c0234a578eb0ac335d54f6f425b3890c4f987",
   "hero_photo_indistinguishable": false,
   "hero_visual_acceptance": "PENDING direct reference-photo A/B and silhouette inspection",
   "physical_GPU_benchmark": false

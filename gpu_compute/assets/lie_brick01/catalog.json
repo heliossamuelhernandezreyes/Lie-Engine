@@ -1,23 +1,23 @@
 {
   "schema": 1,
   "stride": 80,
-  "sample_count": 374913,
-  "bytes": 29993040,
-  "sha256": "dace07d4808aa6e6cd17cbff81d34eade956410152c1e1c67105e345821250ba",
+  "sample_count": 536517,
+  "bytes": 42921360,
+  "sha256": "5b585ccacefd63845804a651432c0234a578eb0ac335d54f6f425b3890c4f987",
   "masters": {
     "brick_full": {
       "levels": [
         {
           "start": 0,
-          "count": 204150
+          "count": 258990
         },
         {
-          "start": 204150,
-          "count": 27750
+          "start": 258990,
+          "count": 36358
         },
         {
-          "start": 231900,
-          "count": 3193
+          "start": 295348,
+          "count": 5173
         }
       ],
       "bounds_size": [
@@ -35,16 +35,16 @@
     "brick_half": {
       "levels": [
         {
-          "start": 235093,
-          "count": 121560
+          "start": 300521,
+          "count": 202680
         },
         {
-          "start": 356653,
-          "count": 16398
+          "start": 503201,
+          "count": 29134
         },
         {
-          "start": 373051,
-          "count": 1862
+          "start": 532335,
+          "count": 4182
         }
       ],
       "bounds_size": [
@@ -98,6 +98,107 @@
           "max_edge_cut_mm": 2.4314,
           "max_corner_cut_mm": 0.0,
           "position_variation_mm": 0.5964
+        },
+        "edge_bridges": {
+          "total_samples": 54840,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 3825
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 3825
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 3825
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 3825
+            }
+          ]
         }
       },
       "mid": {
@@ -136,6 +237,107 @@
           "max_edge_cut_mm": 2.4207,
           "max_corner_cut_mm": 0.0,
           "position_variation_mm": 0.5932
+        },
+        "edge_bridges": {
+          "total_samples": 8608,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 600
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 600
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 600
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 600
+            }
+          ]
         }
       },
       "wall": {
@@ -174,6 +376,107 @@
           "max_edge_cut_mm": 2.2993,
           "max_corner_cut_mm": 0.0,
           "position_variation_mm": 0.592
+        },
+        "edge_bridges": {
+          "total_samples": 1980,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 140
+            }
+          ]
         }
       }
     },
@@ -214,6 +517,107 @@
           "max_edge_cut_mm": 2.095,
           "max_corner_cut_mm": 0.0,
           "position_variation_mm": 0.5349
+        },
+        "edge_bridges": {
+          "total_samples": 81120,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 7980
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 7980
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 7980
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 7980
+            }
+          ]
         }
       },
       "mid": {
@@ -252,6 +656,107 @@
           "max_edge_cut_mm": 2.0847,
           "max_corner_cut_mm": 0.0,
           "position_variation_mm": 0.5317
+        },
+        "edge_bridges": {
+          "total_samples": 12736,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 1256
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 1256
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 1256
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 1256
+            }
+          ]
         }
       },
       "wall": {
@@ -290,6 +795,107 @@
           "max_edge_cut_mm": 1.9693,
           "max_corner_cut_mm": 0.0,
           "position_variation_mm": 0.5307
+        },
+        "edge_bridges": {
+          "total_samples": 2320,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 225
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 225
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 225
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 225
+            }
+          ]
         }
       }
     }
