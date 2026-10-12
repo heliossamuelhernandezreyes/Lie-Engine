@@ -66,12 +66,22 @@ def inspect(directory: Path):
     vertices=sum(len(m.vertices) for m in valid)
     materials=[type(getattr(m.visual,"material",None)).__name__ for m in valid]
     bounds=scene.bounds
+    geometry_bounds=[m.bounds.tolist() for m in valid]
+    geometry_extents=[m.extents.tolist() for m in valid]
+    graph_nodes=[]
+    for node in scene.graph.nodes_geometry:
+        pose,name=scene.graph[node]
+        graph_nodes.append({"node":node,"mesh":name,"matrix":pose.tolist()})
+
     data={
         **metadata,"original_meshes":len(valid),
         "original_triangles":int(triangles),
         "original_vertices":int(vertices),
         "world_bounds_m_or_units":[list(map(float,bounds[0])),list(map(float,bounds[1]))] if bounds is not None else None,
         "material_classes":materials[:24],
+        "mesh_local_bounds": geometry_bounds[:8],
+        "mesh_local_extents": geometry_extents[:8],
+        "scene_nodes":graph_nodes[:8],
         "source_glb_rendered_through_LIE":False
     }
     if triangles<1000:raise ValueError("Source scan unexpectedly low detail")
