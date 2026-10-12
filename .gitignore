@@ -135,3 +135,7 @@ gpu_compute/lie14-import.log
 /gpu_compute/robot-*.json
 /gpu_compute/robot-*.bin
 /gpu_compute/robot-*.log
+
+# Shared robot/house bank and measured exploration evidence
+/gpu_compute/captures/robot_world/
+/gpu_compute/captures/robot_refined/

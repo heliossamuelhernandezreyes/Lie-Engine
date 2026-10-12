@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse,json,subprocess,sys,time
 from pathlib import Path
 
-LABS={"robot":"lie_robot_lab.tscn","workshop":"lie18_workshop.tscn",**{f"lie{i}":name for i,name in [(20,"lie20_human_lab.tscn"),(21,"lie21_human_lab.tscn"),(22,"lie22_modular_lab.tscn"),(23,"lie23_face_lab.tscn"),(24,"lie24_modular_face_lab.tscn"),(25,"lie25_anatomy_lab.tscn"),(26,"lie26_motion_lab.tscn"),(27,"lie27_regions_lab.tscn"),(28,"lie28_building_lab.tscn")]}}
+LABS={"robot_world":"lie_robot_world_lab.tscn","robot":"lie_robot_lab.tscn","workshop":"lie18_workshop.tscn",**{f"lie{i}":name for i,name in [(20,"lie20_human_lab.tscn"),(21,"lie21_human_lab.tscn"),(22,"lie22_modular_lab.tscn"),(23,"lie23_face_lab.tscn"),(24,"lie24_modular_face_lab.tscn"),(25,"lie25_anatomy_lab.tscn"),(26,"lie26_motion_lab.tscn"),(27,"lie27_regions_lab.tscn"),(28,"lie28_building_lab.tscn")]}}
 
 def launch(godot: str,project: Path,directory: Path,lab: str,timeout: float=60,audio_driver: str|None=None) -> dict:
     project=project.resolve();directory=directory.resolve()

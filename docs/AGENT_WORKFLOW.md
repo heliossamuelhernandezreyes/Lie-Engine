@@ -21,6 +21,10 @@ in `checkpoints/LIE_ROBOT_CHECKPOINT.json`. Extract its `assets/robot_modular`
 and `captures/robot_modular` directories into `gpu_compute`. The robot branch
 is stacked on LIE-28; it is not evidence of either experiment being in main.
 Launch with `--lab robot`; see `LIE_ROBOT_MASTERKIT.md` for reproduction.
+For R2 exploration use `--lab robot_world` and `LIE_ROBOT_WORLD.md`. Restore
+the separate `robot_refined` and `robot_world` banks; the world can queue
+bounded asynchronous physics ticks through `advance` while paused. Discover
+its own contract instead of sending facial or manual-pose fields to it.
 
 The old piece workshop and other laboratories need their own attributed
 banks. Missing assets are reported in snapshots; opening their scene is not

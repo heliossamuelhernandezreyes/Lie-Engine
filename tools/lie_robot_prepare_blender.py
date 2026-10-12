@@ -186,7 +186,7 @@ def surface_material(zone,uv,p,n,tangent,bitangent):
     color={0:(.2,.2,.2),2:(.53,.58,.64),3:(.008,.010,.014),4:(.75,.18,.022),6:(.008,.32,.52),7:(.045,.055,.07)}[zone]
     return tuple(v*grain for v in color),.26 if zone==2 else .64 if zone==3 else .42,1 if zone==2 else 0,4 if zone==6 else 0,n
 
-def capture(obj,resolution,out):
+def capture(obj,resolution,out,preserve_faces=False):
     pts,faces,zones,cells,center,size=mesh_base.geometry(obj);mesh=obj.data;triangles=list(mesh.loop_triangles)
     bvh=BVHTree.FromPolygons(pts,faces,all_triangles=True);extent=max(size);spacing=extent*1.10/resolution;voxel=spacing*.95
     supports=[];tangents=[];uvs=[]
@@ -224,41 +224,50 @@ def capture(obj,resolution,out):
                     srgb=[q*12.92 if q<=.0031308 else 1.055*q**(1/2.4)-.055 for q in color]
                     offset=(y*resolution+x)*4;rgba[offset:offset+4]=bytes([max(0,min(255,round(q*255))) for q in srgb]+[255])
                     sample=tuple(hit)+(spacing*.90,)+tuple(n)+(1.,float(zones[index]),float(cells[index]),rough,metal)+tuple(color)+(emission,)+supports[index]+tuple(shade)+(0.,)
-                    key=tuple(round(hit[k]/voxel) for k in range(3))+(zones[index],)
+                    owner=triangles[index].polygon_index if preserve_faces else -1
+                    key=tuple(round(hit[k]/voxel) for k in range(3))+(zones[index],owner)
                     front=n.dot(direction)
-                    if key not in unique or front>unique[key][0]:unique[key]=(front,sample)
+                    if key not in unique or front>unique[key][0]:unique[key]=(front,sample,owner)
                     valid+=1
             views.append(dict(azimuth=azdeg,elevation=eldeg,valid_pixels=valid))
             if azdeg in (0,60,180) and eldeg==0:mesh_base.png(out/f'{obj.name}-az{azdeg:03d}-albedo.png',rgba,resolution)
     fine=[v[1] for v in unique.values()];coarse={}
-    for s in fine:
-        key=tuple(round(s[k]/(voxel*3)) for k in range(3))+(int(s[8]),)
-        coarse.setdefault(key,s[:3]+(s[3]*3,)+s[4:])
-    return fine,list(coarse.values()),dict(bounds_size=list(size),origin_offset=list(center),capture_resolution=resolution,capture_views=views,triangle_count=len(faces),collision_vertices=[list(p) for p in pts])
+    multiplier=6 if preserve_faces else 3
+    for _,s,owner in unique.values():
+        key=tuple(round(s[k]/(voxel*multiplier)) for k in range(3))+(int(s[8]),owner)
+        coarse.setdefault(key,s[:3]+(s[3]*multiplier,)+s[4:])
+    return fine,list(coarse.values()),dict(bounds_size=list(size),origin_offset=list(center),capture_resolution=resolution,capture_views=views,triangle_count=len(faces),preserve_polygon_ownership=preserve_faces,coarse_spacing_multiplier=multiplier,collision_vertices=[list(p) for p in pts])
 
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--materials',type=Path,required=True);parser.add_argument('--resolution',type=int,default=160)
+    parser.add_argument('--bank-name',default='robot_modular');parser.add_argument('--bank-only',action='store_true');parser.add_argument('--refine-shaft',action='store_true')
     args=parser.parse_args(sys.argv[sys.argv.index('--')+1:]);assert 96<=args.resolution<=192
-    assets=ROOT/'assets/robot_modular';out=ROOT/'captures/robot_modular';assets.mkdir(parents=True,exist_ok=True);out.mkdir(parents=True,exist_ok=True)
-    bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
-    provenance=load_materials(args.materials)
-    objects=[plate(name) for name in ('plate_flat','plate_shell','plate_bracket')]+[cylinder(name) for name in ('joint','shaft','cable')]
-    p,f,z,c=[],[],[],[];mesh_base.append_box(p,f,z,c,(0,-.015,0),(3,.03,3),7);objects.append(mesh_base.mesh_object('ground',p,f,z,c))
-    for obj in objects:
-        bm=bmesh.new();bm.from_mesh(obj.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(obj.data);bm.free();obj.data.update()
-        prepare_uv(obj);bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
-        bpy.ops.export_scene.gltf(filepath=str(assets/(obj.name+'.glb')),use_selection=True,export_format='GLB',export_yup=False)
-        obj.asset_mark();obj.asset_data.author='Lie Engine';obj.asset_data.description='Original mechanical master, metres/Y-up. 4K CC0 maps attributed in provenance.json.'
-    for image in bpy.data.images:
-        if image.source=='FILE':image.pack()
-    for obj in objects:obj.hide_set(obj.name!='plate_flat');obj.hide_render=obj.name!='plate_flat'
-    bpy.ops.wm.save_as_mainfile(filepath=str(assets/'robot-masterkit.blend'))
+    if Path(args.bank_name).name!=args.bank_name:raise ValueError('Use a bank basename')
+    assets=ROOT/'assets/robot_modular';out=ROOT/'captures'/args.bank_name;assets.mkdir(parents=True,exist_ok=True);out.mkdir(parents=True,exist_ok=True)
+    if args.bank_only:
+        bpy.ops.wm.open_mainfile(filepath=str(assets/'robot-masterkit.blend'))
+        provenance=load_materials(args.materials);objects=[bpy.data.objects[name] for name in SIZES]
+    else:
+        bpy.ops.object.select_all(action='SELECT');bpy.ops.object.delete(use_global=False)
+        provenance=load_materials(args.materials)
+        objects=[plate(name) for name in ('plate_flat','plate_shell','plate_bracket')]+[cylinder(name) for name in ('joint','shaft','cable')]
+        p,f,z,c=[],[],[],[];mesh_base.append_box(p,f,z,c,(0,-.015,0),(3,.03,3),7);objects.append(mesh_base.mesh_object('ground',p,f,z,c))
+        for obj in objects:
+            bm=bmesh.new();bm.from_mesh(obj.data);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(obj.data);bm.free();obj.data.update()
+            prepare_uv(obj);bpy.ops.object.select_all(action='DESELECT');obj.select_set(True);bpy.context.view_layer.objects.active=obj
+            bpy.ops.export_scene.gltf(filepath=str(assets/(obj.name+'.glb')),use_selection=True,export_format='GLB',export_yup=False)
+            obj.asset_mark();obj.asset_data.author='Lie Engine';obj.asset_data.description='Original mechanical master, metres/Y-up. 4K CC0 maps attributed in provenance.json.'
+        for image in bpy.data.images:
+            if image.source=='FILE':image.pack()
+        for obj in objects:obj.hide_set(obj.name!='plate_flat');obj.hide_render=obj.name!='plate_flat'
+        bpy.ops.wm.save_as_mainfile(filepath=str(assets/'robot-masterkit.blend'))
     catalog=dict(schema=1,stride=96,capture_resolution=args.resolution,original_mesh_drawn=False,materials=provenance,
         source='Original mechanical geometry + 4K CC0 Poly Haven maps / Rob Tuytel',
         rig=[dict(name=name,parent=parent,pivot=list(pivot)) for name,parent,pivot in BONES],masters={})
     data=array('f');oracles={}
     for obj in objects:
-        fine,coarse,metadata=capture(obj,args.resolution*2 if obj.name=='cable' else args.resolution,out);metadata['levels']=[]
+        refined=args.refine_shaft and obj.name=='shaft'
+        fine,coarse,metadata=capture(obj,args.resolution*2 if obj.name=='cable' or refined else args.resolution,out,refined);metadata['levels']=[]
         for samples in (fine,coarse):
             metadata['levels'].append(dict(start=len(data)//24,count=len(samples)))
             for sample in samples:data.extend(sample)
@@ -269,7 +278,9 @@ def main():
     raw=data.tobytes()
     if len(raw)>64*1024*1024:raise ValueError('Bank exceeds 64 MiB; lower capture resolution')
     catalog.update(sample_count=len(data)//24,bytes=len(raw),sha256=hashlib.sha256(raw).hexdigest())
-    atomic(out/'library.bin',raw);atomic(out/'catalog.json',(json.dumps(catalog,indent=2)+'\n').encode());atomic(assets/'source-surfaces.json',(json.dumps(oracles)+'\n').encode());atomic(assets/'provenance.json',(json.dumps(provenance,indent=2)+'\n').encode())
+    atomic(out/'library.bin',raw);atomic(out/'catalog.json',(json.dumps(catalog,indent=2)+'\n').encode())
+    if not args.bank_only:
+        atomic(assets/'source-surfaces.json',(json.dumps(oracles)+'\n').encode());atomic(assets/'provenance.json',(json.dumps(provenance,indent=2)+'\n').encode())
     print('ROBOT LIBRARY',catalog['sample_count'],len(raw),'bytes',flush=True)
 
 if __name__=='__main__':main()

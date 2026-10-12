@@ -51,7 +51,9 @@ def set_keyframe(obj, part, frame):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--session', required=True, type=Path)
+    parser.add_argument('--name', default='R1-Robot', help='Output asset basename; R2-Robot for the refined assembly')
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
+    if Path(args.name).name != args.name or '/' in args.name or '\\' in args.name: raise ValueError('Use an asset basename')
     rest = json.loads((args.session/'r1-assembly.json').read_text())
     walk = json.loads((args.session/'r1-walk-assembly.json').read_text())
     assert len(walk) == 16 and all(len(s['assembly']) == len(rest['assembly']) for s in walk)
@@ -88,7 +90,7 @@ def main():
     bpy.ops.object.select_all(action='DESELECT')
     for _, obj, _ in objects: obj.select_set(True)
     bpy.context.view_layer.objects.active = objects[0][1]
-    bpy.ops.export_scene.gltf(filepath=str(assets/'R1-Robot.glb'), use_selection=True,
+    bpy.ops.export_scene.gltf(filepath=str(assets/(args.name+'.glb')), use_selection=True,
                              export_format='GLB', export_yup=False, export_animations=False)
     # Editable walk is baked from the same native rig evaluations; no new solver.
     sequence = [rest] + walk + [walk[0]]
@@ -117,7 +119,7 @@ def main():
     scene['README'] = 'Frame 0: saved native rest pose. Frames 1–17: baked native walk. Original masters remain separate and hidden. Runtime evidence comes from LIE, not this source mesh export.'
     for _, obj, _ in objects: obj.select_set(False)
     objects[0][1].select_set(True)
-    bpy.ops.wm.save_as_mainfile(filepath=str(assets/'R1-Robot.blend'))
+    bpy.ops.wm.save_as_mainfile(filepath=str(assets/(args.name+'.blend')))
     report = dict(parts=len(objects), cables=sum(rest['assembly'][i]['curve']>=0 for i,_,_ in objects),
                   max_native_pose_vertex_error_m=max_error, baked_walk_phases=16,
                   native_snapshot_sha256=hashlib.sha256((args.session/'r1-assembly.json').read_bytes()).hexdigest(),

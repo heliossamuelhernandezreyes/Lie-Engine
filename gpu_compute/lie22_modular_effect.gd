@@ -36,6 +36,8 @@ func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
 func shader_resource() -> RDShaderFile:return ShaderFile
 func maximum_output_size() -> int:return 512
+func maximum_instances() -> int:return MAX_INSTANCES
+func maximum_work() -> int:return MAX_WORK
 
 func _init(size: int=384) -> void:
     output_size=clampi(size,128,maximum_output_size());render_size=output_size*2
@@ -57,7 +59,7 @@ func _init(size: int=384) -> void:
     capture_loaded=true
 
 func valid_configuration(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
-    if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>MAX_INSTANCES*96 or jobs.size()%16!=0 or jobs.size()>MAX_INSTANCES*16 or work<1 or work>MAX_WORK:return false
+    if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>maximum_instances()*96 or jobs.size()%16!=0 or jobs.size()>maximum_instances()*16 or work<1 or work>maximum_work():return false
     if instances.is_empty() or jobs.is_empty() or parameters.decode_s32(80)!=work or parameters.decode_s32(84)!=jobs.size()/16 or parameters.decode_s32(88)!=render_size or parameters.decode_s32(92)!=render_size:return false
     var entries: PackedInt32Array=jobs.to_int32_array();var prefix: int=0
     for i in range(0,entries.size(),4):
@@ -95,7 +97,7 @@ func _initialize() -> bool:
     if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure=spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE);return false
     _shader=_rd.shader_create_from_spirv(spirv);_pipeline=_rd.compute_pipeline_create(_shader)
     _buffer(0,_samples.size(),_samples);asset_uploads+=1
-    _buffer(1,MAX_INSTANCES*96);_buffer(2,MAX_INSTANCES*16)
+    _buffer(1,maximum_instances()*96);_buffer(2,maximum_instances()*16)
     projection_capacity=65536;_buffer(3,projection_capacity*96)
     _buffer(4,render_size*render_size*4);_buffer(5,render_size*render_size*4)
     _buffer(6,256);_buffer(7,render_size*render_size*32);_buffer(13,512*512*4)
@@ -130,7 +132,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     var work: int=next["work"]
     if work>projection_capacity:
         _rd.free_rid(_set);_set=RID()
-        _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=mini(MAX_WORK,int(ceil(float(work)/65536))*65536)
+        _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=mini(maximum_work(),int(ceil(float(work)/65536))*65536)
         _buffer(3,projection_capacity*96);_make_set()
     _rd.buffer_update(_buffers[6],0,256,next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])
