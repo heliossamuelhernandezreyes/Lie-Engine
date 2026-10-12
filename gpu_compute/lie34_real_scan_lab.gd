@@ -132,7 +132,10 @@ func _apply() -> void:
     var yaw: float=deg_to_rad(state["camera_yaw"]);var elevation: float=deg_to_rad(state["camera_elevation"])
     camera.fov=42;camera.position=target+Vector3(sin(yaw)*cos(elevation),sin(elevation),cos(yaw)*cos(elevation))*distance;camera.look_at(target)
     var list: Array=_instances();var instance_data:=PackedFloat32Array();var jobs:=PackedInt32Array();var work: int=0;var level_used: int=0
-    for level in range(2):
+    # Keep full geometric detail close to the camera, select a smaller
+    # immutable sample range only after zooming away.
+    var start_level: int=1 if float(state["distance_factor"])>=1.5 else 0
+    for level in range(start_level,2):
         level_used=level;instance_data.clear();jobs.clear();work=0
         for entry in list:
             var pose: Transform3D=entry["pose"];var master: Dictionary=effect.get("catalog")["masters"][entry["master"]];var range_data: Dictionary=master["levels"][level];var index: int=instance_data.size()/24
