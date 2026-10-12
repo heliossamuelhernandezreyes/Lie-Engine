@@ -59,6 +59,25 @@ def inspect(directory: Path):
     metadata=acquire(directory) if not (directory/"flat-roof-reference.glb").exists() else json.loads((directory/"source-lock.json").read_text())
     if hashlib.sha256((directory/"flat-roof-reference.glb").read_bytes()).hexdigest()!=metadata["original_sha256"]:
         raise ValueError("GLB SHA drift")
+    # Read glTF JSON without relying on a mesh loader: distinguish compression
+    # extensions from a truly degenerate source mesh.
+    import struct
+    blob=(directory/"flat-roof-reference.glb").read_bytes()
+    chunk_len,kind=struct.unpack_from("<II",blob,12)
+    if kind!=0x4e4f534a:raise ValueError("First GLB chunk is not JSON")
+    gltf=json.loads(blob[20:20+chunk_len].decode("utf-8").strip())
+    pos=[]
+    for model in gltf.get("meshes",[]):
+        for primitive in model.get("primitives",[]):
+            accessor_index=primitive.get("attributes",{}).get("POSITION")
+            if accessor_index is not None:
+                accessor=gltf["accessors"][accessor_index]
+                pos.append({"count":accessor.get("count"),"min":accessor.get("min"),"max":accessor.get("max"),
+                            "componentType":accessor.get("componentType"),"extensions":accessor.get("extensions")})
+    scan_json_info={"extensionsUsed":gltf.get("extensionsUsed",[]),
+                    "extensionsRequired":gltf.get("extensionsRequired",[]),
+                    "primitive_extensions":[list(p.get("extensions",{})) for m in gltf.get("meshes",[]) for p in m.get("primitives",[])][:15],
+                    "position_accessors":pos[:8]}
     scene=trimesh.load(str(directory/"flat-roof-reference.glb"),force="scene",process=False)
     meshes=list(scene.geometry.values())
     valid=[m for m in meshes if isinstance(m,trimesh.Trimesh)]
@@ -82,7 +101,9 @@ def inspect(directory: Path):
         "mesh_local_bounds": geometry_bounds[:8],
         "mesh_local_extents": geometry_extents[:8],
         "scene_nodes":graph_nodes[:8],
-        "source_glb_rendered_through_LIE":False
+        "source_glb_rendered_through_LIE":False,
+        "glb_encoding":scan_json_info,
+        "valid_non_degenerate_geometry":bool(any(np.linalg.norm(m.extents)>1e-6 for m in valid))
     }
     if triangles<1000:raise ValueError("Source scan unexpectedly low detail")
     (directory/"mesh-inspection.json").write_text(json.dumps(data,indent=2))
