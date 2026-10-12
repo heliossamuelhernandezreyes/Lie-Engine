@@ -82,3 +82,30 @@ python tools/lie34_capture_real_scan.py \
 
 All source author/attribution must accompany any redistribution or product
 using this CC BY scan.
+
+## Native acceptance and visual audit (2026-10-12)
+
+- Source and capture are real: original 5,500,320 triangles, 2,994,426
+  vertices, original 8192² photo atlas and actual KHR Draco decompression.
+- Final bank SHA-256 (raw): `9a2b9597890dc9717cefbec3459bdbcd334aa7d3c1d3934031a29d82096eb2dd`.
+  The 52,800,000-byte raw bank contains 540,000 hero + 120,000 distance LOD
+  samples. Source GLB metadata and license are pinned.
+- Native 1080² Vulkan CI passed:
+  https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38277607487
+- Evidence for v2 native:
+  `evidence/LIE34-Real-Photogrammetry-Native1080.png`.
+- Native LOD change + rotated view:
+  `evidence/LIE34-Scan-Rotated-Native1080.png`.
+- Earlier visibly fragmented 140K-source prototype retained intact as:
+  `evidence/LIE34-V1-140K-Native1080.png`.
+- Machine-readable native evidence: `evidence/LIE34-native-validation.json`.
+  Verifies 540K samples close vs 120K far, nonempty real PNGs, 1080 native
+  pixels and a camera-dependent change.
+- **Negative fidelity result:** the v1 renderer loses much of the scanned
+  surface detail; v2 improves continuity, but high-poly photo geometry still
+  appears irregular/splatted and does NOT faithfully reproduce the full
+  original scan. This is a pipeline-validation milestone, not cinematic quality.
+- Physical GPU FPS and exact original-source screenshot parity remain untested.
+- This does not change the LIE31 modular brick's source into scanned geometry;
+  an independently scanned single full brick still needs authorized source
+  acquisition and re-capture using the proven LIE34 Draco importer.
