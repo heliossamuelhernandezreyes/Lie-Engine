@@ -3,7 +3,7 @@ extends Node3D
 const Effect=preload("res://lie32_cluster_effect.gd")
 const LIMITS={"camera_yaw":[-180,180],"camera_elevation":[-10,85],"distance_factor":[.6,2],"light_azimuth":[-180,180],"light_power":[.25,3],"exposure":[.5,4],"variation":[0,.4],"explode":[0,1],"seed":[0,999999],"roughness_variation":[0,.2]}
 const MODES=["wall","master"]
-var state: Dictionary={"mode":"wall","master":"brick","camera_yaw":12.0,"camera_elevation":7.0,"distance_factor":1.0,"light_azimuth":-35.0,"light_power":1.0,"exposure":2.0,"variation":.12,"roughness_variation":.06,"seed":29,"explode":0.0,"roof":true,"shadows":true}
+var state: Dictionary={"mode":"wall","master":"wall_variant_0","camera_yaw":12.0,"camera_elevation":7.0,"distance_factor":1.0,"light_azimuth":-35.0,"light_power":1.0,"exposure":2.0,"variation":.12,"roughness_variation":.06,"seed":29,"explode":0.0,"roof":true,"shadows":true}
 var revision: int=0
 var effect: CompositorEffect
 var camera: Camera3D
