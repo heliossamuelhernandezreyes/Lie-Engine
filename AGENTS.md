@@ -6,6 +6,9 @@ editor's Lie dock also opens the piece workshop and anatomical laboratory.
 The construction laboratory is LIE-28 (`lie28_building_lab.tscn`). Read
 `docs/LIE_28_MODULAR_BUILDING.md` for its native masters, CC0 material maps,
 capture bank and independent geometry/material checks.
+The modular robot laboratory is `lie_robot_lab.tscn` (`--lab robot`). Read
+`docs/LIE_ROBOT_MASTERKIT.md` and its checkpoint before restoring its separate
+bank. Keep the robot namespace independent of concurrent numbered experiments.
 
 Read `docs/AGENT_WORKFLOW.md` before controlling a live desktop. External
 agents and desktop widgets must use the existing validated `command()`

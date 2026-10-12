@@ -11,6 +11,8 @@ func _enter_tree() -> void:
     anatomy.pressed.connect(func():EditorInterface.play_custom_scene("res://lie27_regions_lab.tscn"));dock.add_child(anatomy)
     var building:=Button.new();building.text="Abrir construcción modular · LIE-28"
     building.pressed.connect(func():EditorInterface.play_custom_scene("res://lie28_building_lab.tscn"));dock.add_child(building)
+    var robot:=Button.new();robot.text="Abrir robot modular · R1"
+    robot.pressed.connect(func():EditorInterface.play_custom_scene("res://lie_robot_lab.tscn"));dock.add_child(robot)
     var hint:=Label.new(); hint.text="Piezas · articulaciones · animación\nControles compartidos con agentes"; dock.add_child(hint)
     add_control_to_dock(DOCK_SLOT_LEFT_UL,dock)
 func _exit_tree() -> void:
