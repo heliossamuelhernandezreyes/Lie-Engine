@@ -19,6 +19,8 @@ func _enter_tree() -> void:
     hd.pressed.connect(func():EditorInterface.play_custom_scene("res://lie31_hd_lab.tscn"));dock.add_child(hd)
     var cluster:=Button.new();cluster.text="LIE32 · Muro conjunto"
     cluster.pressed.connect(func():EditorInterface.play_custom_scene("res://lie32_cluster_lab.tscn"));dock.add_child(cluster)
+    var hero:=Button.new();hero.text="LIE Brick Hero · Una caja invisible"
+    hero.pressed.connect(func():EditorInterface.play_custom_scene("res://lie_brick01_lab.tscn"));dock.add_child(hero)
     var hint:=Label.new(); hint.text="Piezas · articulaciones · animación\nControles compartidos con agentes"; dock.add_child(hint)
     add_control_to_dock(DOCK_SLOT_LEFT_UL,dock)
 func _exit_tree() -> void:
