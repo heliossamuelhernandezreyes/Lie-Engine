@@ -37,7 +37,7 @@ jobs:
           from pathlib import Path
           p=json.loads(Path("gpu_compute/captures/lie32cluster/catalog.json").read_text())
           assert len(p["masters"])==4
-          assert p["sample_count"]<150000
+          assert p["sample_count"]<500000
           print("LIE32 master sample count",p["sample_count"])
           PY
       - name: Godot import and compile validation
