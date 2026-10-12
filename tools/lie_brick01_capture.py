@@ -78,9 +78,10 @@ def bake_face(maps,rect,dims,face,nx,ny,hero):
     # Physical bevel across all six faces. The displacement depends on the
     # point's other-two-axes distances to their ends, not a painted normal.
     edge_weight=np.exp(-np.minimum(edge_d1,edge_d2)/.0034)
-    world_phase=(np.sin(p[...,0]*593+p[...,1]*339+p[...,2]*491)
-                 +.6*np.sin(p[...,0]*1781-p[...,2]*619+p[...,1]*811))
-    bevel=(.0011+.00050*world_phase)*edge_weight
+    world_phase=(np.sin(p[...,0]*137+p[...,1]*97+p[...,2]*119)
+                 +.22*np.sin(p[...,0]*607-p[...,2]*311+p[...,1]*287))
+    # Smooth, damaged clay contours rather than periodic sawtooth edges.
+    bevel=(.00115+.00024*world_phase)*edge_weight
     corner_weight=np.exp(-edge_d1/.007-edge_d2/.006)
     bevel+=.0010*corner_weight
     # The front/top/left corner is chipped on every adjacent face, not
@@ -88,7 +89,7 @@ def bake_face(maps,rect,dims,face,nx,ny,hero):
     distance=np.sqrt(((p[...,0]+length/2)/.012)**2+
                      ((height/2-p[...,1])/.009)**2+
                      ((depth/2-p[...,2])/.011)**2)
-    chipped=.0044*np.maximum(1-distance,0)**1.45
+    chipped=.0037*np.maximum(1-distance,0)**1.45
     # Non-uniform side/top erosion continues around edges. Color/height
     # detail comes from the original photographed PBR material.
     left,top,right,bottom=rect
@@ -121,18 +122,25 @@ def bake_face(maps,rect,dims,face,nx,ny,hero):
     # component. Restrict projection to physical face domains. For beveled
     # corners, per-sample support is intentionally tight to avoid filling
     # eroded silhouettes with large neighbouring sample discs.
+    # Nonuniform cosine-spaced sampling REQUIRES varying splat radii.
+    # Uniform radii in v1 left visible dotted holes in the top surface,
+    # even with >200K source samples. Use physical neighbour separation.
+    local_cell_u=np.linalg.norm(du,axis=-1)
+    local_cell_v=np.linalg.norm(dv,axis=-1)
+    radius=np.clip(np.maximum(local_cell_u,local_cell_v)*
+                   (1.12 if hero else 1.28),.00015,.012)
     local_support=np.zeros((*u.shape,4),dtype=np.float32)
     dominant=np.argmax(np.abs(normal),axis=-1)
     for axis,(a,b) in enumerate(((2,1),(0,2),(0,1))):
         sel=dominant==axis
-        footprint=max(spacing*.95,.0005)
+        footprint=radius[sel]*1.6
         local_support[sel,0]=p[sel,a]-footprint
         local_support[sel,1]=p[sel,b]-footprint
         local_support[sel,2]=p[sel,a]+footprint
         local_support[sel,3]=p[sel,b]+footprint
     out=np.zeros((*u.shape,20),dtype="<f4")
     out[...,0:3]=p
-    out[...,3]=spacing*(.78 if hero else 1.12)
+    out[...,3]=radius
     out[...,4:7]=normal
     out[...,7]=1
     out[...,8]=3
