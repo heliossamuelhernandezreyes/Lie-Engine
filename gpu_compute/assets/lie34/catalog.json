@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 182000,
+  "bytes": 14560000,
+  "sha256": "457de1c90415c877eaf685ca9f2f1fb1a49e88d9f167329df23dd985d0018697",
+  "source_original_triangles": 5500320,
+  "source_original_vertices": 2994426,
+  "photogrammetric_source": "https://huggingface.co/datasets/Matt1up/drone-building-scans/resolve/main/flat-roof/model/flat-roof.glb",
+  "original_glb_sha256": "6c712d16b9ede8f5083d7fc82787cf75b913865b157f48db08a61f2154c6bd73",
+  "credit": "Drone Building Scans \u2014 Matthew Guertin, 2026. CC BY 4.0.",
+  "license": "CC BY 4.0",
+  "source_object": "Photogrammetry of an entire building, not a single brick",
+  "source_albedo_dimensions": [
+    8192,
+    8192
+  ],
+  "source_mesh_drawn": false,
+  "sampling_info": [
+    {
+      "points": 140000,
+      "radius_m": 0.013555305932934686,
+      "raw_surface_area": 5790.588048892556,
+      "scale": 0.0579581035382631
+    },
+    {
+      "points": 42000,
+      "radius_m": 0.02474848944450646,
+      "raw_surface_area": 5790.588048892556,
+      "scale": 0.0579581035382631
+    }
+  ],
+  "masters": {
+    "scan_building": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 140000
+        },
+        {
+          "start": 140000,
+          "count": 42000
+        }
+      ],
+      "bounds_size": [
+        2.1234207153320312,
+        0.4334371089935303,
+        3.0
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}
