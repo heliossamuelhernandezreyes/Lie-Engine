@@ -53,6 +53,16 @@ def choose_photo_brick(color: np.ndarray) -> tuple[float, float, float, float]:
     y0, y1 = float(row[0]+4)/1024, float(row[-1]-4)/1024
     if x1 <= x0 or y1 <= y0:
         raise ValueError("Empty mortar-free crop")
+    # Mortar outlines are irregular and extend INSIDE axis-aligned red-row
+    # bounds. Inset each candidate further, most aggressively at the upper
+    # edge. This protects the hero master from the source wall's gray grout.
+    width, tall = x1-x0, y1-y0
+    x0 += .07*width
+    x1 -= .07*width
+    y0 += .26*tall
+    y1 -= .08*tall
+    if x1 <= x0 or y1 <= y0:
+        raise ValueError("Conservative crop eroded away source brick")
     return x0, y0, x1, y1
 
 
@@ -173,6 +183,13 @@ def build(directory: Path, destination: Path):
     full_crop=color[int(rect[1]*color.shape[0]):int(rect[3]*color.shape[0]),
                     int(rect[0]*color.shape[1]):int(rect[2]*color.shape[1])]
     Image.fromarray(full_crop).resize((1200,300)).save(destination/"SOURCE_BRICK_CROP.png")
+    brick_mask=(full_crop[:,:,0]>full_crop[:,:,1]*1.16)&(full_crop[:,:,0]>full_crop[:,:,2]*1.28)
+    grout_fraction=1.0-float(brick_mask.mean())
+    top_fraction=float(brick_mask[:max(1,full_crop.shape[0]//6)].mean())
+    print("LIE31 photo crop: mortar-like pixel fraction",round(grout_fraction,4),
+          "top red fraction",round(top_fraction,4),flush=True)
+    if grout_fraction>.16 or top_fraction<.75:
+        raise ValueError("Selected brick photograph includes too much visible mortar")
     samples=array("f")
     masters={}
     for name,dims in (("brick",BRICK),("half_brick",HALF)):
