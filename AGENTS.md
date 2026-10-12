@@ -3,6 +3,9 @@
 Use `gpu_compute/project.godot` with Godot 4.7.2. The top-level Godot project
 is a historical LIE-06 example. The current desktop entry is LIE-27; the
 editor's Lie dock also opens the piece workshop and anatomical laboratory.
+The construction laboratory is LIE-28 (`lie28_building_lab.tscn`). Read
+`docs/LIE_28_MODULAR_BUILDING.md` for its native masters, CC0 material maps,
+capture bank and independent geometry/material checks.
 
 Read `docs/AGENT_WORKFLOW.md` before controlling a live desktop. External
 agents and desktop widgets must use the existing validated `command()`

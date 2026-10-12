@@ -32,14 +32,19 @@ var _readback: Dictionary={}
 var _profiles: Array=[]
 var _profile_frame: int=-1
 
+func capture_root() -> String:return ROOT
+func sample_stride() -> int:return 48
+func shader_resource() -> RDShaderFile:return ShaderFile
+
 func _init(size: int=384) -> void:
     output_size=clampi(size,128,512);render_size=output_size*2
     effect_callback_type=EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
-    var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(ROOT+"catalog.json"))
-    if not parsed is Dictionary or parsed.get("schema")!=1 or parsed.get("stride")!=48: failure="Prepara los maestros modulares en Blender";return
+    var root: String=capture_root();var stride: int=sample_stride()
+    var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"catalog.json"))
+    if not parsed is Dictionary or parsed.get("schema")!=1 or parsed.get("stride")!=stride: failure="Prepara los maestros modulares en Blender";return
     catalog=parsed
-    var file:=FileAccess.open(ROOT+"library.bin",FileAccess.READ)
-    if file==null or file.get_length()!=int(catalog.get("sample_count",0))*48 or file.get_length()>64*1024*1024 or FileAccess.get_sha256(ROOT+"library.bin")!=catalog.get("sha256"): failure="Integridad de biblioteca";return
+    var file:=FileAccess.open(root+"library.bin",FileAccess.READ)
+    if file==null or file.get_length()!=int(catalog.get("sample_count",0))*stride or file.get_length()>64*1024*1024 or FileAccess.get_sha256(root+"library.bin")!=catalog.get("sha256"): failure="Integridad de biblioteca";return
     _samples=file.get_buffer(file.get_length())
     var values: PackedFloat32Array=_samples.to_float32_array()
     for value in values:
@@ -77,7 +82,7 @@ func _make_set() -> void:
 func _initialize() -> bool:
     _rd=RenderingServer.get_rendering_device()
     if _rd==null:failure="RenderingDevice no disponible";return false
-    var spirv: RDShaderSPIRV=ShaderFile.get_spirv()
+    var spirv: RDShaderSPIRV=shader_resource().get_spirv()
     if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure=spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE);return false
     _shader=_rd.shader_create_from_spirv(spirv);_pipeline=_rd.compute_pipeline_create(_shader)
     _buffer(0,_samples.size(),_samples);asset_uploads+=1

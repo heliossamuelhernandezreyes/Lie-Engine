@@ -1,6 +1,6 @@
 extends Node
 ## One local file protocol survives laboratory navigation. No code evaluation.
-const LABS={"workshop":"res://lie18_workshop.tscn","lie20":"res://lie20_human_lab.tscn","lie21":"res://lie21_human_lab.tscn","lie22":"res://lie22_modular_lab.tscn","lie23":"res://lie23_face_lab.tscn","lie24":"res://lie24_modular_face_lab.tscn","lie25":"res://lie25_anatomy_lab.tscn","lie26":"res://lie26_motion_lab.tscn","lie27":"res://lie27_regions_lab.tscn"}
+const LABS={"workshop":"res://lie18_workshop.tscn","lie20":"res://lie20_human_lab.tscn","lie21":"res://lie21_human_lab.tscn","lie22":"res://lie22_modular_lab.tscn","lie23":"res://lie23_face_lab.tscn","lie24":"res://lie24_modular_face_lab.tscn","lie25":"res://lie25_anatomy_lab.tscn","lie26":"res://lie26_motion_lab.tscn","lie27":"res://lie27_regions_lab.tscn","lie28":"res://lie28_building_lab.tscn"}
 var directory: String=""
 var session_id: String=""
 var target_override: Node
@@ -64,6 +64,7 @@ func capabilities() -> Dictionary:
         result["limits"]=constants.get("LIMITS",{})
         result["face_keys"]=constants.get("FACE_KEYS",[])
         if constants.has("Rig"):result["pose_limits"]=constants["Rig"].get_script_constant_map().get("LIMITS",{})
+        if lab_id()=="lie28":result["control_contract"]=lab.call("agent_snapshot").get("control_contract",{})
         if lab_id()=="lie27":
             result["control_contract"]={"booleans":["unlit","shadows","playing","show_regions","face_playing","brows"],"mask":{"integer":true,"range":[0,15],"layers":["skin","muscle","skeleton","internal"]},"face":{"keys":constants.get("FACE_KEYS",[]),"range":[0,1],"complete_dictionary":true},"eyes":{"rgb_keys":["sclera","iris","pupil"],"rgb_range":[0,1],"roughness_range":[.08,.6],"complete_dictionary":true},"enums":{"focus":["body","face","hand"],"mode":["manual","walk"]},"palette":{"shape":[4,3],"range":[0,1],"space":"linear"},"light_color":{"shape":[3],"range":[0,1]},"ik_chains":constants["Rig"].get_script_constant_map().get("CHAINS",{}).keys(),"ik_target":{"fields":["position","pole","enabled"],"position_shape":[3],"pole_shape":[3],"enabled":"optional boolean"}}
         if lab.get("state") is Dictionary:
@@ -144,7 +145,10 @@ func dispatch(request: Variant) -> Dictionary:
             for i in range(values.size()):bytes[i]=clampi(roundi(values[i]*255),0,255)
             var size: int=int(data.get("output_size",effect.get("output_size")))
             image=Image.create_from_data(size,size,false,Image.FORMAT_RGBA8,bytes)
-        var error: Error=image.save_png(path)
+        # Publish only a complete PNG. Readers must not observe bytes while
+        # the encoder is still writing or workspace synchronization is active.
+        var error: Error=image.save_png(path+".tmp")
+        if error==OK:error=DirAccess.rename_absolute(path+".tmp",path)
         return {"ok":error==OK,"path":path,"kind":kind,"revision":current_revision(),"width":image.get_width(),"height":image.get_height()}
     # Runtime and native document commands use the same path as desktop UI.
     return lab.call("command",request)

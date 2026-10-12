@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "date": "2026-10-12",
+  "base_main": "7845c3e7170eb4496a242f7c09b5df0ba44a4924",
+  "branch": "experiment/lie28-building-masters",
+  "scene": "gpu_compute/lie28_building_lab.tscn",
+  "godot": "4.7.2",
+  "masters": 15,
+  "package": {
+    "bytes": 55294325,
+    "sha256": "3d704db595c6d836686df6ab643f3408b3728587affe072711c6ab5d4dfbb36d",
+    "files": 150
+  },
+  "capture_bank": {
+    "path": "gpu_compute/captures/building28/library.bin",
+    "sha256": "a1f08b458e35e9a28d059e0b67a5e1713d388b095f5c99ef890fa817264b03f8",
+    "bytes": 52754560,
+    "sample_count": 659432,
+    "stride": 80
+  },
+  "saved_files": [
+    {
+      "file_name": "LIE28-Assets-Maestros.zip",
+      "library_file_id": "libfile_e6454a876ae88191a993de555870e0fe",
+      "file_id": "file_0000000067b481f6928f241d086833f9",
+      "current_version_number": 0,
+      "path": "/LIE28-Assets-Maestros.zip"
+    },
+    {
+      "file_name": "LIE28-Maestros.png",
+      "library_file_id": "libfile_6971389f88c08191952b86e61245efe6",
+      "file_id": "file_000000009c1481f88a98a5739d41ddba",
+      "current_version_number": 0,
+      "path": "/LIE28-Maestros.png"
+    },
+    {
+      "file_name": "LIE28-Casa-Modular.png",
+      "library_file_id": "libfile_142932e6e0a48191bc6a6651224fec5e",
+      "file_id": "file_0000000041e08230abd3c59df7529c28",
+      "current_version_number": 0,
+      "path": "/LIE28-Casa-Modular.png"
+    }
+  ],
+  "verification": {
+    "native_checks": 119,
+    "python_tests": 72,
+    "python_skips": 1,
+    "agent_cpu_checks": 20,
+    "rig_region_checks": 888,
+    "geometry_points": 1500,
+    "material_points": 1188,
+    "verified_glbs": 15,
+    "native_metrics": {
+      "configured": true,
+      "instances": 79,
+      "lod": 1,
+      "masters": 15,
+      "sample_invocations": 545732,
+      "visible_source_meshes": 0
+    },
+    "software_vulkan": true
+  },
+  "restore": "Materialize LIE28-Assets-Maestros.zip using its Library identity; verify exact size and SHA-256 before extraction. Copy assets/lie28 and captures/building28 inside gpu_compute. Read docs/LIE_28_MODULAR_BUILDING.md."
+}

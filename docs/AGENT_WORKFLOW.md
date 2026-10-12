@@ -55,7 +55,7 @@ No socket, remote credentials or third-party Python package is required.
 | `set_values`, `set_pose` | Forwarded to the actual laboratory's validated `command()`; update both UI and renderer |
 | `save_state`, `load_state` | Complete state for LIE-25/26/27; optional basename ending `.lie.json`; atomic storage and validated restore |
 | `capture` | Actual `compositor` (default) or native `window`; optional PNG basename inside the session directory |
-| `open_lab` | Navigate to a declared workshop/LIE-20…27 scene without replacing the endpoint |
+| `open_lab` | Navigate to a declared workshop/LIE-20…28 scene without replacing the endpoint |
 | Other native commands | Forwarded unchanged; older document laboratories retain save/load/history/material/assembly APIs |
 
 LIE-27 discovery includes every state field, seven facial channels, pose
