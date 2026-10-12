@@ -4,6 +4,7 @@ var lab: Node3D
 var fixture: Dictionary={}
 var eye_reference: Dictionary={}
 var coverage: Dictionary={}
+var jaw_coverage: Dictionary={}
 var sample_tags:=PackedByteArray()
 var checks: int=0
 var failed: bool=false
@@ -71,6 +72,21 @@ func verify_coverage(name: String,data: Dictionary) -> void:
     check(protected>1000 and skin_leaks==0 and eye_leaks==0 and missing==0,"Intact skin/ocular material ownership: "+name)
     if not report.has("skin_coverage"):report["skin_coverage"]=[]
     report["skin_coverage"].append({"case":name,"protected_pixels":protected,"skin_leaks":skin_leaks,"eye_wrong_material":eye_leaks,"missing":missing,"leak_layers":leak_layers})
+func verify_jaw(name: String,data: Dictionary) -> void:
+    var filename: String=""
+    for case in jaw_coverage["cases"]:
+        if case["name"]==name:filename=case["file"]
+    check(not filename.is_empty(),"Independent native chin reference exists: "+name)
+    var mask: PackedByteArray=FileAccess.get_file_as_bytes("res://captures/anatomy27/"+filename)
+    var owners: PackedInt32Array=data["winners"];var protected: int=0;var inner: int=0;var missing: int=0
+    for i in range(mask.size()):
+        if mask[i]==0:continue
+        protected+=1
+        if owners[i]<0:missing+=1
+        elif sample_tags[owners[i]*2]!=0:inner+=1
+    check(protected>1000 and inner==0 and missing==0,"Intact native chin ownership: "+name)
+    if not report.has("jaw_coverage"):report["jaw_coverage"]=[]
+    report["jaw_coverage"].append({"case":name,"protected_pixels":protected,"inner_leaks":inner,"missing":missing})
 func same_eye_pixels(a: Dictionary,b: Dictionary) -> bool:
     var wa: PackedInt32Array=a["winners"];var wb: PackedInt32Array=b["winners"];var ca: PackedFloat32Array=a["color"];var cb: PackedFloat32Array=b["color"];var compared: int=0
     for y in range(512):
@@ -108,12 +124,19 @@ func run() -> void:
     fixture=JSON.parse_string(FileAccess.get_file_as_string("res://captures/anatomy27/region-probes.json"))
     eye_reference=JSON.parse_string(FileAccess.get_file_as_string("res://captures/anatomy27/eyeball-sample-indices.json"))
     coverage=JSON.parse_string(FileAccess.get_file_as_string("res://captures/anatomy27/coverage-reference.json"))
+    jaw_coverage=JSON.parse_string(FileAccess.get_file_as_string("res://captures/anatomy27/jaw-coverage-reference.json"))
     sample_tags=FileAccess.get_file_as_bytes("res://captures/anatomy27/sample-material-reference.bin")
     lab.effect.call("set_probe_indices",PackedInt32Array(fixture["indices"]))
     check(lab.skeleton.get_bone_count()==45 and lab.joint_spheres.size()==44,"Body and phalanges have shared skeleton and spherical proxies")
     await change({"focus":"face","distance":.35,"face":face(),"mask":15,"pose":{}})
-    var neutral: Dictionary=await read();save_image("face-neutral",neutral);verify_probes("neutral",neutral);verify_coverage("neutral",neutral)
+    var neutral: Dictionary=await read();save_image("face-neutral",neutral);verify_probes("neutral",neutral);verify_coverage("neutral",neutral);verify_jaw("neutral",neutral)
     var initial: PackedFloat32Array=neutral["color"].duplicate()
+    await change({"brows":false});var brows_off: Dictionary=await read();save_image("brows-off",brows_off)
+    check(brows_off["color"]!=initial and brows_off["winners"]==neutral["winners"],"Cejas change pigment without geometry")
+    check(same_eye_pixels(neutral,brows_off),"Cejas preserve native ocular pixels")
+    await change({"brows":true});check((await read())["color"]==initial,"Cejas restore deterministic output")
+    var brow_revision: int=lab.revision
+    check(not lab.command({"op":"set_values","values":{"brows":1,"light_power":0}})["ok"] and lab.revision==brow_revision and lab.state["light_power"]==70,"Nonboolean cejas reject entire transaction")
     await change({"face":face(1,1)});var closed: Dictionary=await read();save_image("face-closed",closed);verify_probes("closed",closed);verify_coverage("closed",closed)
     check(initial!=closed["color"],"Captured eyelid closure changes visible face")
     await change({"face":face(1,0)});var wink: Dictionary=await read();save_image("face-wink",wink);verify_probes("wink",wink);verify_coverage("wink",wink)
@@ -127,7 +150,7 @@ func run() -> void:
     check(smile["color"]!=initial,"Commissure field changes face")
     await change({"face":face(0,0,0,1,0,1)});var frown: Dictionary=await read();save_image("face-frown",frown);verify_probes("frown",frown);verify_coverage("frown",frown)
     await change({"face":face(0,0,0,0,1,0,1)});var surprise: Dictionary=await read();save_image("face-surprise",surprise);verify_probes("surprise",surprise);verify_coverage("surprise",surprise)
-    await change({"face":face(),"pose":{"head_yaw":25,"head_pitch":15}});var turned: Dictionary=await read();save_image("head-turn",turned);verify_probes("head_turn",turned);verify_coverage("head_turn",turned)
+    await change({"face":face(),"pose":{"head_yaw":25,"head_pitch":15}});var turned: Dictionary=await read();save_image("head-turn",turned);verify_probes("head_turn",turned);verify_coverage("head_turn",turned);verify_jaw("head_turn",turned)
     await change({"face":face(1,1)});var turned_closed: Dictionary=await read();save_image("head-turn-closed",turned_closed);verify_probes("head_turn_closed",turned_closed);verify_coverage("head_turn_closed",turned_closed)
     var turned_eyes: Dictionary=visible_eyes(turned_closed);report["eye_visibility_pixels"]["head_turn_closed"]=turned_eyes
     check(turned_eyes["left"]==0 and turned_eyes["right"]==0,"Turned closed lids fully occlude both native eyes")
@@ -154,6 +177,7 @@ func run() -> void:
         var controls: Dictionary=face();controls.merge(case["face"],true)
         await change({"focus":"face","distance":.35,"camera_yaw":case.get("camera_yaw",0),"pose":case["pose"],"face":controls,"show_regions":false})
         var data: Dictionary=await read();save_image(case["name"],data);verify_coverage(case["name"],data)
+        if case["name"] in ["orbit_left","orbit_right"]:verify_jaw(case["name"],data)
         if controls["blink_left"]==1.0 and controls["blink_right"]==1.0:
             var orbit_eyes: Dictionary=visible_eyes(data);report["eye_visibility_pixels"][case["name"]]=orbit_eyes
             check(orbit_eyes["left"]==0 and orbit_eyes["right"]==0,"Closed orbital view fully occludes both native eyes: "+str(case["name"]))
@@ -178,6 +202,11 @@ func run() -> void:
     check(not lab.command({"op":"set_values","values":{"eyes":eyes,"light_power":0}})["ok"] and lab.revision==revision_eye and lab.state["light_power"]==70,"Invalid ocular color rejects the whole transaction")
     eyes["iris"]=[.16,.06,.015];await change({"eyes":eyes})
     check(lab.effect.get("asset_uploads")==1,"Ocular codes reuse the resident capture bank")
+    await change({"face":face(0,0,0,0,1)});var raised: Dictionary=await read();save_image("brows-raised",raised)
+    await change({"brows":false});var raised_off: Dictionary=await read()
+    check(raised["color"]!=raised_off["color"] and raised["winners"]==raised_off["winners"],"Cejas stay attached to raised captured skin")
+    check(same_eye_pixels(raised,raised_off),"Raised cejas preserve native ocular pixels")
+    await change({"brows":true,"face":face(0,0,0,0,0,0,1)});var jaw: Dictionary=await read();save_image("jaw-open",jaw);verify_jaw("jaw_open",jaw)
     # A short deterministic cycle, genuinely produced by the compositor.
     DirAccess.make_dir_recursive_absolute("res://lie27-frames")
     for i in range(12):

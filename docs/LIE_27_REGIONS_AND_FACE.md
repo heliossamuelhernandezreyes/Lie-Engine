@@ -68,15 +68,39 @@ This closes cracks between their independently sampled curved seam segments
 while keeping the exact outer boundary and all native eyeball captures.
 The corrected blink bank uses `connected-orbit-overlap-v3`.
 
-An intact-skin gate retains inner anatomy in the bank but suppresses captured
-footprints crossing the source external skin envelope while skin is active.
-The envelope uses first external intersections from the head center and
-fifteen anterior capture directions; it does not use the closest dermal face,
-which could be an internal skin wall. Head-local ocular ellipsoids additionally
-allow only skin/lid and the actual eyeball in the intact ocular region. Source
-orbital muscle/nerve overlaps therefore cannot replace either visible surface.
-Disabling the skin layer removes this gate and exposes the original anatomy.
-Partial cuts or per-region damage maps are not implemented.
+The intact-skin state retains inner anatomy but suppresses its enclosed head
+captures while skin is enabled. Its source-space lower boundary is 1.40 m;
+twice each captured radius includes footprints whose support crosses that
+boundary. Direct and barycentric captures use the same rule. Native eyeballs
+are explicitly exempt. Disabling skin restores the original inner anatomy.
+This is a head-region visibility rule, not a physiological containment test
+or a runtime source-mesh intersection. Partial cuts are not implemented.
+
+### Eyebrows and chin polish
+
+Eyebrows use a tapered source-space pigment curve with fine directional fiber
+strokes on the existing skin captures. They follow the captured surface under
+`brow_up`, `brow_down` and head motion. The **Cejas** toggle accepts only a
+boolean; invalid transactions reject all requested changes. The existing
+320-byte parameter block carries the toggle in `reserved.w`, with no added
+samples, buffers or draw passes. These are surface pigment, not standalone
+three-dimensional hairs. Eyelashes are deliberately outside this change.
+
+The native head gallery now interpolates the full uncut native skin normals
+also used by the eyelid's outer ring (`shared-native-rim-v1`). Previously the
+cut head triangles recomputed their own normals, leaving a shading mismatch
+despite matching boundary positions. The migration updates 468,342 captured
+normals and gallery hashes without changing captured positions or topology.
+
+The chin lay below the previous head visibility boundary. Including it and
+its captured footprint support prevents internal muscle from replacing skin
+there. Three 80×80 native chin galleries at −35°, 0° and +35° supply 1,728
+additional captured skin samples. They repair sparse lower-face coverage
+from the original body bank while retaining its source-space neck weights.
+Independent full-source skin rays protect the chin in neutral, jaw
+opening, tilted-head and both 35-degree camera views. Output ownership must
+be skin at every protected pixel, without missing coverage. The jaw channel
+itself remains an approximate facial field rather than a mandible joint.
 
 Actual eyeball captures carry material identity `geometry_front.w=10`, assigned
 by native triangle BVH membership on the Internal layer. Skin/globe overlap
@@ -115,6 +139,7 @@ and automatic blinking. Body FK, constrained two-link IK and walking remain.
 | `blink_left`, `blink_right` | 0–1 | Independent connected eyelid closure |
 | `smile`, `frown` | 0–1 | Authored lip-corner displacement |
 | `brow_up`, `brow_down` | 0–1 | Authored brow displacement |
+| `brows` | boolean | Show source-space eyebrow pigment on captured skin |
 | `jaw_open` | 0–1 | Approximate lower-face displacement |
 
 `command({"op":"set_values","values":...})` accepts a complete `face`
@@ -145,6 +170,13 @@ OPENBLAS_NUM_THREADS=1 python tools/lie27_reference.py \
   gpu_compute/captures/anatomy27 --fixture gpu_compute/fixtures/lie27-rig.json
 blender -b --disable-autoexec --python tools/lie27_coverage_reference.py -- \
   --root gpu_compute/captures/anatomy27
+# Existing intact banks can share the corrected normals/gate in place:
+blender -b --disable-autoexec --python tools/lie27_polish_face_blender.py -- \
+  --root gpu_compute/captures/anatomy27
+blender -b --disable-autoexec --python tools/lie27_chin_capture_blender.py -- \
+  --input /path/3DAnatomyman_English.blend --root gpu_compute/captures/anatomy27
+blender -b --disable-autoexec --python tools/lie27_jaw_reference_blender.py -- \
+  --input /path/3DAnatomyman_English.blend --root gpu_compute/captures/anatomy27
 python -m unittest discover -s tests -p 'test_*.py' -v
 godot --headless --path gpu_compute --editor --import --quit
 godot --headless --path gpu_compute --script res://test_lie27_regions.gd
@@ -160,21 +192,23 @@ The separately distributed evidence package supplies the ready bank.
 
 ## Validation and remaining work
 
-Recorded bank and local validation, 2026-10-11:
+Recorded bank and local validation, 2026-10-12:
 
 | Measurement | Result |
 |---|---|
-| Captured samples | 5,994,561 |
+| Captured samples | 5,996,289 |
 | Binding vertices / triangles | 12,309 / 7,678; source meshes stay offline |
-| Runtime asset buffers | 480,869,392 bytes |
-| Compositor allocation | 1,174,183,968 bytes, 1.094 GiB; engine overhead excluded |
-| Increase over LIE-26 | 29,354,464 bytes, 27.995 MiB |
+| Runtime asset buffers | 481,007,632 bytes |
+| Compositor allocation | 1,174,488,096 bytes, 1.094 GiB; engine overhead excluded |
+| Increase over LIE-26 | 29,658,592 bytes, 28.285 MiB |
 | Output / internal image | 512×512 / 1024×1024 |
 | New orbital galleries | 18 at 160×160 plus adaptive source-triangle captures |
 | Python suite | 72 tests, one external-asset test skipped |
 | Godot CPU rig | 888 checks passed |
-| Software Vulkan | 151 checks passed; five scripts compile cleanly |
+| Software Vulkan | 172 checks passed; five scripts compile cleanly |
 | Maximum GPU / NumPy probe position error | 0.333 micrometres across nine cases |
+| Chin source coverage | 122,605 protected pixels in five cases; zero inner leaks or missing pixels |
+| Orbital source coverage | 1,189,821 protected pixels in thirteen cases; zero inner leaks or missing pixels |
 | Native eye pixels, open | left 6,513; right 6,501 at internal resolution |
 | Native eye pixels, closed | zero on both sides in frontal, tilted and ±35° views |
 | Native eye pixels, left wink | left zero; right 6,501 |

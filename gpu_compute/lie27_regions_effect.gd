@@ -96,7 +96,7 @@ func _load_master() -> void:
     for i in range(int(master["triangle_count"])):
         for k in range(3):
             if triangle_data[i*4+k]<0 or triangle_data[i*4+k]>=int(master["vertex_count"]):failure="Triángulo de junta inválido";return
-    if master.get("region_contract")!="compact-sphere-cubic-v1" or master.get("blink_contract")!="connected-orbit-overlap-v3" or master.get("skin_integrity_contract")!="native-triangle-boundary-v2" or master.get("ocular_contract")!="native-eyeball-material-v1" or master.get("skin_gate_contract")!="native-footprint-envelope-v1":failure="Contrato regional/ocular inválido";return
+    if master.get("region_contract")!="compact-sphere-cubic-v1" or master.get("blink_contract")!="connected-orbit-overlap-v3" or master.get("skin_integrity_contract")!="native-triangle-boundary-v2" or master.get("ocular_contract")!="native-eyeball-material-v1" or master.get("skin_gate_contract")!="intact-head-region-v2":failure="Contrato regional/ocular inválido";return
     if not master.get("eyes") is Array or master["eyes"].size()!=2:failure="Centros oculares inválidos";return
     for center in master["eyes"]:
         if not center is Array or center.size()!=3:failure="Centro ocular inválido";return

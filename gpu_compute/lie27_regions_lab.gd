@@ -7,7 +7,7 @@ var texture: Texture2DRD
 var picture: TextureRect
 var status: Label
 var state: Dictionary={"mask":15,"camera_yaw":0.0,"object_yaw":0.0,"light_azimuth":-35.0,"light_power":70.0,"distance":3.5,"unlit":false,"shadows":false,
-    "palette":[[.52,.29,.18],[.32,.045,.028],[.72,.64,.47],[.29,.12,.15]],"light_color":[1.0,.88,.76],"pose":{},"targets":{},"mode":"manual","playing":false,"time":0.0,"speed":1.0,"focus":"body","show_regions":false,"face_playing":false,"eyes":{"sclera":[.82,.84,.78],"iris":[.16,.06,.015],"pupil":[.002,.002,.003],"roughness":.18},"face":{"blink_left":0.0,"blink_right":0.0,"smile":0.0,"frown":0.0,"brow_up":0.0,"brow_down":0.0,"jaw_open":0.0}}
+    "palette":[[.52,.29,.18],[.32,.045,.028],[.72,.64,.47],[.29,.12,.15]],"light_color":[1.0,.88,.76],"pose":{},"targets":{},"mode":"manual","playing":false,"time":0.0,"speed":1.0,"focus":"body","show_regions":false,"face_playing":false,"brows":true,"eyes":{"sclera":[.82,.84,.78],"iris":[.16,.06,.015],"pupil":[.002,.002,.003],"roughness":.18},"face":{"blink_left":0.0,"blink_right":0.0,"smile":0.0,"frown":0.0,"brow_up":0.0,"brow_down":0.0,"jaw_open":0.0}}
 var skeleton: Skeleton3D
 var evaluated: Dictionary={}
 var bodies: Array[AnimatableBody3D]=[]
@@ -68,6 +68,8 @@ func _ready() -> void:
             command({"op":"set_values","values":{"face":values,"face_playing":false}}))
     var blink_button:=Button.new();blink_button.text="Parpadeo automático";box.add_child(blink_button)
     blink_button.pressed.connect(func():command({"op":"set_values","values":{"face_playing":not state["face_playing"]}}))
+    var brows_toggle:=CheckBox.new();brows_toggle.text="Cejas";brows_toggle.button_pressed=true;box.add_child(brows_toggle);controls["brows"]=brows_toggle
+    brows_toggle.toggled.connect(func(on: bool):command({"op":"set_values","values":{"brows":on}}))
     for key in ["sclera","iris","pupil"]:
         var row:=HBoxContainer.new();box.add_child(row)
         var label:=Label.new();label.text={"sclera":"Blanco del ojo","iris":"Color del iris","pupil":"Color de pupila"}[key];label.custom_minimum_size.x=170;row.add_child(label)
@@ -150,7 +152,7 @@ func command(request: Variant) -> Dictionary:
             if not (value["roughness"] is int or value["roughness"] is float) or not is_finite(float(value["roughness"])) or value["roughness"]<.08 or value["roughness"]>.6:return {"ok":false,"error":"eye roughness"}
         elif key=="focus":
             if value not in ["body","face","hand"]:return {"ok":false,"error":"focus"}
-        elif key in ["unlit","shadows","playing","show_regions","face_playing"]:
+        elif key in ["unlit","shadows","playing","show_regions","face_playing","brows"]:
             if not value is bool:return {"ok":false,"error":"boolean"}
         elif key in ["palette","light_color"]:
             var colors: Array=value if key=="palette" and value is Array else [value]
@@ -173,6 +175,7 @@ func command(request: Variant) -> Dictionary:
     if controls.has("ik_toggle"):controls["ik_toggle"].set_pressed_no_signal(state["targets"].has("right_hand"))
     if state["targets"].has("right_hand"):
         for axis in range(3):controls["ik%d"%axis].set_value_no_signal(state["targets"]["right_hand"]["position"][axis])
+    if controls.has("brows"):controls["brows"].set_pressed_no_signal(state["brows"])
     for key in FACE_KEYS:
         if controls.has("face_"+key):controls["face_"+key].set_value_no_signal(float(state["face"][key]))
     for key in ["sclera","iris","pupil"]:
@@ -193,7 +196,7 @@ func _apply() -> void:
     floats=PackedFloat32Array([deg_to_rad(float(state["object_yaw"])),0,state["mask"],0,light.x,light.y,light.z,state["light_power"]])
     var c: Array=state["light_color"];floats.append_array(PackedFloat32Array([c[0],c[1],c[2],0,.12,.14,.17,1,1 if state["shadows"] else 0,1,1 if state["unlit"] else 0,0]))
     for v in [shadow.basis.x,shadow.basis.y,-shadow.basis.z]:floats.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
-    c=state["palette"][0];floats.append_array(PackedFloat32Array([c[0],c[1],c[2],0,0,0,count,0]))
+    c=state["palette"][0];floats.append_array(PackedFloat32Array([c[0],c[1],c[2],0,0,0,count,1 if state["brows"] else 0]))
     for id in range(1,4):
         c=state["palette"][id];floats.append_array(PackedFloat32Array([c[0],c[1],c[2],0]))
     bytes.append_array(floats.to_byte_array())

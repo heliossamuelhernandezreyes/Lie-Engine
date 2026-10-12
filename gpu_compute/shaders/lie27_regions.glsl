@@ -93,6 +93,20 @@ vec3 skin_sample(Sample s,out mat3 differential) {
     }
     return p;
 }
+// Pigment is attached to captured skin in source space and follows its rig.
+float eyebrow_fibers(vec3 p,vec3 eye_center) {
+    if(p.y<eye_center.y+.016 || p.y>eye_center.y+.032 || p.z<eye_center.z+.002)return 0;
+    float side=eye_center.x<0?-1.0:1.0;
+    float t=(side*p.x-(abs(eye_center.x)-.018))/.038;
+    if(t<0 || t>1)return 0;
+    float curve=eye_center.y+.020+.0045*sin(PI*t)-.001*t;
+    float half_width=.0016*(1-.65*t)+.00035,height=p.y-curve;
+    float envelope=(1-smoothstep(half_width*.6,half_width,abs(height)))*smoothstep(0,.08,t)*(1-smoothstep(.91,1,t));
+    if(envelope<=0)return 0;
+    float phase=(side*p.x-mix(-.2,.85,t)*height)/.00055;
+    float fiber=1-smoothstep(.08,.29,abs(fract(phase)-.5));
+    return envelope*(.25+.75*fiber);
+}
 vec3 base_color(Sample s) {
     if(s.geometry_front.w==10) {
         vec3 center=s.binding.x<0?ocular.right_center.xyz:ocular.left_center.xyz;
@@ -107,7 +121,12 @@ vec3 base_color(Sample s) {
     }
     int layer=int(s.material.w);
     vec3 pigment=layer==0?parameters.tissue0.rgb:layer==1?parameters.tissue1.rgb:layer==2?parameters.tissue2.rgb:parameters.tissue3.rgb;
-    return clamp(s.gray_filter.x*pigment,vec3(0),vec3(1));
+    vec3 color=clamp(s.gray_filter.x*pigment,vec3(0),vec3(1));
+    if(layer==0 && s.binding.w>=0 && parameters.reserved.w>.5) {
+        float brow=max(eyebrow_fibers(s.binding.xyz,ocular.left_center.xyz),eyebrow_fibers(s.binding.xyz,ocular.right_center.xyz));
+        color=mix(color,vec3(.022,.012,.007),brow);
+    }
+    return color;
 }
 
 vec2 project(vec3 p,vec3 eye,vec3 right,vec3 up,vec3 forward,float tangent,vec2 size) {

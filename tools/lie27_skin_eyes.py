@@ -24,9 +24,11 @@ def smooth_normals(points,faces):
     for i in range(3):np.add.at(n,faces[:,i],v)
     return n/np.maximum(np.linalg.norm(n,axis=1)[:,None],1e-15)
 
-def capture_native(points,faces,root,eyes):
+def capture_native(points,faces,root,eyes,reference_normals=None):
     tree=BVHTree.FromPolygons(points.tolist(),faces.tolist(),all_triangles=True)
-    normals=smooth_normals(points,faces);scale=.25;size=160;target=Vector((0,1.54,.09));rows=[];views=[]
+    normals=smooth_normals(points,faces)
+    if reference_normals is not None:normals[:len(reference_normals)]=reference_normals
+    scale=.25;size=160;target=Vector((0,1.54,.09));rows=[];views=[]
     for elevation in [-30,0,30]:
         e=math.radians(elevation)
         for az in range(0,360,30):
@@ -70,62 +72,19 @@ def capture_native(points,faces,root,eyes):
     return np.asarray(rows,np.float32),views
 
 def head_integrity(data,points,faces,eyes,vertices=None,triangles=None):
-    """Retain inner anatomy but gate footprints that cross intact native skin.
+    """Gate enclosed head tissues while intact skin is enabled.
 
-    The boundary is measured in 3D source space. The same invertible facial
-    field and head transform transport it with both skin and inner tissues.
-    Disabling skin removes this gate, exposing the complete original anatomy.
-    Ocular captures are explicitly exempt at the authored eye opening.
+    Include captured footprint support at the lower boundary. Native eyes
+    are exempt; disabling skin restores the retained internal samples.
     """
-    tree=BVHTree.FromPolygons(points.tolist(),faces.tolist(),all_triangles=True)
     data[data[:,19]==20,19]=1
-    candidates=np.flatnonzero((data[:,3]>=0)&(data[:,15]>0)&(data[:,1]>1.44)&(data[:,19]!=10))
-    sparse={}
+    candidates=np.flatnonzero((data[:,3]>=0)&(data[:,15]>0)&(data[:,1]+2*data[:,7]>1.40)&(data[:,19]!=10))
     if vertices is not None and triangles is not None:
-        indices=np.flatnonzero((data[:,3]<0)&(data[:,15]>0))
-        xyz=np.einsum('ni,nij->nj',data[indices,:3],vertices[triangles[(-data[indices,3]-1).astype(int),:3],:3])
-        sparse={int(i):p for i,p in zip(indices,xyz) if p[1]>1.44}
-        candidates=np.concatenate([candidates,np.asarray(list(sparse),dtype=np.int64)])
-    # The head has a complete opaque external skin surface in this mode.
-    # Its enclosed layers cannot be visible from an outside camera; cull their
-    # captured footprints as a head-local integrity state, not as a pixel mask.
-    # Ocular samples are the sole intentional opening. Removing skin restores
-    # every enclosed sample without modifying or deleting its native anatomy.
+        ids=np.flatnonzero((data[:,3]<0)&(data[:,15]>0)&(data[:,19]!=10))
+        xyz=np.einsum('ni,nij->nj',data[ids,:3],vertices[triangles[(-data[ids,3]-1).astype(int),:3],:3])
+        candidates=np.concatenate([candidates,ids[xyz[:,1]+2*data[ids,7]>1.40]])
     counts={str(i):int(np.count_nonzero(data[candidates,15]==i)) for i in range(1,4)}
     data[candidates,19]=20
-    return counts
-    counts={str(i):0 for i in range(1,4)}
-    center=Vector((0,1.54,.09))
-    directions=[Vector((math.sin(math.radians(a))*math.cos(math.radians(e)),math.sin(math.radians(e)),math.cos(math.radians(a))*math.cos(math.radians(e)))) for a in [-70,-35,0,35,70] for e in [-30,0,30]]
-    for index in candidates:
-        p=Vector(sparse[index] if data[index,3]<0 else data[index,:3]);radial=p-center;length=radial.length
-        # In an intact ocular region the visible surfaces are lid/skin or
-        # the actual eyeball. Source orbital muscle/nerve overlaps must not
-        # become a substitute surface at the authored opening. This is a
-        # head-local 3D volume, transported with the shared facial/head rig.
-        padding=2*float(data[index,7])
-        if any(((p.x-e[0])/(.030+padding))**2+((p.y-e[1])/(.026+padding))**2+((p.z-e[2]-.014)/(.060+padding))**2<1 for e in eyes):
-            data[index,19]=20;counts[str(int(data[index,15]))]+=1;continue
-        if length<1e-8:continue
-        direction=radial/length
-        # Skin is a tissue shell with inner AND outer faces. The closest
-        # dermal face can point into the skull, so its normal is not a valid
-        # whole-head inside test. Use the first external source intersection.
-        hit,normal,ti,distance=tree.ray_cast(center+direction*.35,-direction,.7)
-        if hit is None:continue
-        boundary=(hit-center).dot(direction)
-        if length+2*float(data[index,7])+.0001>boundary:
-            data[index,19]=20;counts[str(int(data[index,15]))]+=1
-            continue
-        # Concave facial creases are not star-shaped from the head center.
-        # Check first source intersections along the authored capture views,
-        # restricting these extra rays to the anterior face.
-        if p.z>.115:
-            padding=2*float(data[index,7])+.0001
-            for view in directions:
-                hit,normal,ti,distance=tree.ray_cast(p+view*.35,-view,.7)
-                if hit is not None and (hit-p).dot(view)<padding:
-                    data[index,19]=20;counts[str(int(data[index,15]))]+=1;break
     return counts
 
 def upgrade(source,base,out):
@@ -149,7 +108,7 @@ def upgrade(source,base,out):
         if name not in bpy.data.objects:continue
         a,b=geometry(bpy.data.objects[name]);b=b[np.all(a[b,1]>1.44,axis=1)]
         kept=np.concatenate([kept,b+len(p)]);p=np.concatenate([p,a])
-    out.mkdir(parents=True,exist_ok=True);head,head_views=capture_native(p,kept,out,eyes)
+    out.mkdir(parents=True,exist_ok=True);head,head_views=capture_native(p,kept,out,eyes,native_normals)
     extras=[];galleries=[];boundaries=[]
     for i,patch in enumerate(patches):
         vi=len(vertices);ti=len(triangles);v=np.zeros((len(patch['rest']),24),np.float32)
@@ -182,7 +141,10 @@ def upgrade(source,base,out):
     payloads={'samples.bin':data.astype('<f4').tobytes(),'vertices.bin':vertices.astype('<f4').tobytes(),'triangles.bin':triangles.astype('<u4').tobytes()}
     m.update(sample_count=len(data),invocation_count=len(data),vertex_count=len(vertices),triangle_count=len(triangles),orbital_galleries=galleries,orbital_boundaries=boundaries,eyes=[e.tolist() for e in eyes],native_head_galleries=head_views,skin_integrity_contract='native-triangle-boundary-v2',ocular_contract='native-eyeball-material-v1',blink_contract='connected-orbit-overlap-v3',lid_contact_overlap_m=.0002,skin_head_samples_removed=int(remove.sum()),ocular_sample_count=sum(len(eye_ids[k]) for k in ['left','right']))
     m['buffers']={name:dict(bytes=len(content),sha256=hashlib.sha256(content).hexdigest()) for name,content in payloads.items()}
-    m['skin_gate_contract']='native-footprint-envelope-v1';m['skin_gate_samples']=gates;m['skin_gate_method']='head-local external envelope from center and 15 anterior source rays; intact ocular ellipsoids permit only skin/eyeball; no geometric gate when source rays miss; full anatomy restored when skin disabled'
+    m['skin_gate_contract']='intact-head-region-v2';m['skin_gate_samples']=gates
+    m['skin_gate_min_y_m']=1.40;m['skin_gate_footprint_padding']=2
+    m['skin_gate_method']='intact head region in source space, including footprint support; native eyes exempt; full inner anatomy restored when skin disabled'
+    m['boundary_normals_contract']='shared-native-rim-v1'
     m['ocular_visibility_regions']=[dict(center=(e+np.array([0,0,.014])).tolist(),radii=[.030,.026,.060],bone=2,kind='intact_ocular_surface',visible_materials=['skin','native_eyeball']) for e in eyes]
     for name,content in payloads.items():(out/name).write_bytes(content)
     np.column_stack([data[:,15],data[:,19]]).astype('u1').tofile(out/'sample-material-reference.bin')
