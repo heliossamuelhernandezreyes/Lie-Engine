@@ -50,7 +50,7 @@ func _init(size: int=384) -> void:
     for value in values:
         if not is_finite(value):failure="Captura no finita";return
     for master in catalog.get("masters",{}).values():
-        if master.get("levels",[]).size()!=2:failure="Niveles inválidos";return
+        if master.get("levels",[]).size()<2 or master.get("levels",[]).size()>3:failure="Niveles inválidos";return
         for level in master["levels"]:
             if int(level["start"])<0 or int(level["count"])<1 or int(level["start"])+int(level["count"])>int(catalog["sample_count"]):failure="Rango de captura";return
     capture_loaded=true
