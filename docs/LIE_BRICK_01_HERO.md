@@ -66,3 +66,40 @@ top face, corner chips and raking light. The result is rejected as a hero
 quality asset if it still looks like a regular prism, regardless of sample
 count. This flag is deliberately `hero_quality_accepted=false` in its catalog.
 Physical GPU performance remains to be benchmarked.
+
+## Tested LIE-BRICK01 version 3 — native Vulkan (2026-10-12)
+
+**Actual execution:** https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38323231074
+
+- Fixed a real LIE22 compatibility blocker: the unchanged base sampler rejected
+  any master with three LOD levels. The branch accepts legacy 2 or new 3 LODs.
+- Original PBR photo-derived, edge-weighted six-face source captures:
+  `brick_full` **258,990 hero / 36,358 middle / 5,173 distant** samples;
+  `brick_half` **202,680 hero / 29,134 middle / 4,182 distant** samples.
+- Immutable bank SHA-256:
+  `5b585ccacefd63845804a651432c0234a578eb0ac335d54f6f425b3890c4f987`.
+  Includes 12 sample-only curved edge bridges per master/profile.
+- One invisible `BoxShape3D`, one visible LIE compositor master; 0 visible
+  mesh triangles. Verified native GPU original 1080×1080 per-view pixels:
+  `evidence/LIE-BRICK01-Front.png`,
+  `evidence/LIE-BRICK01-ThreeQuarter.png`,
+  `evidence/LIE-BRICK01-Top.png`,
+  `evidence/LIE-BRICK01-RakingLight.png`,
+  `evidence/LIE-BRICK01-Half.png`.
+- 3 LOD switches and one-box collider checked by native workshop agent.
+- First version had unacceptable dotted surface holes due to nonuniform
+  sampling with uniform footprint; preserved
+  `evidence/LIE-BRICK01-V1-Top.png`.
+- Second version fixed the holes by a per-sample geometric footprint,
+  but exposed a dark border at six-face seams, preserved as
+  `evidence/LIE-BRICK01-V2-Top.png`.
+- Third version adds 12 curved edge bridge surfaces sampled directly into the
+  LIE bank. Native tests pass. A residual dark/artificial bevel remains under
+  grazing light; flat-face appearance is still too uniform.
+
+**HERO VISUAL ACCEPTANCE: FAILED / OPEN.** These GPU pictures are authentic
+but still visibly synthetic. More samples alone did not establish photo
+indistinguishability. A genuinely photogrammetry-scanned individual brick
+with its own multi-face photo textures, a matched reference photograph
+and improved microgeometry reconstruction are required before signoff.
+A passing smoke test is not a photo-realism benchmark.
