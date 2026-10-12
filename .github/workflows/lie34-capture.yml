@@ -1,0 +1,65 @@
+name: LIE34 Genuine Draco Scan Capture
+on:
+  push:
+    branches: ["experiment/lie34-real-scan-reference"]
+    paths:
+      - ".github/workflows/lie34-capture.yml"
+      - "tools/lie34_capture_real_scan.py"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: lie34-capture-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  real-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire the licensed source 5.5M triangle Draco mesh
+        run: |
+          python -m pip install --quiet numpy pillow DracoPy trimesh
+          python tools/lie34_scan_acquire.py --directory /tmp/lie34-input
+      - name: Convert ORIGINAL scan triangles and atlas into 80-byte LIE surface samples
+        run: |
+          python tools/lie34_capture_real_scan.py --source /tmp/lie34-input/flat-roof-reference.glb --output gpu_compute/captures/lie34scan
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('gpu_compute/captures/lie34scan/catalog.json')
+          m=json.loads(p.read_text())
+          assert m['source_original_triangles']==5500320
+          assert m['sample_count']==660000
+          assert m['license']=='CC BY 4.0'
+          assert m['source_albedo_dimensions'][0]>=1024
+          print('Genuine LIE sample bank:',m['sample_count'],'samples',m['bytes'],'bytes; original triangles:',m['source_original_triangles'])
+          PY
+      - name: Preserve small SHA verified captured bank and license provenance
+        if: success()
+        run: |
+          mkdir -p evidence gpu_compute/assets/lie34
+          python - <<'PY'
+          from pathlib import Path
+          import zlib,hashlib
+          p=Path('gpu_compute/captures/lie34scan/library.bin')
+          dest=Path('gpu_compute/assets/lie34/scanned_facade_bank.zlib')
+          dest.write_bytes(zlib.compress(p.read_bytes(),9))
+          print('compressed true photogrammetry LIE samples',dest.stat().st_size,hashlib.sha256(dest.read_bytes()).hexdigest())
+          PY
+          cp gpu_compute/captures/lie34scan/catalog.json gpu_compute/assets/lie34/catalog.json
+          cp gpu_compute/captures/lie34scan/catalog.json evidence/LIE34-scan-capture-metrics.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f gpu_compute/assets/lie34/scanned_facade_bank.zlib gpu_compute/assets/lie34/catalog.json
+          git add evidence/LIE34-scan-capture-metrics.json
+          git commit -m "LIE34: preserve real 5.5M triangle scan captured as 660K LIE samples [skip ci]"
+          git push origin HEAD:experiment/lie34-real-scan-reference
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie34-true-scan-capture-diagnostics
+          path: |
+            /tmp/lie34-input/*.json
+            gpu_compute/captures/lie34scan/catalog.json
+          if-no-files-found: warn

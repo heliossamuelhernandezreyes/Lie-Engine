@@ -1,0 +1,74 @@
+name: LIE34 Actual Scan Native 1080
+on:
+  push:
+    branches: ["experiment/lie34-real-scan-reference"]
+    paths:
+      - ".github/workflows/lie34-native.yml"
+      - "gpu_compute/lie34_real_scan_*"
+      - "tools/lie34_native_smoke.py"
+      - "tools/lie34_restore_scan.py"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: lie34-native-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install actual Godot 4.7.2 and Mesa Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python -m pip install pillow
+      - name: Restore real scanned geometry captures and check shader syntax
+        run: |
+          python tools/lie34_restore_scan.py
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie34_real_scan_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('import.log').read_text()
+          assert "SCRIPT ERROR:" not in s,s
+          PY
+      - name: Render actual photogrammetry LIE samples in native Vulkan 1080
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab lie34 --directory /tmp/lie34-native --audio-driver Dummy
+            python tools/lie34_native_smoke.py --directory /tmp/lie34-native
+          '
+      - name: Publish actual native scan captures and checksum report
+        if: success()
+        run: |
+          mkdir -p evidence
+          if [ -f evidence/LIE34-Real-Photogrammetry-Native1080.png ] && [ ! -f evidence/LIE34-V1-140K-Native1080.png ]; then
+            cp evidence/LIE34-Real-Photogrammetry-Native1080.png evidence/LIE34-V1-140K-Native1080.png
+          fi
+          cp /tmp/lie34-native/LIE34-Real-Photogrammetry-Native1080.png evidence/LIE34-Real-Photogrammetry-Native1080.png
+          cp /tmp/lie34-native/LIE34-Scan-Rotated-Native1080.png evidence/LIE34-Scan-Rotated-Native1080.png
+          cp /tmp/lie34-native/LIE34-native-validation.json evidence/LIE34-native-validation.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add evidence/LIE34-V1-140K-Native1080.png evidence/LIE34-Real-Photogrammetry-Native1080.png evidence/LIE34-Scan-Rotated-Native1080.png evidence/LIE34-native-validation.json
+          git commit -m "LIE34: authentic 5.5M triangle scan captured and GPU rendered [skip ci]"
+          git push origin HEAD:experiment/lie34-real-scan-reference
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie34-native-original-photo-scan-1080
+          path: |
+            /tmp/lie34-native/*.png
+            /tmp/lie34-native/*.json
+            /tmp/lie34-native/godot.log
+            import.log
+          if-no-files-found: warn

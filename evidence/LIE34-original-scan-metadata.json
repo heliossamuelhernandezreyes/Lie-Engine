@@ -1,0 +1,115 @@
+{
+  "original_source_url": "https://huggingface.co/datasets/Matt1up/drone-building-scans/resolve/main/flat-roof/model/flat-roof.glb",
+  "project": "https://github.com/Matt1Up/drone-building-scans-dataset",
+  "author": "Matthew Guertin",
+  "license": "CC BY 4.0",
+  "commercial_allowed_with_attribution": true,
+  "photogrammetry": true,
+  "asset_kind": "Entire photographed building with brick facade",
+  "NOT_a_single_scanned_brick": true,
+  "original_sha256": "6c712d16b9ede8f5083d7fc82787cf75b913865b157f48db08a61f2154c6bd73",
+  "bytes": 21822576,
+  "original_meshes": 1,
+  "original_triangles": 5500320,
+  "original_vertices": 2994426,
+  "world_bounds_m_or_units": [
+    [
+      -15.589752197265625,
+      -24.50429916381836,
+      -2.2615532875061035
+    ],
+    [
+      21.047412872314453,
+      27.25722885131836,
+      5.216902256011963
+    ]
+  ],
+  "material_classes": [
+    "PBRMaterial"
+  ],
+  "mesh_local_bounds": [
+    [
+      [
+        -15.589752197265625,
+        -24.50429916381836,
+        -2.2615532875061035
+      ],
+      [
+        21.047412872314453,
+        27.25722885131836,
+        5.216902256011963
+      ]
+    ]
+  ],
+  "mesh_local_extents": [
+    [
+      36.63716506958008,
+      51.76152801513672,
+      7.478455543518066
+    ]
+  ],
+  "scene_nodes": [
+    {
+      "node": "0",
+      "mesh": "Mesh_0_Part_0",
+      "matrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    }
+  ],
+  "source_glb_rendered_through_LIE": false,
+  "glb_encoding": {
+    "extensionsUsed": [
+      "KHR_draco_mesh_compression"
+    ],
+    "extensionsRequired": [
+      "KHR_draco_mesh_compression"
+    ],
+    "primitive_extensions": [
+      [
+        "KHR_draco_mesh_compression"
+      ]
+    ],
+    "position_accessors": [
+      {
+        "count": 2994426,
+        "min": [
+          -15.589752197265625,
+          -24.50429916381836,
+          -2.2615532875061035
+        ],
+        "max": [
+          21.046154022216797,
+          27.257230758666992,
+          5.216166973114014
+        ],
+        "componentType": 5126,
+        "extensions": null
+      }
+    ]
+  },
+  "valid_non_degenerate_geometry": true
+}

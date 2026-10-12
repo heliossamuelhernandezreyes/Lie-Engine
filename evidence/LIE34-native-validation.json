@@ -1,0 +1,22 @@
+{
+  "renderer": "Actual Godot 4.7.2 LIE Vulkan Software",
+  "source_original_triangles": 5500320,
+  "source_original_vertices": 2994426,
+  "source_type": "Authentic photogrammetry of full building, NOT a single brick",
+  "license": "CC BY 4.0 \u2014 Matthew Guertin",
+  "actual_LIE_sample_invocations_near": 540000,
+  "actual_LIE_sample_invocations_far": 120000,
+  "distance_adaptive_lod": true,
+  "sample_uploads": 1,
+  "native_size": [
+    1080,
+    1080
+  ],
+  "unscaled": true,
+  "original_source_mesh_drawn": false,
+  "first_sha256": "8c7337eeec487f98a855514871f3389af133159ee7c39b88d2c3d28b0ac41e6f",
+  "rotated_sha256": "6eae8397ea73a7180ec8a89303b02188d24ce918c6a2ab6cb4c9ad32346339ac",
+  "first_coverage_pixels": 175530,
+  "rotated_coverage_pixels": 44765,
+  "physical_GPU_FPS_measured": false
+}
