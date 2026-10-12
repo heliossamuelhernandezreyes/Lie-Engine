@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 73214,
+  "sha256": "608558a3e33083de0809c18f896001bb44d7216d2a1c9fd52e4a76dfd08eda77",
+  "bytes": 5857120,
+  "original_mesh_drawn": false,
+  "geometry_source": "Height/displacement-derived individual brick surfaces, not a downloaded 3D scan",
+  "photographic_source": "https://polyhaven.com/a/red_brick",
+  "license": "CC0 1.0",
+  "source_resolution": 4096,
+  "crop_uv": [
+    0.46149414,
+    0.45988281,
+    0.58831055,
+    0.48695312
+  ],
+  "masters": {
+    "brick": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 40520
+        },
+        {
+          "start": 40520,
+          "count": 3568
+        }
+      ],
+      "bounds_size": [
+        0.24,
+        0.07,
+        0.12
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    "half_brick": {
+      "levels": [
+        {
+          "start": 44088,
+          "count": 21144
+        },
+        {
+          "start": 65232,
+          "count": 2052
+        }
+      ],
+      "bounds_size": [
+        0.115,
+        0.07,
+        0.12
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    },
+    "concrete_panel": {
+      "levels": [
+        {
+          "start": 67284,
+          "count": 5930
+        },
+        {
+          "start": 67284,
+          "count": 5930
+        }
+      ],
+      "bounds_size": [
+        1.0,
+        0.8,
+        0.12
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

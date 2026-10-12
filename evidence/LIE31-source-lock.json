@@ -1,0 +1,43 @@
+{
+  "asset": "red_brick",
+  "license": "CC0 1.0",
+  "source_page": "https://polyhaven.com/a/red_brick",
+  "api": "https://api.polyhaven.com/files/red_brick",
+  "resolution": "4k",
+  "type": "photo-based PBR material",
+  "NOT_scanned_mesh": true,
+  "files": {
+    "color": {
+      "map_key": "Diffuse",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/red_brick/red_brick_diff_4k.jpg",
+      "filename": "color.jpg",
+      "bytes": 13380210,
+      "sha256": "85b7a5eadd14766126069a6ee0033873cbe96a4a09246e8d21226613028b739c"
+    },
+    "normal": {
+      "map_key": "nor_gl",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/red_brick/red_brick_nor_gl_4k.jpg",
+      "filename": "normal.jpg",
+      "bytes": 16321943,
+      "sha256": "6cb93c5ab52d773e4c48653f991600cf9811038a3cad6a606ef2866a649089ed"
+    },
+    "height": {
+      "map_key": "Displacement",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/red_brick/red_brick_disp_4k.jpg",
+      "filename": "height.jpg",
+      "bytes": 3049455,
+      "sha256": "202cfff9f46ea7bea4437ef2da3ac0f218684f3acf698e322b932c049587b36d"
+    },
+    "roughness": {
+      "map_key": "Rough",
+      "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/4k/red_brick/red_brick_rough_4k.jpg",
+      "filename": "roughness.jpg",
+      "bytes": 1586534,
+      "sha256": "eb84e52a2d07c7d7c195ccc4556668972fa540d381fcc828e8d485ddf5c52484"
+    }
+  },
+  "source_dimensions": [
+    4096,
+    4096
+  ]
+}

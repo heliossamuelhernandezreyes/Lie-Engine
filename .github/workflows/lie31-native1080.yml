@@ -1,0 +1,70 @@
+name: LIE31 Native 960 Square
+on:
+  push:
+    branches: ["experiment/lie31-hd-source-wall"]
+    paths:
+      - ".github/workflows/lie31-native1080.yml"
+      - "tools/lie31_native1080_smoke.py"
+      - "gpu_compute/lie31_fullhd_*"
+  workflow_dispatch:
+concurrency:
+  group: lie31-native-highres-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  native960:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install real Godot Vulkan runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python -m pip install pillow
+      - name: Restore SHA-verified LIE31 high density asset bank
+        run: |
+          python tools/lie31_restore_hd.py
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > godot-import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie31_fullhd_lab.gd >> godot-import.log 2>&1
+          cat godot-import.log
+          python - <<'PY'
+          from pathlib import Path
+          s=Path("godot-import.log").read_text()
+          assert "SCRIPT ERROR:" not in s,s
+          PY
+      - name: Capture real 960 square rendered pixels
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab lie31hd --directory /tmp/lie31hd-native --audio-driver Dummy
+            python tools/lie31_native1080_smoke.py --directory /tmp/lie31hd-native
+          '
+      - name: Save tested authentic native 960 outputs in Git
+        if: success()
+        run: |
+          mkdir -p evidence
+          cp /tmp/lie31hd-native/LIE31-Wall-Native-960-Square.png evidence/LIE31-Wall-Native-960-Square.png
+          cp /tmp/lie31hd-native/LIE31-Brick-Native-960-Square.png evidence/LIE31-Brick-Native-960-Square.png
+          cp /tmp/lie31hd-native/LIE31-native960-report.json evidence/LIE31-native960-report.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add evidence/LIE31-Wall-Native-960-Square.png evidence/LIE31-Brick-Native-960-Square.png evidence/LIE31-native960-report.json
+          git commit -m "LIE31: publish actual 960-square compositor proof [skip ci]"
+          git push origin HEAD:experiment/lie31-hd-source-wall
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie31-native-960-pixels
+          path: |
+            /tmp/lie31hd-native/*.png
+            /tmp/lie31hd-native/*.json
+            /tmp/lie31hd-native/godot.log
+            godot-import.log
+          if-no-files-found: warn

@@ -1,0 +1,19 @@
+{
+  "renderer": "Native Godot 4.7.2 software Vulkan LIE compositor",
+  "image": "/tmp/lie31-native/LIE31-Wall-Godot.png",
+  "image_sha256": "4b73cc0b091f16e8e2b2c4437218a9842c9b5e2b244ec3b58c5d7c91633e4a24",
+  "instances": 127,
+  "master_banks": 1,
+  "source_masters": 3,
+  "sample_invocations": 437306,
+  "seed_change_modified_pixels": true,
+  "alpha_coverage_previous": 81108,
+  "alpha_coverage_hd": 81124,
+  "detail_capture": "/tmp/lie31-native/LIE31-Brick-Closeup-Godot.png",
+  "detail_sha256": "546af9ee82c1d1a7269db49042b3bd039d5e18b3913881ee907bc3c1c9741321",
+  "seed_restore_exact": true,
+  "physical_gpu_performance_claim": false,
+  "texture_source": "Poly Haven Red Brick 4K CC0 maps",
+  "source_mesh": "heightfield-derived master, not Sketchfab downloaded scan",
+  "screen_output": "native compositor 512x512, not yet 1920x1080"
+}
