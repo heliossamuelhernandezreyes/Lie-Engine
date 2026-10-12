@@ -16,7 +16,7 @@ var _time: float=0
 var _metrics: Dictionary={}
 
 func _ready() -> void:
-    get_window().size=Vector2i(1280,800);effect=Effect.new(1080)
+    get_window().size=Vector2i(1280,800);effect=Effect.new(960)
     var world:=WorldEnvironment.new();var environment:=Environment.new();environment.background_mode=Environment.BG_COLOR;environment.background_color=Color(.025,.034,.045);world.environment=environment
     var compositor:=Compositor.new();compositor.compositor_effects=[effect];world.compositor=compositor;add_child(world)
     camera=Camera3D.new();camera.current=true;camera.near=.001;camera.far=40;add_child(camera)
@@ -39,7 +39,7 @@ func _check(parent: Node,key: String,title: String) -> void:
     var item:=CheckBox.new();item.text=title;item.toggled.connect(func(v: bool):command({"op":"set_values","values":{key:v}}));parent.add_child(item);controls[key]=item
 func _ui() -> void:
     var ui:=CanvasLayer.new();add_child(ui)
-    var title:=_label(ui,"LIE 31 · Captura 1080 × 1080 nativa",26);title.position=Vector2(24,18)
+    var title:=_label(ui,"LIE 31 · Captura 960 × 960 nativa",26);title.position=Vector2(24,18)
     picture=TextureRect.new();picture.position=Vector2(298,70);picture.size=Vector2(684,684);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;ui.add_child(picture)
     var left: VBoxContainer=_panel(ui,Vector2(20,70));_label(left,"MAESTROS DE CONSTRUCCIÓN",13).add_theme_color_override("font_color",Color(.4,.85,1))
     for pair in [["wall","Pared de ladrillos"],["master","Inspeccionar maestro"]]:
@@ -58,7 +58,7 @@ func _ui() -> void:
     for pair in [["camera_yaw","Órbita"],["camera_elevation","Altura"],["distance_factor","Distancia"],["light_azimuth","Dirección de luz"],["light_power","Intensidad"],["exposure","Exposición"]]:_slider(right,pair[0],pair[1])
     _check(right,"shadows","Sombras")
     status=_label(right,"Preparando biblioteca…",12);status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;status.custom_minimum_size.x=225
-    var caption:=_label(ui,"LIE31 · 1080² pixels reales · Vulkan software",12);caption.position=Vector2(310,760)
+    var caption:=_label(ui,"LIE31 · 960² pixels reales · Vulkan software",12);caption.position=Vector2(310,760)
 
 func _refresh() -> void:
     for key in controls:
