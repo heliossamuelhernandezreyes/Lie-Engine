@@ -22,7 +22,7 @@ DEST=ROOT/"gpu_compute/captures/lie32cluster"
 VARIANTS=4
 EXPECTED_STRIDE=80
 # Deterministic face-balanced subsampling per brick; preserve six sides.
-FACE_BUDGET={"front":90,"back":24,"top":28,"bottom":8,"left":11,"right":11}
+FACE_BUDGET={"front":420,"back":100,"top":140,"bottom":40,"left":35,"right":35}
 FACES={"front":(64,24),"back":(32,12),"top":(48,16),
        "bottom":(24,10),"left":(20,16),"right":(20,16)}
 
@@ -100,7 +100,7 @@ def build(root=BASE, output=DEST):
         originals[name]=select_face_balanced(subset,half=(name=="half_brick"))
     slabmeta=catalog["masters"]["concrete_panel"]["levels"][1]
     slab=src[slabmeta["start"]:slabmeta["start"]+slabmeta["count"]]
-    slab=slab[np.linspace(0,len(slab)-1,960).astype(np.int32)].copy()
+    slab=slab[np.linspace(0,len(slab)-1,1700).astype(np.int32)].copy()
     bank=array("f")
     master_catalog={}
     variant_digests=[]
@@ -109,7 +109,7 @@ def build(root=BASE, output=DEST):
         patches=[]
         # Recessed joint underlayer: the same material captured by LIE30.
         patches.append(transform(slab,(0,.48,.05),(2.5,1.2,.05),
-                                 rgb=(.58,.51,.44),rough_offset=.03,inflate=2.0))
+                                 rgb=(.58,.51,.44),rough_offset=.03,inflate=1.5))
         for row in range(12):
             y=(row+.5)*.08
             if row%2==0:
@@ -121,7 +121,7 @@ def build(root=BASE, output=DEST):
             for name,x,col in placements:
                 rgb,rough=tint(seed,row,col)
                 samples=transform(originals[name],(x,y,0),rgb=rgb,
-                                  rough_offset=rough,inflate=2.7)
+                                  rough_offset=rough,inflate=1.95)
                 patches.append(samples)
         combined=np.concatenate(patches).astype("<f4")
         if not np.isfinite(combined).all():
