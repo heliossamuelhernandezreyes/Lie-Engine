@@ -1,9 +1,9 @@
 {
   "schema": 1,
   "stride": 80,
-  "sample_count": 90528,
-  "sha256": "32d401059b1c7cad6190b03a3f03452a7f0a5abb26a680d64d803a5f6ccdf87a",
-  "bytes": 7242240,
+  "sample_count": 394880,
+  "sha256": "22f61226344a6451866fc695046d522e83333e0fea500ced43ac62f63d326920",
+  "bytes": 31590400,
   "source_master_sha256": "608558a3e33083de0809c18f896001bb44d7216d2a1c9fd52e4a76dfd08eda77",
   "source": "LIE31-Hd Poly Haven photographed CC0 relief samples",
   "type": "prebaked multi-brick PBR shared wall master",
@@ -13,11 +13,11 @@
       "levels": [
         {
           "start": 0,
-          "count": 22632
+          "count": 98720
         },
         {
           "start": 0,
-          "count": 22632
+          "count": 98720
         }
       ],
       "bounds_size": [
@@ -32,17 +32,17 @@
       ],
       "seed": 29,
       "source_brick_count": 126,
-      "sample_count_per_brick_approx": 172
+      "sample_count_per_brick_approx": 770
     },
     "wall_variant_1": {
       "levels": [
         {
-          "start": 22632,
-          "count": 22632
+          "start": 98720,
+          "count": 98720
         },
         {
-          "start": 22632,
-          "count": 22632
+          "start": 98720,
+          "count": 98720
         }
       ],
       "bounds_size": [
@@ -57,17 +57,17 @@
       ],
       "seed": 7948,
       "source_brick_count": 126,
-      "sample_count_per_brick_approx": 172
+      "sample_count_per_brick_approx": 770
     },
     "wall_variant_2": {
       "levels": [
         {
-          "start": 45264,
-          "count": 22632
+          "start": 197440,
+          "count": 98720
         },
         {
-          "start": 45264,
-          "count": 22632
+          "start": 197440,
+          "count": 98720
         }
       ],
       "bounds_size": [
@@ -82,17 +82,17 @@
       ],
       "seed": 15867,
       "source_brick_count": 126,
-      "sample_count_per_brick_approx": 172
+      "sample_count_per_brick_approx": 770
     },
     "wall_variant_3": {
       "levels": [
         {
-          "start": 67896,
-          "count": 22632
+          "start": 296160,
+          "count": 98720
         },
         {
-          "start": 67896,
-          "count": 22632
+          "start": 296160,
+          "count": 98720
         }
       ],
       "bounds_size": [
@@ -107,14 +107,14 @@
       ],
       "seed": 23786,
       "source_brick_count": 126,
-      "sample_count_per_brick_approx": 172
+      "sample_count_per_brick_approx": 770
     }
   },
   "variant_sha256": [
-    "ebc489b0f334a4230781f15101fb59fddbbf5378a33050305e5baf6fd9ff5d07",
-    "ee79ea15c94f7819e9c69acf7f4abe0851cf6f6d069caa4e9b553345a7bf2dd6",
-    "83b3450071fb9d14e6af116d4e370425820bd0fcb5ce2318b0542cbd6ffd5ae8",
-    "36581b5cb6d3a31ab50e0d20cd9dbd8f447ada916e230f70a6f5116eb825e1de"
+    "1f95b3cea4611176a76797d121433a69b0741fdcf2dd623fa03b440ac56e9dfd",
+    "0ae52d8ac50643dc100b2977863557638dbff598069a8353be64fbf081420f1c",
+    "725804a77bf7a30e6f610a000def460d8fd955187f4ea41a9733ccc240ad5408",
+    "c734eb6d9517b026752251fc5d6fb5a7b7cf05b3ce22cecfb4129e59c899ca67"
   ],
   "limitations": "Downsampled source samples; visual comparison required"
 }
