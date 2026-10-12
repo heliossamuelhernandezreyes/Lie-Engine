@@ -7,6 +7,9 @@ on:
       - "tools/lie31_native960_smoke.py"
       - "gpu_compute/lie31_fullhd_*"
   workflow_dispatch:
+concurrency:
+  group: lie31-native-highres-${{ github.ref }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
