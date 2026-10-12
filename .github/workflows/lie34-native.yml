@@ -51,12 +51,15 @@ jobs:
         if: success()
         run: |
           mkdir -p evidence
+          if [ -f evidence/LIE34-Real-Photogrammetry-Native1080.png ] && [ ! -f evidence/LIE34-V1-140K-Native1080.png ]; then
+            cp evidence/LIE34-Real-Photogrammetry-Native1080.png evidence/LIE34-V1-140K-Native1080.png
+          fi
           cp /tmp/lie34-native/LIE34-Real-Photogrammetry-Native1080.png evidence/LIE34-Real-Photogrammetry-Native1080.png
           cp /tmp/lie34-native/LIE34-Scan-Rotated-Native1080.png evidence/LIE34-Scan-Rotated-Native1080.png
           cp /tmp/lie34-native/LIE34-native-validation.json evidence/LIE34-native-validation.json
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config user.name "github-actions[bot]"
-          git add evidence/LIE34-Real-Photogrammetry-Native1080.png evidence/LIE34-Scan-Rotated-Native1080.png evidence/LIE34-native-validation.json
+          git add evidence/LIE34-V1-140K-Native1080.png evidence/LIE34-Real-Photogrammetry-Native1080.png evidence/LIE34-Scan-Rotated-Native1080.png evidence/LIE34-native-validation.json
           git commit -m "LIE34: authentic 5.5M triangle scan captured and GPU rendered [skip ci]"
           git push origin HEAD:experiment/lie34-real-scan-reference
       - uses: actions/upload-artifact@v4
