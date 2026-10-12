@@ -1,0 +1,55 @@
+name: LIE-13 finite secondary radii and dielectric sprites
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie13-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  capture-light:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent physics, proxy and prior Python tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install Blender, Godot and software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie12-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie12-godot.zip -d /tmp/lie12-godot
+          chmod +x /tmp/lie12-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb
+      - name: Capture actual complex source with neutral grayscale and spatial material codes
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/create_lie_coded_fixture_blender.py -- /tmp/lie12-source.glb
+          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input /tmp/lie12-source.glb --out gpu_compute/captures/coded_shard --azimuth-steps 4 --elevations=20 --resolution 128 --coded-lighting
+          test -s gpu_compute/captures/coded_shard/code-manifest.json
+      - name: Independent float64 oracle with source-triangle occlusion
+        run: |
+          python3 tools/lie_coded_reference.py gpu_compute/captures/coded_shard
+          python3 tools/lie13_reference.py gpu_compute/captures/coded_shard
+      - name: Generate older lighting fixture and import all Vulkan modules
+        run: |
+          python3 tools/lie_light_transport.py
+          xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie12-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee /tmp/lie13-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' /tmp/lie13-import.log; then exit 1; fi
+      - name: Real capture relighting, bounce, absorption, perspective and native sprite depth
+        run: xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie12-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie12_capture_codes.gd
+      - name: Finite radii, transmitted shadows and glass water rain sprites
+        run: xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie12-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie13_optics.gd
+      - name: Existing LIE-11 grayscale lighting regression
+        run: xvfb-run -a -s '-screen 0 1280x720x24' /tmp/lie12-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie11_lighting.gd
+      - name: Preserve capture, actual viewport and machine-readable evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-13-radii-dielectric-evidence
+          path: |
+            gpu_compute/lie12-*.png
+            gpu_compute/lie12-diagnostic.json
+            gpu_compute/lie13-*.png
+            gpu_compute/lie13-diagnostic.json
+            gpu_compute/captures/coded_shard/
+          if-no-files-found: warn

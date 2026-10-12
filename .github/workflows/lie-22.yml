@@ -1,0 +1,50 @@
+name: LIE-22 shared eyes and modular destruction
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie22-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  modular:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python regressions
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install authoring and actual software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie22-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie22-godot.zip -d /tmp/lie22-godot
+          chmod +x /tmp/lie22-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender mesa-vulkan-drivers xvfb ripgrep python3-numpy python3-pil
+      - name: Prepare original neutral eye, masonry modules and convex cut interiors
+        run: |
+          blender --background --python-exit-code 1 --python tools/lie22_prepare_blender.py
+          python3 tools/lie22_verify_captures.py gpu_compute
+      - name: Atomic user and agent document, damage and support connectivity
+        run: /tmp/lie22-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --audio-driver Dummy --path gpu_compute --script res://workshop/test_lie_modular_document.gd
+      - name: Import actual shaders
+        run: |
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie22-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie22-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie22-import.log; then exit 1; fi
+      - name: Actual GPU, user presets, live agent transport, local damage and native rigid physics
+        run: |
+          xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie22-godot/Godot_v4.7.2-stable_linux.x86_64 --audio-driver Dummy --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie22_modular.gd 2>&1 | tee gpu_compute/lie22-gpu.log
+          if rg 'ERROR:|SCRIPT ERROR|Parse Error' gpu_compute/lie22-gpu.log; then exit 1; fi
+      - name: Preserve real GPU frames and reusable editable sources
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-22-eye-and-destruction-evidence
+          path: |
+            gpu_compute/lie22-*.png
+            gpu_compute/lie22-*.json
+            gpu_compute/lie22-import.log
+            gpu_compute/lie22-gpu.log
+            gpu_compute/captures/modular22/
+            gpu_compute/assets/lie22/
+          if-no-files-found: warn

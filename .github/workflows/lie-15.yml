@@ -1,0 +1,60 @@
+name: LIE-15 Arcont robot and compact camera reconstruction
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie15-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  robot-camera:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python regressions and actual source digest
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install authoring and real software Vulkan renderer
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie15-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie15-godot.zip -d /tmp/lie15-godot
+          chmod +x /tmp/lie15-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender python3-numpy mesa-vulkan-drivers xvfb
+      - name: Prepare actual Kenney box from pinned bytes, neutralize palette
+        run: PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie15_prepare_blender.py
+      - uses: actions/cache/restore@v4
+        id: capture-cache
+        with:
+          path: gpu_compute/captures/robot_master
+          key: lie15-master-128-v1-${{ hashFiles('tools/lie15_prepare_blender.py', 'tools/lie_capture_surface_blender.py', 'gpu_compute/assets/lie15/box-small.glb.base64', 'gpu_compute/assets/lie15/colormap.png.base64') }}
+      - name: Capture sixty camera angles with one normal map each
+        if: steps.capture-cache.outputs.cache-hit != 'true'
+        run: PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 768x768x24' blender --background --python-exit-code 1 --python tools/lie_capture_surface_blender.py -- --input gpu_compute/assets/lie15/master-neutral.glb --out gpu_compute/captures/robot_master --azimuth-steps 12 --elevations=-75,-35,0,35,75 --resolution 128
+      - uses: actions/cache/save@v4
+        if: steps.capture-cache.outputs.cache-hit != 'true'
+        with:
+          path: gpu_compute/captures/robot_master
+          key: ${{ steps.capture-cache.outputs.cache-primary-key }}
+      - name: Pack immutable shared master and coarse lighting nodes
+        run: PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-exit-code 1 --python tools/lie15_pack_blender.py -- gpu_compute/captures/robot_master
+      - name: Float64 material oracle and original triangle camera reference
+        run: python3 tools/lie15_reference.py gpu_compute/captures/robot_master
+      - name: Import shaders and scripts
+        run: |
+          xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie15-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie15-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie15-import.log; then exit 1; fi
+      - name: Actual robot camera, numerical checks and identical optimized image
+        run: xvfb-run -a -s '-screen 0 768x768x24' /tmp/lie15-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie15_robot.gd
+      - name: Preserve real camera frames and reproducible masters
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-15-arcont-robot-evidence
+          path: |
+            gpu_compute/lie15-*.png
+            gpu_compute/lie15-diagnostic.json
+            gpu_compute/lie15-import.log
+            gpu_compute/captures/robot_master/
+            gpu_compute/assets/lie15/
+          if-no-files-found: warn

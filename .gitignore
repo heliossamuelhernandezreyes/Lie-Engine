@@ -1,0 +1,119 @@
+.godot/
+*.translation
+.DS_Store
+__pycache__/
+*.py[cod]
+assets/captures/*
+!assets/captures/.gitkeep
+captures_out/
+gpu_compute/fixtures/lie11-reference.json
+gpu_compute/lie11-*.png
+gpu_compute/lie11-diagnostic.json
+gpu_compute/captures/coded_shard/
+gpu_compute/lie12-*.png
+gpu_compute/lie12-diagnostic.json
+gpu_compute/lie13-*.png
+gpu_compute/lie13-diagnostic.json
+gpu_compute/captures/rigid_master/
+gpu_compute/lie14-*.png
+gpu_compute/lie14-diagnostic.json
+gpu_compute/lie14-import.log
+
+# LIE-15 reproducible Arcont robot authoring and runtime evidence
+/gpu_compute/assets/lie15/*.glb
+/gpu_compute/assets/lie15/source-triangles.json
+/gpu_compute/captures/robot_master/
+/gpu_compute/lie15-*.png
+/gpu_compute/lie15-*.json
+/gpu_compute/lie15-*.log
+/gpu_compute/assets/lie15/Textures/
+
+# Generated Godot import metadata
+/gpu_compute/**/*.uid
+/gpu_compute/**/*.import
+
+# LIE-16 actual renderer evidence
+/gpu_compute/lie16-*.png
+/gpu_compute/lie16-*.json
+/gpu_compute/lie16-*.log
+
+# LIE-17 actual edge reconstruction evidence
+/gpu_compute/lie17-*.png
+/gpu_compute/lie17-*.json
+/gpu_compute/lie17-*.log
+
+# LIE-18 generated captures, authoring sources and renderer evidence
+/gpu_compute/captures/workshop_cylinder/
+/gpu_compute/assets/workshop/*
+!/gpu_compute/assets/workshop/.gdignore
+/gpu_compute/lie18-*.png
+/gpu_compute/lie18-*.json
+/gpu_compute/lie18-*.log
+
+# LIE-19 measured transport cache and client responses
+/gpu_compute/lie19-*.png
+/gpu_compute/lie19-*.json
+/gpu_compute/lie19-*.log
+
+# LIE-20 locked sources, editable Blender master and reproducible captures
+/gpu_compute/assets/lie20/*.glb
+/gpu_compute/assets/lie20/*.jpg
+/gpu_compute/assets/lie20/*.blend*
+/gpu_compute/captures/human_master/
+/gpu_compute/lie20-*.png
+/gpu_compute/lie20-*.json
+/gpu_compute/lie20-*.log
+
+# LIE-21 high-density human captures and actual matched evidence
+/gpu_compute/captures/human_quality/
+/gpu_compute/lie20-baseline/
+/gpu_compute/lie21-*.png
+/gpu_compute/lie21-*.json
+/gpu_compute/lie21-*.log
+
+# LIE-22 generated shared eye/masonry library and native GPU evidence
+/gpu_compute/captures/modular22/
+/gpu_compute/assets/lie22/*.blend*
+/gpu_compute/assets/lie22/source-surfaces.json
+/gpu_compute/lie22-*.png
+/gpu_compute/lie22-*.json
+/gpu_compute/lie22-*.log
+
+# LIE-23 captured open face, native editable sources and measured evidence
+/gpu_compute/captures/face23/
+/gpu_compute/assets/lie23/*.blend*
+/gpu_compute/lie23-*.png
+/gpu_compute/lie23-*.json
+/gpu_compute/lie23-*.log
+
+# LIE-24 reproducible facial modules and actual renderer evidence
+/gpu_compute/captures/face24/
+/gpu_compute/assets/lie24/*.blend*
+/gpu_compute/lie24-*.png
+/gpu_compute/lie24-*.json
+/gpu_compute/lie24-*.log
+
+# LIE-25 captures and measured evidence; source acquired separately
+/gpu_compute/captures/anatomy25/
+/gpu_compute/lie25-*.png
+/gpu_compute/lie25-*.json
+/gpu_compute/lie25-*.bin
+/gpu_compute/lie25-*.log
+
+# LIE-26 full-body capture bank, source segments and measured motion evidence
+/gpu_compute/captures/anatomy26/
+/gpu_compute/lie26-*.png
+/gpu_compute/lie26-*.json
+/gpu_compute/lie26-*.bin
+/gpu_compute/lie26-*.log
+/gpu_compute/lie26-frames/
+
+# LIE-27 derived anatomy bank and measured region/face evidence
+/gpu_compute/captures/anatomy27/
+/gpu_compute/captures/anatomy27_intact/
+/gpu_compute/captures/anatomy27_before/
+/gpu_compute/lie27-*.png
+/gpu_compute/lie27-*.json
+/gpu_compute/lie27-*.bin
+/gpu_compute/lie27-*.log
+/gpu_compute/lie27-frames/

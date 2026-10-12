@@ -1,0 +1,45 @@
+name: LIE-20 captured human, invisible deformation and skin
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie20-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  human:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender and actual software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie20-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie20-godot.zip -d /tmp/lie20-godot
+          chmod +x /tmp/lie20-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y blender mesa-vulkan-drivers xvfb ripgrep python3-pil
+      - name: Human document and agent guards
+        run: /tmp/lie20-godot/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --script res://workshop/test_lie_human_document.gd
+      - name: Locked scan, Blender authoring, real camera captures and independent references
+        run: blender --background --python-exit-code 1 --python tools/lie20_prepare_blender.py
+      - name: Import actual human shaders and workshop scripts
+        run: |
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie20-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit 2>&1 | tee gpu_compute/lie20-import.log
+          if rg 'SCRIPT ERROR|Parse Error|Failed to compile|shader errors|Shader compilation failed' gpu_compute/lie20-import.log; then exit 1; fi
+      - name: Actual GPU deformation, skin, user controls and agent commands
+        run: xvfb-run -a -s '-screen 0 1280x800x24' /tmp/lie20-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie20_human.gd
+      - name: Independent camera/pose image comparison
+        run: python3 tools/lie20_evidence.py gpu_compute
+      - name: Preserve original source, captures, matched frames and measured limits
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-20-human-evidence
+          path: |
+            gpu_compute/lie20-*.png
+            gpu_compute/lie20-*.json
+            gpu_compute/lie20-import.log
+            gpu_compute/captures/human_master/
+            gpu_compute/assets/lie20/
+          if-no-files-found: warn

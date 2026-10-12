@@ -1,0 +1,16 @@
+config_version=5
+[application]
+config/name="Lie Workshop"
+run/main_scene="res://lie27_regions_lab.tscn"
+[autoload]
+LieAgent="*res://workshop/lie_agent_session.gd"
+[rendering]
+renderer/rendering_method="forward_plus"
+renderer/rendering_method.mobile="mobile"
+
+[display]
+window/size/viewport_width=256
+window/size/viewport_height=256
+
+[editor_plugins]
+enabled=PackedStringArray("res://addons/lie_workshop/plugin.cfg")

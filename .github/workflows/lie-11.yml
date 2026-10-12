@@ -1,0 +1,41 @@
+name: LIE-11 coded sprite light transport
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+concurrency:
+  group: lie11-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+jobs:
+  light:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent physics and prior Python regressions
+        run: python3 -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Build grayscale room contract and float64 oracle
+        run: python3 tools/lie_light_transport.py
+      - name: Install Godot and software Vulkan
+        run: |
+          curl --fail --location --retry 3 -o /tmp/lie11-godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/lie11-godot.zip -d /tmp/lie11-godot
+          chmod +x /tmp/lie11-godot/Godot_v4.7.2-stable_linux.x86_64
+          sudo apt-get update -qq
+          sudo apt-get install -y mesa-vulkan-drivers vulkan-tools xvfb
+      - name: Import Vulkan shader and grayscale sprite scene
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' /tmp/lie11-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+      - name: GPU physics, sprites, shadows, absorption and perspective
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' /tmp/lie11-godot/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie11_lighting.gd
+      - name: Preserve real rendered frames and numerical diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-11-coded-gray-light-evidence
+          path: |
+            gpu_compute/lie11-*.png
+            gpu_compute/lie11-diagnostic.json
+            gpu_compute/fixtures/lie11-reference.json
+          if-no-files-found: warn

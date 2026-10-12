@@ -1,0 +1,275 @@
+name: LIE-01 native acceptance
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+
+concurrency:
+  group: lie-acceptance-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python reference tests
+        run: python -m unittest discover -s tests -p 'test_*.py' -v
+
+      - name: Install pinned Godot 4.7.2 stable
+        run: |
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+
+      - name: Godot import and parse
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit
+
+      - name: Spatial indexing (native GDScript)
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_view_index.gd
+
+      - name: Invisible 3D collider plus visual-only sprite
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_invisible_proxy.gd
+
+      - name: Native two-angle viewport evidence
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_capture_two_views.gd
+
+      - name: Upload real Godot frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-01-native-angle-captures
+          path: |
+            lie-01-view-*.png
+          if-no-files-found: error
+
+      - name: LIE-03 compile depth mesh scripts
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_depth_mesher.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_depth_node.gd
+
+      - name: LIE-03 depth and invisible physical node validation
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_depth_mesher.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_depth_scene.gd
+
+      - name: LIE-04 angular interpolation and conservative group visibility
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_visibility.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_angular_pair.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_depth_node.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_visibility.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_angular_pair.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_04_visibility_pipeline.gd
+
+      - name: LIE-05 parse and analytic forward projection/depth fusion
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_forward_reprojector.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_reprojection_node.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_05_forward.gd
+
+      - name: LIE-06 C++17 native view selection contract
+        run: |
+          cmake -S native -B /tmp/lie06-cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/lie06-cmake --parallel 2
+          ctest --test-dir /tmp/lie06-cmake --output-on-failure
+
+      - name: LIE-06 four-view angular confidence contract
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_06_node.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_06_selection.gd
+
+      - name: Install software Vulkan compute backend for GPU verification
+        run: |
+          sudo apt-get install -y mesa-vulkan-drivers vulkan-tools
+          vulkaninfo --summary | head -n 70
+
+      - name: 'LIE-06 Vulkan compute: depth and confidence crossfade'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_gpu_fusion.gd
+
+      - name: 'LIE-06 Vulkan compute: source depth projection into target camera'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_gpu_projection.gd
+
+      - name: 'LIE-07 Vulkan: joined four-view projection to GPU texture'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie07_pipeline.gd
+
+      - name: 'LIE-08 Vulkan: actual viewport compositor and orbit screenshots'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie08_viewport.gd
+
+      - name: LIE-08 viewport evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-08-gpu-viewport-orbit
+          path: |
+            gpu_compute/lie-08-viewport-0.png
+            gpu_compute/lie-08-viewport-35.png
+          if-no-files-found: error
+
+      - name: Install Blender for real three-channel fixture
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y blender python3-numpy
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python-expr 'import numpy; print("BLENDER NUMPY READY", numpy.__version__)'
+
+      - name: Generate one actual Blender glTF fixture and capture channels
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python tools/create_lie_fixture_blender.py -- /tmp/lie-02-fixture.glb
+          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 1280x720x24' blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie-02-fixture.glb --out assets/captures/demo_shard --azimuth-steps 4 --elevations=-30,0,30 --resolution 128
+          python tools/validate_lie_surface.py assets/captures/demo_shard
+          cp /tmp/lie-02-fixture.glb assets/captures/demo_shard/source.glb
+
+      - name: 'LIE-09 import actual Blender captures into GPU viewport project'
+        run: |
+          mkdir -p gpu_compute/captures
+          cp -a assets/captures/demo_shard gpu_compute/captures/demo_shard
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+
+      - name: 'LIE-09 GPU Blender normals + native depth front/rear'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie09_capture.gd
+
+      - name: LIE-09 real capture and occlusion evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-09-blender-depth-native-occlusion
+          path: |
+            gpu_compute/lie-09-real-0.png
+            gpu_compute/lie-09-real-35.png
+            gpu_compute/lie-09-native-front.png
+            gpu_compute/lie-09-native-rear.png
+          if-no-files-found: error
+
+      - name: 'LIE-10 generate complex glTF and capture real 3-channel atlas'
+        run: |
+          PYTHONPATH=/usr/lib/python3/dist-packages blender --background --python tools/create_lie_complex_fixture_blender.py -- /tmp/lie10-complex.glb
+          PYTHONPATH=/usr/lib/python3/dist-packages xvfb-run -a -s '-screen 0 1280x720x24' blender --background --python tools/lie_capture_surface_blender.py -- --input /tmp/lie10-complex.glb --out assets/captures/complex_shard --azimuth-steps 4 --elevations=-30,0,30 --resolution 128
+          python tools/validate_lie_surface.py assets/captures/complex_shard
+          mkdir -p gpu_compute/captures/complex_shard
+          cp -a assets/captures/complex_shard/. gpu_compute/captures/complex_shard/
+          cp /tmp/lie10-complex.glb gpu_compute/captures/complex_shard/source.glb
+
+      - name: 'LIE-10 import complex glTF into Godot Vulkan project'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --editor --import --quit
+
+      - name: 'LIE-10 native GLB vs Lie silhouette and dynamic lighting'
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute --rendering-driver vulkan --rendering-method forward_plus --script res://test_lie10_diagnostics.gd
+
+      - name: Preserve LIE-10 comparison report and real Godot frames
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-10-complex-light-comparison
+          path: |
+            gpu_compute/lie10-warm-0.png
+            gpu_compute/lie10-cool-0.png
+            gpu_compute/lie10-lie-35.png
+            gpu_compute/lie10-glb-35.png
+            gpu_compute/lie10-glb-0.png
+            gpu_compute/lie10-diagnostic.json
+          if-no-files-found: error
+
+      - name: Import Blender capture into Godot and prove real channel selection
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --editor --import --quit
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_blender_import.gd
+
+      - name: LIE-03 actual red-blue depth occlusion from opposite cameras
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_depth_occlusion.gd
+
+      - name: Preserve opposite-camera Z-occlusion evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-03-depth-occlusion-frames
+          path: lie-03-*.png
+          if-no-files-found: error
+
+      - name: LIE-04 actual adjacent depth views and Bayer coverage frames
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_04_angular_frames.gd
+
+      - name: Preserve native angular blending evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-04-angular-interpolation-frames
+          path: lie-04-angle-*.png
+          if-no-files-found: error
+
+      - name: LIE-05 native source-depth forward-reprojected views
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_05_blender_reprojection.gd
+
+      - name: Archive 0 45 90 novel camera depth fusion
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-05-depth-reprojected-frames
+          path: lie-05-*.png
+          if-no-files-found: error
+
+      - name: LIE-06 real four-view quality regression vs 3D source
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_06_quality.gd
+
+      - name: Preserve four-view quality verification frame
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-06-quality-comparison
+          path: lie-06-angle-45.png
+          if-no-files-found: error
+
+      - name: Real source GLB against Lie pixels, matched camera
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_reference_pair.gd
+
+      - name: Upload paired native Godot render evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-02-reference-comparison
+          path: |
+            lie-02-lie-surface.png
+            lie-02-reference-3d.png
+          if-no-files-found: error
+
+      - name: Preserve actual albedo-normal-depth capture
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-02-blender-surface-fixture
+          path: assets/captures/demo_shard/
+          if-no-files-found: error
+
+      - name: LIE-02 GDScript compilation diagnostic
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --check-only --script res://scripts/lie_surface_node.gd
+
+      - name: LIE-02 surface node, invisible proxy and changing light
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --script res://tests/test_lie_surface.gd
+
+      - name: LIE-02 native red-blue lighting framebuffer comparison
+        run: |
+          xvfb-run -a -s '-screen 0 1280x720x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path . --script res://tests/test_lie_surface_render.gd
+
+      - name: Upload LIE-02 real native light comparison
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-02-native-light-captures
+          path: lie-02-*.png
+          if-no-files-found: error
+
+      - name: Headless scene runtime
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path . --quit-after 30

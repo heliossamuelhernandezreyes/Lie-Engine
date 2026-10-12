@@ -1,0 +1,20 @@
+config_version=5
+
+[application]
+
+config/name="Lie Engine | LIE-06"
+run/main_scene="res://scenes/lie_06_lab.tscn"
+config/description="Four-view spatial reconstruction with per-pixel normal confidence; dedicated Vulkan compute lab."
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.035, 0.055, 0.080, 1)

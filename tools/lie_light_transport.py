@@ -1,0 +1,347 @@
+"""LIE-11 float64 reference for absorption-coded, finite-patch light transport.
+
+RGB values are linear relative power, not calibrated spectral watts. This is a
+bounded diffuse approximation with optional straight-segment thin-sheet transmission.
+No specular diffuse-source transport or caustic ray tracing.
+"""
+from __future__ import annotations
+
+import argparse
+import copy
+import json
+import math
+from pathlib import Path
+from lie_optics import validate_sheets, sheet_transmission
+
+
+def dot(a, b):
+    return sum(x * y for x, y in zip(a, b))
+
+
+def subtract(a, b):
+    return [x - y for x, y in zip(a, b)]
+
+
+def segment_blocked(a, b, boxes, triangles=()):
+    """Slab intersection of the open segment, with explicit endpoint exclusion."""
+    delta = subtract(b, a)
+    for box in boxes:
+        lo, hi = 0.001, 0.999
+        for axis in range(3):
+            if abs(delta[axis]) < 1e-8:
+                if a[axis] < box[0][axis] or a[axis] > box[1][axis]:
+                    lo, hi = 1.0, 0.0
+                    break
+            else:
+                near = (box[0][axis] - a[axis]) / delta[axis]
+                far = (box[1][axis] - a[axis]) / delta[axis]
+                lo = max(lo, min(near, far))
+                hi = min(hi, max(near, far))
+        if lo <= hi:
+            return True
+    for tri in triangles:
+        edge1, edge2 = subtract(tri[1], tri[0]), subtract(tri[2], tri[0])
+        def cross(x, y):
+            return [x[1]*y[2]-x[2]*y[1], x[2]*y[0]-x[0]*y[2], x[0]*y[1]-x[1]*y[0]]
+        h = cross(delta, edge2)
+        det = dot(edge1, h)
+        if abs(det) < 1e-8:
+            continue
+        s = subtract(a, tri[0])
+        u = dot(s, h) / det
+        if u < 0 or u > 1:
+            continue
+        q = cross(s, edge1)
+        v = dot(delta, q) / det
+        if v < 0 or u + v > 1:
+            continue
+        t = dot(edge2, q) / det
+        if .001 <= t <= .999:
+            return True
+    return False
+
+
+def validate(model):
+    validate_sheets(model.get("optical_sheets", []))
+    if model.get("schema") != 1 or not 1 <= len(model["patches"]) <= 1024:
+        raise ValueError("Unsupported schema or patch count")
+    if model.get("factor_normalization", "global") not in ("global", "symmetric_local"):
+        raise ValueError("Unsupported conservative form-factor normalization")
+    if not 1 <= len(model["lights"]) <= 16:
+        raise ValueError("Expected 1..16 light codes")
+    radii = model.get("secondary_radii")
+    if radii is not None:
+        if not all(math.isfinite(radii.get(k, float("nan"))) and radii[k] > 0
+                   for k in ("radius_max", "radius_decay", "power_reference")) or radii["radius_decay"] > 1:
+            raise ValueError("Invalid secondary radius policy")
+    for p in model["patches"]:
+        if len(p["position"]) != 3 or len(p["normal"]) != 3:
+            raise ValueError("XYZ and normal must have three components")
+        if not all(math.isfinite(v) for v in p["position"] + p["normal"]):
+            raise ValueError("Non-finite patch")
+        if abs(dot(p["normal"], p["normal"]) - 1) > 1e-5:
+            raise ValueError("Normals must be unit world-space vectors")
+        if not math.isfinite(p["area"]) or p["area"] <= 0:
+            raise ValueError("Patch area must be positive")
+        if not 0 <= p["gray_mean"] <= 1:
+            raise ValueError("Grayscale reflectance must be in [0,1]")
+        m = model["materials"][p["material"]]
+        if not math.isfinite(m.get("radius_scale", 1)) or not 0 <= m.get("radius_scale", 1) <= 1:
+            raise ValueError("Material radius scale must be in [0,1]")
+        if not isinstance(m["absorption_code"], int) or not 0 <= m["absorption_code"] <= 1000:
+            raise ValueError("Absorption code must be an integer in [0,1000]")
+        if len(m["tint_linear"]) != 3 or not all(0 <= x <= 1 for x in m["tint_linear"]):
+            raise ValueError("Material RGB filter must be in [0,1]")
+    for light in model["lights"]:
+        if len(light["position"]) != 3 or len(light["power_rgb"]) != 3:
+            raise ValueError("Light XYZ and RGB must have three components")
+        if not all(math.isfinite(x) for x in light["position"] + light["power_rgb"]):
+            raise ValueError("Non-finite light")
+        if min(light["power_rgb"]) < 0 or not math.isfinite(light["radius"]) or light["radius"] <= 0:
+            raise ValueError("Invalid light power/radius")
+    for lo, hi in model.get("blockers", []):
+        if len(lo) != 3 or len(hi) != 3 or not all(math.isfinite(x) for x in lo + hi):
+            raise ValueError("Invalid occluder bounds")
+        if any(a >= b for a, b in zip(lo, hi)):
+            raise ValueError("Occluder needs nonzero volume")
+    triangles = model.get("triangles", [])
+    if len(triangles) > 16384:
+        raise ValueError("Triangle proxy exceeds research budget")
+    for tri in triangles:
+        if len(tri) != 3 or any(len(v) != 3 or not all(math.isfinite(x) for x in v) for v in tri):
+            raise ValueError("Invalid triangle proxy")
+    visibility = model.get("mesh_visibility")
+    if visibility is not None:
+        n = len(model["patches"])
+        if len(visibility) != n*n or any(v not in (0, 1) for v in visibility):
+            raise ValueError("Invalid static mesh visibility cache")
+        if any(visibility[i*n+j] != visibility[j*n+i] for i in range(n) for j in range(i+1, n)):
+            raise ValueError("Mesh visibility must be symmetric")
+
+
+def reflectance(model, patch):
+    material = model["materials"][patch["material"]]
+    fraction = 1.0 - material["absorption_code"] / 1000.0
+    return [fraction * x * patch["gray_mean"] for x in material["tint_linear"]]
+
+
+def form_factors(model):
+    """Center quadrature with reciprocal global or symmetric-pair row caps.
+
+    F[i][j] is a fraction of source i's reflected power reaching receiver j.
+    Missing row mass escapes. Global scaling is a documented conservative
+    correction of the coarse quadrature, not an exact geometric integral.
+    """
+    validate(model)
+    patches = model["patches"]
+    n = len(patches)
+    f = [[0.0] * n for _ in range(n)]
+    for i, a in enumerate(patches):
+        for j in range(i + 1, n):
+            b = patches[j]
+            delta = subtract(b["position"], a["position"])
+            d2 = dot(delta, delta)
+            visibility = model.get("mesh_visibility")
+            mesh_hidden = visibility is not None and not visibility[i*n+j]
+            if d2 < 1e-10 or mesh_hidden or segment_blocked(a["position"], b["position"], model.get("blockers", []), model.get("triangles", []) if visibility is None else ()):
+                continue
+            direction = [x / math.sqrt(d2) for x in delta]
+            ca = max(dot(a["normal"], direction), 0.0)
+            cb = max(-dot(b["normal"], direction), 0.0)
+            coupling = a["area"] * b["area"] * ca * cb / (math.pi * d2)
+            f[i][j] = coupling / a["area"]
+            f[j][i] = coupling / b["area"]
+    rows = list(map(sum, f))
+    correction = max(1.0, max(rows))
+    if model.get("factor_normalization") == "symmetric_local":
+        # Each pair shares one denominator, preserving area reciprocity.
+        # denominator >= row_i for every j guarantees sum_j F_ij <= 1.
+        return [[v / max(1.0, rows[i], rows[j]) for j, v in enumerate(row)]
+                for i, row in enumerate(f)], None
+    return [[v / correction for v in row] for row in f], 1.0 / correction
+
+
+def light_weight(patch, light, blockers, triangles=()):
+    delta = subtract(light["position"], patch["position"])
+    d2 = dot(delta, delta)
+    if d2 < 1e-10 or segment_blocked(patch["position"], light["position"], blockers, triangles):
+        return 0.0
+    distance = math.sqrt(d2)
+    cosine = max(dot(patch["normal"], [x / distance for x in delta]), 0.0)
+    window = max(0.0, 1.0 - (distance / light["radius"]) ** 4) ** 2
+    # Finite source softening and a smooth radius cutoff are explicit approximations.
+    return patch["area"] * cosine * window / (4 * math.pi * max(d2, 0.05 ** 2))
+
+
+def direct_flux(model, parents=None):
+    n = len(model["patches"])
+    result = [[0.0] * 3 for _ in range(n)]
+    for light in model["lights"]:
+        weights = [light_weight(p, light, model.get("blockers", []), model.get("triangles", [])) for p in model["patches"]]
+        cap = max(1.0, sum(weights))
+        for i, w in enumerate(weights):
+            if parents is not None and w * max(light["power_rgb"]) > 0:
+                parents[i] = max(parents[i], light["radius"])
+            transmission = sheet_transmission(model["patches"][i]["position"], light["position"], model.get("optical_sheets", []))
+            for c in range(3):
+                result[i][c] += light["power_rgb"][c] * w / cap * transmission[c]
+    return result
+
+
+def totals(values):
+    return [sum(row[c] for row in values) for c in range(3)]
+
+
+def secondary_radius(model, i, parent_radius, outgoing):
+    """Artistic finite influence policy; absorption remains multiplicative power.
+
+    Shrink along each contributing path, additionally cap reach by outgoing
+    power. No renormalization restores energy removed by the radial window.
+    """
+    policy = model.get("secondary_radii")
+    if policy is None or max(outgoing) <= 0:
+        return 0.0
+    patch = model["patches"][i]
+    scale = model["materials"][patch["material"]].get("radius_scale", 1)
+    survival = math.sqrt(max(reflectance(model, patch)))
+    return min(parent_radius * policy["radius_decay"] * survival,
+               policy["radius_max"] * math.sqrt(max(outgoing) / policy["power_reference"]),
+               policy["radius_max"]) * scale
+
+
+def solve(model, bounces=2, threshold=0.0):
+    if not isinstance(bounces, int) or not 0 <= bounces <= 8 or not math.isfinite(threshold) or threshold < 0:
+        raise ValueError("Expected 0..8 bounces and a finite nonnegative threshold")
+    f, correction = form_factors(model)
+    seed_parents = [0.0] * len(f)
+    direct = direct_flux(model, seed_parents)
+    total = copy.deepcopy(direct)
+    rho = [reflectance(model, p) for p in model["patches"]]
+    frontier = [[row[c] * rho[i][c] for c in range(3)] for i, row in enumerate(direct)]
+    radii = [secondary_radius(model, i, seed_parents[i], frontier[i]) for i in range(len(f))]
+    history = [{"incoming": totals(direct), "outgoing": totals(frontier), "radius_max": max(radii)}]
+    radius_history = [radii[:]]
+    for _ in range(bounces):
+        incoming = [[0.0] * 3 for _ in f]
+        parents = [0.0] * len(f)
+        for j in range(len(f)):
+            for i in range(len(f)):
+                weight = f[j][i]
+                if model.get("secondary_radii"):
+                    distance = math.sqrt(dot(subtract(model["patches"][j]["position"], model["patches"][i]["position"]),
+                                             subtract(model["patches"][j]["position"], model["patches"][i]["position"])))
+                    weight *= max(0.0, 1.0 - (distance / radii[j])**4)**2 if radii[j] > 0 else 0
+                if weight * max(frontier[j]) > 0:
+                    parents[i] = max(parents[i], radii[j])
+                transmission = sheet_transmission(model["patches"][j]["position"], model["patches"][i]["position"], model.get("optical_sheets", [])) if weight > 0 else [1.0]*3
+                for c in range(3): incoming[i][c] += frontier[j][c] * weight * transmission[c]
+        frontier = [[row[c] * rho[i][c] for c in range(3)] for i, row in enumerate(incoming)]
+        for i in range(len(f)):
+            for c in range(3):
+                total[i][c] += incoming[i][c]
+            if max(frontier[i]) < threshold:
+                frontier[i] = [0.0] * 3
+        radii = [secondary_radius(model, i, parents[i], frontier[i]) for i in range(len(f))]
+        radius_history.append(radii[:])
+        history.append({"incoming": totals(incoming), "outgoing": totals(frontier), "radius_max": max(radii)})
+    irradiance = [[v / p["area"] for v in row] for row, p in zip(total, model["patches"])]
+    return {"direct_flux": direct, "total_flux": total, "irradiance": irradiance,
+            "energy_by_generation": history, "form_factor_scale": correction,
+            "secondary_radius_by_generation": radius_history,
+            "max_row_sum": max(map(sum, f))}
+
+
+def closed_solution(model):
+    """Independent dense linear-system oracle for the infinite-bounce limit."""
+    if model.get("secondary_radii") or model.get("optical_sheets"):
+        raise ValueError("Finite power-dependent radii are nonlinear; no fixed-matrix closed solution")
+    f, _ = form_factors(model)
+    direct = direct_flux(model)
+    rho = [reflectance(model, p) for p in model["patches"]]
+    n = len(f)
+    output = [[0.0] * 3 for _ in range(n)]
+    for c in range(3):
+        matrix = [[(1.0 if i == j else 0.0) - f[j][i] * rho[j][c] for j in range(n)]
+                  + [direct[i][c]] for i in range(n)]
+        for k in range(n):
+            pivot = max(range(k, n), key=lambda i: abs(matrix[i][k]))
+            matrix[k], matrix[pivot] = matrix[pivot], matrix[k]
+            if abs(matrix[k][k]) < 1e-12:
+                raise ValueError("Singular transport system")
+            divisor = matrix[k][k]
+            matrix[k] = [v / divisor for v in matrix[k]]
+            for i in range(n):
+                if i == k:
+                    continue
+                scale = matrix[i][k]
+                matrix[i] = [a - scale * b for a, b in zip(matrix[i], matrix[k])]
+        for i in range(n):
+            output[i][c] = matrix[i][-1]
+    return output
+
+
+def room_fixture(grid=4):
+    model = {"schema": 1, "materials": {
+        "neutral": {"absorption_code": 200, "tint_linear": [1.0, 1.0, 1.0]},
+        "red": {"absorption_code": 150, "tint_linear": [1.0, 0.025, 0.025]},
+    }, "lights": [{"position": [-0.25, 1.2, 0.25], "radius": 6.0, "power_rgb": [40.0, 40.0, 40.0]}],
+        "blockers": [], "patches": []}
+    # Every visible surface is a Sprite3D quad. No source mesh is required.
+    for surface in ["floor", "back", "red", "right"]:
+        for v in range(grid):
+            for u in range(grid):
+                x = -1 + (u + 0.5) * 2 / grid
+                z = -1 + (v + 0.5) * 2 / grid
+                y = (v + 0.5) * 1.5 / grid
+                position, normal, size = {
+                    "floor": ([x, 0, z], [0, 1, 0], [2 / grid, 2 / grid]),
+                    "back": ([x, y, -1], [0, 0, 1], [2 / grid, 1.5 / grid]),
+                    "red": ([-1, y, x], [1, 0, 0], [2 / grid, 1.5 / grid]),
+                    "right": ([1, y, x], [-1, 0, 0], [2 / grid, 1.5 / grid]),
+                }[surface]
+                model["patches"].append({"position": position, "normal": normal,
+                    "area": size[0] * size[1], "size": size, "gray_mean": 0.8,
+                    "material": "red" if surface == "red" else "neutral", "surface": surface})
+    validate(model)
+    return model
+
+
+def scenario(base, name):
+    m = copy.deepcopy(base)
+    bounces = 2
+    if name == "direct":
+        bounces = 0
+    elif name == "absorbing":
+        m["materials"]["red"]["absorption_code"] = 980
+    elif name == "blocked":
+        m["blockers"] = [[[-0.62, -0.02, -1.02], [-0.58, 1.52, 1.02]]]
+    elif name == "moved":
+        m["lights"][0]["position"] = [0.65, 0.6, 0.5]
+    elif name == "cool":
+        m["lights"][0]["power_rgb"] = [8.0, 20.0, 40.0]
+    elif name != "bounce":
+        raise ValueError(name)
+    return m, bounces
+
+
+def write_reference(destination):
+    destination = Path(destination)
+    destination.mkdir(parents=True, exist_ok=True)
+    base = room_fixture()
+    (destination / "lie11-room.json").write_text(json.dumps(base, indent=2) + "\n")
+    result = {"schema": 1, "reference": "independent Python float64; finite-patch diffuse model", "scenarios": {}}
+    for name in ["direct", "bounce", "absorbing", "blocked", "moved", "cool"]:
+        m, b = scenario(base, name)
+        result["scenarios"][name] = solve(m, b)
+    closed = closed_solution(base)
+    truncated = result["scenarios"]["bounce"]["total_flux"]
+    result["two_bounce_relative_l1_error_vs_infinite"] = sum(abs(a - b) for x, y in zip(closed, truncated) for a, b in zip(x, y)) / sum(map(sum, closed))
+    (destination / "lie11-reference.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(json.dumps({"patches": len(base["patches"]), "two_bounce_relative_l1_error_vs_infinite": result["two_bounce_relative_l1_error_vs_infinite"]}))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out", default="gpu_compute/fixtures")
+    args = parser.parse_args()
+    write_reference(args.out)

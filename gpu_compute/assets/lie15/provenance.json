@@ -1,0 +1,15 @@
+{
+  "arcont_repository": "heliossamuelhernandezreyes/Arcont",
+  "arcont_commit": "f9f9b3cfeef5f768257f21c4796b2a7653434b64",
+  "arcont_record": "assets/catalog/kenney/factory-kit.asset.json",
+  "arcont_asset_id": "ARC-ASSET-KENNEY-696C714A33FF63A1",
+  "source_author": "Kenney",
+  "source_page": "https://kenney.nl/assets/factory-kit",
+  "source_archive": "https://kenney.nl/media/pages/assets/factory-kit/edaac9d4f6-1777639602/kenney_factory-kit_3.0.zip",
+  "source_archive_sha256": "7e31fb2308e90304672bd15cd18fa9d9f02c03731a8cbc57a8e3e1c181dfb0a7",
+  "archive_member": "Models/GLB format/box-small.glb",
+  "source_glb_sha256": "fd2ea1ac4f24a9515dc9c53a4a589a8897c824fa5865771799f965a252f684f0",
+  "license": "CC0-1.0",
+  "adaptation": "centered unit bounds; neutral grayscale palette; scaled rigid instances; appearance colors supplied at runtime",
+  "source_palette_sha256": "35d7bd6900dde0208429eeaec87fa17fbf024ed59f3f4eab54bc92802eba9dd7"
+}
