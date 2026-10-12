@@ -3,7 +3,8 @@
 R1 now traverses a modular house rather than only walking in place. The same
 native compositor renders the robot and architecture into shared depth and
 shadow buffers. Original source meshes are not drawn. This is an experimental
-Godot laboratory, not an Android release or finished game.
+Godot laboratory. The later Android touch prototype is documented in
+`LIE_ROBOT_ANDROID.md`; this remains an unfinished experimental scene.
 
 Branch `experiment/lie-robot-world` is based on R1 commit
 `74d0f63918151ad79b7c65b258afdcf406995a07`. It is stacked on R1 / PR #33,
@@ -154,7 +155,8 @@ remain visible quality limits.
 
 Tests ran on **llvmpipe software Vulkan**. They establish behavior/correctness,
 not physical GPU speed, Android performance or enemy-count capacity. There is
-no cable elasticity/collision, grabbing system, jump, combat or Android APK.
+no cable elasticity/collision, grabbing system, jump or combat. The subsequent
+touch APK does not establish physical Android GPU performance.
 Further art direction and production locomotion remain work.
 
 Failures retained in the package include a collider property error, integer

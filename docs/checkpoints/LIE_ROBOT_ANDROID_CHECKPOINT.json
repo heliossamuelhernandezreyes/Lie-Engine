@@ -1,0 +1,83 @@
+{
+  "apk": "LIE-R2-Robot-Prueba.apk",
+  "bytes": 39594907,
+  "sha256": "79fc4ebc66dbc850bf0698578bb33cc665b4d57120a617a1b2a00df46a113690",
+  "package": "org.lieengine.robotdemo",
+  "version": "0.1.0-r2-test",
+  "architectures": [
+    "arm64-v8a"
+  ],
+  "min_sdk": 24,
+  "target_sdk": 36,
+  "landscape": true,
+  "signature_v2_v3_verified": true,
+  "zip_alignment_16k_checked": true,
+  "elf_load_alignment": 16384,
+  "bank_exactly_preserved": true,
+  "library_sha256": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
+  "touch_verification": {
+    "allocation_bytes": 260979520,
+    "bank_sha256": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
+    "checks": 262165,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "mobile_vulkan": true,
+    "output_size": 512,
+    "physical_android_tested": false,
+    "simultaneous_move_and_look": true
+  },
+  "physical_android_tested": false,
+  "manifest_normalization_idempotent": true,
+  "startup_authority_unique": true,
+  "launcher_intent_verified": true,
+  "permissions": [],
+  "schema": 1,
+  "source_base_commit": "c7c5990bafe121c414026a9b280814e01d7d8dae",
+  "source_branch": "experiment/lie-robot-android",
+  "source_files_sha256": {
+    "lie_robot_mobile.tscn": "1f9509f48d3b7f22c6f99c1dd299f4f9312947deaea52986b7527eceb759401a",
+    "lie_robot_world_lab.gd": "891f861aa0bbdad542e2fb8e5548680507a64fe69c7d95b44a866766a6a71c7e",
+    "lie_robot_touch_hud.gd": "657249bfdd7b44a4698d40ebc187a1fbf6cf74e84f61721d421c09ae6471274d",
+    "lie_robot_world_effect.gd": "4048dc842d4f5fd22622b6a28185173c8c3ba6f13f1f527bc15b1ff210da8e96",
+    "lie_robot_effect.gd": "9b90d1b987fd4dbfcaf7a6721af3c94e3671479b59789858be5a93ed359f4490",
+    "lie22_modular_effect.gd": "a04a4ae6ac8f896b3adf9aecbe79a89b438cd5363fd7c1c6b09d8038bf2b00de",
+    "lie_robot_assembly.gd": "5ef451bfbc48576a188528af98545c63504c917383984752e30143f8d01bcaba",
+    "lie_robot_world_layout.gd": "e52a4eb7759226cf90215ef57db7ee2deda1ef4226af6b806be4f960ee5f602d",
+    "lie_robot_controller.gd": "615346c074cda563b4b60e933a4eda5698c22d4eb1f92379db048ecfa304942b",
+    "lie26_rig.gd": "892d9df4ab7104a7fc5ae874b510b4b4c8eea5a35b8a73355eb49ddd9b7d7937",
+    "lie28_building_assembly.gd": "25a57eeea47f020f3e998d2eae6a9d3bc2c255216458b16ef551b2db5ee4a605",
+    "shaders/lie_robot.glsl": "7b469a8d0a2579625e345fa66d4317df04d3665d420656e41061027406880adc",
+    "shaders/lie22_modular.glsl": "4ee5cce7cec844de571b7ba424ceedab06fe4f26998865007cde9eb042750163",
+    "captures/robot_world/catalog.json": "86b7abed79b4bd81cfd94611174bd742e1116701dd0b149009e5e62486706847",
+    "captures/robot_world/library.bin": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
+    "captures/robot_world/collision.bin": "4e5ec2b5d4e52eaeedc85845d868dcbb2f15ba29d226ff792cd54af895fa6529"
+  },
+  "saved_apk": {
+    "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
+    "file_id": "file_00000000895481f587516aba5a3e2be1",
+    "version": 0,
+    "name": "LIE-R2-Robot-Prueba.apk"
+  },
+  "saved_debug_key": {
+    "library_file_id": "libfile_8f381c1a9cf08191bc186427ca4096d4",
+    "file_id": "file_00000000899881f5a8de70daf66ac07b",
+    "version": 0,
+    "name": "R2-Android-Debug.keystore"
+  },
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "sdk_build_tools": "35.0.1",
+  "python_tests": {
+    "total": 72,
+    "skipped": 1,
+    "failed": 0
+  },
+  "agent_checks": 20,
+  "rig_checks": 3734,
+  "world_motion_checks": 3019,
+  "normalization": {
+    "feature_attributes_typed": 4,
+    "androidx_startup_authority_fixed": true,
+    "idempotent": true
+  },
+  "note": "Mobile compositor and touch events verified with actual Godot on software Vulkan; packaged ARM64 APK has not run on a physical Android device or emulator. No measured Poco FPS claim."
+}
