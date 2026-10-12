@@ -1,0 +1,73 @@
+name: LIE33 Native Tiled 1080 Square
+on:
+  push:
+    branches: ["experiment/lie33-tiled-hd-compositor"]
+    paths:
+      - ".github/workflows/lie33-tiled-hd.yml"
+      - "tools/lie33_tiled_native_smoke.py"
+      - "gpu_compute/lie33_tiled_hd_*"
+      - "gpu_compute/shaders/lie33_tiled_brick.glsl"
+      - "tests/test_lie33_tiled_dispatch.py"
+  workflow_dispatch:
+concurrency:
+  group: lie33-tiled-hd-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: write
+jobs:
+  native1080:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install software Vulkan with Godot 4.7.2
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python -m pip install pillow
+      - name: Verify SHA-256 LIE31 PBR source bank and compile
+        run: |
+          python -m unittest discover -s tests -p 'test_lie33_tiled_dispatch.py' -v
+          python tools/lie31_restore_hd.py
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie33_tiled_hd_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('import.log').read_text()
+          assert "SCRIPT ERROR:" not in s,s
+          PY
+      - name: Execute genuine 1080-square LIE31 full-brick wall and hero
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab lie33 --directory /tmp/lie33-native --audio-driver Dummy
+            python tools/lie33_tiled_native_smoke.py --directory /tmp/lie33-native
+          '
+      - name: Preserve unscaled native 1080 square outputs
+        if: success()
+        run: |
+          mkdir -p evidence
+          cp /tmp/lie33-native/LIE33-Wall-Native-1080-Square.png evidence/LIE33-Wall-Native-1080-Square.png
+          cp /tmp/lie33-native/LIE33-Brick-Native-1080-Square.png evidence/LIE33-Brick-Native-1080-Square.png
+          cp /tmp/lie33-native/LIE33-native1080-report.json evidence/LIE33-native1080-report.json
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add evidence/LIE33-Wall-Native-1080-Square.png evidence/LIE33-Brick-Native-1080-Square.png evidence/LIE33-native1080-report.json
+          git commit -m "LIE33: real native 1080-pixel wall-module compositor [skip ci]"
+          git push origin HEAD:experiment/lie33-tiled-hd-compositor
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie33-1080-hd-evidence
+          path: |
+            /tmp/lie33-native/*.png
+            /tmp/lie33-native/*.json
+            /tmp/lie33-native/godot.log
+            import.log
+          if-no-files-found: warn
