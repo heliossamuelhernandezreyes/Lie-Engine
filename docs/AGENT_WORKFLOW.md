@@ -16,6 +16,12 @@ No browser session or arbitrary code-evaluation endpoint is required.
 4. Use Godot 4.7.2 and `gpu_compute/project.godot`. The root project is the
    historical LIE-06 example. The current default desktop scene is LIE-27.
 
+For the R1 robot, use the branch and separately saved asset package identified
+in `checkpoints/LIE_ROBOT_CHECKPOINT.json`. Extract its `assets/robot_modular`
+and `captures/robot_modular` directories into `gpu_compute`. The robot branch
+is stacked on LIE-28; it is not evidence of either experiment being in main.
+Launch with `--lab robot`; see `LIE_ROBOT_MASTERKIT.md` for reproduction.
+
 The old piece workshop and other laboratories need their own attributed
 banks. Missing assets are reported in snapshots; opening their scene is not
 proof that their renderer is ready. Their existing CI workflows regenerate
@@ -53,9 +59,9 @@ No socket, remote credentials or third-party Python package is required.
 |---|---|
 | `snapshot`, `describe` | Current state, revision, renderer readiness, control fields, ranges and laboratory catalog |
 | `set_values`, `set_pose` | Forwarded to the actual laboratory's validated `command()`; update both UI and renderer |
-| `save_state`, `load_state` | Complete state for LIE-25/26/27; optional basename ending `.lie.json`; atomic storage and validated restore |
+| `save_state`, `load_state` | Complete state for LIE-25/26/27/28 and robot; optional basename ending `.lie.json`; atomic storage and validated restore |
 | `capture` | Actual `compositor` (default) or native `window`; optional PNG basename inside the session directory |
-| `open_lab` | Navigate to a declared workshop/LIE-20…28 scene without replacing the endpoint |
+| `open_lab` | Navigate to a declared workshop/LIE-20…28 or robot scene without replacing the endpoint |
 | Other native commands | Forwarded unchanged; older document laboratories retain save/load/history/material/assembly APIs |
 
 LIE-27 discovery includes every state field, seven facial channels, pose
@@ -63,6 +69,13 @@ limits, IK chains, booleans, palette/eye shapes and ranges, layer mask and
 focus/playback enums. `face` and `eyes` must be complete dictionaries.
 The main facial channels are `blink_left`, `blink_right`, `smile`, `frown`,
 `brow_up`, `brow_down`, `jaw_open`. The standalone eyelash feature is absent.
+
+Robot discovery exposes every state field, all semantic joint limits from the
+existing LIE-26 rig, material-master names, focus and playback enums, six cable
+paths, assembly poses and the exact curve-frame packet. Widgets and inbox
+commands both call the robot lab's validated `command()`; state save/load
+uses the existing persistent bridge. The window can inspect the complete
+body, isolated head/arm and every source master.
 
 ```json
 {"op":"set_values","values":{"focus":"face","distance":0.35,"brows":true}}

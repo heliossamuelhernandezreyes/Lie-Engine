@@ -35,9 +35,10 @@ var _profile_frame: int=-1
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
 func shader_resource() -> RDShaderFile:return ShaderFile
+func maximum_output_size() -> int:return 512
 
 func _init(size: int=384) -> void:
-    output_size=clampi(size,128,512);render_size=output_size*2
+    output_size=clampi(size,128,maximum_output_size());render_size=output_size*2
     effect_callback_type=EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
     var root: String=capture_root();var stride: int=sample_stride()
     var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"catalog.json"))
@@ -55,7 +56,7 @@ func _init(size: int=384) -> void:
             if int(level["start"])<0 or int(level["count"])<1 or int(level["start"])+int(level["count"])>int(catalog["sample_count"]):failure="Rango de captura";return
     capture_loaded=true
 
-func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
+func valid_configuration(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
     if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>MAX_INSTANCES*96 or jobs.size()%16!=0 or jobs.size()>MAX_INSTANCES*16 or work<1 or work>MAX_WORK:return false
     if instances.is_empty() or jobs.is_empty() or parameters.decode_s32(80)!=work or parameters.decode_s32(84)!=jobs.size()/16 or parameters.decode_s32(88)!=render_size or parameters.decode_s32(92)!=render_size:return false
     var entries: PackedInt32Array=jobs.to_int32_array();var prefix: int=0
@@ -63,7 +64,15 @@ func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: Pack
         if entries[i]<0 or entries[i+1]<1 or entries[i]+entries[i+1]>int(catalog.get("sample_count",0)) or entries[i+2]<0 or entries[i+2]>=instances.size()/96 or entries[i+3]!=prefix:return false
         prefix+=entries[i+1]
     if prefix!=work:return false
+    return true
+
+func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
+    if not valid_configuration(parameters,instances,jobs,work):return false
     _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":instances.duplicate(),"jobs":jobs.duplicate(),"work":work};_mutex.unlock();return true
+
+func initialize_extra_buffers() -> void:pass
+func extra_signature(_next: Dictionary) -> PackedByteArray:return PackedByteArray()
+func update_extra_buffers(_next: Dictionary) -> void:pass
 
 func _uniform(binding: int,rid: RID,is_image: bool=false) -> RDUniform:
     var u:=RDUniform.new();u.binding=binding;u.uniform_type=RenderingDevice.UNIFORM_TYPE_IMAGE if is_image else RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER;u.add_id(rid);return u
@@ -90,6 +99,7 @@ func _initialize() -> bool:
     projection_capacity=65536;_buffer(3,projection_capacity*96)
     _buffer(4,render_size*render_size*4);_buffer(5,render_size*render_size*4)
     _buffer(6,256);_buffer(7,render_size*render_size*32);_buffer(13,512*512*4)
+    initialize_extra_buffers()
     for binding in [8,9,11,12]:
         var format:=RDTextureFormat.new();format.width=output_size if binding==12 else render_size;format.height=format.width;format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
         format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
@@ -115,6 +125,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     if next.is_empty():return
     _collect_profile()
     var signature: PackedByteArray=next["parameters"].duplicate();signature.append_array(next["instances"]);signature.append_array(next["jobs"])
+    signature.append_array(extra_signature(next))
     if signature==_resident:return
     var work: int=next["work"]
     if work>projection_capacity:
@@ -124,6 +135,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.buffer_update(_buffers[6],0,256,next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])
+    update_extra_buffers(next)
     _rd.capture_timestamp("lie22-begin")
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     for stage in [1,2,3,4,6,7]:

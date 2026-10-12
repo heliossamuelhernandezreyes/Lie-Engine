@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "date": "2026-10-12",
+  "branch": "experiment/lie-robot-modular",
+  "base_branch": "experiment/lie28-building-masters",
+  "base_commit": "27a87c4f39c2163ac773db8d30208f091ec4136c",
+  "base_tree": "144da1d1d0c663b9e048f0d53ff16b7f79d5799b",
+  "publication": "Stacked draft PR; no main merge",
+  "scene": "gpu_compute/lie_robot_lab.tscn",
+  "godot": "4.7.2",
+  "blender": "4.3.2",
+  "masters": 7,
+  "mechanical_masters": 6,
+  "rig_bones": 15,
+  "package": {
+    "bytes": 402127804,
+    "sha256": "2e829a68c8c0a22742da4c6fbeed3e6bc5081b4840a965bfda3f62170c9f31fd",
+    "files": 100
+  },
+  "capture_bank": {
+    "path": "gpu_compute/captures/robot_modular/library.bin",
+    "bytes": 36723936,
+    "sha256": "6935ecd55086e179ef0c3b866147af50ae54c3e4cf86ded90a21210c5071600a",
+    "sample_count": 382541,
+    "stride": 96
+  },
+  "saved_files": [
+    {
+      "file_name": "R1-Robot-Maestros.zip",
+      "library_file_id": "libfile_e289c220cf948191bd752c77c2deed70",
+      "file_id": "file_00000000121881f8af52c735adb2e79b",
+      "current_version_number": 0,
+      "path": "/R1-Robot-Maestros.zip"
+    },
+    {
+      "file_name": "R1-Robot.png",
+      "library_file_id": "libfile_e03d48bffab48191929538fdebb369fa",
+      "file_id": "file_0000000047c0822f8c9a3313ed6a75be",
+      "current_version_number": 0,
+      "path": "/R1-Robot.png"
+    },
+    {
+      "file_name": "R1-Caminata.gif",
+      "library_file_id": "libfile_6226e653da2c81918bbf8fea4570d536",
+      "file_id": "file_000000002b10820cab1935512fbf1252",
+      "current_version_number": 0,
+      "path": "/R1-Caminata.gif"
+    },
+    {
+      "file_name": "R1-Maestros.png",
+      "library_file_id": "libfile_92c6db35d2988191b55c3b54f0b27c7e",
+      "file_id": "file_0000000017b882108753966e9583ce91",
+      "current_version_number": 0,
+      "path": "/R1-Maestros.png"
+    }
+  ],
+  "verification": {
+    "python_tests": 72,
+    "python_skips": 1,
+    "existing_agent_cpu_checks": 20,
+    "existing_region_cpu_checks": 888,
+    "rig": {
+      "checks": 3734,
+      "failed": false,
+      "max_cable_length_error_m": 0.000159199880436056,
+      "max_ik_error_m": 6.95941650974419e-08
+    },
+    "gpu": {
+      "checks": 1669,
+      "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "failed": false,
+      "floor_checked_pixels": 1009,
+      "floor_missing_pixels": 0,
+      "max_geometric_normal_error": 0.000154327703057788,
+      "max_position_error_m": 2.38883785641519e-07,
+      "note": "Actual software Vulkan; no physical GPU performance claim."
+    },
+    "captures": {
+      "masters": 7,
+      "sample_count": 382541,
+      "library_bytes": 36723936,
+      "source_points": 840,
+      "source_material_points": 342,
+      "max_surface_error_m": 1.1641532182693481e-06,
+      "max_material_error": 4.1838540803640356e-05,
+      "verified_glbs": 7,
+      "maps_4k": 8,
+      "original_mesh_drawn": false
+    },
+    "editable_source": {
+      "parts": 79,
+      "cables": 6,
+      "max_native_pose_vertex_error_m": 6.582856953827931e-08,
+      "baked_walk_phases": 16,
+      "native_snapshot_sha256": "65100741091b47536315681569a9694643f19f2944c36f81d7d9bd85682488f1",
+      "note": "Original editable geometry export; not an engine rendering or performance result."
+    },
+    "native_checks": 194,
+    "native_captures": 33,
+    "walk_pose_samples": 16,
+    "native_metrics": {
+      "cables": 6,
+      "configured": true,
+      "ik": {
+        "left_foot": {
+          "actual": [
+            0.13500000536441803,
+            0.10499992966651917,
+            0.04499998316168785
+          ],
+          "clamped": false,
+          "hinge_deg": 22.049488984048367,
+          "requested": [
+            0.13500000536441803,
+            0.10499999672174454,
+            0.04500000178813934
+          ],
+          "residual_m": 6.959416509744187e-08
+        },
+        "right_foot": {
+          "actual": [
+            -0.13500000536441803,
+            0.10499992966651917,
+            0.04499998316168785
+          ],
+          "clamped": false,
+          "hinge_deg": 22.049488984048367,
+          "requested": [
+            -0.13500000536441803,
+            0.10499999672174454,
+            0.04500000178813934
+          ],
+          "residual_m": 6.959416509744187e-08
+        }
+      },
+      "instances": 80,
+      "lod": 1,
+      "masters": 7,
+      "sample_invocations": 535361,
+      "visible_source_meshes": 0
+    },
+    "native_memory_bytes": 324060640,
+    "bank_uploads": 1
+  },
+  "restore": "Clone feature branch; verify saved ZIP bytes/SHA256; copy assets/robot_modular and captures/robot_modular into gpu_compute; launch --lab robot in a disposable native session.",
+  "limits": [
+    "Software Vulkan correctness, no physical GPU/Android performance measurement",
+    "Kinematic cable routing without collision/elasticity",
+    "In-place walk, no environment controller",
+    "Approximate studio reflections and face-support bounds",
+    "Finite capture resolution; silhouette and grippers need art refinement"
+  ],
+  "preserved_failures": [
+    "Initial floor reconstruction holes",
+    "Initial walk foot target unreachable by 13.78 mm",
+    "Duplicate desktop capture filename in first smoke",
+    "Scratch transport timeout; corrected by private temporary live session"
+  ]
+}

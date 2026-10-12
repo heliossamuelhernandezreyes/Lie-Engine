@@ -126,3 +126,12 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie28-*.json
 /gpu_compute/lie28-*.bin
 /gpu_compute/lie28-*.log
+
+# Original robot masterkit and actual native evidence are acquired/generated separately.
+/gpu_compute/assets/robot_modular/*
+!/gpu_compute/assets/robot_modular/.gdignore
+/gpu_compute/captures/robot_modular/
+/gpu_compute/robot-*.png
+/gpu_compute/robot-*.json
+/gpu_compute/robot-*.bin
+/gpu_compute/robot-*.log
