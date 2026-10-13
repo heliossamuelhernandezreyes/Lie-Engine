@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 686450,
+  "bytes": 54916000,
+  "sha256": "43ccbe30192a1e78a5fe185c53586a5da98fc4ba01ef9f30f6bb9a48e6ea5617",
+  "masters": {
+    "real_scan_wall": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 497433,
+          "scanned_original_brick_samples": 384000,
+          "captured_mortar_samples": 113433
+        },
+        {
+          "start": 497433,
+          "count": 153349,
+          "scanned_original_brick_samples": 124800,
+          "captured_mortar_samples": 28549
+        },
+        {
+          "start": 650782,
+          "count": 35668,
+          "scanned_original_brick_samples": 23040,
+          "captured_mortar_samples": 12628
+        }
+      ],
+      "bounds_size": [
+        2.64675009727478,
+        0.6878780770301819,
+        0.12861716479063035
+      ],
+      "bounds_center": [
+        0.0529249906539917,
+        0.0,
+        0.0
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "source_title": "Stratford New Place Brick Ver 2",
+  "source_author": "Centre-of-Archaeology",
+  "source_url": "https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a",
+  "license": "CC BY 4.0",
+  "source_scan_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "source_master_sha256": "fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb",
+  "source_original_triangles": 500000,
+  "original_meshes_drawn": false,
+  "source_vertex_colors_used": true,
+  "wall_layout": {
+    "rows": 8,
+    "columns": 12,
+    "brick_count": 96,
+    "bond": "running with open staggered ends",
+    "seed": 2102,
+    "mortar_gap_m": 0.0085,
+    "procedural_recessed_mortar": false,
+    "mortar_mask": "joints only, never occlude full scanned XY brick faces",
+    "mortar_recess_m": 0.0035,
+    "mortar_nodes_by_row": true,
+    "mortar_shader_layout": {
+      "brick_length_m": 0.2032,
+      "brick_height_m": 0.07742225992271486,
+      "pitch_x_m": 0.2117,
+      "pitch_y_m": 0.08592225992271485,
+      "first_brick_x_m": -1.1643500328063965,
+      "first_brick_y_m": -0.300727903842926,
+      "mortar_plane_z_m": 0.0563086,
+      "running_bond_stagger_fraction": 0.5,
+      "rows": 8,
+      "columns": 12,
+      "procedural_joint_surface_only": true
+    },
+    "mortar_samples_per_lod": [
+      113433,
+      28549,
+      12628
+    ],
+    "scanned_brick_xyz_and_colors_unchanged": true
+  },
+  "lighting": {
+    "pipeline": "LIE11 real GPU node RGB light transport -> LIE33 wall samples",
+    "node_count": 872,
+    "nodes_per_brick": 9,
+    "front_micro_patches_per_brick": 4,
+    "direct_shadow_occluders": 96,
+    "lighting_visibility": "source-derived micro patches, inset-brick direct shadows and existing core bounce proxy",
+    "file": "light-model.json",
+    "sha256": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb",
+    "per_pixel_shadows": false,
+    "absorption_and_color_stored_separately": true,
+    "mortar_nodes": 8,
+    "mortar_light_regions": "one finite patch per course; local RGB code, dynamic",
+    "screen_space_reconstruction": "opt-in geometry/depth/normal constrained GPU interior hole recovery",
+    "photographic_material_texture_invented": false,
+    "gpu_joint_coverage": "captured_mortar_xyz_samples_no_shader_flat_joint_fallback"
+  },
+  "collision": {
+    "spatial_envelope_count": 1,
+    "geometry": "one invisible BoxShape3D",
+    "collision_is_coarse": true
+  },
+  "hero_quality_accepted": false,
+  "note": "WALL04 EXPERIMENTAL: photographic G1 masks still unreviewed; native GPU not proven by authoring bank.",
+  "wall04": {
+    "version": "LIE-WALL-04 experimental real-photo mortar samples",
+    "original_brick_record_sha256_by_lod": [
+      "ef8d3a90d6d7bbf7a2ab15fff42057752d1839ebd545064f5e7f2f1cc330d058",
+      "beaf13965061002761809198f10c3d3e4fa705461913a8a0c0fa523b6f12237c",
+      "f536bdf82f969377d232f3fdd26b7cc6a80677ef7761640b079636da536ad082"
+    ],
+    "wall03_original_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
+    "mortar01_sha256": "5469c13237a1505cf6bf343ea65062a015cb43f30fe24ed166c79dccb813393d",
+    "mortar01_cc0_source_maps": {
+      "color": "a7b3cfd953d8b71b54dd53e5f0409d1b83e5f10a228f5da2e5be15429a230ac8",
+      "normal_gl": "7db17a8452c59f0a46170103f14e7e2e4b04e02357f8e097666f671e52816a4c",
+      "height": "5926122a082220ecb6e9a677ab7fe5a974cb89bdcfaf3b13b6e8280be3374c48",
+      "roughness": "ce99dc3a1616cc52b46c62a24fabdae030c0c9dfe72e0194615a5419c9a1005e",
+      "ao": "503cea54bb2d7d346e9c8be7d695ed7b78b44d98955dc068f3e40bffb2b9b78e"
+    },
+    "mortar_source_masks_reviewed": false,
+    "mortar_source_height_absolute_mm_verified": false,
+    "product_quality_accepted": false,
+    "legacy_mortar_samples_removed": true,
+    "original_brick_samples_byte_identical": true,
+    "source_triangles_rendered": 0,
+    "total_spatial_envelopes": 1,
+    "sha256_of_original_LIE11_light_model": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb"
+  }
+}

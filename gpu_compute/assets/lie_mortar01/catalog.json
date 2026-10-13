@@ -1,24 +1,24 @@
 {
   "schema": "lie-mortar01/experimental/1.0",
   "stride": 80,
-  "sample_count": 89918,
-  "bytes": 7193440,
-  "sha256": "0a4771eedccb7a41f549da447ed1bf8436ce0ebcfc4fdeb7745b526649864b9a",
+  "sample_count": 154610,
+  "bytes": 12368800,
+  "sha256": "5469c13237a1505cf6bf343ea65062a015cb43f30fe24ed166c79dccb813393d",
   "levels": [
     {
       "start": 0,
-      "count": 67416,
-      "spacing_m": 0.00135
+      "count": 113433,
+      "spacing_m": 0.0012
     },
     {
-      "start": 67416,
-      "count": 17015,
-      "spacing_m": 0.0027
+      "start": 113433,
+      "count": 28549,
+      "spacing_m": 0.0024
     },
     {
-      "start": 84431,
-      "count": 5487,
-      "spacing_m": 0.0042
+      "start": 141982,
+      "count": 12628,
+      "spacing_m": 0.0036
     }
   ],
   "source_material_id": "mortar.hero.real_masonry_joint",
