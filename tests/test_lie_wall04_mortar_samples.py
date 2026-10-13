@@ -85,7 +85,8 @@ class Wall04SamplesTest(unittest.TestCase):
         front,proof=measured_brick_front_plane(DEFAULT_WALL,wall)
         self.assertGreater(proof["source_front_samples"],10000)
         self.assertFalse(proof["local_per_brick_flush_verified"])
-        self.assertGreater(front, .03)
+        self.assertGreaterEqual(front, proof["legacy_recessed_mortar_plane_z_m"]-.0015)
+        self.assertGreater(proof["source_front_z_p975_m"],proof["source_front_z_median_m"]+.001)
         donor=SyntheticDonor()
         strip=sample_line("vertical",2,5,0.0,.077,.15,.0012,.0085,
                           front,[donor,donor])
