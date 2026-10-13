@@ -280,6 +280,25 @@ def make_node_model(original: np.ndarray, data: list[dict],
     return model
 
 
+def canonical_light_codes(value):
+    """Stable 1e-7 representation for cross-machine JSON+SHA reproducibility.
+
+    The original FLOAT32 VisualSampleBank stays byte-for-byte authentic. Only
+    the PATCH-AVERAGED precomputed node-code *metadata* is quantized; 0.1 µm
+    XYZ precision is far below the spatial uncertainty of this historical
+    scan. Unit normal validation remains within 1e-5.
+    """
+    if isinstance(value, float):
+        if not math.isfinite(value):
+            raise ValueError("Nonfinite finite-patch light code")
+        return round(value, 7)
+    if isinstance(value, list):
+        return [canonical_light_codes(x) for x in value]
+    if isinstance(value, dict):
+        return {k: canonical_light_codes(x) for k,x in value.items()}
+    return value
+
+
 def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
     origin, src = load_scan(source)
     dims = np.asarray(origin["source_bbox_m"], dtype=np.float32)
@@ -320,6 +339,8 @@ def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
                                 origin["masters"]["brick_full"]["levels"][0]["count"]],
                             bricks, (bmin, bmax), dims)
     assert len(model["patches"]) == BRICKS*NODES_PER_BRICK+1
+    # Stable across NumPy SIMD/float reduction order and GitHub runners.
+    model = canonical_light_codes(model)
     lighting_bytes = (json.dumps(model,indent=2,ensure_ascii=False)+"\n").encode("utf-8")
     size = (bmax-bmin+np.asarray([.005,.005,.005])).tolist()
     center = (.5*(bmin+bmax)).tolist()
