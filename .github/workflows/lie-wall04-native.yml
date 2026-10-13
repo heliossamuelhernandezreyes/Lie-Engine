@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
           python -m unittest discover -s tests -p 'test_lie_mortar01.py' -v
-      - name: Rebuild denser source-backed mortars from committed photographic PBR crops
+      - name: Rebuild 6mm flush photographic joints measured against original scanned brick face
         run: |
           python tools/lie_wall04_bake.py --allow-unreviewed
           python - <<'PY'
@@ -35,8 +35,17 @@ jobs:
           p=pathlib.Path('gpu_compute/assets/lie_mortar01/catalog.json')
           r=json.loads(p.read_text())
           assert r['workshop_only_not_renderer_accepted']
-          assert r['sample_count']>89918, r['sample_count']
+          assert r['sample_count']>15000, r['sample_count']
           assert r['collision']['spatial_envelope_count']==1
+          profile=r['flush_mortar_experiment']
+          assert profile['visible_mortar_width_m']==.006
+          assert profile['structural_mortar_gap_m']==.0085
+          assert profile['max_forward_relief_m']==0
+          assert profile['max_back_relief_m']==.0008
+          assert profile['radius_scale']==.62
+          assert profile['support_scale']==.36
+          assert profile['front_plane_source']['source_front_samples']>10000
+          print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
           print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
           PY
       - name: Produce measured composite WALL04 and verify 96 original bricks byte-identical
