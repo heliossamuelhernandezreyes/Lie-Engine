@@ -26,7 +26,7 @@ ROWS = 8
 BRICKS = COLS * ROWS
 SEED = 2102
 SAMPLES_PER_BRICK = (4000, 1300, 240)
-MORTAR_GRID = ((260, 100), (130, 40), (65, 20))
+MORTAR_GRID = ((850, 260), (480, 150), (220, 70))
 FACE_SIGNS = ((0, 1), (0, -1), (1, 1), (1, -1), (2, 1), (2, -1))
 STRIDE = 80
 
@@ -108,29 +108,55 @@ def transform_real_samples(original: np.ndarray, center: list[float], yaw: float
 
 
 def mortar_samples(bounds: tuple[np.ndarray, np.ndarray], dimensions: tuple[int, int],
-                   node_id: int, seed: int) -> np.ndarray:
+                   node_id: int, seed: int, bricks: list[dict],
+                   brick_dims: np.ndarray, gap: float = .0085) -> np.ndarray:
+    """Fill ONLY physical courses/joints, NEVER overwrite real scan surfaces.
+
+    Earlier v1 used a full recessed plane. A historic brick has strong
+    negative-depth relief; a plane inside its bounding box can obscure that
+    relief and visually replace whole face regions with flat grey triangles.
+    This joint-mask is layout-based and leaves ALL scanned bricks exposed.
+    """
     lo, hi = bounds
     w, h = dimensions
     rng = np.random.default_rng(seed)
     x = np.linspace(lo[0], hi[0], w, dtype=np.float32)
     y = np.linspace(lo[1], hi[1], h, dtype=np.float32)
     X, Y = np.meshgrid(x, y)
-    n = X.size
+    flat_x = X.reshape(-1)
+    flat_y = Y.reshape(-1)
+    occupied = np.zeros(len(flat_x), dtype=bool)
+    within_rows = np.zeros(len(flat_x), dtype=bool)
+    half_x = float(brick_dims[0]) * .5
+    half_y = float(brick_dims[1]) * .5
+    for brick in bricks:
+        cx, cy = float(brick["center"][0]), float(brick["center"][1])
+        dx = np.abs(flat_x-cx)
+        dy = np.abs(flat_y-cy)
+        # Recessed mortar exists in gaps bordering the scanned blocks.
+        within_rows |= (dx <= half_x+gap*.55) & (dy <= half_y+gap*.55)
+        # Extra margin ensures mortars NEVER overpaint damaged/chipped geometry
+        # that happens to recede in Z, even with grazing sample footprints.
+        occupied |= (dx <= half_x+.0010) & (dy <= half_y+.0010)
+    mask = within_rows & ~occupied
+    n = int(mask.sum())
+    if n <= 500:
+        raise ValueError("Mortar joint coverage became degenerate")
     out = np.zeros((n, 20), dtype="<f4")
-    out[:, 0] = X.reshape(-1)
-    out[:, 1] = Y.reshape(-1)
+    out[:, 0] = flat_x[mask]
+    out[:, 1] = flat_y[mask]
     out[:, 2] = hi[2] - .020 + rng.uniform(-.0007, .0007, n)
-    out[:, 3] = max(float((hi[0] - lo[0]) / (w - 1)),
-                    float((hi[1] - lo[1]) / (h - 1))) * .72
+    out[:, 3] = max(float((hi[0]-lo[0])/(w-1)),
+                    float((hi[1]-lo[1])/(h-1))) * .85
     out[:, 4:7] = np.array((0, 0, 1), dtype=np.float32)
     out[:, 7] = 1.
     out[:, 8] = 3.
     out[:, 9] = node_id
     out[:, 10] = .96
-    noise = rng.uniform(-.022, .022, n).astype(np.float32)
-    out[:, 12] = np.clip(.26 + noise, .08, 1)
-    out[:, 13] = np.clip(.235 + noise, .08, 1)
-    out[:, 14] = np.clip(.205 + noise, .08, 1)
+    noise = rng.uniform(-.022,.022,n).astype(np.float32)
+    out[:, 12] = np.clip(.26+noise,.08,1)
+    out[:, 13] = np.clip(.235+noise,.08,1)
+    out[:, 14] = np.clip(.205+noise,.08,1)
     out[:, 15] = 1.
     support_rebuild(out)
     return out
@@ -219,7 +245,7 @@ def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
             subset = candidates[rng.choice(len(candidates), samples_per_brick, replace=False)]
             records.append(transform_real_samples(subset, brick["center"], brick["yaw_rad"],
                                                   brick["tone"], brick["node_start"], radius))
-        mortar = mortar_samples((bmin,bmax), mortar_shape, BRICKS*6, SEED + lod)
+        mortar = mortar_samples((bmin,bmax), mortar_shape, BRICKS*6, SEED + lod, bricks, dims)
         records.append(mortar)
         samples = np.concatenate(records).astype("<f4", copy=False)
         if len(samples)+cursor > 750000 or (len(samples)+cursor)*STRIDE > 64*1024*1024:
@@ -251,7 +277,7 @@ def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
         "original_meshes_drawn":False,"source_vertex_colors_used":True,
         "wall_layout":{"rows":ROWS,"columns":COLS,"brick_count":BRICKS,
                        "bond":"running with open staggered ends","seed":SEED,"mortar_gap_m":.0085,
-                       "procedural_recessed_mortar":True},
+                       "procedural_recessed_mortar":True,"mortar_mask":"joints only, never occlude full scanned XY brick faces"},
         "lighting":{"pipeline":"LIE11 real GPU node RGB light transport -> LIE33 wall samples",
                     "node_count":len(model["patches"]),"nodes_per_brick":6,
                     "file":"light-model.json","sha256":hashlib.sha256(lighting_bytes).hexdigest(),
