@@ -87,16 +87,21 @@ def smoke(directory: Path):
     # Compare the SAME raking light with original GPU shadow proxy binding
     # enabled/disabled: no camera, RGB or material changes.
     reply=request({"op":"set_values","values":{"lighting_preset":"warm_raking",
-        "light_azimuth":-72.0,"light_power":1.3,"shadows":False}})
+        "light_azimuth":-72.0,"light_power":1.3,"direct_shadow_proxies":False}})
     assert reply["result"]["ok"],reply
     time.sleep(1.2)
+    off_snapshot=request({"op":"snapshot"})["snapshot"]
+    assert off_snapshot["state"]["shadows"] is True  # coarse wall blocker remains unchanged
+    assert off_snapshot["shadow_metrics"]["direct_shadows_enabled"] is False
     unoccluded=capture("warm_raking_no_direct_shadows")
     assert unoccluded["sha256"]!=result["warm_raking"]["sha256"], "GPU direct shadow AABBs not active"
     result["warm_raking_no_direct_shadows"]=unoccluded
     reply=request({"op":"set_values","values":{"lighting_preset":"cool_ambient",
-        "light_azimuth":63.0,"light_power":1.1,"shadows":True}})
+        "light_azimuth":63.0,"light_power":1.1,"direct_shadow_proxies":True}})
     assert reply["result"]["ok"],reply
     time.sleep(1.2)
+    on_snapshot=request({"op":"snapshot"})["snapshot"]
+    assert on_snapshot["shadow_metrics"]["direct_shadows_enabled"] is True
 
     assert result["warm_raking"]["mean_rgb"][0]>result["warm_raking"]["mean_rgb"][2],result
     assert result["cool_ambient"]["mean_rgb"][2]>result["cool_ambient"]["mean_rgb"][0],result
@@ -123,7 +128,8 @@ def smoke(directory: Path):
         "source_title":m["source_title"],"source_sha256":m["source_scan_sha256"],
         "source_original_triangles":500000,"original_meshes_rendered":0,
         "bricks":96,"coarse_spatial_boxes":1,"wall_render_instances":1,
-        "light_nodes":865,"gpu_direct_shadow_proxies":96,"micro_patches_per_brick":9,"two_conservative_bounces":True,
+        "light_nodes":865,"gpu_direct_shadow_proxies":96,
+        "direct_shadow_ab_isolated_from_wall_core":True,"micro_patches_per_brick":9,"two_conservative_bounces":True,
         "native_output_pixels":[1080,1080],"software_Vulkan":True,
         "real_hardware_GPU_fps_measured":False,"photo_reference_AB_passed":False,
         "lod_hero_samples":hero_count,"lod_distant_samples":far_count,
