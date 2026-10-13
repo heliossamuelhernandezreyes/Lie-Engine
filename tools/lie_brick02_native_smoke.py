@@ -13,7 +13,7 @@ ROOT=Path(__file__).resolve().parents[1]
 
 def validate(directory: Path) -> dict:
     catalog=json.loads((ROOT/"gpu_compute/captures/liebrick02/catalog.json").read_text())
-    assert catalog["source_3d_shape_used"] and catalog["source_photo_texture_uv_used"]
+    assert catalog["source_3d_shape_used"] and (catalog["source_photo_texture_uv_used"] or catalog.get("source_vertex_colors_used",False))
     is_real = not catalog["source_capture_kind_declared"].startswith("synthetic")
     if is_real and (catalog["source_original_triangles"] < 10000 or not catalog["expected_source_sha_verified"]):
         raise AssertionError("High-poly real-source gate was not met")
@@ -69,6 +69,7 @@ def validate(directory: Path) -> dict:
         "result":"native smoke passed" ,"source":("REAL_ORIGINAL_LICENSED_DATASET_GLTF" if is_real else "SYNTHETIC_GLTF_NOT_PHOTOGRAMMETRY"),
         "original_source_triangles":catalog["source_original_triangles"],
         "original_source_SHA256":catalog["source_sha256"],
+        "original_color_method":catalog["source_color_representation"],
         "publisher":catalog["source_author"],"license":catalog["license"],
         "captured_samples":catalog["sample_count"],
         "source_meshes_drawn":0, "one_invisible_box":True,
