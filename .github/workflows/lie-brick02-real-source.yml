@@ -1,0 +1,92 @@
+name: LIE-BRICK02 Authorized Original Brick Scan
+on:
+  push:
+    branches: ["experiment/lie-brick02-real-scan-import"]
+    paths:
+      - '.github/workflows/lie-brick02-real-source.yml'
+      - 'tools/lie_brick02_acquire_objaverse.py'
+      - 'tools/lie_brick02_capture_scan.py'
+      - 'tools/lie_brick02_native_smoke.py'
+      - 'gpu_compute/lie_brick02_*'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  genuine-original-brick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install GLB reader and public scientific dataset client
+        run: |
+          python -m pip install "numpy<3" pillow trimesh objaverse
+      - name: Acquire exact CC BY original from authorized Objaverse public research release
+        run: |
+          python tools/lie_brick02_acquire_objaverse.py --directory /tmp/lie-brick02-original
+      - name: Read actual scanned shape and texture, capture 3 LODs in LIE bank
+        run: |
+          python tools/lie_brick02_capture_scan.py --source /tmp/lie-brick02-original/6077f6801089403993f6a6612ff5739a.glb --provenance /tmp/lie-brick02-original/provenance.json --output gpu_compute/captures/liebrick02 --length-m 0.2032 --hero 220000 --middle 52000 --far 9000
+          python - <<'PY'
+          import json,hashlib,pathlib,numpy as np
+          root=pathlib.Path("gpu_compute/captures/liebrick02")
+          doc=json.loads((root/"catalog.json").read_text())
+          raw=(root/"library.bin").read_bytes()
+          assert len(raw)==doc["bytes"]==doc["sample_count"]*80
+          assert hashlib.sha256(raw).hexdigest()==doc["sha256"]
+          assert doc["expected_source_sha_verified"]
+          assert doc["source_original_triangles"]>=10000, "Original cannot be high-poly toy fixture"
+          assert doc["source_mesh_drawn"] is False
+          assert doc["hero_quality_accepted"] is False
+          assert doc["collision_proxy_count_per_active_brick"]==1
+          print("REAL_BRICK_GEOMETRY_VALIDATED",json.dumps({"triangles":doc["source_original_triangles"],"vertices":doc["source_original_vertices"],"LIE_samples":doc["sample_count"],"sha256":doc["sha256"],"bounds":doc["source_bbox_m"]}))
+          PY
+      - name: Install Godot 4.7.2 and Vulkan software driver for real native frames
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Validate native Godot scene imports the captured scan
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie_brick02_scan_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          c=Path("import.log").read_text()
+          assert "SCRIPT ERROR:" not in c,c[-9000:]
+          PY
+      - name: Produce LIE's ORIGINAL compositor PNG of authorized real scan
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab liebrick02 --directory /tmp/lie-brick02-native-real --audio-driver Dummy
+            python tools/lie_brick02_native_smoke.py --directory /tmp/lie-brick02-native-real
+          '
+      - name: Package exact CC BY source provenance and captured master
+        if: success()
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import zlib
+          root=Path("gpu_compute/captures/liebrick02")
+          (root/"real_brick_bank.zlib").write_bytes(zlib.compress((root/"library.bin").read_bytes(),9))
+          print("COMPRESSED_MASTER_BYTES",(root/"real_brick_bank.zlib").stat().st_size)
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-brick02-licensed-real-scan-native-vulkan
+          path: |
+            /tmp/lie-brick02-original/provenance.json
+            /tmp/lie-brick02-original/acquisition-report.json
+            gpu_compute/captures/liebrick02/catalog.json
+            gpu_compute/captures/liebrick02/real_brick_bank.zlib
+            /tmp/lie-brick02-native-real/*.png
+            /tmp/lie-brick02-native-real/*.json
+            /tmp/lie-brick02-native-real/godot.log
+            import.log
+          if-no-files-found: warn
