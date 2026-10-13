@@ -27,7 +27,7 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
           python -m unittest discover -s tests -p 'test_lie_mortar01.py' -v
-      - name: Rebuild 6mm flush photographic joints measured against original scanned brick face
+      - name: Rebuild photographed mortar 0.8-1.3mm behind both LOCAL scanned brick edges
         run: |
           python tools/lie_wall04_bake.py --allow-unreviewed
           python - <<'PY'
@@ -49,6 +49,12 @@ jobs:
             profile['front_plane_source']['legacy_recessed_mortar_plane_z_m']-.0015)
           assert profile['front_plane_source']['source_front_z_p975_m'] > (
             profile['front_plane_source']['source_front_z_median_m']+.001)
+          assert profile['global_plane_no_longer_controls_mortar_z']
+          assert profile['min_recess_from_local_brick_edge_m']==.0008
+          assert profile['max_extra_relief_from_local_brick_edge_m']==.0005
+          assert profile['local_brick_edge_calibration']['nearest_scan_bricks']==2
+          assert profile['local_brick_edge_calibration']['sample_queries_near_source']>10000
+          assert profile['local_brick_edge_calibration']['original_scanned_xyz_rgb_edited'] is False
           print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
           print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
           PY
