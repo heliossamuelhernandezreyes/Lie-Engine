@@ -132,17 +132,9 @@ void main() {
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(n,normalize(-delta));
             p.world=vec4(world,1);p.normal=vec4(n,front);p.screen=vec4(0);p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);
-            vec3 ld=world-parameters.light.xyz;float lz=dot(ld,parameters.shadow_forward.xyz);
-            if(lz>.00001 && dot(n,normalize(-ld))>.05) {
-                vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
-                float plane=dot(n,ld);vec2 gradient=vec2(2*1.25*dot(n,parameters.shadow_right.xyz),-2*1.25*dot(n,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*plane);
-                for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++) {
-                    ivec2 q=ivec2(xy)+ivec2(x,y);float z=1.0/(1.0/lz+dot(gradient,vec2(q)+.5-xy));
-                    vec2 uv=(vec2(q)+.5)/float(SHADOW_SIZE);
-                    vec3 ray=parameters.shadow_forward.xyz+parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
-                    if(z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
-                }
-            }
+            // Source light energy, blocker visibility and indirect generations
+            // are handled by ORIGINAL LIE11 PRE_OPAQUE transport on the GPU.
+            // Do not rebuild LIE33's obsolete shadow map a second time.
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.015) {
                 vec2 xy=project(world,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw));
                 vec3 tangent=normalize(cross(n,abs(n.y)<.9?vec3(0,1,0):vec3(1,0,0)));vec3 bitangent=cross(n,tangent);
