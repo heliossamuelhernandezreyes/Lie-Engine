@@ -82,6 +82,6 @@ class Wall04SamplesTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             bank_samples(wall,{"horizontal":[donor],"vertical":[donor]},.0027)
         with self.assertRaises(ValueError):
-            sample_line("horizontal",0,0,0.,1.,0.,.0027,.0020,.0563,[donor])
+            sample_line("horizontal",0,0,0.,1.,0.,.0027,.0010,.0563,[donor])
 
 if __name__=="__main__":unittest.main()
