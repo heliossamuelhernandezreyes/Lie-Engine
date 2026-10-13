@@ -45,6 +45,10 @@ jobs:
           assert profile['radius_scale']==.62
           assert profile['support_scale']==.36
           assert profile['front_plane_source']['source_front_samples']>10000
+          assert profile['measured_front_plane_z_m'] >= (
+            profile['front_plane_source']['legacy_recessed_mortar_plane_z_m']-.0015)
+          assert profile['front_plane_source']['source_front_z_p975_m'] > (
+            profile['front_plane_source']['source_front_z_median_m']+.001)
           print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
           print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
           PY
