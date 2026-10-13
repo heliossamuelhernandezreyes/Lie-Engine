@@ -1,0 +1,90 @@
+name: Publish verified LIE-WALL03 coverage and mortar master
+on:
+  push:
+    branches: ["experiment/lie-wall03-coverage-mortar"]
+    paths: [".github/workflows/lie-wall03-publish.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  persist-real-scan-wall:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rebuild wall strictly from original 500K scan and verified COLOR_0
+        run: |
+          python -m pip install numpy pillow
+          python tools/lie_brick02_restore.py
+          python tools/lie_wall03_bake.py --output gpu_compute/captures/liewall03
+      - name: Retrieve real Mesa Vulkan captures and alternating coverage benchmark
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/lie-wall03-proof
+          gh run download 38370714230 --repo ${{ github.repository }} --name lie-wall03-authentic-source-coverage-mortar-vulkan --dir /tmp/lie-wall03-proof
+          find /tmp/lie-wall03-proof -type f -printf '%P %s bytes\n' | sort | head -35
+      - name: Validate full SHA lineage and native-source screenshots before persistence
+        run: |
+          mkdir -p gpu_compute/assets/lie_wall03 evidence
+          python - <<'PY'
+          import hashlib,json,pathlib,zlib
+          P=pathlib.Path
+          src=P('gpu_compute/captures/liewall03')
+          observed=P('/tmp/lie-wall03-proof/home/runner/work/Lie-Engine/Lie-Engine/gpu_compute/captures/liewall03')
+          native=P('/tmp/lie-wall03-proof/tmp/lie-wall03-native')
+          dest=P('gpu_compute/assets/lie_wall03')
+          evidence=P('evidence')
+          meta=json.loads((src/'catalog.json').read_text())
+          original=json.loads(P('gpu_compute/assets/lie_brick02/catalog.json').read_text())
+          proven=json.loads(P('gpu_compute/assets/lie_brick02/source_provenance.json').read_text())
+          measured=json.loads((observed/'catalog.json').read_text())
+          raw=(src/'library.bin').read_bytes()
+          illumination=(src/'light-model.json').read_bytes()
+          assert meta['sha256']==measured['sha256']=='fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba'
+          assert hashlib.sha256(raw).hexdigest()==meta['sha256']
+          assert len(raw)==meta['sample_count']*80==44869280
+          assert meta['source_master_sha256']==original['sha256']
+          assert meta['source_scan_sha256']==original['source_sha256']==proven['expected_sha256']
+          assert proven['license']=='CC BY 4.0'
+          assert meta['source_original_triangles']==500000 and meta['original_meshes_drawn'] is False
+          assert meta['collision']['spatial_envelope_count']==1 and meta['wall_layout']['brick_count']==96
+          assert meta['lighting']['node_count']==872 and meta['lighting']['mortar_nodes']==8
+          assert meta['wall_layout']['mortar_recess_m']==.0035
+          assert hashlib.sha256(illumination).hexdigest()==meta['lighting']['sha256']
+          assert hashlib.sha256((observed/'light-model.json').read_bytes()).hexdigest()==meta['lighting']['sha256']
+          proof=json.loads((native/'LIE-WALL03-native-validation.json').read_text())
+          assert proof['light_nodes']==872 and proof['bricks']==96 and proof['spatial_envelopes']==1
+          assert proof['captures']['coverage_on']['occupied_pixels']>proof['captures']['coverage_off']['occupied_pixels']
+          assert proof['physical_android_fps_measured'] is False
+          assert len(proof['captures'])>=5
+          for key,entry in proof['captures'].items():
+            shot=native/entry['file']
+            assert hashlib.sha256(shot.read_bytes()).hexdigest()==entry['sha256'],key
+            (evidence/entry['file']).write_bytes(shot.read_bytes())
+          (evidence/'LIE-WALL03-native-validation.json').write_bytes((native/'LIE-WALL03-native-validation.json').read_bytes())
+          bench=native/'LIE-WALL03-coverage-benchmark.json'
+          assert bench.is_file(),'No independent benchmark'
+          speed=json.loads(bench.read_text())
+          assert speed['physical_android_gpu_tested'] is False
+          assert speed['samples_per_sweep']==5
+          (evidence/'LIE-WALL03-coverage-benchmark.json').write_bytes(bench.read_bytes())
+          (dest/'wall_bank.zlib').write_bytes(zlib.compress(raw,9))
+          (dest/'light-model.json').write_bytes(illumination)
+          (dest/'catalog.json').write_bytes((src/'catalog.json').read_bytes())
+          (dest/'source_provenance.json').write_bytes(P('gpu_compute/assets/lie_brick02/source_provenance.json').read_bytes())
+          print('VERIFIED REAL LIE-WALL03: 872 code nodes, 96 real scanned bricks, one box',meta['sha256'],flush=True)
+          PY
+      - name: Commit all real sample bytes and photos, preserving old masters
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f gpu_compute/assets/lie_wall03/wall_bank.zlib gpu_compute/assets/lie_wall03/light-model.json gpu_compute/assets/lie_wall03/catalog.json gpu_compute/assets/lie_wall03/source_provenance.json
+          git add evidence/LIE-WALL03-*.png evidence/LIE-WALL03-native-validation.json evidence/LIE-WALL03-coverage-benchmark.json
+          if git diff --cached --quiet; then
+            echo "Same SHA-locked LIE-WALL03 master already committed"
+          else
+            git commit -m "LIE-WALL03: real 96-brick coverage, 8 independently lit mortar courses, immutable GPU master and native A/B [skip ci]"
+            git push origin HEAD:experiment/lie-wall03-coverage-mortar
+          fi
