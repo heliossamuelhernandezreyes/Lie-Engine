@@ -15,12 +15,18 @@ var _connected: bool=false
 var _time: float=0
 var _metrics: Dictionary={}
 
+func _make_effect() -> CompositorEffect:return Effect.new(1080)
+func _lab_heading() -> String:return "LIE-BRICK-01 · Ladrillo PBR derivado"
+func _lab_geometry_text() -> String:return "1 ladrillo hero visible · una caja invisible\nBordes erosionados y esquinas dañadas\nNormal + altura PBR CC0 4K\nTres niveles de muestras"
+func _lab_source_text() -> String:return "Fuente Poly Haven Red Brick CC0\nGeometría LIE procedimental no plana\nNO es escaneo 3D individual\nCalidad hero pendiente de aprobación"
 func _ready() -> void:
-    get_window().size=Vector2i(1280,800);effect=Effect.new(1080)
+    get_window().size=Vector2i(1280,800);effect=_make_effect()
     var world:=WorldEnvironment.new();var environment:=Environment.new();environment.background_mode=Environment.BG_COLOR;environment.background_color=Color(.025,.034,.045);world.environment=environment
     var compositor:=Compositor.new();compositor.compositor_effects=[effect];world.compositor=compositor;add_child(world)
     camera=Camera3D.new();camera.current=true;camera.near=.001;camera.far=40;add_child(camera)
-    _ui();_apply();_refresh();_build_invisible_proxies()
+    _ui();_apply();_refresh()
+    if effect.get("capture_loaded"):_build_invisible_proxies()
+    elif status!=null:status.text=effect.get("failure")
 
 func _label(parent: Node,text: String,size: int=14) -> Label:
     var item:=Label.new();item.text=text;item.add_theme_font_size_override("font_size",size);parent.add_child(item);return item
@@ -39,7 +45,7 @@ func _check(parent: Node,key: String,title: String) -> void:
     var item:=CheckBox.new();item.text=title;item.toggled.connect(func(v: bool):command({"op":"set_values","values":{key:v}}));parent.add_child(item);controls[key]=item
 func _ui() -> void:
     var ui:=CanvasLayer.new();add_child(ui)
-    var title:=_label(ui,"LIE-BRICK-01 · Hero maestro real",26);title.position=Vector2(24,18)
+    var title:=_label(ui,_lab_heading(),26);title.position=Vector2(24,18)
     picture=TextureRect.new();picture.position=Vector2(298,70);picture.size=Vector2(684,684);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;ui.add_child(picture)
     var left: VBoxContainer=_panel(ui,Vector2(20,70));_label(left,"MAESTROS DE CONSTRUCCIÓN",13).add_theme_color_override("font_color",Color(.4,.85,1))
     for pair in [["master","Ladrillo hero · inspección"]]:
@@ -51,14 +57,14 @@ func _ui() -> void:
     _slider(left,"seed","Semilla reproducible")
     _slider(left,"variation","Variación de tono")
     _slider(left,"roughness_variation","Variación rugosidad")
-    _label(left,"1 ladrillo hero visible · una caja invisible\nBordes erosionados y esquinas dañadas\nNormal + altura PBR CC0 4K\nTres niveles de muestras",12)
-    _label(left,"Fuente Poly Haven Red Brick CC0\nGeometría LIE procedimental no plana\nNO es escaneo 3D individual\nCalidad hero pendiente de aprobación",12)
+    _label(left,_lab_geometry_text(),12)
+    _label(left,_lab_source_text(),12)
     _button(left,"Volver al taller",func():get_tree().change_scene_to_file("res://lie18_workshop.tscn"))
     var right: VBoxContainer=_panel(ui,Vector2(1000,70));_label(right,"CÁMARA Y LUZ",13).add_theme_color_override("font_color",Color(.4,.85,1))
     for pair in [["camera_yaw","Órbita"],["camera_elevation","Altura"],["distance_factor","Distancia"],["light_azimuth","Dirección de luz"],["light_power","Intensidad"],["exposure","Exposición"]]:_slider(right,pair[0],pair[1])
     _check(right,"shadows","Sombras")
     status=_label(right,"Preparando biblioteca…",12);status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;status.custom_minimum_size.x=225
-    var caption:=_label(ui,"LIE31 · 960² pixels reales · Vulkan software",12);caption.position=Vector2(310,760)
+    var caption:=_label(ui,"LIE · 1080×1080 px · Vulkan",12);caption.position=Vector2(310,760)
 
 func _refresh() -> void:
     for key in controls:
