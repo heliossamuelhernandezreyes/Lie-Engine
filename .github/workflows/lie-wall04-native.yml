@@ -42,8 +42,8 @@ jobs:
           assert profile['structural_mortar_gap_m']==.0085
           assert profile['max_forward_relief_m']==0
           assert profile['max_back_relief_m']==.0008
-          assert profile['radius_scale']==.62
-          assert profile['support_scale']==.36
+          assert profile['radius_scale']==.80
+          assert profile['support_scale']==.51
           assert profile['front_plane_source']['source_front_samples']>10000
           assert profile['measured_front_plane_z_m'] >= (
             profile['front_plane_source']['legacy_recessed_mortar_plane_z_m']-.0015)
