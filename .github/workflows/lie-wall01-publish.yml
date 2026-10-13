@@ -1,0 +1,75 @@
+name: Publish verified LIE-WALL01 scanned coded master
+on:
+  push:
+    branches: ["experiment/lie-wall01-coded-lighting"]
+    paths: [".github/workflows/lie-wall01-publish.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  persist-authentic-wall:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore and bake ORIGINAL CC BY scanned brick using pinned source
+        run: |
+          python -m pip install numpy pillow
+          python tools/lie_brick02_restore.py
+          python tools/lie_wall01_bake.py
+      - name: Download measured and verified four-view native Vulkan evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/lie-wall01-confirmed
+          gh run download 38351515530 --repo ${{ github.repository }} --name lie-wall01-real-scan-original-LIE11-GPU-lighting --dir /tmp/lie-wall01-confirmed
+          find /tmp/lie-wall01-confirmed -type f -printf '%P %s bytes\n' | sort | head -30
+      - name: Verify image provenance and the exact unchanged captured sample bank
+        run: |
+          mkdir -p gpu_compute/assets/lie_wall01 evidence
+          python - <<'PY'
+          import json,hashlib,zlib
+          from pathlib import Path
+          root=Path("gpu_compute/captures/liewall01")
+          cat=json.loads((root/"catalog.json").read_text())
+          original=Path("/tmp/lie-wall01-confirmed/home/runner/work/Lie-Engine/Lie-Engine/gpu_compute/captures/liewall01")
+          measured=json.loads((original/"catalog.json").read_text())
+          assert cat["sha256"]==measured["sha256"]=="9446ac800318cc1967b09f8f1c59ddde3d76c95e877705e4f95a364e29d0c031"
+          assert cat["sample_count"]==560866 and cat["lighting"]["node_count"]==577
+          assert cat["source_original_triangles"]==500000 and cat["collision"]["spatial_envelope_count"]==1
+          light=(root/"light-model.json").read_bytes()
+          assert hashlib.sha256(light).hexdigest()==hashlib.sha256((original/"light-model.json").read_bytes()).hexdigest()==cat["lighting"]["sha256"]
+          out=Path("gpu_compute/assets/lie_wall01")
+          raw=(root/"library.bin").read_bytes()
+          assert hashlib.sha256(raw).hexdigest()==cat["sha256"]
+          (out/"wall_bank.zlib").write_bytes(zlib.compress(raw,9))
+          (out/"catalog.json").write_bytes((root/"catalog.json").read_bytes())
+          (out/"light-model.json").write_bytes(light)
+          (out/"source_provenance.json").write_bytes(Path("gpu_compute/assets/lie_brick02/source_provenance.json").read_bytes())
+          native=Path("/tmp/lie-wall01-confirmed/tmp/lie-wall01-native")
+          report=json.loads((native/"LIE-WALL01-native-validation.json").read_text())
+          assert report["bricks"]==96 and report["light_nodes"]==577
+          assert report["wall_render_instances"]==1 and report["coarse_spatial_boxes"]==1
+          for _,entry in report["views"].items():
+            image=native/entry["filename"]
+            assert image.exists()
+            assert hashlib.sha256(image.read_bytes()).hexdigest()==entry["sha256"]
+            (Path("evidence")/entry["filename"]).write_bytes(image.read_bytes())
+          (Path("evidence")/"LIE-WALL01-native-validation.json").write_bytes((native/"LIE-WALL01-native-validation.json").read_bytes())
+          print("IMMUTABLE ORIGINAL SCANNED WALL SAVED",cat["sample_count"],cat["sha256"],
+                "compressed_size",(out/"wall_bank.zlib").stat().st_size)
+          PY
+          python tools/lie_wall01_restore.py
+      - name: Publish exact bank, author license and non-mock native captures
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f gpu_compute/assets/lie_wall01/wall_bank.zlib gpu_compute/assets/lie_wall01/catalog.json gpu_compute/assets/lie_wall01/light-model.json gpu_compute/assets/lie_wall01/source_provenance.json
+          git add evidence/LIE-WALL01-RealScan-*.png evidence/LIE-WALL01-native-validation.json
+          if git diff --cached --quiet; then
+            echo "Verified scanned master unchanged"
+          else
+            git commit -m "LIE-WALL01: genuine 96-brick master, 577 original GPU node-light codes, Vulkan A/B evidence [skip ci]"
+            git push origin HEAD:experiment/lie-wall01-coded-lighting
+          fi
