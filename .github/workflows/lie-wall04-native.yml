@@ -81,6 +81,18 @@ jobs:
           assert not updated['wall04']['product_quality_accepted']
           print('WALL04: 96 exact brick records, 1 invisible box, true 3D photo-mortar source sample bank',updated['sha256'])
           PY
+      - name: Confirm 6mm visual brick expansion and original source SHA safety
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          base=Path('gpu_compute/shaders/lie_wall04_mortar.glsl').read_text()
+          diagnostic=Path('gpu_compute/shaders/lie_wall04_mortar_coverage_diagnostic.glsl').read_text()
+          for shader in (base,diagnostic):
+            assert 'const float WALL04_VISIBLE_JOINT_M = 0.006;' in shader
+            assert 'wall04_expanded_xy(local.xy,source_node)' in shader
+            assert 'wall04_unexpanded_xy(local.xy,source_node)' in shader
+            assert 'source_node<864u' in shader
+          PY
       - name: Compile GDScript and compute shader
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
