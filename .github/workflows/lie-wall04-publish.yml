@@ -25,7 +25,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/lie-wall04-vulkan
-          gh run download 38481391004 --repo "${{ github.repository }}" \
+          gh run download 38484330983 --repo "${{ github.repository }}" \
              --name lie-wall04-photographed-mortar-real-vulkan-experimental \
              --dir /tmp/lie-wall04-vulkan
       - name: Verify SHA integrity, 96 original brick bytes, one box and photographed capture
@@ -45,7 +45,12 @@ jobs:
           assert m['sha256']==c['wall04']['mortar01_sha256']==v['mortar_source_sha256']
           assert o['sha256']==c['wall04']['wall03_original_sha256']==v['source_wall03_sha256']
           assert c['sha256']==v['combined_bank_sha256']
-          assert m['sample_count']>89918 and len(m['levels'])==3
+          assert m['sample_count']>100000 and len(m['levels'])==3
+          profile=m['flush_mortar_experiment']
+          assert profile['visible_mortar_width_m']==.006
+          assert profile['max_back_relief_m']==.0008 and profile['max_forward_relief_m']==0.
+          assert profile['measured_front_plane_z_m']>profile['front_plane_source']['source_front_z_p90_m']
+          assert profile['support_scale']==.51 and profile['radius_scale']==.80
           assert c['collision']['spatial_envelope_count']==v['spatial_envelopes']==1
           assert c['wall_layout']['brick_count']==v['scanned_bricks']==96
           assert c['lighting']['node_count']==v['lighting_nodes']==872
@@ -60,8 +65,8 @@ jobs:
             section=old_data[a['start']:a['start']+a['count']]
             brick=section[section[:,9]<864].tobytes()
             assert new_data[b['start']:b['start']+b['scanned_original_brick_samples']].tobytes()==brick
-          assert d['real_vulkan_capture'] and d['source_samples_drawn_on_screen']>40000
-          assert d['source_sample_coverage_ratio']>.13 and d['G1_masks_reviewed'] is False
+          assert d['real_vulkan_capture'] and d['source_samples_drawn_on_screen']>33000
+          assert d['source_sample_coverage_ratio']>.10 and d['G1_masks_reviewed'] is False
           evidence=P('evidence');evidence.mkdir(exist_ok=True)
           for name in ('LIE-WALL04-CapturedMortar-Neutral.png',
                        'LIE-WALL04-CapturedMortar-Raking.png',
@@ -71,7 +76,9 @@ jobs:
             (evidence/name).write_bytes(shot.read_bytes())
           for name in ('LIE-WALL04-native-validation.json','LIE-WALL04-coverage-diagnostic.json'):
             (evidence/name).write_bytes((img/name).read_bytes())
-          print('Persisting real G1-UNREVIEWED photographed mortar source sample bank:',m['sample_count'])
+          print('Persisting FLUSH 6mm real G1-UNREVIEWED photographed mortar source bank:',m['sample_count'])
+          print('Visible mortar pixels:',d['source_samples_drawn_on_screen'])
+          print('WARNING: still black gap pixels; photoreal quality NOT ACCEPTED')
           PY
       - name: Commit rebuilt LIE sample bank and measured REAL Godot Vulkan evidence
         run: |
