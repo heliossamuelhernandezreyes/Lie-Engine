@@ -15,6 +15,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from scipy.ndimage import distance_transform_edt
+from lie_wall04_edge_surface import OriginalBrickEdgeField
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DERIVED = ROOT / "assets/material_masters/mortar/hero/real_masonry_joint/derived"
@@ -29,6 +30,8 @@ VISIBLE_MORTAR_WIDTH_M = 0.0060    # 6mm target, independently of structural gap
 EDGE_PROTECTION_M = 0.00050       # reserve 0.5mm on both visible mortar sides
 MORTAR_MAX_BACK_RELIEF_M = 0.0008  # permitted microtexture behind brick face
 MORTAR_MAX_FORWARD_RELIEF_M = 0.0  # never protrude above scanned front reference
+MORTAR_EDGE_RECESS_M = 0.00080  # entire joint behind the nearest measured brick edges
+MORTAR_EXTRA_MICRO_RELIEF_M = 0.00050  # variation retreats still farther
 SPLAT_RADIUS_SCALE = 0.80
 SUPPORT_SCALE = 0.51
 SAFETY_M = 0.00075  # lengthwise protection near scanned brick joints
@@ -186,7 +189,8 @@ def measured_brick_front_plane(wall_catalog_path: Path, wall: dict) -> tuple[flo
 
 def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
                 across_center: float, spacing: float, gap: float, plane_z: float,
-                donors: list[Donor]) -> np.ndarray:
+                donors: list[Donor],
+                edge_field: OriginalBrickEdgeField | None = None) -> np.ndarray:
     # Preserve real brick dimensions: modify mortar only. Do not draw across
     # the entire original 8.5mm structural joint.
     visible_gap = min(gap, VISIBLE_MORTAR_WIDTH_M)
@@ -224,7 +228,20 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
     backwards = -MORTAR_MAX_BACK_RELIEF_M * (.5 - .5 * unit_relief)
     backwards = np.clip(backwards, -MORTAR_MAX_BACK_RELIEF_M,
                         MORTAR_MAX_FORWARD_RELIEF_M)
-    data[:, 2] = plane_z + backwards
+    if edge_field is not None:
+        local_edge_z=edge_field.face_limit(kind,row,column,data[:,0:2])
+        # Photo detail always digs INWARD from *actual adjacent brick face*.
+        # Using the conservative minimum of two neighbors prevents plaster
+        # floating in front of the brick on a worn/recessed course.
+        local_micro=-MORTAR_EXTRA_MICRO_RELIEF_M * (.5 - .5 * unit_relief)
+        data[:, 2]=np.minimum(local_edge_z-MORTAR_EDGE_RECESS_M+local_micro,
+                             local_edge_z-MORTAR_EDGE_RECESS_M)
+        if np.any(data[:,2]>local_edge_z-MORTAR_EDGE_RECESS_M+1e-7):
+            raise ValueError("Mortar projected in front of original scanned brick edge")
+    else:
+        # Isolated legacy unit tests only. The production bake ALWAYS supplies
+        # the original-brick edge field.
+        data[:, 2] = plane_z + backwards
     data[:, 3] = spacing * SPLAT_RADIUS_SCALE
     data[:, 4:7] = nrm
     data[:, 7] = 1.
@@ -244,7 +261,8 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
 
 
 def bank_samples(wall: dict, donors: dict[str, list[Donor]], spacing: float,
-                 brick_front_z: float | None = None) -> np.ndarray:
+                 brick_front_z: float | None = None,
+                 edge_field: OriginalBrickEdgeField | None = None) -> np.ndarray:
     j = wall["wall_layout"]["mortar_shader_layout"]
     gap = float(wall["wall_layout"]["mortar_gap_m"])
     if (int(j["rows"]) != 8 or int(j["columns"]) != 12 or
@@ -265,7 +283,8 @@ def bank_samples(wall: dict, donors: dict[str, list[Donor]], spacing: float,
         for col in range(11):
             cx = ox + stagger + (col + .5) * px
             part = sample_line("vertical", row, col, cy-h*.5+SAFETY_M,
-                               cy+h*.5-SAFETY_M, cx, spacing, gap, plane, donors["vertical"])
+                               cy+h*.5-SAFETY_M, cx, spacing, gap, plane,
+                               donors["vertical"], edge_field)
             if len(part):
                 pieces.append(part)
         if row < 7:
@@ -274,7 +293,8 @@ def bank_samples(wall: dict, donors: dict[str, list[Donor]], spacing: float,
             maxx = min(ox+stagger+11*px+w*.5,
                        ox+next_stagger+11*px+w*.5) - SAFETY_M
             part = sample_line("horizontal", row, 100, minx, maxx,
-                               cy+py*.5, spacing, gap, plane, donors["horizontal"])
+                               cy+py*.5, spacing, gap, plane,
+                               donors["horizontal"], edge_field)
             if len(part):
                 pieces.append(part)
     if not pieces:
@@ -299,11 +319,14 @@ def bake(derived: Path, wall_catalog: Path, dest: Path,
     if wall["original_meshes_drawn"] or wall["source_original_triangles"] != 500000:
         raise ValueError("Cannot substitute six box faces or original source polygons")
     measured_plane, front_scan = measured_brick_front_plane(wall_catalog, wall)
+    # Source-based Z cap for EVERY mortar sample: no longer use this single
+    # global 97.5th percentile as the surface depth.
+    edge_field=OriginalBrickEdgeField(wall_catalog, wall)
     levels = []
     arrays = []
     offset = 0
     for spacing in LODS:
-        bank = bank_samples(wall, donors, spacing, measured_plane)
+        bank = bank_samples(wall, donors, spacing, measured_plane, edge_field)
         arrays.append(bank)
         levels.append({"start": offset, "count": len(bank), "spacing_m": spacing})
         offset += len(bank)
@@ -326,11 +349,15 @@ def bake(derived: Path, wall_catalog: Path, dest: Path,
             "radius_scale": SPLAT_RADIUS_SCALE,
             "support_scale": SUPPORT_SCALE,
             "max_back_relief_m": MORTAR_MAX_BACK_RELIEF_M,
+            "min_recess_from_local_brick_edge_m": MORTAR_EDGE_RECESS_M,
+            "max_extra_relief_from_local_brick_edge_m": MORTAR_EXTRA_MICRO_RELIEF_M,
+            "local_brick_edge_calibration": edge_field.report(),
             "max_forward_relief_m": MORTAR_MAX_FORWARD_RELIEF_M,
             "measured_front_plane_z_m": measured_plane,
             "front_plane_source": front_scan,
             "width_6mm_in_8point5mm_leaves_open_unfilled_margin": True,
-            "product_quality_accepted": False
+            "product_quality_accepted": False,
+            "global_plane_no_longer_controls_mortar_z": True
         },
         "workshop_only_not_renderer_accepted": not review["g1_human_review_passed"],
         "lighting_node_range": [864, 871], "brick_source_wall03_sha256": wall["sha256"],
