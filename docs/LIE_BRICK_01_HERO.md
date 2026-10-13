@@ -103,3 +103,36 @@ indistinguishability. A genuinely photogrammetry-scanned individual brick
 with its own multi-face photo textures, a matched reference photograph
 and improved microgeometry reconstruction are required before signoff.
 A passing smoke test is not a photo-realism benchmark.
+
+## Tested version 4 — edge-displacement continuity and micro-normals
+
+CI run: https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38325180180
+**PASS**: unit tests, original 4K PBR SHA acquisition, two full/half
+sample masters with three LOD ranges, Godot 4.7.2 GDScript import,
+real 1080-square Mesa Vulkan captures, one invisible `BoxShape3D`,
+and stable checksum of the newly captured sample bank.
+
+- Raw immutable sample bank SHA-256:
+  `e7789adf40dd6ba2024d37915cef98717b88d9733ac49b58b61c4d6e3bbf2c1a`.
+- The photographic height is now smoothly attenuated to zero at the actual
+  3D edge, rather than ending abruptly at six independent face boundaries.
+- The 12 LIE rounded edge sample strips receive the same corner compensation
+  as the adjoining faces to reduce floating dark joints.
+- Surface shading gives more weight to the photographed PBR normal channel
+  (52%), restoring some natural clay staining/relief variations.
+- Sample and collider budgets remain unchanged from version 3:
+  full hero 258,990, half hero 202,680, exactly 1 invisible box.
+- Inspect the real GPU `evidence/LIE-BRICK01-ThreeQuarter.png` and
+  `evidence/LIE-BRICK01-Top.png` (v4); the v1/v2 negatives remain in evidence.
+- **Visual verdict: STILL NOT PHOTO-INDISTINGUISHABLE.** The dark artificial
+  continuous line along the top edge is still visible; the object has
+  overly regular planar structure. This cannot be called a premium 3D-scanned
+  brick because the source contains no scanned complete individual brick.
+  The next quality gate requires a legally obtained whole-brick scanned mesh
+  with independent photographs of all six sides, plus actual reference A/B.
+- Do not claim physical GPU-speed improvement: all these captures ran through
+  Mesa software Vulkan rather than a physical phone GPU.
+
+LIE can represent very rich sample geometry with one simple collision box, but
+whether a particular *render* convincingly reproduces real photography remains
+an experimental problem, not a guaranteed property of the engine.
