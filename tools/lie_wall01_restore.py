@@ -36,7 +36,7 @@ def restore(source: Path=SOURCE, dest: Path=DEST) -> dict:
     if hashlib.sha256(light).hexdigest()!=cat["lighting"]["sha256"]:
         raise ValueError("Corrupted LIE11 coded light graph")
     model=json.loads(light)
-    if len(model["patches"])!=cat["lighting"]["node_count"]!=577:
+    if len(model["patches"])!=cat["lighting"]["node_count"] or len(model["patches"])!=577:
         raise ValueError("Node count differs from captured scan mapping")
     master=cat["masters"]["real_scan_wall"]
     levels=master["levels"]
