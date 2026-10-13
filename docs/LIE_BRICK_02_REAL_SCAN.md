@@ -1,8 +1,28 @@
 # LIE-BRICK-02 — fuente geométrica completa, textura original y una sola caja invisible
 
+## RESULTADO IMPLEMENTADO — ESCANEO AUTÉNTICO (VALIDADO)
+
+- **Original autorizado obtenido:** Sketchfab UID `6077f6801089403993f6a6612ff5739a`, distribuido públicamente por Objaverse 1.0; licencia original **CC BY 4.0**, Centre-of-Archaeology. No se usan endpoints privados del visor.
+- **Original SHA-256:** `b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b`, 20,324,708 bytes, 500,000 triángulos, 357,956 vértices.
+- **Corrección técnica real:** el original GLB no incluye atlas/UV; su color real está en `COLOR_0` lineal por vértice. `tools/lie_gltf_vertex_color.py` lee esos colores, triángulos y transformaciones originales sin inventarlos ni tratarlos como sRGB.
+- **Banco de muestras LIE:** 281,000 registros de 80 bytes = 22,480,000 bytes crudos; 15,002,115 bytes comprimidos, **SHA-256 `fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb`**. Tres LOD: 220K / 52K / 9K.
+- **Separación visual/espacial:** una sola caja invisible `BoxShape3D` con bounds [0.2092, 0.0834223, 0.1256172] m con margen de 3 mm a cada lado; ninguna malla original dibujada por el compositor.
+- **Vulkan nativo:** [ejecución aprobada](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38344802311), Godot 4.7.2 / Mesa Vulkan, capturas originales 1080 × 1080 de frente, perspectiva y arriba; `evidence/LIE-BRICK02-REAL-*.png`.
+- **Publicación en GitHub:** [workflow completado](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38345024246). `gpu_compute/assets/lie_brick02/{catalog.json,source_provenance.json,real_brick_bank.zlib}`. `python tools/lie_brick02_restore.py` reconstruye y verifica el bank para abrir la escena sin descargar el original.
+- **Calidad actual:** superficie/silueta auténticas, pero no existe todavía comparación fotográfica controlada con el mismo ladrillo ni mediciones de GPU física. `hero_quality_accepted=false` y `photo_reference_ab_test_passed=false`.
+
+**Reproducción sin descargar el original:**
+```bash
+python tools/lie_brick02_restore.py
+godot --headless --path gpu_compute --editor --import --quit
+python tools/lie_agent_launch.py --godot /ruta/godot --lab liebrick02 --directory /tmp/liebrick02-real-session
+```
+
+---
+
 ## Estado real (no confundir fixture con fotogrametría)
 
-Esta rama añade **un importador ejecutable** para `GLB`, `glTF` y `OBJ` autorizados, un nuevo laboratorio Godot y pruebas de GPU. Las pruebas automáticas **usan un GLB sintético deformado y texturizado**, claramente identificado. Eso valida la tubería, NO significa que hayamos descargado el escaneo de Shakespeare ni alcanzado fotorrealismo.
+La primera fase de esta rama añadió **un importador ejecutable** para `GLB`, `glTF` y `OBJ` autorizados, un nuevo laboratorio Godot y pruebas de GPU. Las pruebas iniciales **usaban un GLB sintético deformado y texturizado**, identificado. Posteriormente se obtuvo el escaneo original mediante Objaverse, se capturó y se validó en Vulkan. Eso NO significa que ya hayamos alcanzado fotorrealismo.
 
 La **fuente externa de alta resolución identificada** para un ladrillo completo es:
 
