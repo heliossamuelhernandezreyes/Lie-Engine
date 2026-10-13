@@ -117,6 +117,16 @@ def smoke(directory: Path):
     assert update_snapshot["transport_frame_count"]>=3
     assert update_snapshot["lighting_updates"]>=3
 
+    # True additional Godot GPU close-range frame: not a zoomed/AI image.
+    # Keep the real source geometry and the same micro-node shadow transport.
+    response=request({"op":"set_values","values":{
+        "distance_factor":.6,"camera_yaw":19.0,"camera_elevation":12.0,
+        "lighting_preset":"neutral","light_azimuth":-22.0,
+        "clay_absorption":0.0,"direct_shadow_proxies":True}})
+    assert response["result"]["ok"],response
+    time.sleep(1.0)
+    result["closer_detail"]=capture("real_scan_closeup")
+    assert result["closer_detail"]["opaque_pixels"]>250000,result["closer_detail"]
     assert request({"op":"set_values","values":{"distance_factor":1.85}})["result"]["ok"]
     time.sleep(.5)
     lod=request({"op":"snapshot"})["snapshot"]
