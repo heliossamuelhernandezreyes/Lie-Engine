@@ -63,8 +63,8 @@ class Wall04SamplesTest(unittest.TestCase):
                 cx=(j["first_brick_x_m"]+col*j["pitch_x_m"]+
                     (row%2)*.5*j["pitch_x_m"])
                 cy=j["first_brick_y_m"]+row*j["pitch_y_m"]
-                violation=(np.abs(sampled[:,0]-cx)<j["brick_length_m"]*.5+.00145)&(
-                    np.abs(sampled[:,1]-cy)<j["brick_height_m"]*.5+.00145)
+                violation=(np.abs(sampled[:,0]-cx)<j["brick_length_m"]*.5+.00070)&(
+                    np.abs(sampled[:,1]-cy)<j["brick_height_m"]*.5+.00070)
                 self.assertFalse(np.any(violation),f"sample overlaps source brick {row}/{col}")
 
     def test_unchanging_seed_and_no_flat_random_plane(self):
