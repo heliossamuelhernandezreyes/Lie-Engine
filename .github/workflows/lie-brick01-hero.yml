@@ -1,0 +1,116 @@
+name: LIE-BRICK01 Real Hero Brick
+on:
+  push:
+    branches: ["experiment/lie-brick-01-hero"]
+    paths:
+      - ".github/workflows/lie-brick01-hero.yml"
+      - "tools/lie_brick01_capture.py"
+      - "tools/lie_brick01_native_smoke.py"
+      - "tests/test_lie_brick01_sampling.py"
+      - "gpu_compute/lie_brick01_*"
+      - "gpu_compute/lie22_modular_effect.gd"
+      - "gpu_compute/workshop/lie_agent_session.gd"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: lie-brick01-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-hero:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install original Godot 4.7.2 and software Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python -m pip install numpy pillow
+      - name: Test six-sided real geometric erosion and source-lock original CC0 PBR
+        run: |
+          python -m unittest discover -s tests -p 'test_lie_brick01_sampling.py' -v
+          python tools/lie31_acquire_pbr.py --directory /tmp/lie-brick01-source --resolution 4k
+      - name: Capture real photo PBR into LIE chipped full/half brick masters
+        run: |
+          python tools/lie_brick01_capture.py --source /tmp/lie-brick01-source --output gpu_compute/captures/liebrick01
+          python - <<'PY'
+          from pathlib import Path
+          import json, hashlib, numpy as np
+          dest=Path('gpu_compute/captures/liebrick01')
+          meta=json.loads((dest/'catalog.json').read_text())
+          bank=(dest/'library.bin').read_bytes()
+          assert len(bank)==meta['sample_count']*80
+          assert hashlib.sha256(bank).hexdigest()==meta['sha256']
+          assert len(meta['masters'])==2
+          assert len(meta['masters']['brick_full']['levels'])==3
+          assert meta['collision_proxy_count_per_active_brick']==1
+          for name in meta['masters']:
+              stats=meta['face_sample_report'][name]['hero']
+              assert stats['front']['max_corner_cut_mm']>2
+              assert stats['top']['max_corner_cut_mm']>2
+              assert stats['left']['max_corner_cut_mm']>2
+          print("Verified real chipped geometry:",meta['sample_count'],"samples",len(bank),"bytes")
+          PY
+      - name: Import and syntax-check native Godot hero compositor
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie_brick01_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('import.log').read_text()
+          assert 'SCRIPT ERROR:' not in s,s
+          PY
+      - name: Render actual 1080-square Vulkan photo-brick hero and 4 viewpoints
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab liebrick01 --directory /tmp/lie-brick01-native --audio-driver Dummy
+            python tools/lie_brick01_native_smoke.py --directory /tmp/lie-brick01-native
+          '
+      - name: Persist immutable hero master and unaltered native Vulkan screenshots
+        if: success()
+        run: |
+          mkdir -p evidence gpu_compute/assets/lie_brick01
+          python - <<'PY'
+          import zlib
+          from pathlib import Path
+          source=Path('gpu_compute/captures/liebrick01')
+          target=Path('gpu_compute/assets/lie_brick01')
+          (target/'hero_bank.zlib').write_bytes(zlib.compress((source/'library.bin').read_bytes(),9))
+          (target/'catalog.json').write_bytes((source/'catalog.json').read_bytes())
+          print("LIE-BRICK01 packed bytes", (target/'hero_bank.zlib').stat().st_size)
+          PY
+          if [ -f evidence/LIE-BRICK01-ThreeQuarter.png ] && [ ! -f evidence/LIE-BRICK01-V1-ThreeQuarter.png ]; then
+            cp evidence/LIE-BRICK01-ThreeQuarter.png evidence/LIE-BRICK01-V1-ThreeQuarter.png
+            cp evidence/LIE-BRICK01-Top.png evidence/LIE-BRICK01-V1-Top.png
+          fi
+          if [ -f evidence/LIE-BRICK01-ThreeQuarter.png ] && [ ! -f evidence/LIE-BRICK01-V2-ThreeQuarter.png ]; then
+            cp evidence/LIE-BRICK01-ThreeQuarter.png evidence/LIE-BRICK01-V2-ThreeQuarter.png
+            cp evidence/LIE-BRICK01-Top.png evidence/LIE-BRICK01-V2-Top.png
+          fi
+          cp /tmp/lie-brick01-native/LIE-BRICK01-*.png evidence/
+          cp /tmp/lie-brick01-native/LIE-BRICK01-validation.json evidence/
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f gpu_compute/assets/lie_brick01/hero_bank.zlib gpu_compute/assets/lie_brick01/catalog.json
+          git add evidence/LIE-BRICK01-*.png evidence/LIE-BRICK01-validation.json
+          git commit -m "LIE-BRICK01: verified true geometric chipped brick master and native 1080 evidence [skip ci]"
+          git push origin HEAD:experiment/lie-brick-01-hero
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-brick01-native-evidence
+          path: |
+            import.log
+            /tmp/lie-brick01-native/*.png
+            /tmp/lie-brick01-native/*.json
+            /tmp/lie-brick01-native/godot.log
+            gpu_compute/captures/liebrick01/catalog.json
+          if-no-files-found: warn

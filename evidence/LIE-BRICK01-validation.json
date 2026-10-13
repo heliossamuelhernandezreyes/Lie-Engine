@@ -1,0 +1,102 @@
+{
+  "renderer": "Actual Godot 4.7.2 Vulkan (Mesa llvmpipe)",
+  "source_geometry": "4K photographed PBR map + real procedural 3D chipped edges",
+  "one_box_collider": true,
+  "source_meshes_rendered": 0,
+  "master_full_levels": [
+    {
+      "start": 0,
+      "count": 258990
+    },
+    {
+      "start": 258990,
+      "count": 36358
+    },
+    {
+      "start": 295348,
+      "count": 5173
+    }
+  ],
+  "master_half_levels": [
+    {
+      "start": 300521,
+      "count": 202680
+    },
+    {
+      "start": 503201,
+      "count": 29134
+    },
+    {
+      "start": 532335,
+      "count": 4182
+    }
+  ],
+  "native_pixels": [
+    1080,
+    1080
+  ],
+  "upscaled": false,
+  "view_captures": {
+    "ThreeQuarter": {
+      "path": "/tmp/lie-brick01-native/LIE-BRICK01-ThreeQuarter.png",
+      "sha256": "39e5751129a98e1b37e291fb8bfa72c782fa795fc7aea7cf73ae6c3bba801c44",
+      "opaque_pixels": 137161,
+      "bounds": [
+        243,
+        396,
+        840,
+        731
+      ]
+    },
+    "Front": {
+      "path": "/tmp/lie-brick01-native/LIE-BRICK01-Front.png",
+      "sha256": "5b60b4e0dce032c613ea074a2974639abed1c4bdadee33e60355f777405399c2",
+      "opaque_pixels": 99272,
+      "bounds": [
+        250,
+        453,
+        830,
+        627
+      ]
+    },
+    "Top": {
+      "path": "/tmp/lie-brick01-native/LIE-BRICK01-Top.png",
+      "sha256": "50a5e3de475b2caaf239704651556626735ac38e3e67a696b28096edd46f78aa",
+      "opaque_pixels": 160437,
+      "bounds": [
+        233,
+        314,
+        843,
+        759
+      ]
+    },
+    "RakingLight": {
+      "path": "/tmp/lie-brick01-native/LIE-BRICK01-RakingLight.png",
+      "sha256": "bcfc013e44a01abc69d2861dc12e79f9c50dcc7c9f16ac47cbfa488e177e4fd7",
+      "opaque_pixels": 121820,
+      "bounds": [
+        250,
+        423,
+        840,
+        703
+      ]
+    },
+    "Half": {
+      "path": "/tmp/lie-brick01-native/LIE-BRICK01-Half.png",
+      "sha256": "9b7a7b14d4647358406a6339ab0ebccb441d4d41dc7501b58be8647c43eead84",
+      "opaque_pixels": 300892,
+      "bounds": [
+        151,
+        309,
+        874,
+        881
+      ]
+    }
+  },
+  "lod_hero_count": 258990,
+  "lod_far_count": 5173,
+  "bank_sha256": "e7789adf40dd6ba2024d37915cef98717b88d9733ac49b58b61c4d6e3bbf2c1a",
+  "hero_photo_indistinguishable": false,
+  "hero_visual_acceptance": "PENDING direct reference-photo A/B and silhouette inspection",
+  "physical_GPU_benchmark": false
+}

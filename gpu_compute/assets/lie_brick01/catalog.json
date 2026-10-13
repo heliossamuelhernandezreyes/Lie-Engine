@@ -1,0 +1,918 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 536517,
+  "bytes": 42921360,
+  "sha256": "e7789adf40dd6ba2024d37915cef98717b88d9733ac49b58b61c4d6e3bbf2c1a",
+  "masters": {
+    "brick_full": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 258990
+        },
+        {
+          "start": 258990,
+          "count": 36358
+        },
+        {
+          "start": 295348,
+          "count": 5173
+        }
+      ],
+      "bounds_size": [
+        0.24,
+        0.07,
+        0.12
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ],
+      "collision_proxy": "exactly one BoxShape3D"
+    },
+    "brick_half": {
+      "levels": [
+        {
+          "start": 300521,
+          "count": 202680
+        },
+        {
+          "start": 503201,
+          "count": 29134
+        },
+        {
+          "start": 532335,
+          "count": 4182
+        }
+      ],
+      "bounds_size": [
+        0.115,
+        0.07,
+        0.12
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ],
+      "collision_proxy": "exactly one BoxShape3D"
+    }
+  },
+  "face_sample_report": {
+    "brick_full": {
+      "hero": {
+        "front": {
+          "samples": 74000,
+          "max_edge_cut_mm": 1.9336,
+          "max_corner_cut_mm": 3.6992,
+          "position_variation_mm": 0.4559
+        },
+        "back": {
+          "samples": 31250,
+          "max_edge_cut_mm": 1.7684,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.1815
+        },
+        "top": {
+          "samples": 45000,
+          "max_edge_cut_mm": 1.933,
+          "max_corner_cut_mm": 3.6982,
+          "position_variation_mm": 0.4146
+        },
+        "bottom": {
+          "samples": 8400,
+          "max_edge_cut_mm": 1.8944,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.1863
+        },
+        "left": {
+          "samples": 22750,
+          "max_edge_cut_mm": 1.7881,
+          "max_corner_cut_mm": 3.6981,
+          "position_variation_mm": 0.4918
+        },
+        "right": {
+          "samples": 22750,
+          "max_edge_cut_mm": 1.9328,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2453
+        },
+        "edge_bridges": {
+          "total_samples": 54840,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 2235
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 3825
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 3825
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 3825
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 3825
+            }
+          ]
+        }
+      },
+      "mid": {
+        "front": {
+          "samples": 9100,
+          "max_edge_cut_mm": 1.9291,
+          "max_corner_cut_mm": 3.6934,
+          "position_variation_mm": 0.4851
+        },
+        "back": {
+          "samples": 4500,
+          "max_edge_cut_mm": 1.76,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2204
+        },
+        "top": {
+          "samples": 7020,
+          "max_edge_cut_mm": 1.9272,
+          "max_corner_cut_mm": 3.687,
+          "position_variation_mm": 0.4429
+        },
+        "bottom": {
+          "samples": 1100,
+          "max_edge_cut_mm": 1.856,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2236
+        },
+        "left": {
+          "samples": 3015,
+          "max_edge_cut_mm": 1.7794,
+          "max_corner_cut_mm": 3.685,
+          "position_variation_mm": 0.5208
+        },
+        "right": {
+          "samples": 3015,
+          "max_edge_cut_mm": 1.9243,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2859
+        },
+        "edge_bridges": {
+          "total_samples": 8608,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 352
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 600
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 600
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 600
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 600
+            }
+          ]
+        }
+      },
+      "wall": {
+        "front": {
+          "samples": 1488,
+          "max_edge_cut_mm": 1.9075,
+          "max_corner_cut_mm": 3.6522,
+          "position_variation_mm": 0.4853
+        },
+        "back": {
+          "samples": 336,
+          "max_edge_cut_mm": 1.644,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2187
+        },
+        "top": {
+          "samples": 629,
+          "max_edge_cut_mm": 1.8562,
+          "max_corner_cut_mm": 3.5669,
+          "position_variation_mm": 0.4418
+        },
+        "bottom": {
+          "samples": 180,
+          "max_edge_cut_mm": 1.617,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2129
+        },
+        "left": {
+          "samples": 280,
+          "max_edge_cut_mm": 1.6815,
+          "max_corner_cut_mm": 3.5419,
+          "position_variation_mm": 0.52
+        },
+        "right": {
+          "samples": 280,
+          "max_edge_cut_mm": 1.8279,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2844
+        },
+        "edge_bridges": {
+          "total_samples": 1980,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 140
+            }
+          ]
+        }
+      }
+    },
+    "brick_half": {
+      "hero": {
+        "front": {
+          "samples": 35400,
+          "max_edge_cut_mm": 1.839,
+          "max_corner_cut_mm": 3.6988,
+          "position_variation_mm": 0.5167
+        },
+        "back": {
+          "samples": 15000,
+          "max_edge_cut_mm": 1.8658,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.23
+        },
+        "top": {
+          "samples": 21600,
+          "max_edge_cut_mm": 1.8657,
+          "max_corner_cut_mm": 3.6978,
+          "position_variation_mm": 0.4822
+        },
+        "bottom": {
+          "samples": 4060,
+          "max_edge_cut_mm": 1.8311,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2102
+        },
+        "left": {
+          "samples": 22750,
+          "max_edge_cut_mm": 1.866,
+          "max_corner_cut_mm": 3.6981,
+          "position_variation_mm": 0.5263
+        },
+        "right": {
+          "samples": 22750,
+          "max_edge_cut_mm": 1.6665,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.1878
+        },
+        "edge_bridges": {
+          "total_samples": 81120,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 7650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 4650
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 7980
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 7980
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 7980
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 7980
+            }
+          ]
+        }
+      },
+      "mid": {
+        "front": {
+          "samples": 4340,
+          "max_edge_cut_mm": 1.8338,
+          "max_corner_cut_mm": 3.6902,
+          "position_variation_mm": 0.5459
+        },
+        "back": {
+          "samples": 2160,
+          "max_edge_cut_mm": 1.8552,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2709
+        },
+        "top": {
+          "samples": 3348,
+          "max_edge_cut_mm": 1.857,
+          "max_corner_cut_mm": 3.6851,
+          "position_variation_mm": 0.5113
+        },
+        "bottom": {
+          "samples": 520,
+          "max_edge_cut_mm": 1.777,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2503
+        },
+        "left": {
+          "samples": 3015,
+          "max_edge_cut_mm": 1.8572,
+          "max_corner_cut_mm": 3.685,
+          "position_variation_mm": 0.5575
+        },
+        "right": {
+          "samples": 3015,
+          "max_edge_cut_mm": 1.6583,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2291
+        },
+        "edge_bridges": {
+          "total_samples": 12736,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 1200
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 728
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 1256
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 1256
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 1256
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 1256
+            }
+          ]
+        }
+      },
+      "wall": {
+        "front": {
+          "samples": 720,
+          "max_edge_cut_mm": 1.7985,
+          "max_corner_cut_mm": 3.6432,
+          "position_variation_mm": 0.5451
+        },
+        "back": {
+          "samples": 156,
+          "max_edge_cut_mm": 1.7039,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2699
+        },
+        "top": {
+          "samples": 306,
+          "max_edge_cut_mm": 1.7522,
+          "max_corner_cut_mm": 3.5425,
+          "position_variation_mm": 0.5099
+        },
+        "bottom": {
+          "samples": 120,
+          "max_edge_cut_mm": 1.5781,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2381
+        },
+        "left": {
+          "samples": 280,
+          "max_edge_cut_mm": 1.7581,
+          "max_corner_cut_mm": 3.5419,
+          "position_variation_mm": 0.5566
+        },
+        "right": {
+          "samples": 280,
+          "max_edge_cut_mm": 1.5666,
+          "max_corner_cut_mm": 0.0,
+          "position_variation_mm": 0.2274
+        },
+        "edge_bridges": {
+          "total_samples": 2320,
+          "strips": [
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 0,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 215
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 1,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 140
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                -1
+              ],
+              "samples": 225
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                -1,
+                1
+              ],
+              "samples": 225
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                -1
+              ],
+              "samples": 225
+            },
+            {
+              "edge_axis": 2,
+              "fixed_signs": [
+                1,
+                1
+              ],
+              "samples": 225
+            }
+          ]
+        }
+      }
+    }
+  },
+  "source": "CC0 Poly Haven Red Brick original photographic 4K albedo/normal/height/roughness",
+  "source_url": "https://polyhaven.com/a/red_brick",
+  "license": "CC0 1.0",
+  "geometry": "LIE physically displaced and procedurally eroded six-faced surfaces",
+  "source_mesh_drawn": false,
+  "scanned_individual_3d_mesh": false,
+  "collision_proxy_count_per_active_brick": 1,
+  "hero_quality_accepted": false,
+  "quality_caveat": "Native validation of shape is mandatory; never imply photo-indistinguishability without photo A/B test",
+  "crop_uv": [
+    0.461494140625,
+    0.4598828125,
+    0.588310546875,
+    0.486953125
+  ]
+}
