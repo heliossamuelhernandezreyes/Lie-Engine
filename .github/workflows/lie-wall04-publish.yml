@@ -13,21 +13,38 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
-      - name: Rebuild source-backed CC0 3-LOD mortar samples and original 96-brick wall
+      - name: Verify authoring regression tests (DO NOT rebake a different bank)
         run: |
           python -m pip install numpy pillow scipy
           python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
-          python tools/lie_wall04_bake.py --allow-unreviewed
-          python tools/lie_wall04_compose.py
-          python tools/lie_wall04_compose.py --restore
       - name: Recover existing native Mesa Vulkan evidence from independently successful CI
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/lie-wall04-vulkan
-          gh run download 38486950026 --repo "${{ github.repository }}" \
+          gh run download 38487324651 --repo "${{ github.repository }}" \
              --name lie-wall04-photographed-mortar-real-vulkan-experimental \
              --dir /tmp/lie-wall04-vulkan
+      - name: Restore EXACT SHA locked samples that produced this Godot Vulkan PNG
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          evidence=Path('/tmp/lie-wall04-vulkan')
+          base=evidence/'home/runner/work/Lie-Engine/Lie-Engine/gpu_compute/assets'
+          for group,files in {
+            'lie_mortar01':['catalog.json','mortar-bank.zlib'],
+            'lie_wall04':['catalog.json','wall_bank.zlib','light-model.json']
+          }.items():
+            dest=Path('gpu_compute/assets')/group
+            dest.mkdir(parents=True,exist_ok=True)
+            for name in files:
+              path=base/group/name
+              if not path.is_file() or path.stat().st_size==0:
+                raise RuntimeError('Missing exact source file from native Vulkan run: '+str(path))
+              shutil.copy2(path,dest/name)
+          print('Restored identical bank bytes from verified 38487324651 native Vulkan run')
+          PY
       - name: Verify SHA integrity, 96 original brick bytes, one box and photographed capture
         run: |
           python - <<'PY'
@@ -83,7 +100,7 @@ jobs:
             (evidence/name).write_bytes(shot.read_bytes())
           for name in ('LIE-WALL04-native-validation.json','LIE-WALL04-coverage-diagnostic.json'):
             (evidence/name).write_bytes((img/name).read_bytes())
-          print('Persisting FLUSH 6mm real G1-UNREVIEWED photographed mortar source bank:',m['sample_count'])
+          print('Persisting EXACT native Vulkan 6mm LOCAL-EDGE-RECESSED photographed mortar source bank:',m['sample_count'])
           print('Visible mortar pixels:',d['source_samples_drawn_on_screen'])
           print('WARNING: local-edge geometry correct, but black gap pixels increased vs prior 6mm; NOT FOTOREAL ACCEPTED')
           PY
