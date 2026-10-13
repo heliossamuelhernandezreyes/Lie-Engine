@@ -4,6 +4,24 @@ extends "res://lie_wall01_coded_lab.gd"
 const MicroLightTransport=preload("res://lie_wall02_micro_transport.gd")
 const MicroWallEffect=preload("res://lie_wall02_coded_effect.gd")
 
+func _ready() -> void:
+    state["direct_shadow_proxies"]=true
+    super._ready()
+
+func _direct_shadow_enabled() -> bool:
+    return bool(state["shadows"]) and bool(state.get("direct_shadow_proxies",true))
+
+func _extra_light_controls(parent: VBoxContainer) -> void:
+    super._extra_light_controls(parent)
+    _check(parent,"direct_shadow_proxies","Sombras directas · 96 proxies GPU")
+
+func command(request: Variant) -> Dictionary:
+    if request is Dictionary and request.get("values",{}) is Dictionary:
+        var values: Dictionary=request["values"]
+        if values.has("direct_shadow_proxies") and not values["direct_shadow_proxies"] is bool:
+            return {"ok":false,"error":"direct_shadow_proxy_boolean","revision":revision}
+    return super.command(request)
+
 func _coded_source() -> String:
     return "res://captures/liewall02/light-model.json"
 
