@@ -29,8 +29,8 @@ VISIBLE_MORTAR_WIDTH_M = 0.0060    # 6mm target, independently of structural gap
 EDGE_PROTECTION_M = 0.00050       # reserve 0.5mm on both visible mortar sides
 MORTAR_MAX_BACK_RELIEF_M = 0.0008  # permitted microtexture behind brick face
 MORTAR_MAX_FORWARD_RELIEF_M = 0.0  # never protrude above scanned front reference
-SPLAT_RADIUS_SCALE = 0.62
-SUPPORT_SCALE = 0.36
+SPLAT_RADIUS_SCALE = 0.80
+SUPPORT_SCALE = 0.51
 SAFETY_M = 0.00075  # lengthwise protection near scanned brick joints
 # EXPLICIT HEURISTIC: photographic displacement units are NOT calibrated mm.
 RELIEF_GAIN_M = 0.0015
