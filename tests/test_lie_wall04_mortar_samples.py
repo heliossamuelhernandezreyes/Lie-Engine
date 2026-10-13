@@ -6,7 +6,10 @@ import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools"))
-from lie_wall04_bake import bank_samples, sample_line, deterministic_hash, ORIGINAL_WALL_SHA
+from lie_wall04_bake import (bank_samples, sample_line, deterministic_hash,
+    measured_brick_front_plane, DEFAULT_WALL, ORIGINAL_WALL_SHA,
+    VISIBLE_MORTAR_WIDTH_M, EDGE_PROTECTION_M,
+    MORTAR_MAX_BACK_RELIEF_M, SPLAT_RADIUS_SCALE, SUPPORT_SCALE)
 
 WALL = {
     "sha256": ORIGINAL_WALL_SHA,
@@ -75,6 +78,29 @@ class Wall04SamplesTest(unittest.TestCase):
         self.assertGreater(float(np.ptp(a[:,2])),.00002)
         self.assertTrue(np.all(a[:,3]>.0))
         self.assertTrue(np.all((a[:,10]>=.2)&(a[:,10]<=.99)))
+
+    def test_mortar_is_six_millimeters_and_flush_to_real_scanned_face(self):
+        import json
+        wall=json.loads(DEFAULT_WALL.read_text())
+        front,proof=measured_brick_front_plane(DEFAULT_WALL,wall)
+        self.assertGreater(proof["source_front_samples"],10000)
+        self.assertFalse(proof["local_per_brick_flush_verified"])
+        self.assertGreater(front, .03)
+        donor=SyntheticDonor()
+        strip=sample_line("vertical",2,5,0.0,.077,.15,.0012,.0085,
+                          front,[donor,donor])
+        self.assertGreater(len(strip),30)
+        # X is the across-joint coordinate of a vertical joint.
+        half=VISIBLE_MORTAR_WIDTH_M*.5-EDGE_PROTECTION_M
+        self.assertLessEqual(float(np.max(np.abs(strip[:,0]-.15))),half+.00001)
+        self.assertLessEqual(float(strip[:,2].max()),front+1e-7)
+        self.assertGreaterEqual(float(strip[:,2].min()),front-MORTAR_MAX_BACK_RELIEF_M-1e-7)
+        self.assertGreater(float(np.ptp(strip[:,2])),.00001)
+        np.testing.assert_array_less(strip[:,16],strip[:,18])
+        np.testing.assert_array_less(strip[:,17],strip[:,19])
+        self.assertAlmostEqual(float(strip[0,3]),.0012*SPLAT_RADIUS_SCALE,places=7)
+        self.assertAlmostEqual(VISIBLE_MORTAR_WIDTH_M,.0060)
+        self.assertAlmostEqual(SUPPORT_SCALE,.36)
 
     def test_invalid_source_layout_fails_closed(self):
         donor=SyntheticDonor()
