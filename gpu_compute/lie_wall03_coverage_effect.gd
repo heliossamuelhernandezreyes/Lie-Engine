@@ -75,13 +75,15 @@ func coverage_profile() -> Dictionary:
     for record in data:
         if record is Dictionary and record.has("gpu_ns"):
             times.append(float(record["gpu_ns"])/1.0e6)
+    var chronological: Array[float]=times.duplicate()
     times.sort()
     var result: Dictionary={"gpu_timestamps_available":not times.is_empty(),
         "sample_count":times.size(),
         "coverage_enabled":coverage_enabled,
         "full_resolution_hole_dispatches":hole_dispatches,
         "frame_count":frame_count,
-        "gpu_allocation_MiB":float(allocation_bytes)/1048576.0}
+        "gpu_allocation_MiB":float(allocation_bytes)/1048576.0,
+        "chronological_gpu_ms_tail":chronological.slice(maxi(0,chronological.size()-32),chronological.size())}
     if not times.is_empty():
         result["p50_gpu_ms"]=times[times.size()/2]
         result["min_gpu_ms"]=times[0]
