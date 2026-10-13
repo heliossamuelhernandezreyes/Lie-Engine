@@ -18,7 +18,7 @@ ROOT=Path(__file__).resolve().parents[1]
 DEST=ROOT/"gpu_compute/captures/liewall03"
 MORTAR_FIRST=legacy.BRICKS*legacy.NODES_PER_BRICK # 864
 MORTAR_NODES=legacy.ROWS # 8
-MORTAR_RECESS_M=.011 # visible joints lie 11mm behind nominal brick front
+MORTAR_RECESS_M=.0035 # 3.5mm recessed, but outside the inset light-visibility brick AABBs
 
 
 def build(source: Path=legacy.SOURCE,destination: Path=DEST) -> dict:
