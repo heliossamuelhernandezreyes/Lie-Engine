@@ -46,7 +46,7 @@ jobs:
           contents=Path("import.log").read_text()
           assert "SCRIPT ERROR:" not in contents,contents[-16000:]
           PY
-      - name: Native Vulkan: micro lighting, 96 GPU shadow rays, light RGB and absorption
+      - name: "Native Vulkan: micro lighting, 96 GPU shadow rays, light RGB and absorption"
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
         run: |
