@@ -40,7 +40,7 @@ class Wall03GeometryMaterialCodes(unittest.TestCase):
             self.assertEqual(meta["lighting"]["mortar_nodes"],8)
             self.assertEqual(meta["lighting"]["nodes_per_brick"],9)
             self.assertEqual(meta["collision"]["spatial_envelope_count"],1)
-            self.assertEqual(meta["wall_layout"]["mortar_recess_m"],.011)
+            self.assertEqual(meta["wall_layout"]["mortar_recess_m"],.0035)
             self.assertFalse(meta["original_meshes_drawn"])
             self.assertFalse(meta["hero_quality_accepted"])
             self.assertEqual(meta["source_scan_sha256"],meta_old["source_scan_sha256"])
