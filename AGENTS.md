@@ -12,6 +12,8 @@ bank. Keep the robot namespace independent of concurrent numbered experiments.
 The collision/exploration scene is `lie_robot_world_lab.tscn` (`--lab robot_world`).
 Read `docs/LIE_ROBOT_WORLD.md` and its checkpoint for the refined/shared banks,
 physics control contract, source-only collision meshes and reproduction.
+The Android touch demo is `lie_robot_mobile.tscn`; read `docs/LIE_ROBOT_ANDROID.md`.
+Its isolated export keeps the desktop main scene and persistent agent unchanged.
 
 Read `docs/AGENT_WORKFLOW.md` before controlling a live desktop. External
 agents and desktop widgets must use the existing validated `command()`

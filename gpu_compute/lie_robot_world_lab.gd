@@ -5,6 +5,8 @@ const Assembly=preload("res://lie_robot_assembly.gd")
 const Layout=preload("res://lie_robot_world_layout.gd")
 const Controller=preload("res://lie_robot_controller.gd")
 const Rig=preload("res://lie26_rig.gd")
+@export var touch_mode: bool=false
+const TouchHUD=preload("res://lie_robot_touch_hud.gd")
 const LIMITS={"turn":[-1,1],"walk_speed":[.2,1.5],"camera_yaw":[-180,180],"camera_elevation":[5,65],"camera_distance":[1.5,7],"light_azimuth":[-180,180],"light_power":[.2,3],"exposure":[.4,3],"grip":[0,1]}
 const BOOLEANS=["playing","roof","shadows","cables","unlit"]
 var state: Dictionary={"move":[0.0,0.0],"turn":0.0,"walk_speed":.85,"playing":false,"view":"third_person","camera_yaw":-15.0,"camera_elevation":22.0,"camera_distance":3.2,"light_azimuth":-40.0,"light_power":1.0,"exposure":1.7,"grip":.25,"roof":false,"shadows":true,"cables":true,"unlit":false,"motion":Controller.initial_motion()}
@@ -26,8 +28,10 @@ var _connected: bool=false
 var _keyboard: Dictionary={}
 var _dragging: bool=false
 var _ui_time: float=0
+func create_effect(size: int) -> CompositorEffect:return Effect.new(size)
 func _ready() -> void:
-    get_window().size=Vector2i(1280,800);effect=Effect.new(768)
+    if not touch_mode:get_window().size=Vector2i(1280,800)
+    effect=create_effect(512 if touch_mode else 768)
     var world:=WorldEnvironment.new();var env:=Environment.new();env.background_mode=Environment.BG_COLOR;env.background_color=Color(.025,.035,.05);world.environment=env
     var compositor:=Compositor.new();compositor.compositor_effects=[effect];world.compositor=compositor;add_child(world)
     camera=Camera3D.new();camera.current=true;camera.near=.02;camera.far=40;camera.fov=44;add_child(camera)
@@ -55,6 +59,11 @@ func _hold(parent: Node,label: String,move: Array,turn: float=0) -> void:
     button.button_down.connect(func():command({"op":"set_values","values":{"move":move,"turn":turn,"playing":true}}))
     button.button_up.connect(func():command({"op":"set_values","values":{"move":[0,0],"turn":0}}))
 func _ui() -> void:
+    if touch_mode:
+        var layer:=CanvasLayer.new();add_child(layer)
+        var hud:=TouchHUD.new();hud.lab=self;layer.add_child(hud)
+        picture=hud.picture;status=hud.status
+        return
     var ui:=CanvasLayer.new();add_child(ui);_label(ui,"LIE  ·  R2 / Robot y casa",26).position=Vector2(24,18)
     picture=TextureRect.new();picture.position=Vector2(290,70);picture.size=Vector2(700,700);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;picture.mouse_filter=Control.MOUSE_FILTER_PASS;picture.gui_input.connect(_picture_input);ui.add_child(picture)
     var left: VBoxContainer=_panel(ui,Vector2(20,70));_label(left,"RECORRER LA CASA",14).add_theme_color_override("font_color",Color(.4,.85,1))
@@ -195,7 +204,7 @@ func _apply() -> void:
     var values:=PackedFloat32Array([light.x,light.y,light.z,3276*state["light_power"],1,.94,.86,0,.5,.6,.75,state["exposure"],1 if state["shadows"] else 0,1,.003,.001])
     for v in [light_pose.basis.x,light_pose.basis.y,-light_pose.basis.z]:values.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     values.append_array(PackedFloat32Array([.638,.828,1,0,1,1,1,.10,1203,1,a,1 if not state["unlit"] else -1]));bytes.append_array(values.to_byte_array())
-    var configured: bool=effect.configure_robot(bytes,instances.to_byte_array(),jobs.to_byte_array(),work,_model["curves"].to_byte_array())
+    var configured: bool=effect.configure_robot(bytes,instances.to_byte_array(),jobs.to_byte_array(),work,_model["curves"].to_byte_array(),_model["parts"].size())
     _metrics={"configured":configured,"instances":parts.size(),"robot_instances":_model["parts"].size(),"environment_instances":_environment.size(),"sample_invocations":work,"lod":lod,"visible_source_meshes":0,"ik":_model["rig"]["ik"],"camera_fraction":actor.last_camera_fraction,"colliders":_collision_root.get_child_count() if _collision_root!=null else 0}
 func _physics_process(delta: float) -> void:
     if actor==null:return
@@ -209,6 +218,7 @@ func _process(delta: float) -> void:
     _ui_time+=delta
     if _ui_time>.3:
         _ui_time=0;var m: Dictionary=state["motion"]
+        if touch_mode:return
         status.text="%.2f m/s · recorrido %.2f m\n%s · %d pasos de física\n%d piezas · LOD %d\n%d muestras · %d colisiones\nCámara libre: %.0f%%\nBanco GPU: %d carga · %.1f MiB"%[m["speed"],m["travel"],"Apoyo en suelo" if m["grounded"] else "En reposo / sin apoyo",m["ticks"],_metrics.get("instances",0),_metrics.get("lod",0),_metrics.get("sample_invocations",0),_metrics.get("colliders",0),actor.last_camera_fraction*100,effect.get("asset_uploads"),effect.get("allocation_bytes")/1048576.0] if effect.get("capture_loaded") else effect.get("failure")
 func agent_snapshot() -> Dictionary:
     return {"state":state.duplicate(true),"revision":revision,"metrics":_metrics.duplicate(true),"assembly":serialize_parts(_model.get("parts",[])),"environment":serialize_parts(_environment),"curve_frames":Array(_model.get("curves",PackedFloat32Array())),"motion":{"remaining_ticks":_queued_ticks,"contacts":actor.last_contacts.duplicate(true) if actor!=null else []},"camera":{"position":Rig.array(camera.position) if camera!=null else [],"fraction":actor.last_camera_fraction if actor!=null else 1},"commands":["snapshot","set_values","reset","advance"],"control_contract":{"fields":state.keys(),"limits":LIMITS,"booleans":BOOLEANS,"views":["third_person","overview"],"move":{"shape":[2],"range":[-1,1],"space":"character-local x/right, y/forward; diagonal normalized"},"advance":{"ticks":[1,600],"asynchronous":true,"completion":"motion.remaining_ticks == 0; state.motion.ticks reaches returned target_tick"},"pose_solver":"existing lie26_rig.gd","collision":{"capsule_radius":Controller.RADIUS,"capsule_height":Controller.HEIGHT,"house_scale":Layout.HOUSE_SCALE,"source":"Authored master triangles plus four courtyard guards; collision only"}}}

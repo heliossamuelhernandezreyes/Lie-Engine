@@ -31,6 +31,27 @@ var _resident:=PackedByteArray()
 var _readback: Dictionary={}
 var _profiles: Array=[]
 var _profile_frame: int=-1
+var _profile_total: int=0
+var _performance: Dictionary={}
+var _memory_profile_usec: int=0
+
+func performance_snapshot() -> Dictionary:
+    _mutex.lock();var result: Dictionary=_performance.duplicate(true);var profiles: Array=_profiles.duplicate(true);_mutex.unlock()
+    var values: Array=[]
+    for profile in profiles:values.append(float(profile["gpu_ns"])/1000000.0)
+    values.sort();result["gpu_recent_samples"]=values.size()
+    if not values.is_empty():
+        result["gpu_recent_p50_ms"]=values[maxi(int(ceil(values.size()*.50))-1,0)]
+        result["gpu_recent_p95_ms"]=values[maxi(int(ceil(values.size()*.95))-1,0)]
+    return result
+
+func dispatch_reconstruction(_next: Dictionary,work: int) -> void:
+    var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
+    for stage in [1,2,3,4,6,7]:
+        var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
+        _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
+        _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
+    _rd.compute_list_end()
 
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
@@ -109,6 +130,11 @@ func _initialize() -> bool:
     output_rid=_images[12];_make_set();gpu_ready=_set.is_valid() and _pipeline.is_valid();return gpu_ready
 
 func _collect_profile() -> void:
+    var now: int=Time.get_ticks_usec()
+    if now-_memory_profile_usec>=500000:
+        _memory_profile_usec=now
+        var memory: Dictionary={"device":_rd.get_device_name(),"rd_memory_bytes":_rd.get_memory_usage(RenderingDevice.MEMORY_TOTAL),"lie_allocation_bytes":allocation_bytes,"memory_sample_usec":now}
+        _mutex.lock();_performance.merge(memory,true);_mutex.unlock()
     var frame: int=_rd.get_captured_timestamps_frame()
     if frame==_profile_frame:return
     _profile_frame=frame
@@ -117,7 +143,12 @@ func _collect_profile() -> void:
         if _rd.get_captured_timestamp_name(i)=="lie22-begin":begin=_rd.get_captured_timestamp_gpu_time(i)
         if _rd.get_captured_timestamp_name(i)=="lie22-end":end=_rd.get_captured_timestamp_gpu_time(i)
     if end>begin and begin>=0:
+        # 4.7.2 Vulkan timestamp_query_result_to_time returns nanoseconds.
+        # The class reference currently labels these as microseconds; use the
+        # pinned Vulkan driver's implementation, verified against viewport ms.
+        _profile_total+=1
         _mutex.lock();_profiles.append({"gpu_ns":end-begin})
+        _performance.merge({"lie_gpu_ns":end-begin,"gpu_samples":_profile_total,"gpu_sample_usec":now,"gpu_marker_frame":frame},true)
         if _profiles.size()>120:_profiles.pop_front()
         _mutex.unlock()
 
@@ -139,12 +170,8 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])
     update_extra_buffers(next)
     _rd.capture_timestamp("lie22-begin")
-    var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
-    for stage in [1,2,3,4,6,7]:
-        var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
-        _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
-        _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
-    _rd.compute_list_end();_rd.capture_timestamp("lie22-end")
+    dispatch_reconstruction(next,work)
+    _rd.capture_timestamp("lie22-end")
     _resident=signature;sample_invocations=work;instance_count=next["instances"].size()/96;frame_count+=1
 
 func request_readback() -> void:
