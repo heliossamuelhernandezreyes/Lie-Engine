@@ -81,9 +81,9 @@ def bake_face(maps,rect,dims,face,nx,ny,hero):
     world_phase=(np.sin(p[...,0]*137+p[...,1]*97+p[...,2]*119)
                  +.22*np.sin(p[...,0]*607-p[...,2]*311+p[...,1]*287))
     # Smooth, damaged clay contours rather than periodic sawtooth edges.
-    bevel=(.00115+.00024*world_phase)*edge_weight
+    bevel=(.00093+.00019*world_phase)*edge_weight
     corner_weight=np.exp(-edge_d1/.007-edge_d2/.006)
-    bevel+=.0010*corner_weight
+    bevel+=.00078*corner_weight
     # The front/top/left corner is chipped on every adjacent face, not
     # simulated by changing the collision shape.
     distance=np.sqrt(((p[...,0]+length/2)/.012)**2+
@@ -105,7 +105,14 @@ def bake_face(maps,rect,dims,face,nx,ny,hero):
     rough=np.clip(bilinear(maps["roughness"],photo_u,photo_v)[...,0],.22,.97)
     heightmap=bilinear(maps["height"],photo_u,photo_v)[...,0]
     original_normal=bilinear(maps["normal"],photo_u,photo_v)*2-1
-    displacement=(heightmap-.5)*(.005 if hero else .004)
+    # Photographic height on different photographed faces is independent.
+    # Fade displaced microrelief to zero at shared edge endpoints so the
+    # adjoining curved edge/face samples meet in 3D instead of opening a
+    # dark slit at every face boundary.
+    edge_distance=np.minimum(edge_d1,edge_d2)
+    fade=np.clip(edge_distance/.0042,0,1)
+    fade=fade*fade*(3-2*fade)
+    displacement=(heightmap-.5)*(.0060 if hero else .0045)*fade
     # Remove material at chipped corners and beveled edges; retained source
     # height is independent of the collider geometry.
     offset=displacement-bevel-chipped
@@ -117,7 +124,9 @@ def bake_face(maps,rect,dims,face,nx,ny,hero):
     pbr=normalize(np.maximum(original_normal[...,2,None],.3)*outward
                   +original_normal[...,0,None]*tanu*.27
                   +original_normal[...,1,None]*tanv*.27)
-    normal=normalize(geom*.75+pbr*.25)
+    # Earlier 75% geometric normals washed away the photographed clay grain;
+    # recover actual normal-map microstructure without changing the proxy.
+    normal=normalize(geom*.48+pbr*.52)
     # Original LIE face support uses local axis pair selected by max normal
     # component. Restrict projection to physical face domains. For beveled
     # corners, per-sample support is intentionally tight to avoid filling
@@ -186,7 +195,14 @@ def bake_edge_bridges(maps,rect,dims,profile):
                 point[...,B]=sign_b*halves[B]
                 wave=(np.sin(point[...,0]*137+point[...,1]*97+point[...,2]*119)
                       +.22*np.sin(point[...,0]*607-point[...,2]*311+point[...,1]*287))
-                bevel=(.00115+.00024*wave).astype(np.float32)
+                bevel=(.00093+.00019*wave).astype(np.float32)
+                # Precisely match the extra corner rounding used by BOTH
+                # neighbouring face strips at this edge. The old bridge
+                # omitted this amount and created a dark floating seam.
+                edge_end_distance=np.minimum(
+                    point[...,along]+halves[along],
+                    halves[along]-point[...,along])
+                bevel+=.00078*np.exp(-edge_end_distance/.0068)
                 # Carry the same eroded front/top/left corner through all
                 # three adjoining bevels.
                 corner_distance=np.sqrt(((point[...,0]+length/2)/.012)**2+
@@ -208,7 +224,7 @@ def bake_edge_bridges(maps,rect,dims,profile):
                 # nonuniform arc length, but avoid blurring large flat faces.
                 dist_u=np.linalg.norm(np.gradient(point,axis=1),axis=-1)
                 dist_v=np.linalg.norm(np.gradient(point,axis=0),axis=-1)
-                rad=np.clip(np.maximum(dist_u,dist_v)*1.4,.00035,.0033)
+                rad=np.clip(np.maximum(dist_u,dist_v)*1.55,.00030,.0031)
                 # Clip each sample to an appropriate local support patch.
                 support=np.zeros((*T.shape,4),dtype=np.float32)
                 dominant=np.argmax(np.abs(nr),axis=-1)
@@ -222,6 +238,13 @@ def bake_edge_bridges(maps,rect,dims,profile):
                 arr=np.zeros((*T.shape,20),dtype="<f4")
                 arr[...,0:3]=point
                 arr[...,3]=rad
+                # Blend naturally mapped face normals towards the exact
+                # rounded-edge tangent-plane normal; pure analytic normals
+                # produced a nearly black groove under grazing illumination.
+                pbr_n=bilinear(maps["normal"],texture_u,texture_v)*2-1
+                normalized_clay=np.clip(pbr_n[...,2],.25,1.0)[...,None]
+                nr=normalize(nr*normalized_clay
+                    +.12*pbr_n[...,0,None]*np.eye(3,dtype=np.float32)[along])
                 arr[...,4:7]=nr
                 arr[...,7]=1
                 arr[...,8]=3
