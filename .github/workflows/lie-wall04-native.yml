@@ -23,7 +23,7 @@ jobs:
           mkdir godot-bin
           unzip -q godot.zip -d godot-bin
           chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
-      - name: Check Morton authoring ABI and verified source-only records
+      - name: Check mortar authoring ABI and verified source-only records
         run: |
           python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
           python -m unittest discover -s tests -p 'test_lie_mortar01.py' -v
