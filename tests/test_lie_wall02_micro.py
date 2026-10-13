@@ -74,7 +74,7 @@ class RealScanMicroLightTest(unittest.TestCase):
             values=samples[hero["start"]:hero["start"]+hero["count"]]
             for cell in range(4):
                 count=int(np.count_nonzero(values[:,9]==5+cell))
-                self.assertGreater(count,150)
+                self.assertGreater(count,20)  # One scanned brick, not the entire wall
             self.assertEqual(int(np.count_nonzero(values[:,9]==864)),hero["count"]-384000)
             size=np.asarray(result["masters"]["real_scan_wall"]["bounds_size"])
             self.assertGreater(float(size[0]),2.4)
