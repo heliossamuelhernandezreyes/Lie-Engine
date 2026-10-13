@@ -1,0 +1,6 @@
+# Large CC0 source textures and generated source locks stay outside Git.
+**/source/
+**/derived/
+**/capture_bank/
+**/SOURCE_ONLY_*
+**/*.part

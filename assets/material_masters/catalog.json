@@ -1,0 +1,118 @@
+{
+  "schema": "lie-material-catalog/1.0",
+  "purpose": "CC0 source material registry for offline LIE VisualSampleBank capture, not runtime geometry",
+  "source_kind": "PBR_surface_textures_not_scanned_individual_meshes",
+  "reference_asset": "brick.hero.red_brick",
+  "materials": [
+    {
+      "id": "brick.hero.red_brick",
+      "name": "Red Brick",
+      "category": "brick",
+      "role": "hero",
+      "manifest": "brick/hero/red_brick/material_manifest.json",
+      "provider_asset_id": "red_brick",
+      "max_advertised_resolution": "16k",
+      "preferred_master_resolution": "16k",
+      "priority": 1
+    },
+    {
+      "id": "brick.clean.brick_wall_003",
+      "name": "Brick Wall 003",
+      "category": "brick",
+      "role": "clean",
+      "manifest": "brick/clean/brick_wall_003/material_manifest.json",
+      "provider_asset_id": "brick_wall_003",
+      "max_advertised_resolution": "8k",
+      "preferred_master_resolution": "8k",
+      "priority": 2
+    },
+    {
+      "id": "brick.damaged.brick_wall_005",
+      "name": "Brick Wall 005",
+      "category": "brick",
+      "role": "damaged",
+      "manifest": "brick/damaged/brick_wall_005/material_manifest.json",
+      "provider_asset_id": "brick_wall_005",
+      "max_advertised_resolution": "8k",
+      "preferred_master_resolution": "8k",
+      "priority": 3
+    },
+    {
+      "id": "concrete.hero.concrete_wall_008",
+      "name": "Concrete Wall 008",
+      "category": "concrete",
+      "role": "hero",
+      "manifest": "concrete/hero/concrete_wall_008/material_manifest.json",
+      "provider_asset_id": "concrete_wall_008",
+      "max_advertised_resolution": "8k",
+      "preferred_master_resolution": "8k",
+      "priority": 4
+    },
+    {
+      "id": "wood.hero.oak_wood_planks",
+      "name": "Oak Wood Planks",
+      "category": "wood",
+      "role": "hero",
+      "manifest": "wood/hero/oak_wood_planks/material_manifest.json",
+      "provider_asset_id": "oak_wood_planks",
+      "max_advertised_resolution": "8k",
+      "preferred_master_resolution": "8k",
+      "priority": 5
+    },
+    {
+      "id": "metal.hero.rusty_metal_sheet",
+      "name": "Rusty Metal Sheet",
+      "category": "metal",
+      "role": "hero",
+      "manifest": "metal/hero/rusty_metal_sheet/material_manifest.json",
+      "provider_asset_id": "rusty_metal_sheet",
+      "max_advertised_resolution": "16k",
+      "preferred_master_resolution": "8k",
+      "priority": 6
+    },
+    {
+      "id": "stone.hero.rock_08",
+      "name": "Rock 08",
+      "category": "stone",
+      "role": "hero",
+      "manifest": "stone/hero/rock_08/material_manifest.json",
+      "provider_asset_id": "rock_08",
+      "max_advertised_resolution": "8k",
+      "preferred_master_resolution": "8k",
+      "priority": 7
+    },
+    {
+      "id": "ground.hero.rocky_terrain",
+      "name": "Rocky Terrain",
+      "category": "ground",
+      "role": "hero",
+      "manifest": "ground/hero/rocky_terrain/material_manifest.json",
+      "provider_asset_id": "rocky_terrain",
+      "max_advertised_resolution": "8k",
+      "preferred_master_resolution": "8k",
+      "priority": 8
+    },
+    {
+      "id": "asphalt.hero.asphalt_07",
+      "name": "Asphalt 07",
+      "category": "asphalt",
+      "role": "hero",
+      "manifest": "asphalt/hero/asphalt_07/material_manifest.json",
+      "provider_asset_id": "asphalt_07",
+      "max_advertised_resolution": "16k",
+      "preferred_master_resolution": "8k",
+      "priority": 9
+    },
+    {
+      "id": "plaster.hero.white_rough_plaster",
+      "name": "White Rough Plaster",
+      "category": "plaster",
+      "role": "hero",
+      "manifest": "plaster/hero/white_rough_plaster/material_manifest.json",
+      "provider_asset_id": "white_rough_plaster",
+      "max_advertised_resolution": "8k",
+      "preferred_master_resolution": "8k",
+      "priority": 10
+    }
+  ]
+}

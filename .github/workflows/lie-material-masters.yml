@@ -1,0 +1,26 @@
+name: LIE Material Masters CC0 catalog
+on:
+  push:
+    paths:
+      - 'assets/material_masters/**'
+      - 'tools/lie_material_masters.py'
+      - 'tests/test_material_masters.py'
+      - '.github/workflows/lie-material-masters.yml'
+  pull_request:
+    paths:
+      - 'assets/material_masters/**'
+      - 'tools/lie_material_masters.py'
+      - 'tests/test_material_masters.py'
+      - '.github/workflows/lie-material-masters.yml'
+  workflow_dispatch:
+jobs:
+  offline-catalog-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate manifests and material map resolver
+        run: python -m unittest discover -s tests -p 'test_material_masters.py' -v
+      - name: Confirm offline listing
+        run: |
+          python tools/lie_material_masters.py --list
+          test "$(python tools/lie_material_masters.py --list | wc -l)" -eq 10

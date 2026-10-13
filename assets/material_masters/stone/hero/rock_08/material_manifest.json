@@ -1,0 +1,58 @@
+{
+  "schema": "lie-material-manifest/1.0",
+  "id": "stone.hero.rock_08",
+  "name": "Rock 08",
+  "category": "stone",
+  "variant": "hero",
+  "description": "Roca envejecida con cavidades y rugosidad; fuente para piedras volumétricas.",
+  "priority": 7,
+  "provenance": {
+    "provider": "Poly Haven",
+    "asset_id": "rock_08",
+    "page": "https://polyhaven.com/a/rock_08",
+    "api": "https://api.polyhaven.com/files/rock_08",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "source_type": "PBR photographic/material surface; NOT a complete individually scanned 3D object",
+    "attribution_required": false
+  },
+  "acquisition": {
+    "status": "catalogued_not_downloaded",
+    "preferred_resolution": "8k",
+    "max_advertised_resolution": "8k",
+    "preferred_map_file_formats": [
+      "png",
+      "exr",
+      "jpg"
+    ],
+    "required_maps": [
+      "color",
+      "normal_gl",
+      "height",
+      "roughness"
+    ],
+    "optional_maps": [
+      "ao"
+    ],
+    "notes": "Resolver URLs y tamaños reales mediante API oficial. Verificar disponibilidad antes de descargar; guardar SHA-256 en source/source-lock.json."
+  },
+  "physical_scale": {
+    "width_m": null,
+    "height_m": null,
+    "provider_metadata_verified": false,
+    "notes": "La resolución de píxeles NO define la escala física. Calibrar con dimensiones verificadas del asset antes de capturas LIE."
+  },
+  "lie_contract": {
+    "visual_source": "offline PBR maps, no source triangles rendered at runtime",
+    "visual_sample_bank": "not_yet_generated",
+    "spatial_envelope": "separate_invisible_box",
+    "geometry_scope": "surface_only_no_reverse_or_sides",
+    "lod_strategy": "high-res offline master with separately budgeted runtime sampled LODs",
+    "hero_visual_quality_accepted": false
+  },
+  "local_paths": {
+    "source": "source/",
+    "derived": "derived/",
+    "capture_bank": "capture_bank/"
+  }
+}
