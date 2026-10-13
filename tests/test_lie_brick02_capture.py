@@ -11,6 +11,8 @@ import numpy as np
 import trimesh
 
 ROOT=Path(__file__).resolve().parents[1]
+import sys
+sys.path.insert(0,str(ROOT/"tools"))
 def module(filename,alias):
     spec=importlib.util.spec_from_file_location(alias,ROOT/"tools"/filename)
     m=importlib.util.module_from_spec(spec)
@@ -28,6 +30,32 @@ class RealGeometryPipelineTest(unittest.TestCase):
         self.source,self.provenance=fixture.build(self.root/"source")
     def tearDown(self):
         self.tmp.cleanup()
+
+    def test_direct_gltf_vertex_colors_preserve_source_data(self):
+        colored=trimesh.creation.box(extents=(.2032,.053,.094))
+        rgba=np.zeros((len(colored.vertices),4),dtype=np.uint8)
+        rgba[:,0]=np.arange(len(rgba))*19+61
+        rgba[:,1]=91
+        rgba[:,2]=43
+        rgba[:,3]=255
+        colored.visual=trimesh.visual.ColorVisuals(vertex_colors=rgba)
+        direct=self.root/"vertex_COLOR_0.glb"
+        direct.write_bytes(colored.export(file_type="glb"))
+        extracted=capture.load_source(direct)
+        self.assertEqual(len(extracted),1)
+        self.assertEqual(len(extracted[0].faces),12)
+        self.assertIn("lie_vertex_colors_linear",extracted[0].metadata)
+        read=np.asarray(extracted[0].metadata["lie_vertex_colors_linear"])
+        self.assertEqual(read.shape,(len(colored.vertices),3))
+        self.assertAlmostEqual(float(read[:,1].mean()),91./255.,places=5)
+        provenance=json.loads(self.provenance.read_text())
+        provenance["expected_sha256"]=hashlib.sha256(direct.read_bytes()).hexdigest()
+        self.provenance.write_text(json.dumps(provenance))
+        result=capture.capture(direct,self.provenance,self.root/"vertex_bank",
+                               counts=(500,200,100))
+        self.assertTrue(result["source_vertex_colors_used"])
+        self.assertFalse(result["source_photo_texture_uv_used"])
+        self.assertEqual(result["sample_count"],800)
 
     def test_source_fixture_has_texture_and_real_triangles(self):
         meshes=capture.load_source(self.source)
