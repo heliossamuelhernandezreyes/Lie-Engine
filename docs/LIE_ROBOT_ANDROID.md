@@ -6,11 +6,13 @@ assembly and custom LIE compute compositor. This is a playable test, not a
 production game. Source meshes remain collision-only and are not displayed.
 
 The APK is an offline ARM64 Android application, package
-`org.lieengine.robotdemo`, label **LIE R2 Robot**, version `0.1.1-r2-metrics`
-(version code 2). It updates the first signed APK with the same certificate.
+`org.lieengine.robotdemo`, label **LIE R2 Robot**, version
+`0.1.2-r2-android-metrics` (version code 3). It updates the first signed APK
+with the same certificate.
 Godot's 4.7.2 prebuilt template declares minimum API 24 and target API 36.
-Actual use needs a working Vulkan Mobile renderer; the Poco X7 Pro must still
-be tested by its owner. There is no physical Android/FPS claim.
+Actual use needs a working Vulkan Mobile renderer. The owner supplied a real
+Poco X7 Pro report from 0.1.1; the new 0.1.2 Android CPU/PSS path still needs
+verification on that device. No sustained movement FPS is established.
 
 ## Controls
 
@@ -36,20 +38,25 @@ root or additional Android permissions.
 - Frame p50/p95 uses the monotonic wall clock between process callbacks, over
   at most 600 recent samples. It includes scheduling and vsync. Simulation
   `delta` can be capped/time-scaled, so it must not stand in for real frame time.
-- **CPU proceso** is the change in `/proc/self/stat` utime+stime over elapsed
-  clock time, normalized by the logical core count. Raw one-core percentage
+- **CPU proceso** is the change in Android `Process.getElapsedCpuTime()` or
+  Linux `/proc/self/stat` utime+stime over elapsed clock time, normalized by
+  the logical core count. Raw one-core percentage
   remains in the report (100% = one busy core; it can exceed 100% across
-  threads). The tick frequency is read from `AT_CLKTCK` in `/proc/self/auxv`,
-  the same source as Android bionic `sysconf(_SC_CLK_TCK)`; it is not assumed.
+  threads). Android uses milliseconds; Linux tick frequency is read from
+  `AT_CLKTCK` in `/proc/self/auxv`, rather than assuming a constant.
   This measures this process, not other apps, CPU frequency or thermals.
-- RAM is approximate process RSS and kernel peak RSS from `/proc/self/status`.
-  Shared resident pages are included; this is not Android PSS or exclusive
-  private memory. Godot's allocator counter is a separate report field.
+- Android RAM is process PSS from `Debug.getPss()`, sampled in the background
+  every two seconds, with a maximum observed sample. Linux uses approximate
+  RSS and kernel peak RSS from `/proc/self/status`. PSS attributes shared pages
+  proportionally; RSS includes their full resident size. Godot's allocator
+  counter is a separate report field.
 - GPU frame time comes from native viewport timestamp measurements. **GPU
   LIE última** is the last compute-marker duration and its age, converted from
   the pinned 4.7.2 Vulkan driver's nanoseconds to milliseconds. Captured marker
   and viewport values can refer to adjacent frames because profiling is
   asynchronous; do not subtract them as if they were one aligned frame.
+  JSON also includes LIE p50/p95 over the last at most 120 actual GPU compute
+  samples. This window can remain stale while cached frames are displayed.
 - GPU memory distinguishes the global RenderingDevice/Vulkan allocator from
   requested LIE buffer/image bytes. On unified-memory phones these can overlap
   system RAM; do not sum them with RSS.
@@ -59,6 +66,47 @@ root or additional Android permissions.
 
 The monitor contributes some overhead. It is a practical diagnostic tool, not
 an Android system profiler or a physical-device performance guarantee.
+
+### First Poco result and Android API correction
+
+The owner supplied a real 0.1.1 report from the Poco X7 Pro / Mali-G720 MC7.
+The scene rendered and the immutable bank uploaded once, but procfs-based
+CPU clock/RSS reads returned unavailable. The exact report is preserved in
+`checkpoints/R2_POCO_REPORT_0_1_1.json`. It has a 45.641 ms median frame interval,
+182.281 ms p95 and a last LIE compute marker of 122.42339 ms, aged 2.546433 s.
+Its current reconstruction rate is zero and Godot FPS is 60. These use different
+time windows; one idle snapshot does not establish 60 FPS while moving, average
+movement throughput or a sustained bottleneck. No valid total-process RAM or
+CPU utilization was collected. Requested LIE GPU memory is about 249 MiB and
+the global graphics allocator about 450 MiB; neither is total process RAM.
+
+0.1.2 uses Godot's built-in `JavaClassWrapper` with public Android APIs:
+`Process.getElapsedCpuTime()` for cumulative process CPU milliseconds and
+`Debug.getPss()` for proportional resident memory in KiB. CPU deltas use their
+actual sample timestamps and the logical-core denominator. Android PSS is
+labelled separately from Linux RSS; its peak is the maximum observed sample,
+not a kernel high-water mark. `getNativeHeapAllocatedSize()` is a separate
+report field and is not substituted for total process memory.
+
+JNI/PSS calls run in one serialized WorkerThreadPool task at most every two
+seconds, check Java exceptions and preserve unavailable results. UI frames do
+not wait for memory page-table collection. The report includes source, age,
+errors and collection cost. Worker completion is joined before destruction.
+Desktop/Linux procfs sampling remains available. The APK needs no plugin,
+Gradle source rebuild, root or extra permissions for this bridge.
+
+The panel now exposes **FPS bucle actual** and **FPS bucle ventana** from
+monotonic callback intervals, alongside Godot's differently windowed counter
+and actual LIE reconstruction count. Frame p50/p95 share the recent (at most
+600-interval) window. Callback rates are not a display-refresh measurement.
+The Android API path is compiled and checked against primary Godot/Android
+sources; its readings still require verification on the owner's phone. The
+existing scene was verified physically on 0.1.1; the new API path has not been
+run on a physical phone or emulator here.
+
+https://docs.godotengine.org/en/4.7/classes/class_javaclasswrapper.html
+https://developer.android.com/reference/android/os/Process#getElapsedCpuTime()
+https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/core/java/android/os/Debug.java
 
 Sources: Godot `Performance`, `RenderingServer` and `RenderingDevice` class
 references; Linux procfs documentation; Android bionic sysconf implementation.
@@ -142,8 +190,9 @@ GPU counters, native touch toggling and actual clipboard JSON, and saves an
 actual native HUD screenshot. Latest result: **262,172 checks pass** on
 llvmpipe software Vulkan, with one immutable bank upload. Existing motion
 3,019 checks, rig 3,734 checks, agent 20 checks and Python 72 tests (one skip)
-also pass. No Android device/emulator has run the packaged application yet.
-`test_robot_performance.gd` adds 15 checks, including actual procfs counters,
+also pass. The owner has run 0.1.1 on a physical Poco; there is no physical
+validation of the new 0.1.2 Android API path yet.
+`test_robot_performance.gd` adds 17 checks, including actual procfs counters,
 a real CPU workload, unavailable data handling, auxiliary clock units and
 elapsed frame time despite a deliberately short simulation delta.
 

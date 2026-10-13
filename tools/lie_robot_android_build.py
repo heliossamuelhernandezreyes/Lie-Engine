@@ -11,7 +11,7 @@ import tempfile
 from lie_android_manifest import normalize_apk
 
 FILES = [
-    "lie_robot_mobile.tscn", "lie_robot_world_lab.gd", "lie_robot_touch_hud.gd", "lie_robot_performance.gd",
+    "lie_robot_mobile.tscn", "lie_robot_world_lab.gd", "lie_robot_touch_hud.gd", "lie_robot_performance.gd", "lie_robot_android_metrics.gd",
     "lie_robot_world_effect.gd", "lie_robot_effect.gd", "lie22_modular_effect.gd",
     "lie_robot_assembly.gd", "lie_robot_world_layout.gd", "lie_robot_controller.gd",
     "lie26_rig.gd", "lie28_building_assembly.gd",
@@ -22,7 +22,7 @@ FILES = [
 PROJECT = '''config_version=5
 [application]
 config/name="LIE R2 Robot"
-config/version="0.1.1"
+config/version="0.1.2"
 config/icon="res://icon.svg"
 run/main_scene="res://lie_robot_mobile.tscn"
 boot_splash/bg_color=Color(0.063,0.098,0.141,1)
@@ -59,8 +59,8 @@ architectures/armeabi-v7a=false
 architectures/arm64-v8a=true
 architectures/x86=false
 architectures/x86_64=false
-version/code=2
-version/name="0.1.1-r2-metrics"
+version/code=3
+version/name="0.1.2-r2-android-metrics"
 package/unique_name="org.lieengine.robotdemo"
 package/name="LIE R2 Robot"
 package/signed=true

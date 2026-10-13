@@ -35,7 +35,9 @@ func run() -> void:
     expect(Monitor.percentile(monitor._frame_ms,.95)>=50,"Frame pacing uses elapsed clock time even when simulation delta is only 1 ms")
     expect(is_equal_approx(monitor.latest["cpu_process_total_capacity_percent"]*monitor.latest["logical_cores"],monitor.latest["cpu_process_one_core_percent"]),"Core normalization is explicit")
     expect(monitor.latest["gpu_total_utilization_percent"]==null and monitor.display_text().contains("Uso total GPU: N/D"),"Unavailable GPU utilization is never inferred from frame time")
-    expect(JSON.parse_string(monitor.report_text())["schema"]==1,"Copy report is valid JSON with measurement scopes")
+    expect(JSON.parse_string(monitor.report_text())["schema"]==2,"Copy report is valid JSON with measurement scopes")
+    expect(Monitor.api_cpu_percent(100,600,1000000)==50 and Monitor.api_cpu_percent(-1,100,1000000)==-1,"Android CPU milliseconds keep units and wait for baseline")
+    expect(is_equal_approx(Monitor.measured_fps([50.0,150.0]),10.0),"Recent-loop FPS uses total wall time, not reciprocal median")
     monitor.reset();expect(monitor.latest.is_empty(),"Reset clears rolling samples")
     var report: Dictionary={"checks":checks,"failed":failed,"first_sample":first,"physical_android_tested":false}
     var file:=FileAccess.open("res://robot-performance-verification.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  "));file.close();print("R2 METRICS ",JSON.stringify(report))

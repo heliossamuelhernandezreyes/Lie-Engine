@@ -124,7 +124,7 @@ func _metrics_ui() -> void:
     var row:=HBoxContainer.new();box.add_child(row)
     for action in [["Copiar informe",_copy_metrics],["Reiniciar",_reset_metrics]]:
         var button:=Button.new();button.text=action[0];button.custom_minimum_size.y=42;button.focus_mode=Control.FOCUS_NONE;button.pressed.connect(action[1]);row.add_child(button);metrics_buttons.append(button)
-    var note:=Label.new();note.text="RSS aproximado · GPU % no disponible\nRAM y memoria GPU pueden solaparse.";note.add_theme_font_size_override("font_size",12);note.mouse_filter=Control.MOUSE_FILTER_IGNORE;box.add_child(note)
+    var note:=Label.new();note.text="CPU/PSS Android: muestra cada 2 s\nRAM y memoria GPU pueden solaparse.";note.add_theme_font_size_override("font_size",12);note.mouse_filter=Control.MOUSE_FILTER_IGNORE;box.add_child(note)
 
 func _toggle_metrics() -> void:metrics_panel.visible=not metrics_panel.visible
 func _copy_metrics() -> void:
@@ -140,3 +140,5 @@ func _process(delta: float) -> void:
     elif not lab.effect.gpu_ready:status.text="Preparando imagen…" if _ready_seconds<20 else "La GPU aún no responde. Cierra y vuelve a abrir la prueba."
     else:status.text="Pausa · toca el joystick para continuar" if _paused else "%.2f m recorridos · joystick izquierdo + cámara derecha"%lab.state["motion"]["travel"]
     if Time.get_ticks_usec()<_copied_until:status.text="Informe copiado. Puedes pegarlo en el chat."
+
+func _exit_tree() -> void:diagnostics.shutdown()

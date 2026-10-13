@@ -1,9 +1,9 @@
 {
   "apk": "LIE-R2-Robot-Prueba.apk",
-  "bytes": 39603260,
-  "sha256": "51b55a8752774ab0a76f9fb5c3ee5e17fcd2ed0e082cd3dbccc44b2f26270dc4",
+  "bytes": 39607525,
+  "sha256": "2851769a40178eb67e59ad270f9bbca929b29b0337aef593612dd524dd775406",
   "package": "org.lieengine.robotdemo",
-  "version": "0.1.1-r2-metrics",
+  "version": "0.1.2-r2-android-metrics",
   "architectures": [
     "arm64-v8a"
   ],
@@ -31,17 +31,18 @@
   "startup_authority_unique": true,
   "launcher_intent_verified": true,
   "permissions": [],
-  "schema": 1,
-  "source_base_commit": "df6a8ff6ca6a37e1fe180dc913c78e580ace7a63",
+  "schema": 2,
+  "source_base_commit": "189772079e1fa8df717955476ed78dc1d50b33d0",
   "source_branch": "experiment/lie-robot-android",
   "source_files_sha256": {
     "lie_robot_mobile.tscn": "1f9509f48d3b7f22c6f99c1dd299f4f9312947deaea52986b7527eceb759401a",
     "lie_robot_world_lab.gd": "891f861aa0bbdad542e2fb8e5548680507a64fe69c7d95b44a866766a6a71c7e",
-    "lie_robot_touch_hud.gd": "5adf8141bdd673fb73fcb87b25d788f30453ac0587b9961d1c8f037ff1fcb189",
-    "lie_robot_performance.gd": "c220073ad57155ba167882f45bbab3a8f968a55817f2d94deeaae3e69c6d7722",
+    "lie_robot_touch_hud.gd": "be83f63003e97e5e744966f180b4a60d0d8cbac650e712e9b170829de44c92cb",
+    "lie_robot_performance.gd": "c66bc8ecc502dd7bf2ee3cebe90aca9900dc0469a96345c03f9a54b784d42da5",
+    "lie_robot_android_metrics.gd": "507bd0e5575911480f88d18937b5689b183a2c154f9b48ddd304b2abda25fae1",
     "lie_robot_world_effect.gd": "4048dc842d4f5fd22622b6a28185173c8c3ba6f13f1f527bc15b1ff210da8e96",
     "lie_robot_effect.gd": "9b90d1b987fd4dbfcaf7a6721af3c94e3671479b59789858be5a93ed359f4490",
-    "lie22_modular_effect.gd": "3534df266cd6e0bce60cc3f23544f0035a541838671a79418001182867fd89d4",
+    "lie22_modular_effect.gd": "54a096057da364c9bdedb63b8fcc22830d7558202dadc06911de72ba3dc25c3b",
     "lie_robot_assembly.gd": "5ef451bfbc48576a188528af98545c63504c917383984752e30143f8d01bcaba",
     "lie_robot_world_layout.gd": "e52a4eb7759226cf90215ef57db7ee2deda1ef4226af6b806be4f960ee5f602d",
     "lie_robot_controller.gd": "615346c074cda563b4b60e933a4eda5698c22d4eb1f92379db048ecfa304942b",
@@ -55,8 +56,8 @@
   },
   "saved_apk": {
     "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
-    "file_id": "file_00000000396081f5a151c27d38ecf882",
-    "version": 1,
+    "file_id": "file_00000000c03c81f591ecd886def3666c",
+    "version": 2,
     "name": "LIE-R2-Robot-Prueba.apk"
   },
   "saved_debug_key": {
@@ -80,120 +81,156 @@
     "androidx_startup_authority_fixed": true,
     "idempotent": true
   },
-  "note": "Mobile compositor and touch events verified with actual Godot on software Vulkan; packaged ARM64 APK has not run on a physical Android device or emulator. No measured Poco FPS claim.",
+  "note": "Source and Android JNI path compile/export verified. Touch/graphics checked with software Vulkan only. Owner report confirms 0.1.1 renders on Mali-G720 MC7, but CPU/RAM unavailable and idle FPS does not establish movement throughput. New 0.1.2 API readings still need phone validation; reconstruction cost not optimized in this change.",
   "previous_apk": {
-    "bytes": 39594907,
-    "sha256": "79fc4ebc66dbc850bf0698578bb33cc665b4d57120a617a1b2a00df46a113690",
-    "version": "0.1.0-r2-test",
+    "bytes": 39603260,
+    "sha256": "51b55a8752774ab0a76f9fb5c3ee5e17fcd2ed0e082cd3dbccc44b2f26270dc4",
+    "version": "0.1.1-r2-metrics",
     "saved_apk": {
       "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
-      "file_id": "file_00000000895481f587516aba5a3e2be1",
-      "version": 0,
+      "file_id": "file_00000000396081f5a151c27d38ecf882",
+      "version": 1,
       "name": "LIE-R2-Robot-Prueba.apk"
+    },
+    "previous_apk": {
+      "bytes": 39594907,
+      "sha256": "79fc4ebc66dbc850bf0698578bb33cc665b4d57120a617a1b2a00df46a113690",
+      "version": "0.1.0-r2-test",
+      "saved_apk": {
+        "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
+        "file_id": "file_00000000895481f587516aba5a3e2be1",
+        "version": 0,
+        "name": "LIE-R2-Robot-Prueba.apk"
+      }
     }
   },
-  "version_code": 2,
-  "version_name": "0.1.1-r2-metrics",
+  "version_code": 3,
+  "version_name": "0.1.2-r2-android-metrics",
   "same_update_certificate": true,
   "arm64": true,
   "signature_v2_v3": true,
   "zipalign_16k": true,
   "payload_preserved": true,
-  "metrics_cpu_checks": 15,
+  "metrics_cpu_checks": 17,
   "touch_vulkan_checks": 262172,
   "performance_evidence": {
     "concurrent_gpu_readouts": [
       {
-        "lie_gpu_ms": 745.189704,
-        "viewport_gpu_ms": 654.658020019531
+        "lie_gpu_ms": 687.820903,
+        "viewport_gpu_ms": 801.921997070312
       },
       {
-        "lie_gpu_ms": 648.000854,
-        "viewport_gpu_ms": 678.89501953125
+        "lie_gpu_ms": 793.639503,
+        "viewport_gpu_ms": 666.432006835938
       },
       {
-        "lie_gpu_ms": 672.556662,
-        "viewport_gpu_ms": 620.218994140625
+        "lie_gpu_ms": 659.162764,
+        "viewport_gpu_ms": 625.0419921875
       },
       {
-        "lie_gpu_ms": 614.356849,
-        "viewport_gpu_ms": 641.997009277344
+        "lie_gpu_ms": 619.076122,
+        "viewport_gpu_ms": 633.262023925781
       },
       {
-        "lie_gpu_ms": 635.923681,
-        "viewport_gpu_ms": 660.294006347656
+        "lie_gpu_ms": 626.887473,
+        "viewport_gpu_ms": 616.528991699219
       },
       {
-        "lie_gpu_ms": 653.781801,
-        "viewport_gpu_ms": 746.510986328125
+        "lie_gpu_ms": 608.3192,
+        "viewport_gpu_ms": 610.8759765625
       },
       {
-        "lie_gpu_ms": 736.872488,
-        "viewport_gpu_ms": 730.068969726562
+        "lie_gpu_ms": 603.719145,
+        "viewport_gpu_ms": 650.653015136719
       },
       {
-        "lie_gpu_ms": 719.986984,
-        "viewport_gpu_ms": 647.557983398438
+        "lie_gpu_ms": 643.540067,
+        "viewport_gpu_ms": 593.418029785156
       },
       {
-        "lie_gpu_ms": 640.256057,
-        "viewport_gpu_ms": 610.210021972656
+        "lie_gpu_ms": 585.674492,
+        "viewport_gpu_ms": 596.401000976562
       },
       {
-        "lie_gpu_ms": 597.455795,
-        "viewport_gpu_ms": 716.106018066406
+        "lie_gpu_ms": 589.246872,
+        "viewport_gpu_ms": 581.705993652344
       }
     ],
     "live": {
-      "app_version": "0.1.1-r2-metrics",
+      "android_api": {
+        "error": "not_android"
+      },
+      "android_api_age_seconds": -1,
+      "app_version": "0.1.2-r2-android-metrics",
       "bank_uploads": 1,
       "clock_ticks_per_second": 100,
-      "cpu_process_one_core_percent": 373.681648044606,
-      "cpu_process_total_capacity_percent": 41.5201831160673,
-      "engine_physics_ms": 0.102,
-      "engine_process_ms": 725.067,
+      "cpu_process_one_core_percent": 374.47386422077,
+      "cpu_process_total_capacity_percent": 41.6082071356411,
+      "cpu_sample_age_seconds": 0,
+      "cpu_source": "procfs utime+stime/AT_CLKTCK",
+      "engine_physics_ms": 0.047,
+      "engine_process_ms": 591.071,
+      "fps_callback_interval": 0.0,
+      "fps_callback_recent_window": 1.4008758403106,
       "fps_screen": 1.0,
-      "frame_ms_p50": 699.644,
-      "frame_ms_p95": 770.435,
+      "frame_ms_p50": 700.085,
+      "frame_ms_p95": 864.794,
       "frame_samples": 22,
-      "godot_static_bytes": 90447281.0,
+      "godot_static_bytes": 90558743.0,
       "gpu_device": "llvmpipe (LLVM 20.1.2, 256 bits)",
-      "gpu_frame_ms": 716.106018066406,
-      "gpu_lie_ms_last": 597.455795,
+      "gpu_frame_ms": 581.705993652344,
+      "gpu_lie_ms_last": 589.246872,
+      "gpu_lie_recent_p50_ms": 674.824871,
+      "gpu_lie_recent_p95_ms": 793.639503,
+      "gpu_lie_recent_sample_count": 20,
       "gpu_lie_reserved_bytes": 260979520,
-      "gpu_lie_sample_age_seconds": 0.643907,
+      "gpu_lie_sample_age_seconds": 0.599857,
       "gpu_lie_samples": 20,
-      "gpu_rd_memory_bytes": 432030896,
+      "gpu_rd_memory_bytes": 432817328,
       "gpu_total_utilization_percent": null,
       "lie_reconstructions": 23,
-      "lie_reconstructions_per_second": 1.5505462574465,
+      "lie_reconstructions_per_second": 1.66432828542564,
       "logical_cores": 9,
+      "native_heap_bytes": -1,
       "output_size": 512,
-      "rss_anonymous_bytes": 197701632,
-      "rss_bytes": 824668160,
-      "rss_peak_bytes": 824668160,
+      "pss_bytes": -1,
+      "pss_sampled_peak_bytes": -1,
+      "rss_anonymous_bytes": 199421952,
+      "rss_bytes": 829591552,
+      "rss_peak_bytes": 829591552,
       "sample": 23,
       "sample_interval_seconds": 0.5,
-      "schema": 1,
+      "schema": 2,
       "scopes": {
-        "cpu": "utime+stime of this process, all threads; 100% one-core equals one fully busy logical core. Total-capacity denominator is logical_cores, not other apps or frequency weighting.",
-        "frame_pacing": "Recent process-frame wall intervals, includes scheduling/vsync, not CPU execution time.",
+        "cpu": "Android Process.getElapsedCpuTime milliseconds or Linux utime+stime ticks; this process/all threads, 100% one-core = one busy core. Total denominator logical_cores; not CPU frequency weighting or other apps.",
+        "frame_pacing": "Monotonic wall intervals between process callbacks, includes scheduling/vsync. Callback FPS/current sample and recent 600-frame FPS use explicit windows. Godot FPS has its own once-per-second window.",
         "gpu_lie": "Last measured LIE compute timestamp interval, not GPU utilization; cached frames do not reconstruct.",
-        "gpu_memory": "Vulkan RD allocator and requested LIE buffers/images; can share system RAM. Do not add to RSS.",
-        "rss": "Approximate resident process pages; includes shared pages, not Android PSS or private-only RAM.",
-        "unsupported": "-1 or null means unavailable / waiting, never zero load."
+        "gpu_memory": "Vulkan allocator/requested LIE buffers; can overlap system RAM. Do not add to PSS/RSS.",
+        "pss": "Android Debug.getPss proportional resident KiB converted to bytes; shared pages attributed proportionally, not RSS. Peak is max observed samples, not OS high-water mark.",
+        "rss": "Linux process resident pages, not available in Android API mode.",
+        "unsupported": "-1 or null = unavailable/waiting, never zero load."
       },
-      "session_seconds": 16.523587
+      "session_seconds": 16.363482
     },
     "timing_scope": "Asynchronously collected LIE and viewport markers, potentially adjacent frames; same units, not frame-identical pairing."
   },
   "metrics_scopes": {
-    "ram": "Approximate process RSS/peak; shared pages included, not PSS.",
-    "cpu": "Real proc utime+stime delta; actual AT_CLKTCK, logical-core normalization.",
-    "gpu": "Vulkan last-compute and viewport time in ms; asynchronously collected, may refer to adjacent frames.",
-    "gpu_memory": "Global RD allocator and requested LIE bytes; may overlap system RAM.",
-    "gpu_total_utilization": "Not available; explicit null.",
-    "frame_pacing": "Monotonic wall intervals, not clamped simulation delta.",
-    "on_phone": "Not yet verified on a physical Android device."
+    "ram": "Android proportional resident PSS/max observed sample; Linux RSS/kernel high-water mark. These are distinct metrics.",
+    "cpu": "Android public Process.getElapsedCpuTime cumulative milliseconds sampled before memory collection; Linux procfs actual AT_CLKTCK. Normalize by logical cores.",
+    "gpu": "Asynchronous Vulkan markers in milliseconds; last reconstruction/age and last <=120 reconstruction p50/p95. Not GPU utilization.",
+    "gpu_memory": "Global RD allocator and requested LIE bytes can overlap system RAM.",
+    "gpu_total_utilization": "Unavailable; explicit null.",
+    "frame_pacing": "Monotonic wall callback intervals, own current callback window and recent <=600-interval window; Godot FPS separate.",
+    "on_phone": "Owner 0.1.1 report received. New 0.1.2 Android JNI/API path is not physically verified yet."
+  },
+  "android_jni_compiled": true,
+  "first_physical_report": {
+    "version": "0.1.1-r2-metrics",
+    "device": "Poco X7 Pro",
+    "gpu": "Mali-G720 MC7",
+    "path": "docs/checkpoints/R2_POCO_REPORT_0_1_1.json",
+    "source": "User supplied report, not measured by agent",
+    "cpu_ram_available": false,
+    "new_android_api_physically_verified": false
   }
 }

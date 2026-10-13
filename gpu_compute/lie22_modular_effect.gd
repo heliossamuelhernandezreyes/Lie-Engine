@@ -36,7 +36,14 @@ var _performance: Dictionary={}
 var _memory_profile_usec: int=0
 
 func performance_snapshot() -> Dictionary:
-    _mutex.lock();var result: Dictionary=_performance.duplicate(true);_mutex.unlock();return result
+    _mutex.lock();var result: Dictionary=_performance.duplicate(true);var profiles: Array=_profiles.duplicate(true);_mutex.unlock()
+    var values: Array=[]
+    for profile in profiles:values.append(float(profile["gpu_ns"])/1000000.0)
+    values.sort();result["gpu_recent_samples"]=values.size()
+    if not values.is_empty():
+        result["gpu_recent_p50_ms"]=values[maxi(int(ceil(values.size()*.50))-1,0)]
+        result["gpu_recent_p95_ms"]=values[maxi(int(ceil(values.size()*.95))-1,0)]
+    return result
 
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
