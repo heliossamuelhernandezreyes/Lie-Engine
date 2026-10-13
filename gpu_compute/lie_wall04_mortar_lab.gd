@@ -13,9 +13,9 @@ func _lab_heading() -> String:
     return "LIE-WALL-04 · Mortero fotográfico experimental"
 
 func _lab_geometry_text() -> String:
-    return "96 ladrillos originales inalterados · 1 caja invisible\n"+\
-           "Mortero con muestras XYZ de fotografías PBR 8K\n"+\
-           "Sin plano sintético de mortero; 3 LOD separados"
+    return "96 ladrillos fuente byte-inmutables · 1 caja invisible\n"+\
+           "Huella visual XY del ladrillo extendida hasta junta de 6 mm\n"+\
+           "Mortero XYZ CC0 8K · nivel frontal escaneado · 3 LOD"
 
 func _lab_source_text() -> String:
     return "MORTAR-01: Poly Haven CC0, recortes H/V\n"+\
