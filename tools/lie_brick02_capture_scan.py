@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 import trimesh
+from lie_gltf_vertex_color import load_colored_glb, read_glb
 
 STRIDE = 80
 MAX_SAMPLES = 750_000
@@ -51,6 +52,8 @@ def uv_sample(image: Image.Image, uv: np.ndarray) -> np.ndarray:
 
 
 def material_maps(mesh: trimesh.Trimesh) -> tuple[Image.Image | None, Image.Image | None, float]:
+    if "lie_vertex_colors_linear" in mesh.metadata:
+        return None, None, float(mesh.metadata["lie_material_roughness"])
     visual = mesh.visual
     material = getattr(visual, "material", None)
     if material is None:
@@ -67,10 +70,22 @@ def load_source(source: Path) -> list[trimesh.Trimesh]:
     if not source.is_file() or source.suffix.lower() not in SUPPORTED:
         raise ValueError("Input must be an existing .glb, .gltf or .obj file (extract any downloaded ZIP first)")
     try:
-        scene = trimesh.load(str(source), force="scene", process=False)
-        # Scene.dump bakes each node's world transform. No geometry is generated.
-        meshes = [m for m in scene.dump() if isinstance(m, trimesh.Trimesh)
-                  and len(m.faces) and len(m.vertices)]
+        if source.suffix.lower() == ".glb":
+            doc, _ = read_glb(source)
+            primitives = [p for mesh in doc.get("meshes",[]) for p in mesh.get("primitives",[])]
+            if primitives and all("COLOR_0" in p.get("attributes",{}) for p in primitives) and not doc.get("images"):
+                # Original Stratford scan uses 500K source triangles, COLOR_0
+                # linear vertex colors, NO UVs and NO photographic atlas. Reuse
+                # actual vertex colors, never invent or retexture the object.
+                meshes = load_colored_glb(source)
+            else:
+                scene = trimesh.load(str(source), force="scene", process=False)
+                meshes = [m for m in scene.dump() if isinstance(m, trimesh.Trimesh)
+                          and len(m.faces) and len(m.vertices)]
+        else:
+            scene = trimesh.load(str(source), force="scene", process=False)
+            meshes = [m for m in scene.dump() if isinstance(m, trimesh.Trimesh)
+                      and len(m.faces) and len(m.vertices)]
     except Exception as error:
         raise ValueError(f"Unable to read genuine mesh geometry: {error}. "
                          "Draco-compressed glTF may need authorized Blender/Draco decoding first.") from error
@@ -81,8 +96,13 @@ def load_source(source: Path) -> list[trimesh.Trimesh]:
             raise ValueError("Non-finite scanned vertices")
         if len(mesh.faces) < 1 or float(mesh.area) <= 1e-12:
             raise ValueError("Source has degenerate or zero-area triangles")
+        if "lie_vertex_colors_linear" in mesh.metadata:
+            color = np.asarray(mesh.metadata["lie_vertex_colors_linear"])
+            if color.shape != (len(mesh.vertices),3) or not np.isfinite(color).all():
+                raise ValueError("Source COLOR_0 missing or inconsistent")
+            continue
         if mesh.visual.kind != "texture":
-            raise ValueError("Source lacks texture UVs; do not fabricate a photo-scan appearance")
+            raise ValueError("Source lacks texture UVs and vertex COLOR_0; no invented color")
         uv = np.asarray(mesh.visual.uv)
         if uv.shape != (len(mesh.vertices), 2) or not np.isfinite(uv).all():
             raise ValueError("Missing or invalid source UVs")
@@ -134,17 +154,21 @@ def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
     fn = np.asarray(mesh.face_normals)[chosen]
     vn = np.einsum("ijk,ij->ik", np.asarray(mesh.vertex_normals)[face], weights)
     nr = normalized(.70 * fn + .30 * vn)
-    uv = np.einsum("ijk,ij->ik", np.asarray(mesh.visual.uv)[face], weights)
+    colored = "lie_vertex_colors_linear" in mesh.metadata
+    uv = None if colored else np.einsum("ijk,ij->ik", np.asarray(mesh.visual.uv)[face], weights)
 
     diffuse, mr, factor = material_maps(mesh)
-    rgb = uv_sample(diffuse, uv)
+    rgb = (np.einsum("ijk,ij->ik", np.asarray(mesh.metadata["lie_vertex_colors_linear"])[face], weights)
+           if colored else uv_sample(diffuse, uv))
     material = getattr(mesh.visual, "material", None)
     base_factor = getattr(material, "baseColorFactor", None)
     if base_factor is not None:
         rgb *= (np.asarray(base_factor[:3], dtype=np.float32) / 255. if
                 max(base_factor[:3]) > 1 else np.asarray(base_factor[:3], dtype=np.float32))
-    rgb = linear_srgb(np.clip(rgb, 0, 1))
-    rough = (np.clip(uv_sample(mr, uv)[:, 1] * factor, .18, .98) if mr is not None
+    # glTF COLOR_0 already stores LINEAR radiometric vertex color.
+    # UV photographic color textures are sRGB and need linear conversion.
+    rgb = np.clip(rgb, 0, 1) if colored else linear_srgb(np.clip(rgb, 0, 1))
+    rough = (np.clip(uv_sample(mr, uv)[:, 1] * factor, .18, .98) if (mr is not None and uv is not None)
              else np.full(count, np.clip(factor, .18, .98), dtype=np.float32))
     world = ((position - center)[:, perm] * scale).astype(np.float32)
     normals = normalized(nr[:, perm]).astype(np.float32)
@@ -236,7 +260,10 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
         "source_original_triangles": int(sum(len(m.faces) for m in meshes)),
         "source_original_vertices": int(sum(len(m.vertices) for m in meshes)),
         "source_mesh_drawn": False, "source_3d_shape_used": True,
-        "source_photo_texture_uv_used": True, "brick_measurement_m": length_m,
+        "source_photo_texture_uv_used": all("lie_vertex_colors_linear" not in m.metadata for m in meshes),
+        "source_vertex_colors_used": any("lie_vertex_colors_linear" in m.metadata for m in meshes),
+        "source_color_representation": ("glTF COLOR_0 linear vertex RGB" if any("lie_vertex_colors_linear" in m.metadata for m in meshes) else "UV image texture sRGB"),
+        "brick_measurement_m": length_m,
         "source_bbox_m": [float(x) for x in true_size], "envelope_size_m": envelope_size,
         "permutation_source_to_lie": [int(x) for x in perm],
         "collision_proxy_count_per_active_brick": 1,
