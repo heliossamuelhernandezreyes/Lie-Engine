@@ -87,6 +87,7 @@ jobs:
             assert n['captured_mortar_samples']>0
           assert not updated['wall04']['product_quality_accepted']
           print('WALL04: 96 exact brick records, 1 invisible box, true 3D photo-mortar source sample bank',updated['sha256'])
+          print('EXACT native Vulkan WALL04/mortar bank will be uploaded alongside screenshot evidence')
           PY
       - name: Confirm 6mm visual brick expansion and original source SHA safety
         run: |
@@ -127,6 +128,11 @@ jobs:
           name: lie-wall04-photographed-mortar-real-vulkan-experimental
           path: |
             import.log
+            gpu_compute/assets/lie_mortar01/catalog.json
+            gpu_compute/assets/lie_mortar01/mortar-bank.zlib
+            gpu_compute/assets/lie_wall04/catalog.json
+            gpu_compute/assets/lie_wall04/wall_bank.zlib
+            gpu_compute/assets/lie_wall04/light-model.json
             gpu_compute/captures/liewall04/catalog.json
             /tmp/lie-wall04-native/*.png
             /tmp/lie-wall04-native/*.json
