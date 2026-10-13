@@ -4,13 +4,13 @@
 
 Esta rama añade **un importador ejecutable** para `GLB`, `glTF` y `OBJ` autorizados, un nuevo laboratorio Godot y pruebas de GPU. Las pruebas automáticas **usan un GLB sintético deformado y texturizado**, claramente identificado. Eso valida la tubería, NO significa que hayamos descargado el escaneo de Shakespeare ni alcanzado fotorrealismo.
 
-La **mejor fuente externa identificada** para un ladrillo completo es:
+La **fuente externa de alta resolución identificada** para un ladrillo completo es:
 
 - [Stratford New Place Brick Ver 2](https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a), Centre of Archaeology.
 - Ficha pública: 500,000 triángulos, 250,000 vértices, ladrillo completo de 8 × 3¾ × 2 pulgadas, Creative Commons Attribution 4.0 (CC BY 4.0).
 - El usuario o agente autorizado debe utilizar la **descarga normal** de Sketchfab e iniciar sesión cuando se requiera; el código no intenta eludir autenticación. Archivos con bloqueos de descarga NO deben obtenerse mediante endpoints de visor, scraping o técnicas de evasión.
 - La licencia CC BY **no es CC0**: conservar autor, URL, licencia y procedencia en exportaciones/obras derivadas.
-- El importador no certifica que el fichero obtenido sea fotogramétrico; solo prueba que contiene geometría 3D y una textura UV real.
+- El proyecto de procedencia [Searching for Shakespeare](https://searchingforshakespeare.co.uk/new-place/) especifica **escáneres 3D de luz estructurada**, no fotogrametría. El importador por sí mismo solo prueba que el archivo tiene geometría 3D y una textura UV real; no certifica la técnica de escaneo ni la autoría.
 
 ## Qué está implementado
 
