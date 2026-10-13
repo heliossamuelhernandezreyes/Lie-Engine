@@ -44,6 +44,13 @@ class SyntheticDonor:
                 np.asarray(.72+.05*np.cos(x),dtype=np.float32))
 
 
+class UnevenBrickEdgeField:
+    """Synthetic edge-only fixture; never used in authored photographic assets."""
+    def face_limit(self,kind,row,column,xy):
+        # Two original neighbors with different front depths.
+        return (.050 + .001*np.sin(xy[:,0]*85)).astype(np.float32)
+
+
 class Wall04SamplesTest(unittest.TestCase):
     def test_conservative_joint_centers_and_single_invisible_box(self):
         donor=SyntheticDonor()
@@ -102,6 +109,40 @@ class Wall04SamplesTest(unittest.TestCase):
         self.assertAlmostEqual(float(strip[0,3]),.0012*SPLAT_RADIUS_SCALE,places=7)
         self.assertAlmostEqual(VISIBLE_MORTAR_WIDTH_M,.0060)
         self.assertAlmostEqual(SUPPORT_SCALE,.51)
+
+    def test_mortar_is_recessed_below_EVERY_measured_local_brick_edge(self):
+        from lie_wall04_bake import MORTAR_EDGE_RECESS_M, MORTAR_EXTRA_MICRO_RELIEF_M
+        donor=SyntheticDonor()
+        surface=UnevenBrickEdgeField()
+        for orientation,lo,hi,center in (("vertical",0.,.077,.15),
+                                          ("horizontal",-.22,.22,-.02)):
+            strip=sample_line(orientation,2,4,lo,hi,center,.0012,.0085,.057,
+                              [donor],edge_field=surface)
+            self.assertGreater(len(strip),50)
+            boundaries=surface.face_limit(orientation,2,4,strip[:,0:2])
+            self.assertTrue(np.all(strip[:,2]<=boundaries-MORTAR_EDGE_RECESS_M+1e-7))
+            self.assertTrue(np.all(strip[:,2]>=boundaries-MORTAR_EDGE_RECESS_M-
+                                   MORTAR_EXTRA_MICRO_RELIEF_M-1e-7))
+            self.assertGreater(float(np.ptp(strip[:,2])),.0005)
+            self.assertTrue(np.isfinite(strip).all())
+
+    def test_original_neighbor_bricks_query_from_sha_locked_scanned_front(self):
+        import json
+        from lie_wall04_edge_surface import OriginalBrickEdgeField
+        wall=json.loads(DEFAULT_WALL.read_text())
+        field=OriginalBrickEdgeField(DEFAULT_WALL,wall)
+        j=wall["wall_layout"]["mortar_shader_layout"]
+        seam_x=j["first_brick_x_m"]+(5.5)*j["pitch_x_m"]
+        seam_y=j["first_brick_y_m"]+3*j["pitch_y_m"]
+        coords=np.array([[seam_x,seam_y-.01],[seam_x,seam_y],
+                         [seam_x,seam_y+.01]],dtype=np.float32)
+        face=field.face_limit("vertical",2,5,coords)
+        self.assertEqual(face.shape,(3,))
+        self.assertTrue(np.isfinite(face).all())
+        self.assertGreater(float(face.min()),.01)
+        report=field.report()
+        self.assertEqual(report["nearest_scan_bricks"],2)
+        self.assertFalse(report["original_scanned_xyz_rgb_edited"])
 
     def test_invalid_source_layout_fails_closed(self):
         donor=SyntheticDonor()
