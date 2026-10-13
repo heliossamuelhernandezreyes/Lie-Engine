@@ -23,7 +23,15 @@ DEFAULT_DEST = ROOT / "gpu_compute/assets/lie_mortar01"
 STRIDE_BYTES = 80
 SOURCE_PX_PER_M = 8192 / 2.0
 LODS = (0.00120, 0.00240, 0.00360)
-SAFETY_M = 0.00075  # 0.75mm brick protection; source extends across 7mm of 8.5mm joint
+# Experiment A: flush, narrow mortar. The structural 8.5mm layout is not
+# modified; no brick samples or physical boxes are resized.
+VISIBLE_MORTAR_WIDTH_M = 0.0060    # 6mm target, independently of structural gap
+EDGE_PROTECTION_M = 0.00050       # reserve 0.5mm on both visible mortar sides
+MORTAR_MAX_BACK_RELIEF_M = 0.0008  # permitted microtexture behind brick face
+MORTAR_MAX_FORWARD_RELIEF_M = 0.0  # never protrude above scanned front reference
+SPLAT_RADIUS_SCALE = 0.62
+SUPPORT_SCALE = 0.36
+SAFETY_M = 0.00075  # lengthwise protection near scanned brick joints
 # EXPLICIT HEURISTIC: photographic displacement units are NOT calibrated mm.
 RELIEF_GAIN_M = 0.0015
 ORIGINAL_WALL_SHA = "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba"
@@ -134,11 +142,49 @@ def load_donors(directory: Path) -> tuple[dict, dict[str, list[Donor]]]:
     return report, result
 
 
+def measured_brick_front_plane(wall_catalog_path: Path, wall: dict) -> tuple[float, dict]:
+    """Use ACTUAL preserved 96-brick source XYZ/normals, not the old mortar plane.
+
+    A single mean front datum is an approximation, not guaranteed local flush
+    to every individual scanned pore or edge; record this uncertainty.
+    """
+    original = wall_catalog_path.parent / "wall_bank.zlib"
+    raw = zlib.decompress(original.read_bytes())
+    if (len(raw) != int(wall["sample_count"]) * STRIDE_BYTES or
+            hashlib.sha256(raw).hexdigest() != wall["sha256"]):
+        raise ValueError("Original scanned brick master SHA/ABI invalid")
+    samples = np.frombuffer(raw, dtype="<f4").reshape(-1, 20)
+    start = wall["masters"]["real_scan_wall"]["levels"][0]
+    level = samples[start["start"]:start["start"] + start["count"]]
+    # Exclude all old procedural mortar records and side/back normals.
+    front = level[(level[:, 9] < 864) & (level[:, 6] > .70)]
+    if len(front) < 10000 or not np.isfinite(front).all():
+        raise ValueError("Insufficient authentic brick front-face samples")
+    z = front[:, 2]
+    plane = float(np.median(z))
+    q10, q90 = (float(v) for v in np.percentile(z, [10, 90]))
+    nominal = float(wall["wall_layout"]["mortar_shader_layout"]["mortar_plane_z_m"])
+    if not (np.isfinite(plane) and .03 < plane < .09 and
+            abs(plane - nominal) < .015 and q90 >= q10):
+        raise ValueError("Measured brick front plane not compatible with photographed mortar")
+    return plane, {
+        "method": "median of authentic scan front-facing brick samples (normal.z > 0.70)",
+        "source_front_samples": int(len(front)),
+        "source_front_z_p10_m": q10,
+        "source_front_z_p90_m": q90,
+        "legacy_recessed_mortar_plane_z_m": nominal,
+        "local_per_brick_flush_verified": False,
+    }
+
+
 def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
                 across_center: float, spacing: float, gap: float, plane_z: float,
                 donors: list[Donor]) -> np.ndarray:
-    half = gap * .5 - SAFETY_M
-    if half <= 0 or hi <= lo:
+    # Preserve real brick dimensions: modify mortar only. Do not draw across
+    # the entire original 8.5mm structural joint.
+    visible_gap = min(gap, VISIBLE_MORTAR_WIDTH_M)
+    half = visible_gap * .5 - EDGE_PROTECTION_M
+    if visible_gap <= 2.0 * EDGE_PROTECTION_M or half <= 0 or hi <= lo:
         raise ValueError("Unsafe scanned brick/mortar clearance")
     along = np.arange(lo + spacing * .5, hi, spacing, dtype=np.float32)
     across = np.arange(-half + spacing * .5, half, spacing, dtype=np.float32)
@@ -164,8 +210,15 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
         data[:, 0] = across_center + b
         data[:, 1] = a
         extent = (across_center-half, lo, across_center+half, hi)
-    data[:, 2] = plane_z + dz
-    data[:, 3] = spacing * .80
+    # Normalize source photographic relief to [-0.8, 0] mm relative to the
+    # MEASURED brick face. Unlike a crude clamp, this preserves both peaks
+    # and valleys in the donor map without creating a flattened top half.
+    unit_relief = np.clip(dz / (RELIEF_GAIN_M * .5), -1., 1.)
+    backwards = -MORTAR_MAX_BACK_RELIEF_M * (.5 - .5 * unit_relief)
+    backwards = np.clip(backwards, -MORTAR_MAX_BACK_RELIEF_M,
+                        MORTAR_MAX_FORWARD_RELIEF_M)
+    data[:, 2] = plane_z + backwards
+    data[:, 3] = spacing * SPLAT_RADIUS_SCALE
     data[:, 4:7] = nrm
     data[:, 7] = 1.
     data[:, 8] = 3.
@@ -174,16 +227,17 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
     data[:, 11] = 0.
     data[:, 12:15] = rgb
     data[:, 15] = 1.
-    # Constrain splat support to the actual physical 8.5 mm mortar gap, with
-    # a 1.5 mm margin at scanned brick edges. No box-face visibility.
-    data[:, 16] = np.maximum(data[:, 0] - spacing*.49, extent[0])
-    data[:, 17] = np.maximum(data[:, 1] - spacing*.49, extent[1])
-    data[:, 18] = np.minimum(data[:, 0] + spacing*.49, extent[2])
-    data[:, 19] = np.minimum(data[:, 1] + spacing*.49, extent[3])
+    # Support must stay inside the 6mm visible band and never spill into
+    # source-scanned brick faces. No box-face visibility.
+    data[:, 16] = np.maximum(data[:, 0] - spacing * SUPPORT_SCALE, extent[0])
+    data[:, 17] = np.maximum(data[:, 1] - spacing * SUPPORT_SCALE, extent[1])
+    data[:, 18] = np.minimum(data[:, 0] + spacing * SUPPORT_SCALE, extent[2])
+    data[:, 19] = np.minimum(data[:, 1] + spacing * SUPPORT_SCALE, extent[3])
     return data
 
 
-def bank_samples(wall: dict, donors: dict[str, list[Donor]], spacing: float) -> np.ndarray:
+def bank_samples(wall: dict, donors: dict[str, list[Donor]], spacing: float,
+                 brick_front_z: float | None = None) -> np.ndarray:
     j = wall["wall_layout"]["mortar_shader_layout"]
     gap = float(wall["wall_layout"]["mortar_gap_m"])
     if (int(j["rows"]) != 8 or int(j["columns"]) != 12 or
@@ -192,8 +246,11 @@ def bank_samples(wall: dict, donors: dict[str, list[Donor]], spacing: float) -> 
         raise ValueError("Unexpected 96-brick layout, light codes or invisible box")
     w, h, px, py = (float(j[name]) for name in
                     ("brick_length_m", "brick_height_m", "pitch_x_m", "pitch_y_m"))
-    ox, oy, plane = (float(j[name]) for name in
-                     ("first_brick_x_m", "first_brick_y_m", "mortar_plane_z_m"))
+    ox, oy, legacy_plane = (float(j[name]) for name in
+                            ("first_brick_x_m", "first_brick_y_m", "mortar_plane_z_m"))
+    plane = legacy_plane if brick_front_z is None else float(brick_front_z)
+    if not np.isfinite(plane):
+        raise ValueError("Brick front plane is invalid")
     pieces = []
     for row in range(8):
         cy = oy + row * py
@@ -234,11 +291,12 @@ def bake(derived: Path, wall_catalog: Path, dest: Path,
         raise ValueError("Original 96-brick scanned wall bank has changed")
     if wall["original_meshes_drawn"] or wall["source_original_triangles"] != 500000:
         raise ValueError("Cannot substitute six box faces or original source polygons")
+    measured_plane, front_scan = measured_brick_front_plane(wall_catalog, wall)
     levels = []
     arrays = []
     offset = 0
     for spacing in LODS:
-        bank = bank_samples(wall, donors, spacing)
+        bank = bank_samples(wall, donors, spacing, measured_plane)
         arrays.append(bank)
         levels.append({"start": offset, "count": len(bank), "spacing_m": spacing})
         offset += len(bank)
@@ -254,6 +312,19 @@ def bake(derived: Path, wall_catalog: Path, dest: Path,
             "reviewed" if review["g1_human_review_passed"] else "unverified_may_include_brick_pixels"),
         "photographic_joint_masks_reviewed": bool(review["g1_human_review_passed"]),
         "source_height_is_metric": False, "relative_relief_gain_m": RELIEF_GAIN_M,
+        "flush_mortar_experiment": {
+            "visible_mortar_width_m": VISIBLE_MORTAR_WIDTH_M,
+            "structural_mortar_gap_m": float(wall["wall_layout"]["mortar_gap_m"]),
+            "edge_protection_m": EDGE_PROTECTION_M,
+            "radius_scale": SPLAT_RADIUS_SCALE,
+            "support_scale": SUPPORT_SCALE,
+            "max_back_relief_m": MORTAR_MAX_BACK_RELIEF_M,
+            "max_forward_relief_m": MORTAR_MAX_FORWARD_RELIEF_M,
+            "measured_front_plane_z_m": measured_plane,
+            "front_plane_source": front_scan,
+            "width_6mm_in_8point5mm_leaves_open_unfilled_margin": True,
+            "product_quality_accepted": False
+        },
         "workshop_only_not_renderer_accepted": not review["g1_human_review_passed"],
         "lighting_node_range": [864, 871], "brick_source_wall03_sha256": wall["sha256"],
         "unchanged_brick_source_samples": True,
