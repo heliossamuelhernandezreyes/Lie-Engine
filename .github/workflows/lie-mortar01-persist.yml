@@ -47,6 +47,18 @@ jobs:
             assert all((root/'derived'/file).is_file() for file in part['source_files'].values())
           print('Recovered REAL 8K maps verified by prior run; G1 still NOT PASSED')
           PY
+      - name: Generate alpha-restricted source-mortar candidates (not certified)
+        run: |
+          python -m pip install numpy pillow
+          python tools/lie_mortar01_mask_crops.py --directory /tmp/lie-mortar-proof/derived
+          python - <<'PY'
+          import json,pathlib
+          root=pathlib.Path('/tmp/lie-mortar-proof/derived')
+          data=json.loads((root/'mortar-unreviewed-masked-crops.json').read_text())
+          assert not data['g1_human_review_passed']
+          assert not data['source_brick_pixels_eligible_for_bank']
+          assert len(data['candidates'])>=4
+          PY
       - name: Commit source lock, mask, overlay, aligned candidate crops and review report
         run: |
           BASE='assets/material_masters/mortar/hero/real_masonry_joint'
