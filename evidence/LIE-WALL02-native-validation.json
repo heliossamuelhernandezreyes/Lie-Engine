@@ -1,0 +1,94 @@
+{
+  "kind": "LIE11 original GPU coded irradiance plus 96 source-brick shadow proxies to LIE33 865-node scan wall",
+  "source_title": "Stratford New Place Brick Ver 2",
+  "source_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "source_original_triangles": 500000,
+  "original_meshes_rendered": 0,
+  "bricks": 96,
+  "coarse_spatial_boxes": 1,
+  "wall_render_instances": 1,
+  "light_nodes": 865,
+  "gpu_direct_shadow_proxies": 96,
+  "direct_shadow_ab_isolated_from_wall_core": true,
+  "micro_patches_per_brick": 9,
+  "two_conservative_bounces": true,
+  "native_output_pixels": [
+    1080,
+    1080
+  ],
+  "software_Vulkan": true,
+  "real_hardware_GPU_fps_measured": false,
+  "photo_reference_AB_passed": false,
+  "lod_hero_samples": 404564,
+  "lod_distant_samples": 24754,
+  "light_updates": 7,
+  "transport_frames": 231,
+  "views": {
+    "neutral": {
+      "filename": "LIE-WALL02-MicroLight-Neutral.png",
+      "sha256": "7ee134dc23663a39ec99c988e3cd76ad5c6ce4beb5166f4dbeca80a84f641418",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        78.8876953125,
+        63.279666900634766,
+        53.50575637817383
+      ],
+      "mean_luminance": 65.89225771473814
+    },
+    "warm_raking": {
+      "filename": "LIE-WALL02-MicroLight-warm_raking.png",
+      "sha256": "4b9c6a79095d91fbd55df40a1a7848c24972de67ebfa1348a65ad4827941d5fa",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        77.70516204833984,
+        51.90575408935547,
+        33.94477462768555
+      ],
+      "mean_luminance": 56.09392409610498
+    },
+    "cool_ambient": {
+      "filename": "LIE-WALL02-MicroLight-cool_ambient.png",
+      "sha256": "0669188fe16b9151237aca57ba140e36191eb97790a9054b27c3745eed61b0d6",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        58.36067199707031,
+        58.383453369140625,
+        58.73640823364258
+      ],
+      "mean_luminance": 58.40409296082216
+    },
+    "warm_raking_no_direct_shadows": {
+      "filename": "LIE-WALL02-MicroLight-warm_raking_no_direct_shadows.png",
+      "sha256": "02344c401a53b0afd0b8792c5050d7b4af3916bbb471a0a2627d4335e26ec993",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        95.941650390625,
+        65.58149719238281,
+        43.48653793334961
+      ],
+      "mean_luminance": 70.44072819448685
+    },
+    "absorbed": {
+      "filename": "LIE-WALL02-MicroLight-Absorption60.png",
+      "sha256": "e22878136672097bca6a1afdf79153e5034e0d958b38f0bba794b8459f1bbe3d",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        38.82666778564453,
+        38.84632110595703,
+        39.12483596801758
+      ],
+      "mean_luminance": 38.86225138604998
+    },
+    "closer_detail": {
+      "filename": "LIE-WALL02-MicroLight-real_scan_closeup.png",
+      "sha256": "593cb276ceae4b3f9840e5f982dbfae3d792ec73566ff936da85590f264998c7",
+      "opaque_pixels": 358665,
+      "mean_rgb": [
+        87.48263549804688,
+        70.9300308227539,
+        60.37411117553711
+      ],
+      "mean_luminance": 73.6889542375197
+    }
+  }
+}

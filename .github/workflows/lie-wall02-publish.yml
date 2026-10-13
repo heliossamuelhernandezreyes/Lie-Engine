@@ -1,0 +1,82 @@
+name: Publish verified LIE-WALL02 real scan micro-light master
+on:
+  push:
+    branches: ["experiment/lie-wall02-micro-light-shadows"]
+    paths: [".github/workflows/lie-wall02-publish.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  persist-verified-micro-wall:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build deterministic real-scan wall from source with SHA verified
+        run: |
+          python -m pip install numpy pillow
+          python tools/lie_brick02_restore.py
+          python tools/lie_wall01_bake.py --output gpu_compute/captures/liewall02
+      - name: Retrieve native Godot Vulkan isolated direct-shadow and micro light evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/lie-wall02-proof
+          gh run download 38353380788 --repo ${{ github.repository }} --name lie-wall02-real-scan-micro-irradiance-and-shadow-evidence --dir /tmp/lie-wall02-proof
+          find /tmp/lie-wall02-proof -type f -printf '%P %s bytes\n' | sort | head -30
+      - name: Validate original CC BY source, 865-node light codes and five+ genuine captures
+        run: |
+          mkdir -p gpu_compute/assets/lie_wall02 evidence
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,zlib
+          root=Path('gpu_compute/captures/liewall02')
+          measured=Path('/tmp/lie-wall02-proof/home/runner/work/Lie-Engine/Lie-Engine/gpu_compute/captures/liewall02')
+          output=Path('gpu_compute/assets/lie_wall02')
+          evidence=Path('/tmp/lie-wall02-proof/tmp/lie-wall02-native')
+          cat=json.loads((root/'catalog.json').read_text())
+          proven=json.loads(Path('gpu_compute/assets/lie_brick02/source_provenance.json').read_text())
+          other=json.loads((measured/'catalog.json').read_text())
+          raw=(root/'library.bin').read_bytes()
+          node_codes=(root/'light-model.json').read_bytes()
+          assert cat['sha256']==other['sha256']=='510cb9111da9fb8878f3a956288f3fe00c85a056a9e32397fe425c32ca4b0eb0'
+          assert hashlib.sha256(raw).hexdigest()==cat['sha256']
+          assert cat['sample_count']==560866 and cat['source_original_triangles']==500000
+          assert cat['lighting']['node_count']==865 and cat['lighting']['direct_shadow_occluders']==96
+          assert cat['collision']['spatial_envelope_count']==1 and cat['original_meshes_drawn'] is False
+          assert cat['source_scan_sha256']==proven['expected_sha256']
+          assert proven['license']=='CC BY 4.0'
+          print('CANONICAL RGB NODE SHA',cat['lighting']['sha256'],flush=True)
+          assert hashlib.sha256(node_codes).hexdigest()==cat['lighting']['sha256']
+          assert hashlib.sha256((measured/'light-model.json').read_bytes()).hexdigest()==cat['lighting']['sha256']=="e5d911c89f9192f361fde626ac9cdd69552aebbfec766c30c24ec8cfab9b4e4e"
+          report=json.loads((evidence/'LIE-WALL02-native-validation.json').read_text())
+          assert report['bricks']==96 and report['light_nodes']==865 and report['gpu_direct_shadow_proxies']==96
+          assert report['direct_shadow_ab_isolated_from_wall_core'] is True
+          assert report['coarse_spatial_boxes']==1 and report['wall_render_instances']==1
+          assert len(report['views'])>=6
+          assert report['views']['warm_raking_no_direct_shadows']['mean_luminance']>report['views']['warm_raking']['mean_luminance']
+          for key,entry in report['views'].items():
+            image=evidence/entry['filename']
+            assert hashlib.sha256(image.read_bytes()).hexdigest()==entry['sha256'],key
+            (Path('evidence')/entry['filename']).write_bytes(image.read_bytes())
+          (Path('evidence')/'LIE-WALL02-native-validation.json').write_bytes((evidence/'LIE-WALL02-native-validation.json').read_bytes())
+          (output/'wall_bank.zlib').write_bytes(zlib.compress(raw,9))
+          (output/'light-model.json').write_bytes(node_codes)
+          (output/'catalog.json').write_bytes((root/'catalog.json').read_bytes())
+          (output/'source_provenance.json').write_bytes(Path('gpu_compute/assets/lie_brick02/source_provenance.json').read_bytes())
+          print('LIE-WALL02 VERIFIED',cat['sha256'],'compressed',(output/'wall_bank.zlib').stat().st_size)
+          PY
+          python tools/lie_wall02_restore.py
+      - name: Publish licensed scanned wall and exact native Vulkan screenshots
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f gpu_compute/assets/lie_wall02/wall_bank.zlib gpu_compute/assets/lie_wall02/light-model.json gpu_compute/assets/lie_wall02/catalog.json gpu_compute/assets/lie_wall02/source_provenance.json
+          git add evidence/LIE-WALL02-MicroLight-*.png evidence/LIE-WALL02-native-validation.json
+          if git diff --cached --quiet; then
+            echo "Identical SHA-verified LIE-WALL02 master already persisted"
+          else
+            git commit -m "LIE-WALL02: 865 real-scan micro-light nodes, 96 GPU visibility proxies, one envelope, validated Vulkan A/B [skip ci]"
+            git push origin HEAD:experiment/lie-wall02-micro-light-shadows
+          fi
