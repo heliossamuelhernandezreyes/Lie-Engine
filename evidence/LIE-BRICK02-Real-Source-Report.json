@@ -1,0 +1,10 @@
+{
+  "original_asset": "https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a",
+  "dataset": "https://huggingface.co/datasets/allenai/objaverse",
+  "sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "bytes": 20324708,
+  "license": "CC BY 4.0",
+  "source_file": "/tmp/lie-brick02-original/6077f6801089403993f6a6612ff5739a.glb",
+  "source_is_original_dataset_glb": true,
+  "mesh_geometry_processed": false
+}

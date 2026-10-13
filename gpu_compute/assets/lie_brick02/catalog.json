@@ -1,0 +1,108 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 281000,
+  "bytes": 22480000,
+  "sha256": "fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb",
+  "masters": {
+    "brick_full": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 220000
+        },
+        {
+          "start": 220000,
+          "count": 52000
+        },
+        {
+          "start": 272000,
+          "count": 9000
+        }
+      ],
+      "bounds_size": [
+        0.2092,
+        0.08342225992271486,
+        0.12561716695002104
+      ],
+      "origin_offset": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "collision_proxy": "one invisible BoxShape3D"
+    }
+  },
+  "source_title": "Stratford New Place Brick Ver 2",
+  "source_author": "Centre-of-Archaeology",
+  "source_url": "https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a",
+  "license": "CC BY 4.0",
+  "source_capture_kind_declared": "structured-light 3D scan (heritage publisher description)",
+  "source_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "expected_source_sha_verified": true,
+  "source_original_triangles": 500000,
+  "source_original_vertices": 357956,
+  "source_mesh_drawn": false,
+  "source_3d_shape_used": true,
+  "source_photo_texture_uv_used": false,
+  "source_vertex_colors_used": true,
+  "source_color_representation": "glTF COLOR_0 linear vertex RGB",
+  "brick_measurement_m": 0.2032,
+  "source_bbox_m": [
+    0.2032,
+    0.07742225992271486,
+    0.11961716695002103
+  ],
+  "envelope_size_m": [
+    0.2092,
+    0.08342225992271486,
+    0.12561716695002104
+  ],
+  "permutation_source_to_lie": [
+    0,
+    2,
+    1
+  ],
+  "collision_proxy_count_per_active_brick": 1,
+  "not_certified_photogrammetry_just_by_import": true,
+  "hero_quality_accepted": false,
+  "photo_reference_ab_test_passed": false,
+  "lod_reports": [
+    {
+      "lod": 0,
+      "samples": 220000,
+      "normal_directions": {
+        "+x": 19100,
+        "-x": 20153,
+        "+y": 68499,
+        "-y": 68621,
+        "+z": 40275,
+        "-z": 35832
+      }
+    },
+    {
+      "lod": 1,
+      "samples": 52000,
+      "normal_directions": {
+        "+x": 4484,
+        "-x": 4814,
+        "+y": 16166,
+        "-y": 16126,
+        "+z": 9568,
+        "-z": 8463
+      }
+    },
+    {
+      "lod": 2,
+      "samples": 9000,
+      "normal_directions": {
+        "+x": 814,
+        "-x": 809,
+        "+y": 2798,
+        "-y": 2837,
+        "+z": 1617,
+        "-z": 1437
+      }
+    }
+  ]
+}
