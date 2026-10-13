@@ -14,7 +14,9 @@ ROOT=Path(__file__).resolve().parents[1]
 def validate(directory: Path) -> dict:
     catalog=json.loads((ROOT/"gpu_compute/captures/liebrick02/catalog.json").read_text())
     assert catalog["source_3d_shape_used"] and catalog["source_photo_texture_uv_used"]
-    assert catalog["source_capture_kind_declared"].startswith("synthetic")
+    is_real = not catalog["source_capture_kind_declared"].startswith("synthetic")
+    if is_real and (catalog["source_original_triangles"] < 10000 or not catalog["expected_source_sha_verified"]):
+        raise AssertionError("High-poly real-source gate was not met")
     assert not catalog["hero_quality_accepted"]
     assert len(catalog["masters"]["brick_full"]["levels"])==3
     assert catalog["collision_proxy_count_per_active_brick"]==1
@@ -47,7 +49,8 @@ def validate(directory: Path) -> dict:
     }.items():
         resp=request({"op":"set_values","values":settings})
         assert resp["result"]["ok"],resp
-        image=request({"op":"capture","kind":"compositor","filename":f"LIE-BRICK02-SYNTHETIC-{name}.png"})
+        label = "REAL" if is_real else "SYNTHETIC"
+        image=request({"op":"capture","kind":"compositor","filename":f"LIE-BRICK02-{label}-{name}.png"})
         assert image["result"]["ok"],image
         path=Path(image["result"]["path"])
         with Image.open(path) as im:
@@ -63,8 +66,10 @@ def validate(directory: Path) -> dict:
     assert after["metrics"]["lod"]==2,after["metrics"]
     assert after["metrics"]["sample_invocations"]==catalog["masters"]["brick_full"]["levels"][2]["count"]
     report={
-        "result":"native smoke passed" ,"source":"SYNTHETIC_GLTF_NOT_PHOTOGRAMMETRY",
+        "result":"native smoke passed" ,"source":("REAL_ORIGINAL_LICENSED_DATASET_GLTF" if is_real else "SYNTHETIC_GLTF_NOT_PHOTOGRAMMETRY"),
         "original_source_triangles":catalog["source_original_triangles"],
+        "original_source_SHA256":catalog["source_sha256"],
+        "publisher":catalog["source_author"],"license":catalog["license"],
         "captured_samples":catalog["sample_count"],
         "source_meshes_drawn":0, "one_invisible_box":True,
         "native_resolution":[1080,1080],"software_Vulkan":True,
