@@ -1,0 +1,68 @@
+name: LIE-WALL02 real scan micro-light precision and GPU shadow rays
+on:
+  push:
+    branches: ["experiment/lie-wall02-micro-light-shadows"]
+    paths:
+      - '.github/workflows/lie-wall02-micro.yml'
+      - 'tools/lie_wall01_bake.py'
+      - 'tools/lie_wall02_*'
+      - 'tests/test_lie_wall02_micro.py'
+      - 'gpu_compute/lie_wall02_*'
+      - 'gpu_compute/shaders/lie_wall02_transport.glsl'
+      - 'gpu_compute/lie_wall01_coded_lab.gd'
+      - 'gpu_compute/workshop/lie_agent_session.gd'
+      - 'tools/lie_agent_launch.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native-real-micro-light:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install scientific reference and Vulkan software GPU
+        run: |
+          python -m pip install numpy pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Recover actual published 500K-scan master from SHA lock
+        run: python tools/lie_brick02_restore.py
+      - name: Bake micro-node wall from genuine scan COLOR_0, verify irradiance conservation
+        run: |
+          python tools/lie_wall01_bake.py --output gpu_compute/captures/liewall02
+          python -m unittest discover -s tests -p 'test_lie_wall02_micro.py' -v
+      - name: Import and syntax-check original GPU LIE11 extended visibility shader
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie_wall02_coded_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          contents=Path("import.log").read_text()
+          assert "SCRIPT ERROR:" not in contents,contents[-16000:]
+          PY
+      - name: Native Vulkan: micro lighting, 96 GPU shadow rays, light RGB and absorption
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab liewall02 --directory /tmp/lie-wall02-native --audio-driver Dummy
+            python tools/lie_wall02_native_smoke.py --directory /tmp/lie-wall02-native
+          '
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-wall02-real-scan-micro-irradiance-and-shadow-evidence
+          path: |
+            import.log
+            gpu_compute/captures/liewall02/catalog.json
+            gpu_compute/captures/liewall02/light-model.json
+            /tmp/lie-wall02-native/*.png
+            /tmp/lie-wall02-native/*.json
+            /tmp/lie-wall02-native/godot.log
+          if-no-files-found: warn
