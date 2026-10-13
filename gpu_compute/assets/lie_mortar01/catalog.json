@@ -1,23 +1,23 @@
 {
   "schema": "lie-mortar01/experimental/1.0",
   "stride": 80,
-  "sample_count": 154610,
-  "bytes": 12368800,
-  "sha256": "5469c13237a1505cf6bf343ea65062a015cb43f30fe24ed166c79dccb813393d",
+  "sample_count": 101919,
+  "bytes": 8153520,
+  "sha256": "8ad8d3757503bc683d6a0ea68e30807deba93ac4b6674be8d9b70f1a9a34fb88",
   "levels": [
     {
       "start": 0,
-      "count": 113433,
+      "count": 76286,
       "spacing_m": 0.0012
     },
     {
-      "start": 113433,
-      "count": 28549,
+      "start": 76286,
+      "count": 19238,
       "spacing_m": 0.0024
     },
     {
-      "start": 141982,
-      "count": 12628,
+      "start": 95524,
+      "count": 6395,
       "spacing_m": 0.0036
     }
   ],
@@ -36,6 +36,28 @@
   "photographic_joint_masks_reviewed": false,
   "source_height_is_metric": false,
   "relative_relief_gain_m": 0.0015,
+  "flush_mortar_experiment": {
+    "visible_mortar_width_m": 0.006,
+    "structural_mortar_gap_m": 0.0085,
+    "edge_protection_m": 0.0005,
+    "radius_scale": 0.8,
+    "support_scale": 0.51,
+    "max_back_relief_m": 0.0008,
+    "max_forward_relief_m": 0.0,
+    "measured_front_plane_z_m": 0.05780136454850435,
+    "front_plane_source": {
+      "method": "97.5th percentile Z of actual +Z-facing scanned brick samples",
+      "source_front_samples": 53719,
+      "source_front_z_p10_m": 0.033151138573884964,
+      "source_front_z_median_m": 0.0438518263399601,
+      "source_front_z_p90_m": 0.053329445421695716,
+      "source_front_z_p975_m": 0.05780136454850435,
+      "legacy_recessed_mortar_plane_z_m": 0.0563086,
+      "local_per_brick_flush_verified": false
+    },
+    "width_6mm_in_8point5mm_leaves_open_unfilled_margin": true,
+    "product_quality_accepted": false
+  },
   "workshop_only_not_renderer_accepted": true,
   "lighting_node_range": [
     864,

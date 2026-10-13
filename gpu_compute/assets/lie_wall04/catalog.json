@@ -1,29 +1,29 @@
 {
   "schema": 1,
   "stride": 80,
-  "sample_count": 686450,
-  "bytes": 54916000,
-  "sha256": "43ccbe30192a1e78a5fe185c53586a5da98fc4ba01ef9f30f6bb9a48e6ea5617",
+  "sample_count": 633759,
+  "bytes": 50700720,
+  "sha256": "e6096309750aefc9cbf07a2b893d6092e2fb8e8270e77b4eac9aa51312ec28ad",
   "masters": {
     "real_scan_wall": {
       "levels": [
         {
           "start": 0,
-          "count": 497433,
+          "count": 460286,
           "scanned_original_brick_samples": 384000,
-          "captured_mortar_samples": 113433
+          "captured_mortar_samples": 76286
         },
         {
-          "start": 497433,
-          "count": 153349,
+          "start": 460286,
+          "count": 144038,
           "scanned_original_brick_samples": 124800,
-          "captured_mortar_samples": 28549
+          "captured_mortar_samples": 19238
         },
         {
-          "start": 650782,
-          "count": 35668,
+          "start": 604324,
+          "count": 29435,
           "scanned_original_brick_samples": 23040,
-          "captured_mortar_samples": 12628
+          "captured_mortar_samples": 6395
         }
       ],
       "bounds_size": [
@@ -77,9 +77,9 @@
       "procedural_joint_surface_only": true
     },
     "mortar_samples_per_lod": [
-      113433,
-      28549,
-      12628
+      76286,
+      19238,
+      6395
     ],
     "scanned_brick_xyz_and_colors_unchanged": true
   },
@@ -115,7 +115,7 @@
       "f536bdf82f969377d232f3fdd26b7cc6a80677ef7761640b079636da536ad082"
     ],
     "wall03_original_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
-    "mortar01_sha256": "5469c13237a1505cf6bf343ea65062a015cb43f30fe24ed166c79dccb813393d",
+    "mortar01_sha256": "8ad8d3757503bc683d6a0ea68e30807deba93ac4b6674be8d9b70f1a9a34fb88",
     "mortar01_cc0_source_maps": {
       "color": "a7b3cfd953d8b71b54dd53e5f0409d1b83e5f10a228f5da2e5be15429a230ac8",
       "normal_gl": "7db17a8452c59f0a46170103f14e7e2e4b04e02357f8e097666f671e52816a4c",

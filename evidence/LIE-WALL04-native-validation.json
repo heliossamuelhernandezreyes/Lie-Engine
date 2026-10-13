@@ -1,8 +1,8 @@
 {
   "scenario": "Native Godot Vulkan: authentic scanned original bricks + photographed unreviewed XYZ mortar samples",
   "source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
-  "mortar_source_sha256": "5469c13237a1505cf6bf343ea65062a015cb43f30fe24ed166c79dccb813393d",
-  "combined_bank_sha256": "43ccbe30192a1e78a5fe185c53586a5da98fc4ba01ef9f30f6bb9a48e6ea5617",
+  "mortar_source_sha256": "8ad8d3757503bc683d6a0ea68e30807deba93ac4b6674be8d9b70f1a9a34fb88",
+  "combined_bank_sha256": "e6096309750aefc9cbf07a2b893d6092e2fb8e8270e77b4eac9aa51312ec28ad",
   "source_triangles_drawn": 0,
   "spatial_envelopes": 1,
   "scanned_bricks": 96,
@@ -13,36 +13,36 @@
   "physical_android_gpu_tested": false,
   "mesa_vulkan_is_not_mobile_performance": true,
   "sample_counts": [
-    497433,
-    153349,
-    35668
+    460286,
+    144038,
+    29435
   ],
   "captured_real_vulkan_pngs": {
     "neutral": {
       "file": "LIE-WALL04-CapturedMortar-Neutral.png",
-      "sha256": "3523f3ad246e5b6e4605a1f7806e8b87c9638b4e7d9f472694cd33d00ddf94d5",
-      "occupied_pixels": 321876,
-      "empty_enclosed_single_pixel_holes": 0,
+      "sha256": "abe24100eed87a361c8c619ec2af52be50aa338c318c23e7cb757e19cebfcaa7",
+      "occupied_pixels": 326765,
+      "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        100.07684946998224,
-        81.96203196261915,
-        69.66555133032597
+        99.10131440025707,
+        80.80770278334583,
+        68.64207610974248
       ],
-      "mean_luminance": 84.92543626303296,
-      "black_opaque_pixels": 58995
+      "mean_luminance": 83.818566367267,
+      "black_opaque_pixels": 64439
     },
     "raking": {
       "file": "LIE-WALL04-CapturedMortar-Raking.png",
-      "sha256": "e5212f64eef721e6081c4106f8a4785277cadaacfc514d1839558774b43290ae",
-      "occupied_pixels": 321876,
-      "empty_enclosed_single_pixel_holes": 0,
+      "sha256": "f2cf7189d87612169cfb518138d8062f630c161fb4f059799ad2757b20c7060a",
+      "occupied_pixels": 326765,
+      "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        93.31652561856119,
-        62.42551479451714,
-        40.52101741043135
+        92.96879714779735,
+        62.05372056370786,
+        40.318029776750876
       ],
-      "mean_luminance": 67.41143898457791,
-      "black_opaque_pixels": 59044
+      "mean_luminance": 67.056948970667,
+      "black_opaque_pixels": 64504
     }
   }
 }
