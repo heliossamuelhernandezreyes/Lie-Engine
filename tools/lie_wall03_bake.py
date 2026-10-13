@@ -81,6 +81,24 @@ def build(source: Path=legacy.SOURCE,destination: Path=DEST) -> dict:
     })
     catalog["wall_layout"]["mortar_recess_m"]=MORTAR_RECESS_M
     catalog["wall_layout"]["mortar_nodes_by_row"]=True
+    # GPU analytic joint coverage is spatially clipped to the actual
+    # brick layout (NOT to a six-face visible box). Pixel RGB still comes
+    # from the SAME original LIE11 mortar irradiance node as baked samples.
+    gap=float(catalog["wall_layout"]["mortar_gap_m"])
+    catalog["wall_layout"]["mortar_shader_layout"]={
+        "brick_length_m":float(brick_dims[0]),
+        "brick_height_m":float(brick_dims[1]),
+        "pitch_x_m":float(brick_dims[0]+gap),
+        "pitch_y_m":float(brick_dims[1]+gap),
+        "first_brick_x_m":float(bricks[0]["center"][0]),
+        "first_brick_y_m":float(bricks[0]["center"][1]),
+        "mortar_plane_z_m":float(model["patches"][MORTAR_FIRST]["position"][2]),
+        "running_bond_stagger_fraction":0.5,
+        "rows":legacy.ROWS,"columns":legacy.COLS,
+        "procedural_joint_surface_only":True,
+    }
+    catalog["lighting"]["gpu_joint_coverage"]="ray intersect mortar recess; reject every nominal scan brick footprint; use per-row LIE11 light code"
+
     catalog["wall_layout"]["mortar_samples_per_lod"]=mortar_counts
     catalog["wall_layout"]["scanned_brick_xyz_and_colors_unchanged"]=True
     catalog["hero_quality_accepted"]=False
