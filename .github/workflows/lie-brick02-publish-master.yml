@@ -1,0 +1,61 @@
+name: Publish LIE-BRICK02 verified real-scanned master
+on:
+  push:
+    branches: ["experiment/lie-brick02-real-scan-import"]
+    paths: [".github/workflows/lie-brick02-publish-master.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-verified-master:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download verified actual original-scan Vulkan artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/liebrick02-verified
+          gh run download 38344802311 --repo ${{ github.repository }} --name lie-brick02-licensed-real-scan-native-vulkan --dir /tmp/liebrick02-verified
+          find /tmp/liebrick02-verified -type f -printf '%P %s bytes\n' | sort | head -30
+      - name: Verify original scan SHA, published sample bank and artist attribution
+        run: |
+          mkdir -p gpu_compute/assets/lie_brick02 evidence
+          SOURCE="/tmp/liebrick02-verified/tmp/lie-brick02-original"
+          ORIGINAL="/tmp/liebrick02-verified/home/runner/work/Lie-Engine/Lie-Engine/gpu_compute/captures/liebrick02"
+          PROOF="/tmp/liebrick02-verified/tmp/lie-brick02-native-real"
+          test -f "$ORIGINAL/real_brick_bank.zlib"
+          test -f "$ORIGINAL/catalog.json"
+          test -f "$PROOF/LIE-BRICK02-REAL-three_quarter.png"
+          cp "$ORIGINAL/real_brick_bank.zlib" gpu_compute/assets/lie_brick02/
+          cp "$ORIGINAL/catalog.json" gpu_compute/assets/lie_brick02/
+          cp "$SOURCE/provenance.json" gpu_compute/assets/lie_brick02/source_provenance.json
+          cp "$SOURCE/acquisition-report.json" evidence/LIE-BRICK02-Real-Source-Report.json
+          cp "$PROOF/LIE-BRICK02-REAL-"*.png evidence/
+          cp "$PROOF/LIE-BRICK02-validation.json" evidence/
+          python - <<'PY'
+          import json,hashlib,pathlib
+          source=pathlib.Path('/tmp/liebrick02-verified/tmp/lie-brick02-original/6077f6801089403993f6a6612ff5739a.glb')
+          meta=json.loads(pathlib.Path('gpu_compute/assets/lie_brick02/catalog.json').read_text())
+          provenance=json.loads(pathlib.Path('gpu_compute/assets/lie_brick02/source_provenance.json').read_text())
+          assert hashlib.sha256(source.read_bytes()).hexdigest()==provenance['expected_sha256']==meta['source_sha256']
+          assert meta['source_original_triangles']==500000 and meta['source_original_vertices']==357956
+          assert meta['source_vertex_colors_used'] and meta['source_mesh_drawn'] is False
+          assert provenance['license']=='CC BY 4.0'
+          print('ORIGINAL VERIFIED:',provenance['source_url'],hashlib.sha256(source.read_bytes()).hexdigest())
+          PY
+          python tools/lie_brick02_restore.py
+      - name: Persist independently reproducible LIE samples and real native images
+        run: |
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add -f gpu_compute/assets/lie_brick02/real_brick_bank.zlib gpu_compute/assets/lie_brick02/catalog.json gpu_compute/assets/lie_brick02/source_provenance.json
+          git add evidence/LIE-BRICK02-REAL-*.png evidence/LIE-BRICK02-validation.json evidence/LIE-BRICK02-Real-Source-Report.json
+          if git diff --cached --quiet; then
+            echo "Identical real scan master already persisted"
+          else
+            git commit -m "LIE-BRICK02: licensed 500k-triangle original scan, 281k LIE samples and native Vulkan evidence [skip ci]"
+            git push origin HEAD:experiment/lie-brick02-real-scan-import
+          fi
