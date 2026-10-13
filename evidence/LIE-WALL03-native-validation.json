@@ -1,0 +1,113 @@
+{
+  "scenario": "True Godot Vulkan LIE11 injected light, scanned COLOR_0 bricks, optional safe GPU hole fill",
+  "original_source_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "source_original_triangles": 500000,
+  "source_geometry_drawn": 0,
+  "bricks": 96,
+  "spatial_envelopes": 1,
+  "wall_instances": 1,
+  "light_nodes": 872,
+  "mortar_nodes": 8,
+  "light_only_shadow_proxies": 96,
+  "vulkan_image_resolution": [
+    1080,
+    1080
+  ],
+  "device_type": "software Vulkan Mesa on GitHub Actions",
+  "physical_android_fps_measured": false,
+  "source_photo_AB_performed": false,
+  "coverage_on": {
+    "coverage_enabled": true,
+    "frame_count": 3,
+    "full_resolution_hole_dispatches": 3,
+    "gpu_allocation_MiB": 495.1552276611328,
+    "gpu_timestamps_available": true,
+    "min_gpu_ms": 1188.832213,
+    "p50_gpu_ms": 1237.969869,
+    "p95_gpu_ms": 1237.969869,
+    "sample_count": 2
+  },
+  "coverage_off": {
+    "coverage_enabled": false,
+    "frame_count": 2,
+    "full_resolution_hole_dispatches": 2,
+    "gpu_allocation_MiB": 495.1552276611328,
+    "gpu_timestamps_available": true,
+    "min_gpu_ms": 1188.832213,
+    "p50_gpu_ms": 1188.832213,
+    "p95_gpu_ms": 1188.832213,
+    "sample_count": 1
+  },
+  "lod_samples": [
+    404564,
+    131548,
+    24754
+  ],
+  "captures": {
+    "coverage_off": {
+      "file": "LIE-WALL03-SameLight-CoverageOFF.png",
+      "sha256": "85a199e3aad229d7c7d1d11490ea84beae7e18be9f258a1a23b435c395ba1355",
+      "occupied_pixels": 345315,
+      "empty_enclosed_single_pixel_holes": 4,
+      "mean_rgb": [
+        106.77133631611717,
+        89.38680335345988,
+        77.68964278991645
+      ],
+      "mean_luminance": 92.23822006863298,
+      "black_opaque_pixels": 55254
+    },
+    "coverage_on": {
+      "file": "LIE-WALL03-SameLight-CoverageON.png",
+      "sha256": "2b7e9bb9e0a01bdace335980434f72d07bb0c89d1d014acc070c29aad5cb888e",
+      "occupied_pixels": 357055,
+      "empty_enclosed_single_pixel_holes": 0,
+      "mean_rgb": [
+        106.18113455910154,
+        89.10110487179847,
+        77.5510327540575
+      ],
+      "mean_luminance": 91.8984039764182,
+      "black_opaque_pixels": 57951
+    },
+    "warm_raking": {
+      "file": "LIE-WALL03-WarmRaking.png",
+      "sha256": "d3fe984492fea541cf6b32baa22233c064647162586d101d3599ba6774f9eb2e",
+      "occupied_pixels": 197976,
+      "empty_enclosed_single_pixel_holes": 1,
+      "mean_rgb": [
+        95.53500424293854,
+        65.89672990665535,
+        44.10970016567665
+      ],
+      "mean_luminance": 70.62480348325049,
+      "black_opaque_pixels": 32812
+    },
+    "cool": {
+      "file": "LIE-WALL03-CoolLight.png",
+      "sha256": "7011bc60c74c93d3d9255659e9381d78221739e2c4335d9dd9ef76e4cf3bf671",
+      "occupied_pixels": 197976,
+      "empty_enclosed_single_pixel_holes": 1,
+      "mean_rgb": [
+        71.09911807491817,
+        74.35503798440214,
+        76.60515921121753
+      ],
+      "mean_luminance": 73.82528816422192,
+      "black_opaque_pixels": 32481
+    },
+    "absorption60": {
+      "file": "LIE-WALL03-ClayAbsorption60.png",
+      "sha256": "ef405a1948d15dc9e8ded0858641318cb911dc149a99c213189cea00cd95714a",
+      "occupied_pixels": 197976,
+      "empty_enclosed_single_pixel_holes": 1,
+      "mean_rgb": [
+        52.68625995070109,
+        55.976396128823694,
+        58.17548086636764
+      ],
+      "mean_luminance": 55.4356870954055,
+      "black_opaque_pixels": 33462
+    }
+  }
+}
