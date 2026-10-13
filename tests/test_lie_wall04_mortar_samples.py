@@ -101,7 +101,7 @@ class Wall04SamplesTest(unittest.TestCase):
         np.testing.assert_array_less(strip[:,17],strip[:,19])
         self.assertAlmostEqual(float(strip[0,3]),.0012*SPLAT_RADIUS_SCALE,places=7)
         self.assertAlmostEqual(VISIBLE_MORTAR_WIDTH_M,.0060)
-        self.assertAlmostEqual(SUPPORT_SCALE,.36)
+        self.assertAlmostEqual(SUPPORT_SCALE,.51)
 
     def test_invalid_source_layout_fails_closed(self):
         donor=SyntheticDonor()
