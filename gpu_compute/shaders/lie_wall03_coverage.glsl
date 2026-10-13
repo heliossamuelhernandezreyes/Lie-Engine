@@ -31,6 +31,14 @@ layout(rgba32f,set=0,binding=14) uniform readonly image2D injected_node_irradian
 layout(set=0,binding=15,std430) readonly buffer InjectedMaterialCodes {
     vec4 values[];
 } injected_material_codes;
+/* 48 immutable bytes derived from real brick layout. Geometry remains source
+   LIE samples, NOT faces of the coarse invisible spatial envelope. */
+layout(set=0,binding=16,std430) readonly buffer WallJointLayout {
+    vec4 dimensions; // real brick X length, Y height, x pitch, y pitch
+    vec4 origin;     // first brick X/Y, recessed mortar plane Z, row stagger
+    vec4 config;     // column count, row count, nominal mortar gap, enabled
+} joint;
+
 layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
 const float PI=3.141592653589793;
 const uint EMPTY=0xffffffffu;
@@ -97,6 +105,50 @@ vec3 material_color(Sample s,Instance inst) {
     uint id=uint(max(inst.meta.x,0))+uint(max(s.attributes.y,0));
     float v=(variation(id)-.5)*parameters.wall.w;
     return clamp(s.albedo.rgb*inst.tint.rgb*(1+v),vec3(0),vec3(1));
+}
+
+vec4 real_joint_light(ivec2 pixel) {
+    // A missing color pixel may be a hole INSIDE a scanned brick (do not
+    // fabricate its geometry) or a bona fide physical mortar joint.
+    // Intersect a screen ray with the separate recessed procedural mortar
+    // plane and reject every measured brick nominal XY footprint.
+    vec2 uv=(vec2(pixel)+vec2(.5))/vec2(parameters.counts.zw);
+    vec3 ray=parameters.forward.xyz +
+        parameters.right.xyz*((2.*uv.x-1.)*parameters.lens.x)+
+        parameters.up.xyz*((1.-2.*uv.y)*parameters.lens.x);
+    if(abs(ray.z)<1e-7) return vec4(0);
+    float t=(joint.origin.z-parameters.eye.z)/ray.z;
+    float camera_depth=t*dot(ray,parameters.forward.xyz);
+    if(t<=0. || camera_depth<=parameters.lens.z || camera_depth>=parameters.lens.w)
+        return vec4(0);
+    vec2 hit=(parameters.eye.xyz+ray*t).xy;
+    float pitch_x=joint.dimensions.z;
+    float pitch_y=joint.dimensions.w;
+    if(pitch_x<=0. || pitch_y<=0.) return vec4(0);
+    int r=int(round((hit.y-joint.origin.y)/pitch_y));
+    if(r<0 || r>=int(joint.config.y)) return vec4(0);
+    float stagger=mod(float(r),2.)*joint.origin.w*pitch_x;
+    float c0=joint.origin.x+stagger;
+    int col=int(round((hit.x-c0)/pitch_x));
+    if(col<0 || col>=int(joint.config.x)) return vec4(0);
+    vec2 delta=abs(hit-vec2(c0+float(col)*pitch_x,
+                             joint.origin.y+float(r)*pitch_y));
+    vec2 halfbrick=joint.dimensions.xy*.5;
+    // Never retexture the genuine scan, including its chipped edges.
+    // The safe inset also absorbs up to 1.5 mm of slightly rotated bricks.
+    if(all(lessThanEqual(delta,halfbrick+vec2(.0015)))) return vec4(0);
+    // Joints only: no phantom plane extending beyond the outer wall.
+    float margin=joint.config.z*.62;
+    if(any(greaterThan(delta,halfbrick+vec2(margin)))) return vec4(0);
+    uint node=864u+uint(r);
+    if(node>=uint(imageSize(injected_node_irradiance).x)) return vec4(0);
+    vec3 irradiance=max(imageLoad(injected_node_irradiance,
+                                 ivec2(int(node),0)).rgb,vec3(0));
+    float absorption=clamp(injected_material_codes.values[node*3u+2u].w,0.,1.);
+    // The mortar is explicitly PROCEDURAL. This is its neutral linear RGB
+    // base from the existing physical joint master, lit by LIE11 nodal codes.
+    vec3 mortar_albedo=vec3(.295,.273,.247);
+    return vec4(mortar_albedo*(1.-absorption)*irradiance/PI,1.);
 }
 
 void main() {
@@ -174,7 +226,19 @@ void main() {
         if(i>=uint(parameters.counts.z*parameters.counts.w)) return;
         ivec2 q=ivec2(int(i)%parameters.counts.z,int(i)/parameters.counts.z);
         vec4 base=imageLoad(output_image,q);
-        if(base.a>.5 || phase.value.z==0) {
+        if(base.a>.5) {
+            imageStore(specular_image,q,base);
+            return;
+        }
+        // Geometry-independent mortar joint coverage uses only the
+        // synthetic mortar's eight original LIE11 irradiance codes.
+        // Exactly the same operation in coverage-ON and coverage-OFF A/B.
+        vec4 mortar=real_joint_light(q);
+        if(mortar.a>.5) {
+            imageStore(specular_image,q,mortar);
+            return;
+        }
+        if(phase.value.z==0) {
             imageStore(specular_image,q,base);
             return;
         }
