@@ -18,7 +18,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/lie-mortar-proof
-          gh run download 38406210503 --repo "${{ github.repository }}" \
+          gh run download 38479117636 --repo "${{ github.repository }}" \
             --name lie-mortar01-authentic-source-unreviewed --dir /tmp/lie-mortar-proof
           find /tmp/lie-mortar-proof -type f | wc -l
       - name: Verify source 8K identity and label every result UNREVIEWED
@@ -59,15 +59,40 @@ jobs:
           assert not data['source_brick_pixels_eligible_for_bank']
           assert len(data['candidates'])>=4
           PY
+      - name: Validate mortar authoring source, 80-byte ABI and 96-brick collision safety
+        run: |
+          python -m pip install scipy
+          python -m unittest discover -s tests -p "test_lie_wall04_mortar_samples.py" -v
+          python tools/lie_wall04_bake.py             --derived /tmp/lie-mortar-proof/derived             --wall-catalog gpu_compute/assets/lie_wall03/catalog.json             --output /tmp/lie-mortar-proof/lie_mortar01             --allow-unreviewed
+          python - <<'PY'
+          import hashlib,json,pathlib,zlib,numpy as np
+          root=pathlib.Path('/tmp/lie-mortar-proof/lie_mortar01')
+          v=json.loads((root/'catalog.json').read_text())
+          raw=zlib.decompress((root/'mortar-bank.zlib').read_bytes())
+          samples=np.frombuffer(raw,dtype='<f4').reshape(-1,20)
+          assert hashlib.sha256(raw).hexdigest()==v['sha256']
+          assert len(raw)==v['sample_count']*80
+          assert len(v['levels'])==3
+          assert all(x['count']>1000 for x in v['levels'])
+          assert np.isfinite(samples).all()
+          assert np.ptp(samples[:,2])>0.00004
+          assert (samples[:,9].min(),samples[:,9].max())==(864.,871.)
+          assert v['collision']['spatial_envelope_count']==1
+          assert not v['photographic_joint_masks_reviewed']
+          assert v['workshop_only_not_renderer_accepted']
+          print('REAL photographed provisional 3D mortar sample bank',v['sample_count'],'SHA',v['sha256'],flush=True)
+          PY
       - name: Commit source lock, mask, overlay, aligned candidate crops and review report
         run: |
           BASE='assets/material_masters/mortar/hero/real_masonry_joint'
           mkdir -p "$BASE/source" "$BASE/derived"
           cp /tmp/lie-mortar-proof/source/source-lock.json "$BASE/source/source-lock.json"
           cp /tmp/lie-mortar-proof/derived/* "$BASE/derived/"
+          mkdir -p gpu_compute/assets/lie_mortar01
+          cp /tmp/lie-mortar-proof/lie_mortar01/* gpu_compute/assets/lie_mortar01/
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git config user.name 'github-actions[bot]'
-          git add -f "$BASE/source/source-lock.json" "$BASE/derived/"
+          git add -f "$BASE/source/source-lock.json" "$BASE/derived/" gpu_compute/assets/lie_mortar01/catalog.json gpu_compute/assets/lie_mortar01/mortar-bank.zlib
           if git diff --cached --quiet; then
             echo 'Identical photographic diagnostics were already persisted'
           else
