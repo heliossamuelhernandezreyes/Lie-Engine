@@ -69,6 +69,22 @@ func set_light_codes(model: Dictionary) -> void:
     _pending[1]=data
     _lock.unlock()
 
+## LIE-WALL-01 bridge: share the existing GPU-resident material code buffer
+## with the LIE33 consumer; no duplicate material or light transport algorithm.
+func material_codes_rid() -> RID:
+    return _buffers[0] if gpu_ready and _buffers.size()>0 else RID()
+
+func set_material_codes(model: Dictionary) -> bool:
+    # Same patch graph, only absorption/filter metadata changes. Form factors
+    # stay immutable and are NOT recomputed when codes change.
+    if not gpu_ready or not Model.valid(model) or model["patches"].size()!=_count:
+        return false
+    var data: PackedByteArray=Model.patch_bytes(model)
+    _lock.lock()
+    _pending[0]=data
+    _lock.unlock()
+    return true
+
 func _uniform(binding: int, rid: RID, image: bool=false) -> RDUniform:
     var u:=RDUniform.new()
     u.binding=binding
