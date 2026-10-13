@@ -28,9 +28,10 @@ var _connected: bool=false
 var _keyboard: Dictionary={}
 var _dragging: bool=false
 var _ui_time: float=0
+func create_effect(size: int) -> CompositorEffect:return Effect.new(size)
 func _ready() -> void:
     if not touch_mode:get_window().size=Vector2i(1280,800)
-    effect=Effect.new(512 if touch_mode else 768)
+    effect=create_effect(512 if touch_mode else 768)
     var world:=WorldEnvironment.new();var env:=Environment.new();env.background_mode=Environment.BG_COLOR;env.background_color=Color(.025,.035,.05);world.environment=env
     var compositor:=Compositor.new();compositor.compositor_effects=[effect];world.compositor=compositor;add_child(world)
     camera=Camera3D.new();camera.current=true;camera.near=.02;camera.far=40;camera.fov=44;add_child(camera)
@@ -203,7 +204,7 @@ func _apply() -> void:
     var values:=PackedFloat32Array([light.x,light.y,light.z,3276*state["light_power"],1,.94,.86,0,.5,.6,.75,state["exposure"],1 if state["shadows"] else 0,1,.003,.001])
     for v in [light_pose.basis.x,light_pose.basis.y,-light_pose.basis.z]:values.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     values.append_array(PackedFloat32Array([.638,.828,1,0,1,1,1,.10,1203,1,a,1 if not state["unlit"] else -1]));bytes.append_array(values.to_byte_array())
-    var configured: bool=effect.configure_robot(bytes,instances.to_byte_array(),jobs.to_byte_array(),work,_model["curves"].to_byte_array())
+    var configured: bool=effect.configure_robot(bytes,instances.to_byte_array(),jobs.to_byte_array(),work,_model["curves"].to_byte_array(),_model["parts"].size())
     _metrics={"configured":configured,"instances":parts.size(),"robot_instances":_model["parts"].size(),"environment_instances":_environment.size(),"sample_invocations":work,"lod":lod,"visible_source_meshes":0,"ik":_model["rig"]["ik"],"camera_fraction":actor.last_camera_fraction,"colliders":_collision_root.get_child_count() if _collision_root!=null else 0}
 func _physics_process(delta: float) -> void:
     if actor==null:return

@@ -45,6 +45,14 @@ func performance_snapshot() -> Dictionary:
         result["gpu_recent_p95_ms"]=values[maxi(int(ceil(values.size()*.95))-1,0)]
     return result
 
+func dispatch_reconstruction(_next: Dictionary,work: int) -> void:
+    var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
+    for stage in [1,2,3,4,6,7]:
+        var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
+        _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
+        _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
+    _rd.compute_list_end()
+
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
 func shader_resource() -> RDShaderFile:return ShaderFile
@@ -162,12 +170,8 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])
     update_extra_buffers(next)
     _rd.capture_timestamp("lie22-begin")
-    var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
-    for stage in [1,2,3,4,6,7]:
-        var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
-        _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
-        _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
-    _rd.compute_list_end();_rd.capture_timestamp("lie22-end")
+    dispatch_reconstruction(next,work)
+    _rd.capture_timestamp("lie22-end")
     _resident=signature;sample_invocations=work;instance_count=next["instances"].size()/96;frame_count+=1
 
 func request_readback() -> void:

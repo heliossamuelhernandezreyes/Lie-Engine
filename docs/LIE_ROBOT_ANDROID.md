@@ -7,12 +7,12 @@ production game. Source meshes remain collision-only and are not displayed.
 
 The APK is an offline ARM64 Android application, package
 `org.lieengine.robotdemo`, label **LIE R2 Robot**, version
-`0.1.2-r2-android-metrics` (version code 3). It updates the first signed APK
+`0.1.3-r2-partial-cache` (version code 4). It updates the first signed APK
 with the same certificate.
 Godot's 4.7.2 prebuilt template declares minimum API 24 and target API 36.
 Actual use needs a working Vulkan Mobile renderer. The owner supplied a real
-Poco X7 Pro report from 0.1.1; the new 0.1.2 Android CPU/PSS path still needs
-verification on that device. No sustained movement FPS is established.
+Poco X7 Pro reports from 0.1.1 and 0.1.2, confirming the Android CPU/PSS
+APIs work. The new 0.1.3 partial cache still needs phone verification.
 
 ## Controls
 
@@ -99,10 +99,11 @@ The panel now exposes **FPS bucle actual** and **FPS bucle ventana** from
 monotonic callback intervals, alongside Godot's differently windowed counter
 and actual LIE reconstruction count. Frame p50/p95 share the recent (at most
 600-interval) window. Callback rates are not a display-refresh measurement.
-The Android API path is compiled and checked against primary Godot/Android
-sources; its readings still require verification on the owner's phone. The
-existing scene was verified physically on 0.1.1; the new API path has not been
-run on a physical phone or emulator here.
+The owner subsequently supplied a 0.1.2 report with no Android API errors,
+valid CPU and 1.10 GiB process PSS. Its rolling callback rate is 7.20 FPS;
+the last 120 compute samples have 210.94/257.12 ms p50/p95. The report is in
+`checkpoints/R2_POCO_REPORT_0_1_2.json`; its copy-time reconstruction rate is
+zero. These windows do not establish a sustained moving-camera benchmark.
 
 https://docs.godotengine.org/en/4.7/classes/class_javaclasswrapper.html
 https://developer.android.com/reference/android/os/Process#getElapsedCpuTime()
@@ -121,9 +122,12 @@ https://www.kernel.org/doc/Documentation/filesystems/proc.txt
 
 The HUD keeps the original square reconstruction centered in a responsive
 landscape viewport. Output is 512 square / internal reconstruction 1024 square,
-instead of desktop 768 / 1536. The bank, geometry, work budget, shader and
-motion remain unchanged. The verified software-Vulkan allocation is 260,979,520
-bytes (about 249 MiB), excluding the rest of Godot/Android. Lower output does
+instead of desktop 768 / 1536. The bank, geometry, work budget and
+motion remain unchanged. 0.1.3 adds per-piece world-transform reuse, static
+shadow reuse and camera/material-sensitive raster invalidation; equations and
+sampling density are preserved. See `LIE_ROBOT_CACHE.md`. The verified
+software-Vulkan allocation is 262,037,312
+bytes (about 250 MiB), excluding the rest of Godot/Android. Lower output does
 not establish a phone frame rate. The Shadows button can reduce compute work.
 
 This dedicated export omits the desktop file agent autoload, unrelated labs,
@@ -190,8 +194,11 @@ GPU counters, native touch toggling and actual clipboard JSON, and saves an
 actual native HUD screenshot. Latest result: **262,172 checks pass** on
 llvmpipe software Vulkan, with one immutable bank upload. Existing motion
 3,019 checks, rig 3,734 checks, agent 20 checks and Python 72 tests (one skip)
-also pass. The owner has run 0.1.1 on a physical Poco; there is no physical
-validation of the new 0.1.2 Android API path yet.
+also pass. A new 157-check GPU comparison against the unchanged old shader
+passes in 16 cases with exact color/depth equality. The owner has verified
+CPU/PSS APIs on 0.1.2; the new 0.1.3 partial cache has no physical phone
+validation yet. Project-depth and material accumulation remain costly during
+movement; some software cases regress. No universal speedup is claimed.
 `test_robot_performance.gd` adds 17 checks, including actual procfs counters,
 a real CPU workload, unavailable data handling, auxiliary clock units and
 elapsed frame time despite a deliberately short simulation delta.

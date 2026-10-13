@@ -87,7 +87,7 @@ func run() -> void:
         var copy_point: Vector2=hud.metrics_buttons[0].get_global_rect().get_center()
         finger(10,true,copy_point);finger(10,false,copy_point)
         var copied: Variant=JSON.parse_string(DisplayServer.clipboard_get())
-        expect(copied is Dictionary and copied.get("app_version")=="0.1.2-r2-android-metrics" and copied.get("scopes") is Dictionary,"Native touch copies actual JSON report to clipboard")
+        expect(copied is Dictionary and copied.get("app_version")=="0.1.3-r2-partial-cache" and copied.get("scopes") is Dictionary,"Native touch copies actual JSON report to clipboard")
         var metrics_file:=FileAccess.open("res://robot-touch-performance.json",FileAccess.WRITE);metrics_file.store_string(JSON.stringify({"live":measured,"concurrent_gpu_readouts":paired,"timing_scope":"Asynchronously collected LIE and viewport markers, potentially adjacent frames; same units, not frame-identical pairing."},"  "));metrics_file.close()
         lab.effect.request_readback()
         for i in range(8):await process_frame

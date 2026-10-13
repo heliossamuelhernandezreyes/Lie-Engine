@@ -3,7 +3,7 @@ extends RefCounted
 const SAMPLE_SECONDS=.5
 const MAX_FRAME_SAMPLES=600
 const AndroidMetrics=preload("res://lie_robot_android_metrics.gd")
-const APP_VERSION="0.1.2-r2-android-metrics"
+const APP_VERSION="0.1.3-r2-partial-cache"
 var android_metrics:=AndroidMetrics.new()
 var latest: Dictionary={}
 var clock_ticks: int=-1
@@ -131,16 +131,18 @@ func sample(effect: CompositorEffect,viewport: Viewport) -> void:
         "cpu_process_one_core_percent":cpu_percent,"cpu_process_total_capacity_percent":cpu_percent/cores if cpu_percent>=0 else -1,
         "logical_cores":cores,"clock_ticks_per_second":clock_ticks,
         "cpu_source":native.get("cpu_source","android API pending") if on_android else "procfs utime+stime/AT_CLKTCK",
-        "cpu_sample_age_seconds":(now-api_usec)/1000000.0 if on_android and api_usec>0 else 0,
+        "cpu_sample_age_seconds":(now-api_usec)/1000000.0 if on_android and api_usec>0 else (-1 if on_android else 0),
         "pss_bytes":pss,"pss_sampled_peak_bytes":_pss_peak,"native_heap_bytes":native.get("native_heap_bytes",-1),
         "android_api":native.duplicate(true),"android_api_age_seconds":(now-int(native["sample_usec"]))/1000000.0 if native.has("sample_usec") else -1,
         "rss_bytes":status.get("VmRSS",-1),"rss_peak_bytes":status.get("VmHWM",-1),"rss_anonymous_bytes":status.get("RssAnon",-1),
         "godot_static_bytes":Performance.get_monitor(Performance.MEMORY_STATIC),"gpu_frame_ms":RenderingServer.viewport_get_measured_render_time_gpu(viewport.get_viewport_rid()) if effect.gpu_ready else -1,
         "gpu_lie_ms_last":int(gpu.get("lie_gpu_ns",-1))/1000000.0 if gpu.has("lie_gpu_ns") else -1,"gpu_lie_sample_age_seconds":gpu_age,"gpu_lie_samples":gpu.get("gpu_samples",0),
         "gpu_lie_recent_p50_ms":gpu.get("gpu_recent_p50_ms",-1),"gpu_lie_recent_p95_ms":gpu.get("gpu_recent_p95_ms",-1),"gpu_lie_recent_sample_count":gpu.get("gpu_recent_samples",0),
+        "cache":gpu.get("cache",{}),"gpu_passes_last_ms":gpu.get("gpu_pass_ms_last",{}),"gpu_passes_recent":gpu.get("gpu_pass_recent",{}),
+        "gpu_pass_marker_frame":gpu.get("gpu_pass_marker_frame",-1),"gpu_pass_sample_age_seconds":(now-int(gpu["gpu_pass_sample_usec"]))/1000000.0 if gpu.has("gpu_pass_sample_usec") else -1,
         "gpu_rd_memory_bytes":gpu.get("rd_memory_bytes",-1),"gpu_lie_reserved_bytes":effect.allocation_bytes,"gpu_total_utilization_percent":null,
         "gpu_device":gpu.get("device","no disponible"),"output_size":effect.output_size,"bank_uploads":effect.asset_uploads,"sample_interval_seconds":SAMPLE_SECONDS,
-        "scopes":{"rss":"Linux process resident pages, not available in Android API mode.","pss":"Android Debug.getPss proportional resident KiB converted to bytes; shared pages attributed proportionally, not RSS. Peak is max observed samples, not OS high-water mark.","cpu":"Android Process.getElapsedCpuTime milliseconds or Linux utime+stime ticks; this process/all threads, 100% one-core = one busy core. Total denominator logical_cores; not CPU frequency weighting or other apps.","gpu_lie":"Last measured LIE compute timestamp interval, not GPU utilization; cached frames do not reconstruct.","gpu_memory":"Vulkan allocator/requested LIE buffers; can overlap system RAM. Do not add to PSS/RSS.","frame_pacing":"Monotonic wall intervals between process callbacks, includes scheduling/vsync. Callback FPS/current sample and recent 600-frame FPS use explicit windows. Godot FPS has its own once-per-second window.","unsupported":"-1 or null = unavailable/waiting, never zero load."}}
+        "scopes":{"rss":"Linux process resident pages, not available in Android API mode.","pss":"Android Debug.getPss proportional resident KiB converted to bytes; shared pages attributed proportionally, not RSS. Peak is max observed samples, not OS high-water mark.","cpu":"Android Process.getElapsedCpuTime milliseconds or Linux utime+stime ticks; this process/all threads, 100% one-core = one busy core. Total denominator logical_cores; not CPU frequency weighting or other apps.","gpu_lie":"Last/rolling compute intervals, not GPU utilization. Per-pass windows include only frames where a pass ran; skipped passes are absent, not zero cost. GPU marker age/frame is separate from latest submitted cache decisions; cached images do not reconstruct.","gpu_memory":"Vulkan allocator/requested LIE buffers; can overlap system RAM. Do not add to PSS/RSS.","frame_pacing":"Monotonic wall intervals between process callbacks, includes scheduling/vsync. Callback FPS/current sample and recent 600-frame FPS use explicit windows. Godot FPS has its own once-per-second window.","unsupported":"-1 or null = unavailable/waiting, never zero load."}}
     _previous_ticks=ticks;_previous_usec=now;_previous_reconstructions=reconstructions
     _frames_since_sample=0
 

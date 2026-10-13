@@ -22,7 +22,7 @@ FILES = [
 PROJECT = '''config_version=5
 [application]
 config/name="LIE R2 Robot"
-config/version="0.1.2"
+config/version="0.1.3"
 config/icon="res://icon.svg"
 run/main_scene="res://lie_robot_mobile.tscn"
 boot_splash/bg_color=Color(0.063,0.098,0.141,1)
@@ -59,8 +59,8 @@ architectures/armeabi-v7a=false
 architectures/arm64-v8a=true
 architectures/x86=false
 architectures/x86_64=false
-version/code=3
-version/name="0.1.2-r2-android-metrics"
+version/code=4
+version/name="0.1.3-r2-partial-cache"
 package/unique_name="org.lieengine.robotdemo"
 package/name="LIE R2 Robot"
 package/signed=true

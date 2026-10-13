@@ -1,9 +1,9 @@
 {
   "apk": "LIE-R2-Robot-Prueba.apk",
-  "bytes": 39607525,
-  "sha256": "2851769a40178eb67e59ad270f9bbca929b29b0337aef593612dd524dd775406",
+  "bytes": 39615717,
+  "sha256": "3d59f5a7ff435f1f42a5d6b950822158b2fc6f08d37472e6f2886205e739936d",
   "package": "org.lieengine.robotdemo",
-  "version": "0.1.2-r2-android-metrics",
+  "version": "0.1.3-r2-partial-cache",
   "architectures": [
     "arm64-v8a"
   ],
@@ -16,7 +16,7 @@
   "bank_exactly_preserved": true,
   "library_sha256": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
   "touch_verification": {
-    "allocation_bytes": 260979520,
+    "allocation_bytes": 262037312,
     "bank_sha256": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
     "checks": 262172,
     "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
@@ -32,23 +32,23 @@
   "launcher_intent_verified": true,
   "permissions": [],
   "schema": 2,
-  "source_base_commit": "189772079e1fa8df717955476ed78dc1d50b33d0",
+  "source_base_commit": "f0257d82a4282739950e80b305deb16aea49d3e2",
   "source_branch": "experiment/lie-robot-android",
   "source_files_sha256": {
     "lie_robot_mobile.tscn": "1f9509f48d3b7f22c6f99c1dd299f4f9312947deaea52986b7527eceb759401a",
-    "lie_robot_world_lab.gd": "891f861aa0bbdad542e2fb8e5548680507a64fe69c7d95b44a866766a6a71c7e",
+    "lie_robot_world_lab.gd": "bf4a3cd750dcb08bc4751a74288cf671ef2a3520be36d1b30e0074592722e277",
     "lie_robot_touch_hud.gd": "be83f63003e97e5e744966f180b4a60d0d8cbac650e712e9b170829de44c92cb",
-    "lie_robot_performance.gd": "c66bc8ecc502dd7bf2ee3cebe90aca9900dc0469a96345c03f9a54b784d42da5",
+    "lie_robot_performance.gd": "4635758528530a95ea626fa91cc5878d71173d5a9dc12c88149ede018f3ea159",
     "lie_robot_android_metrics.gd": "507bd0e5575911480f88d18937b5689b183a2c154f9b48ddd304b2abda25fae1",
     "lie_robot_world_effect.gd": "4048dc842d4f5fd22622b6a28185173c8c3ba6f13f1f527bc15b1ff210da8e96",
-    "lie_robot_effect.gd": "9b90d1b987fd4dbfcaf7a6721af3c94e3671479b59789858be5a93ed359f4490",
-    "lie22_modular_effect.gd": "54a096057da364c9bdedb63b8fcc22830d7558202dadc06911de72ba3dc25c3b",
+    "lie_robot_effect.gd": "c4fe08a56594d8711ba34caabcc840c11d38ba2f4e0f89b86d2047543f0eac3e",
+    "lie22_modular_effect.gd": "e49350324f26a64a6223b0acd630f3e94e7b55fd350998945660f66bdc738f17",
     "lie_robot_assembly.gd": "5ef451bfbc48576a188528af98545c63504c917383984752e30143f8d01bcaba",
     "lie_robot_world_layout.gd": "e52a4eb7759226cf90215ef57db7ee2deda1ef4226af6b806be4f960ee5f602d",
     "lie_robot_controller.gd": "615346c074cda563b4b60e933a4eda5698c22d4eb1f92379db048ecfa304942b",
     "lie26_rig.gd": "892d9df4ab7104a7fc5ae874b510b4b4c8eea5a35b8a73355eb49ddd9b7d7937",
     "lie28_building_assembly.gd": "25a57eeea47f020f3e998d2eae6a9d3bc2c255216458b16ef551b2db5ee4a605",
-    "shaders/lie_robot.glsl": "7b469a8d0a2579625e345fa66d4317df04d3665d420656e41061027406880adc",
+    "shaders/lie_robot.glsl": "a1309da35206a7bffff508ad679fedf88b787cd5e6f593845479cbaf5418f48c",
     "shaders/lie22_modular.glsl": "4ee5cce7cec844de571b7ba424ceedab06fe4f26998865007cde9eb042750163",
     "captures/robot_world/catalog.json": "86b7abed79b4bd81cfd94611174bd742e1116701dd0b149009e5e62486706847",
     "captures/robot_world/library.bin": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
@@ -56,8 +56,8 @@
   },
   "saved_apk": {
     "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
-    "file_id": "file_00000000c03c81f591ecd886def3666c",
-    "version": 2,
+    "file_id": "file_0000000042e081f5ae68a8c78dca8caf",
+    "version": 3,
     "name": "LIE-R2-Robot-Prueba.apk"
   },
   "saved_debug_key": {
@@ -81,31 +81,42 @@
     "androidx_startup_authority_fixed": true,
     "idempotent": true
   },
-  "note": "Source and Android JNI path compile/export verified. Touch/graphics checked with software Vulkan only. Owner report confirms 0.1.1 renders on Mali-G720 MC7, but CPU/RAM unavailable and idle FPS does not establish movement throughput. New 0.1.2 API readings still need phone validation; reconstruction cost not optimized in this change.",
+  "note": "0.1.3 signed APK compiled/exported and saved. Actual software Vulkan: 16 cases identical in color/depth to unchanged old shader, 157 checks; touch 262172 checks, immutable bank uploaded once. Owner report verifies 0.1.2 CPU/PSS on Poco. No physical test of 0.1.3 or sustained Mali speedup claim.",
   "previous_apk": {
-    "bytes": 39603260,
-    "sha256": "51b55a8752774ab0a76f9fb5c3ee5e17fcd2ed0e082cd3dbccc44b2f26270dc4",
-    "version": "0.1.1-r2-metrics",
+    "bytes": 39607525,
+    "sha256": "2851769a40178eb67e59ad270f9bbca929b29b0337aef593612dd524dd775406",
+    "version": "0.1.2-r2-android-metrics",
     "saved_apk": {
       "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
-      "file_id": "file_00000000396081f5a151c27d38ecf882",
-      "version": 1,
+      "file_id": "file_00000000c03c81f591ecd886def3666c",
+      "version": 2,
       "name": "LIE-R2-Robot-Prueba.apk"
     },
     "previous_apk": {
-      "bytes": 39594907,
-      "sha256": "79fc4ebc66dbc850bf0698578bb33cc665b4d57120a617a1b2a00df46a113690",
-      "version": "0.1.0-r2-test",
+      "bytes": 39603260,
+      "sha256": "51b55a8752774ab0a76f9fb5c3ee5e17fcd2ed0e082cd3dbccc44b2f26270dc4",
+      "version": "0.1.1-r2-metrics",
       "saved_apk": {
         "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
-        "file_id": "file_00000000895481f587516aba5a3e2be1",
-        "version": 0,
+        "file_id": "file_00000000396081f5a151c27d38ecf882",
+        "version": 1,
         "name": "LIE-R2-Robot-Prueba.apk"
+      },
+      "previous_apk": {
+        "bytes": 39594907,
+        "sha256": "79fc4ebc66dbc850bf0698578bb33cc665b4d57120a617a1b2a00df46a113690",
+        "version": "0.1.0-r2-test",
+        "saved_apk": {
+          "library_file_id": "libfile_b64d459faf748191a3a6ffe7c827e81b",
+          "file_id": "file_00000000895481f587516aba5a3e2be1",
+          "version": 0,
+          "name": "LIE-R2-Robot-Prueba.apk"
+        }
       }
     }
   },
-  "version_code": 3,
-  "version_name": "0.1.2-r2-android-metrics",
+  "version_code": 4,
+  "version_name": "0.1.3-r2-partial-cache",
   "same_update_certificate": true,
   "arm64": true,
   "signature_v2_v3": true,
@@ -116,44 +127,44 @@
   "performance_evidence": {
     "concurrent_gpu_readouts": [
       {
-        "lie_gpu_ms": 687.820903,
-        "viewport_gpu_ms": 801.921997070312
+        "lie_gpu_ms": 732.261434,
+        "viewport_gpu_ms": 668.734985351562
       },
       {
-        "lie_gpu_ms": 793.639503,
-        "viewport_gpu_ms": 666.432006835938
+        "lie_gpu_ms": 663.095342,
+        "viewport_gpu_ms": 677.494995117188
       },
       {
-        "lie_gpu_ms": 659.162764,
-        "viewport_gpu_ms": 625.0419921875
+        "lie_gpu_ms": 669.971345,
+        "viewport_gpu_ms": 702.734985351562
       },
       {
-        "lie_gpu_ms": 619.076122,
-        "viewport_gpu_ms": 633.262023925781
+        "lie_gpu_ms": 696.823995,
+        "viewport_gpu_ms": 696.010986328125
       },
       {
-        "lie_gpu_ms": 626.887473,
-        "viewport_gpu_ms": 616.528991699219
+        "lie_gpu_ms": 688.973723,
+        "viewport_gpu_ms": 661.125
       },
       {
-        "lie_gpu_ms": 608.3192,
-        "viewport_gpu_ms": 610.8759765625
+        "lie_gpu_ms": 654.571317,
+        "viewport_gpu_ms": 681.531005859375
       },
       {
-        "lie_gpu_ms": 603.719145,
-        "viewport_gpu_ms": 650.653015136719
+        "lie_gpu_ms": 675.205822,
+        "viewport_gpu_ms": 711.7509765625
       },
       {
-        "lie_gpu_ms": 643.540067,
-        "viewport_gpu_ms": 593.418029785156
+        "lie_gpu_ms": 704.770193,
+        "viewport_gpu_ms": 723.038024902344
       },
       {
-        "lie_gpu_ms": 585.674492,
-        "viewport_gpu_ms": 596.401000976562
+        "lie_gpu_ms": 716.12627,
+        "viewport_gpu_ms": 683.788024902344
       },
       {
-        "lie_gpu_ms": 589.246872,
-        "viewport_gpu_ms": 581.705993652344
+        "lie_gpu_ms": 677.539154,
+        "viewport_gpu_ms": 704.525024414062
       }
     ],
     "live": {
@@ -161,56 +172,138 @@
         "error": "not_android"
       },
       "android_api_age_seconds": -1,
-      "app_version": "0.1.2-r2-android-metrics",
+      "app_version": "0.1.3-r2-partial-cache",
       "bank_uploads": 1,
+      "cache": {
+        "combined_shadow_rebuilt_last": false,
+        "enabled": true,
+        "raster_rebuilt_last": true,
+        "reused_world_samples_last": 1204749,
+        "static_shadow_rebuilt_last": false,
+        "submitted_frame": 23,
+        "totals": {
+          "combined_shadow_hits": 9,
+          "combined_shadow_rebuilds": 14,
+          "raster_hits": 0,
+          "raster_rebuilds": 23,
+          "reused_world_samples": 19330129,
+          "static_shadow_hits": 22,
+          "static_shadow_rebuilds": 1,
+          "transformed_samples": 8379098
+        },
+        "transformed_samples_last": 0,
+        "work_samples": 1204749
+      },
       "clock_ticks_per_second": 100,
-      "cpu_process_one_core_percent": 374.47386422077,
-      "cpu_process_total_capacity_percent": 41.6082071356411,
+      "cpu_process_one_core_percent": 344.018244064298,
+      "cpu_process_total_capacity_percent": 38.2242493404776,
       "cpu_sample_age_seconds": 0,
       "cpu_source": "procfs utime+stime/AT_CLKTCK",
-      "engine_physics_ms": 0.047,
-      "engine_process_ms": 591.071,
+      "engine_physics_ms": 0.102,
+      "engine_process_ms": 723.698,
       "fps_callback_interval": 0.0,
-      "fps_callback_recent_window": 1.4008758403106,
-      "fps_screen": 1.0,
-      "frame_ms_p50": 700.085,
-      "frame_ms_p95": 864.794,
+      "fps_callback_recent_window": 1.32385166699402,
+      "fps_screen": 2.0,
+      "frame_ms_p50": 708.338,
+      "frame_ms_p95": 826.534,
       "frame_samples": 22,
-      "godot_static_bytes": 90558743.0,
+      "godot_static_bytes": 90829285.0,
       "gpu_device": "llvmpipe (LLVM 20.1.2, 256 bits)",
-      "gpu_frame_ms": 581.705993652344,
-      "gpu_lie_ms_last": 589.246872,
-      "gpu_lie_recent_p50_ms": 674.824871,
-      "gpu_lie_recent_p95_ms": 793.639503,
+      "gpu_frame_ms": 704.525024414062,
+      "gpu_lie_ms_last": 677.539154,
+      "gpu_lie_recent_p50_ms": 675.205822,
+      "gpu_lie_recent_p95_ms": 765.744378,
       "gpu_lie_recent_sample_count": 20,
-      "gpu_lie_reserved_bytes": 260979520,
-      "gpu_lie_sample_age_seconds": 0.599857,
+      "gpu_lie_reserved_bytes": 262037312,
+      "gpu_lie_sample_age_seconds": 0.719809,
       "gpu_lie_samples": 20,
-      "gpu_rd_memory_bytes": 432817328,
+      "gpu_pass_marker_frame": 21,
+      "gpu_pass_sample_age_seconds": 0.719668,
+      "gpu_passes_last_ms": {
+        "compose": 3.49359,
+        "material_accumulate": 382.747633,
+        "project_depth": 276.818261,
+        "resolve": 1.333482,
+        "screen_clear": 2.025785,
+        "shade": 10.456345
+      },
+      "gpu_passes_recent": {
+        "compose": {
+          "p50_ms": 3.531047,
+          "p95_ms": 5.650364,
+          "samples": 20
+        },
+        "dynamic_shadow": {
+          "p50_ms": 10.971466,
+          "p95_ms": 14.309403,
+          "samples": 13
+        },
+        "inverse_frames": {
+          "p50_ms": 0.253166,
+          "p95_ms": 0.389713,
+          "samples": 13
+        },
+        "material_accumulate": {
+          "p50_ms": 346.139489,
+          "p95_ms": 398.316747,
+          "samples": 20
+        },
+        "project_depth": {
+          "p50_ms": 295.557004,
+          "p95_ms": 357.570976,
+          "samples": 20
+        },
+        "resolve": {
+          "p50_ms": 1.410333,
+          "p95_ms": 2.179783,
+          "samples": 20
+        },
+        "screen_clear": {
+          "p50_ms": 2.116213,
+          "p95_ms": 3.802657,
+          "samples": 20
+        },
+        "shade": {
+          "p50_ms": 10.612106,
+          "p95_ms": 15.177607,
+          "samples": 20
+        },
+        "shadow_merge": {
+          "p50_ms": 0.463394,
+          "p95_ms": 1.401685,
+          "samples": 13
+        },
+        "world_transform": {
+          "p50_ms": 13.843554,
+          "p95_ms": 31.577283,
+          "samples": 13
+        }
+      },
+      "gpu_rd_memory_bytes": 434137264,
       "gpu_total_utilization_percent": null,
       "lie_reconstructions": 23,
-      "lie_reconstructions_per_second": 1.66432828542564,
+      "lie_reconstructions_per_second": 1.38717033896894,
       "logical_cores": 9,
       "native_heap_bytes": -1,
       "output_size": 512,
       "pss_bytes": -1,
       "pss_sampled_peak_bytes": -1,
-      "rss_anonymous_bytes": 199421952,
-      "rss_bytes": 829591552,
-      "rss_peak_bytes": 829591552,
+      "rss_anonymous_bytes": 222982144,
+      "rss_bytes": 855445504,
+      "rss_peak_bytes": 855445504,
       "sample": 23,
       "sample_interval_seconds": 0.5,
       "schema": 2,
       "scopes": {
         "cpu": "Android Process.getElapsedCpuTime milliseconds or Linux utime+stime ticks; this process/all threads, 100% one-core = one busy core. Total denominator logical_cores; not CPU frequency weighting or other apps.",
         "frame_pacing": "Monotonic wall intervals between process callbacks, includes scheduling/vsync. Callback FPS/current sample and recent 600-frame FPS use explicit windows. Godot FPS has its own once-per-second window.",
-        "gpu_lie": "Last measured LIE compute timestamp interval, not GPU utilization; cached frames do not reconstruct.",
+        "gpu_lie": "Last/rolling compute intervals, not GPU utilization. Per-pass windows include only frames where a pass ran; skipped passes are absent, not zero cost. GPU marker age/frame is separate from latest submitted cache decisions; cached images do not reconstruct.",
         "gpu_memory": "Vulkan allocator/requested LIE buffers; can overlap system RAM. Do not add to PSS/RSS.",
         "pss": "Android Debug.getPss proportional resident KiB converted to bytes; shared pages attributed proportionally, not RSS. Peak is max observed samples, not OS high-water mark.",
         "rss": "Linux process resident pages, not available in Android API mode.",
         "unsupported": "-1 or null = unavailable/waiting, never zero load."
       },
-      "session_seconds": 16.363482
+      "session_seconds": 17.398789
     },
     "timing_scope": "Asynchronously collected LIE and viewport markers, potentially adjacent frames; same units, not frame-identical pairing."
   },
@@ -221,7 +314,8 @@
     "gpu_memory": "Global RD allocator and requested LIE bytes can overlap system RAM.",
     "gpu_total_utilization": "Unavailable; explicit null.",
     "frame_pacing": "Monotonic wall callback intervals, own current callback window and recent <=600-interval window; Godot FPS separate.",
-    "on_phone": "Owner 0.1.1 report received. New 0.1.2 Android JNI/API path is not physically verified yet."
+    "on_phone": "Android CPU/PSS bridge verified by owner report on 0.1.2. New 0.1.3 cache and per-pass timings await physical validation.",
+    "gpu_passes": "Last and rolling per-pass GPU timings include only executed passes; samples can be asynchronous/adjacent to latest submitted cache decisions."
   },
   "android_jni_compiled": true,
   "first_physical_report": {
@@ -232,5 +326,688 @@
     "source": "User supplied report, not measured by agent",
     "cpu_ram_available": false,
     "new_android_api_physically_verified": false
-  }
+  },
+  "reference_shader_excluded": true,
+  "partial_cache_verification": {
+    "allocation_bytes": 267299648,
+    "bank_sha256": "5445ee8660e63ed3d2db61ef217465eb95ec8fd933a233d0277727d0477223dc",
+    "cases": [
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 0,
+          "static_shadow_rebuilt_last": true,
+          "submitted_frame": 1,
+          "totals": {
+            "combined_shadow_hits": 0,
+            "combined_shadow_rebuilds": 1,
+            "raster_hits": 0,
+            "raster_rebuilds": 1,
+            "reused_world_samples": 0,
+            "static_shadow_hits": 0,
+            "static_shadow_rebuilds": 1,
+            "transformed_samples": 1204749
+          },
+          "transformed_samples_last": 1204749,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 710.797008,
+        "case": "initial",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 3.382843,
+          "dynamic_shadow": 11.813748,
+          "inverse_frames": 1.71322,
+          "material_accumulate": 335.951011,
+          "project_depth": 290.669983,
+          "resolve": 1.376792,
+          "screen_clear": 3.290689,
+          "shade": 10.186958,
+          "shadow_merge": 0.492733,
+          "static_shadow": 18.902352,
+          "static_shadow_clear": 0.324119,
+          "world_transform": 31.217402
+        },
+        "reference_gpu_ms": -1
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": false,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 1204749,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 2,
+          "totals": {
+            "combined_shadow_hits": 1,
+            "combined_shadow_rebuilds": 1,
+            "raster_hits": 0,
+            "raster_rebuilds": 2,
+            "reused_world_samples": 1204749,
+            "static_shadow_hits": 1,
+            "static_shadow_rebuilds": 1,
+            "transformed_samples": 1204749
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 666.387509,
+        "case": "camera",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 3.429584,
+          "material_accumulate": 351.644338,
+          "project_depth": 296.381325,
+          "resolve": 1.376992,
+          "screen_clear": 2.016292,
+          "shade": 10.613432
+        },
+        "reference_gpu_ms": 646.393479
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 1164021,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 3,
+          "totals": {
+            "combined_shadow_hits": 1,
+            "combined_shadow_rebuilds": 2,
+            "raster_hits": 0,
+            "raster_rebuilds": 3,
+            "reused_world_samples": 2368770,
+            "static_shadow_hits": 2,
+            "static_shadow_rebuilds": 1,
+            "transformed_samples": 1245477
+          },
+          "transformed_samples_last": 40728,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 656.657255,
+        "case": "grip",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.390779,
+          "dynamic_shadow": 9.852064,
+          "inverse_frames": 0.233467,
+          "material_accumulate": 331.490337,
+          "project_depth": 294.244957,
+          "resolve": 1.861363,
+          "screen_clear": 1.961334,
+          "shade": 9.512396,
+          "shadow_merge": 0.366057,
+          "world_transform": 1.552633
+        },
+        "reference_gpu_ms": 649.335347
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": false,
+          "enabled": true,
+          "raster_rebuilt_last": false,
+          "reused_world_samples_last": 1204749,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 4,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 2,
+            "raster_hits": 1,
+            "raster_rebuilds": 3,
+            "reused_world_samples": 3573519,
+            "static_shadow_hits": 3,
+            "static_shadow_rebuilds": 1,
+            "transformed_samples": 1245477
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 20.929876,
+        "case": "power",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.234403,
+          "resolve": 2.01511,
+          "shade": 14.14493
+        },
+        "reference_gpu_ms": 726.148121
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": false,
+          "reused_world_samples_last": 1204749,
+          "static_shadow_rebuilt_last": true,
+          "submitted_frame": 5,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 3,
+            "raster_hits": 2,
+            "raster_rebuilds": 3,
+            "reused_world_samples": 4778268,
+            "static_shadow_hits": 3,
+            "static_shadow_rebuilds": 2,
+            "transformed_samples": 1245477
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 46.294939,
+        "case": "light_direction",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.187342,
+          "dynamic_shadow": 11.266783,
+          "resolve": 1.972586,
+          "shade": 13.639067,
+          "shadow_merge": 0.436228,
+          "static_shadow": 13.44809,
+          "static_shadow_clear": 0.498708
+        },
+        "reference_gpu_ms": 681.831938
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 0,
+          "static_shadow_rebuilt_last": true,
+          "submitted_frame": 6,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 4,
+            "raster_hits": 2,
+            "raster_rebuilds": 4,
+            "reused_world_samples": 4778268,
+            "static_shadow_hits": 3,
+            "static_shadow_rebuilds": 3,
+            "transformed_samples": 2535786
+          },
+          "transformed_samples_last": 1290309,
+          "work_samples": 1290309
+        },
+        "cached_gpu_ms": 778.758629,
+        "case": "roof",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 3.364025,
+          "dynamic_shadow": 10.635975,
+          "inverse_frames": 0.207303,
+          "material_accumulate": 377.278747,
+          "project_depth": 330.098466,
+          "resolve": 1.536223,
+          "screen_clear": 2.759954,
+          "shade": 10.077148,
+          "shadow_merge": 0.541327,
+          "static_shadow": 13.264301,
+          "static_shadow_clear": 0.735209,
+          "world_transform": 26.586876
+        },
+        "reference_gpu_ms": 671.359338
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 0,
+          "static_shadow_rebuilt_last": true,
+          "submitted_frame": 7,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 5,
+            "raster_hits": 2,
+            "raster_rebuilds": 5,
+            "reused_world_samples": 4778268,
+            "static_shadow_hits": 3,
+            "static_shadow_rebuilds": 4,
+            "transformed_samples": 3732051
+          },
+          "transformed_samples_last": 1196265,
+          "work_samples": 1196265
+        },
+        "cached_gpu_ms": 780.360292,
+        "case": "cables_off",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 3.421792,
+          "dynamic_shadow": 9.31295,
+          "inverse_frames": 0.276417,
+          "material_accumulate": 386.64979,
+          "project_depth": 321.532545,
+          "resolve": 1.36852,
+          "screen_clear": 2.767411,
+          "shade": 12.253902,
+          "shadow_merge": 0.499494,
+          "static_shadow": 14.162301,
+          "static_shadow_clear": 0.393294,
+          "world_transform": 26.060792
+        },
+        "reference_gpu_ms": 616.641333
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 0,
+          "static_shadow_rebuilt_last": true,
+          "submitted_frame": 8,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 6,
+            "raster_hits": 2,
+            "raster_rebuilds": 6,
+            "reused_world_samples": 4778268,
+            "static_shadow_hits": 3,
+            "static_shadow_rebuilds": 5,
+            "transformed_samples": 5022360
+          },
+          "transformed_samples_last": 1290309,
+          "work_samples": 1290309
+        },
+        "cached_gpu_ms": 713.504048,
+        "case": "cables_on",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.84894,
+          "dynamic_shadow": 10.806443,
+          "inverse_frames": 0.288304,
+          "material_accumulate": 339.155336,
+          "project_depth": 296.181498,
+          "resolve": 2.189007,
+          "screen_clear": 2.513282,
+          "shade": 10.477672,
+          "shadow_merge": 0.489899,
+          "static_shadow": 15.831289,
+          "static_shadow_clear": 0.431211,
+          "world_transform": 28.980462
+        },
+        "reference_gpu_ms": 678.667789
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": false,
+          "enabled": true,
+          "raster_rebuilt_last": false,
+          "reused_world_samples_last": 1290309,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 9,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 6,
+            "raster_hits": 3,
+            "raster_rebuilds": 6,
+            "reused_world_samples": 6068577,
+            "static_shadow_hits": 3,
+            "static_shadow_rebuilds": 5,
+            "transformed_samples": 5022360
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1290309
+        },
+        "cached_gpu_ms": 17.116182,
+        "case": "shadows_off",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.483399,
+          "resolve": 1.442707,
+          "shade": 10.763714
+        },
+        "reference_gpu_ms": 630.217304
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": false,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 1249581,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 10,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 6,
+            "raster_hits": 3,
+            "raster_rebuilds": 7,
+            "reused_world_samples": 7318158,
+            "static_shadow_hits": 3,
+            "static_shadow_rebuilds": 5,
+            "transformed_samples": 5063088
+          },
+          "transformed_samples_last": 40728,
+          "work_samples": 1290309
+        },
+        "cached_gpu_ms": 729.937801,
+        "case": "pose_while_shadows_off",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 3.429508,
+          "inverse_frames": 0.241555,
+          "material_accumulate": 389.468071,
+          "project_depth": 321.89103,
+          "resolve": 1.337948,
+          "screen_clear": 1.85867,
+          "shade": 8.955605,
+          "world_transform": 1.656909
+        },
+        "reference_gpu_ms": 745.261406
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": false,
+          "reused_world_samples_last": 1290309,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 11,
+          "totals": {
+            "combined_shadow_hits": 2,
+            "combined_shadow_rebuilds": 7,
+            "raster_hits": 4,
+            "raster_rebuilds": 7,
+            "reused_world_samples": 8608467,
+            "static_shadow_hits": 4,
+            "static_shadow_rebuilds": 5,
+            "transformed_samples": 5063088
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1290309
+        },
+        "cached_gpu_ms": 29.07132,
+        "case": "shadows_on",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.296342,
+          "dynamic_shadow": 10.365228,
+          "resolve": 1.4521,
+          "shade": 11.950955,
+          "shadow_merge": 0.412668
+        },
+        "reference_gpu_ms": 665.639298
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": false,
+          "enabled": true,
+          "raster_rebuilt_last": false,
+          "reused_world_samples_last": 1290309,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 12,
+          "totals": {
+            "combined_shadow_hits": 3,
+            "combined_shadow_rebuilds": 7,
+            "raster_hits": 5,
+            "raster_rebuilds": 7,
+            "reused_world_samples": 9898776,
+            "static_shadow_hits": 5,
+            "static_shadow_rebuilds": 5,
+            "transformed_samples": 5063088
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1290309
+        },
+        "cached_gpu_ms": 20.370958,
+        "case": "unlit",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 7.210128,
+          "resolve": 2.167,
+          "shade": 10.578204
+        },
+        "reference_gpu_ms": 713.474567
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": false,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 1290309,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 13,
+          "totals": {
+            "combined_shadow_hits": 4,
+            "combined_shadow_rebuilds": 7,
+            "raster_hits": 5,
+            "raster_rebuilds": 8,
+            "reused_world_samples": 11189085,
+            "static_shadow_hits": 6,
+            "static_shadow_rebuilds": 5,
+            "transformed_samples": 5063088
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1290309
+        },
+        "cached_gpu_ms": 1089.984987,
+        "case": "camera_inside",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.486484,
+          "material_accumulate": 564.417747,
+          "project_depth": 502.277258,
+          "resolve": 1.887698,
+          "screen_clear": 2.501618,
+          "shade": 13.510412
+        },
+        "reference_gpu_ms": 1143.630844
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 0,
+          "static_shadow_rebuilt_last": true,
+          "submitted_frame": 14,
+          "totals": {
+            "combined_shadow_hits": 4,
+            "combined_shadow_rebuilds": 8,
+            "raster_hits": 5,
+            "raster_rebuilds": 9,
+            "reused_world_samples": 11189085,
+            "static_shadow_hits": 6,
+            "static_shadow_rebuilds": 6,
+            "transformed_samples": 6267837
+          },
+          "transformed_samples_last": 1204749,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 1001.195798,
+        "case": "roof_off",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.401811,
+          "dynamic_shadow": 10.643623,
+          "inverse_frames": 0.303342,
+          "material_accumulate": 478.437051,
+          "project_depth": 447.986556,
+          "resolve": 2.186458,
+          "screen_clear": 2.534878,
+          "shade": 13.189584,
+          "shadow_merge": 0.544301,
+          "static_shadow": 13.293411,
+          "static_shadow_clear": 0.457615,
+          "world_transform": 25.329183
+        },
+        "reference_gpu_ms": 882.898076
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": true,
+          "enabled": true,
+          "raster_rebuilt_last": true,
+          "reused_world_samples_last": 652876,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 15,
+          "totals": {
+            "combined_shadow_hits": 4,
+            "combined_shadow_rebuilds": 9,
+            "raster_hits": 5,
+            "raster_rebuilds": 10,
+            "reused_world_samples": 11841961,
+            "static_shadow_hits": 7,
+            "static_shadow_rebuilds": 6,
+            "transformed_samples": 6819710
+          },
+          "transformed_samples_last": 551873,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 954.856223,
+        "case": "walk",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.437425,
+          "dynamic_shadow": 10.488894,
+          "inverse_frames": 0.189165,
+          "material_accumulate": 483.345121,
+          "project_depth": 427.056124,
+          "resolve": 2.09094,
+          "screen_clear": 2.49867,
+          "shade": 9.81692,
+          "shadow_merge": 0.469183,
+          "world_transform": 13.163295
+        },
+        "reference_gpu_ms": 1032.590411
+      },
+      {
+        "alpha_mismatches": 0,
+        "cache": {
+          "combined_shadow_rebuilt_last": false,
+          "enabled": true,
+          "raster_rebuilt_last": false,
+          "reused_world_samples_last": 1204749,
+          "static_shadow_rebuilt_last": false,
+          "submitted_frame": 16,
+          "totals": {
+            "combined_shadow_hits": 5,
+            "combined_shadow_rebuilds": 9,
+            "raster_hits": 6,
+            "raster_rebuilds": 10,
+            "reused_world_samples": 13046710,
+            "static_shadow_hits": 8,
+            "static_shadow_rebuilds": 6,
+            "transformed_samples": 6819710
+          },
+          "transformed_samples_last": 0,
+          "work_samples": 1204749
+        },
+        "cached_gpu_ms": 21.129177,
+        "case": "exposure",
+        "color_channels_error_gt_02": 0,
+        "depth_mismatches_gt_1mm": 0,
+        "max_color_error": 0.0,
+        "max_depth_error": 0.0,
+        "mean_color_error": 0.0,
+        "passes_ms": {
+          "compose": 4.30852,
+          "resolve": 1.933011,
+          "shade": 14.41685
+        },
+        "reference_gpu_ms": 903.621901
+      }
+    ],
+    "checks": 157,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "note": "Actual software Vulkan; pre-cache shader is an unchanged test-only fixture. Timing is not a Mali/Android speed claim.",
+    "physical_android_tested": false
+  },
+  "reference_shader_sha256": "7b469a8d0a2579625e345fa66d4317df04d3665d420656e41061027406880adc",
+  "partial_cache_added_bytes": 1057792,
+  "partial_cache_limits": "Per-job world transform/deformation and static shadow reuse; camera/geometry changes still rebuild screen-depth/material accumulation. Some software camera/pose cases slower; no universal or phone speedup established.",
+  "new_android_api_physically_verified": {
+    "version": "0.1.2-r2-android-metrics",
+    "path": "docs/checkpoints/R2_POCO_REPORT_0_1_2.json",
+    "errors": [],
+    "pss_bytes": 1181796352,
+    "cpu_one_core_percent": 62.98649135509167,
+    "rolling_gpu_p50_ms": 210.939779,
+    "rolling_gpu_p95_ms": 257.117627,
+    "current_apk_cache_physically_verified": false
+  },
+  "retained_failures": [
+    {
+      "phase": "initial GPU cache regression",
+      "result": "All 16 color/depth comparisons exact; final assertion failed by requiring project_depth in a lighting-only last frame where it was correctly skipped. Fixed test checks recent project_depth and last shade; final 157 checks pass."
+    }
+  ]
 }

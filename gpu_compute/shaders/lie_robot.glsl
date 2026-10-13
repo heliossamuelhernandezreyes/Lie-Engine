@@ -27,6 +27,9 @@ layout(rgba32f,set=0,binding=12) uniform image2D final_image;
 layout(set=0,binding=13,std430) buffer Shadow { uint v[]; } shadow;
 struct Knot { vec4 center; vec4 normal; vec4 tangent; };
 layout(set=0,binding=14,std430) readonly buffer CableFrames { Knot v[]; } cables;
+struct InverseFrame { vec4 x; vec4 y; vec4 z; };
+layout(set=0,binding=15,std430) buffer InverseFrames { InverseFrame v[]; } inverse_frames;
+layout(set=0,binding=16,std430) buffer StaticShadow { uint v[]; } static_shadow;
 layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
 const float PI=3.141592653589793;
 const uint EMPTY=0xffffffffu;
@@ -70,8 +73,12 @@ bool covered(Projection p,vec2 xy) {
     Sample s=samples.v[uint(p.gradient.w)];Instance inst=instances.v[uint(p.gradient.z)];
     vec2 uv=xy/vec2(parameters.counts.zw);
     vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
-    vec3 center;mat3 jacobian=deformation(inst,s.position_radius.xyz,center);
-    vec3 local=s.position_radius.xyz+inverse(jacobian)*(parameters.eye.xyz+ray*pixel_depth(p,xy)-center);
+    vec3 center;mat3 inv;
+    if(inst.meta.y<0) {
+        mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);center=basis*s.position_radius.xyz+inst.origin.xyz;
+        InverseFrame frame=inverse_frames.v[uint(p.gradient.z)];inv=mat3(frame.x.xyz,frame.y.xyz,frame.z.xyz);
+    } else {mat3 jacobian=deformation(inst,s.position_radius.xyz,center);inv=inverse(jacobian);}
+    vec3 local=s.position_radius.xyz+inv*(parameters.eye.xyz+ray*pixel_depth(p,xy)-center);
     vec3 n=abs(s.normal_gray.xyz);vec2 q=n.x>=n.y && n.x>=n.z?local.zy:n.y>=n.z?local.xz:local.xy;
     return all(greaterThanEqual(q,s.support.xy-vec2(.000003))) && all(lessThanEqual(q,s.support.zw+vec2(.000003)));
 }
@@ -121,15 +128,23 @@ void main() {
     int stage=phase.value.x;
     if(stage==1) {
         if(i<pixels) {depths.v[i]=0x7f7fffffu;winners.v[i]=EMPTY;accumulated.v[i].color_weight=uvec4(0);accumulated.v[i].normal_roughness=uvec4(0);}
-        if(i<uint(SHADOW_SIZE*SHADOW_SIZE))shadow.v[i]=0x7f7fffffu;return;
+        return;
     }
-    if(stage==2 || stage==3) {
-        if(i>=uint(parameters.counts.x))return;
-        uint j=job_index(i);uvec4 job=jobs.v[j];uint sid=job.x+i-job.w;
-        Sample s=samples.v[sid];Instance inst=instances.v[job.z];
-        mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);
-        Projection p;
-        if(stage==2) {
+    if(stage==10) {
+        if(i>=uint(parameters.counts.y))return;
+        Instance inst=instances.v[i];mat3 inv=inverse(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz));
+        InverseFrame frame;frame.x=vec4(inv[0],0);frame.y=vec4(inv[1],0);frame.z=vec4(inv[2],0);inverse_frames.v[i]=frame;return;
+    }
+    if(stage==11 || stage==12) {
+        if(i>=uint(SHADOW_SIZE*SHADOW_SIZE))return;
+        if(stage==11)static_shadow.v[i]=0x7f7fffffu;else shadow.v[i]=static_shadow.v[i];return;
+    }
+    if(stage==8 || stage==9) {
+        i+=uint(phase.value.z);
+        if(i>=uint(parameters.counts.x) || i>=uint(phase.value.z+phase.value.y))return;
+        if(stage==8) {
+            uint j=job_index(i);uvec4 job=jobs.v[j];uint sid=job.x+i-job.w;
+            Sample s=samples.v[sid];Instance inst=instances.v[job.z];Projection p;
             vec3 local=s.position_radius.xyz;float radius=s.position_radius.w;
             if(parameters.settings.y<.5) {
                 float r=length(local.xy),inner=.0017,outer=.006;
@@ -142,9 +157,10 @@ void main() {
             vec3 n=normalize(transpose(inverse(jacobian))*s.normal_gray.xyz);
             vec3 shade=normalize(transpose(inverse(jacobian))*s.shading.xyz);
             radius*=max(length(jacobian[0]),max(length(jacobian[1]),length(jacobian[2])));
-            vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
-            float front=dot(n,normalize(-delta));
-            p.world=vec4(world,1);p.normal=vec4(shade,front);p.screen=vec4(0);p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);
+            p.world=vec4(world,radius);p.normal=vec4(shade,0);p.screen=vec4(0);
+            p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);projected.v[i]=p;
+        } else {
+            Projection p=projected.v[i];vec3 world=p.world.xyz;float radius=p.world.w;vec3 n=p.geometry.xyz;
             vec3 ld=world-parameters.light.xyz;float lz=dot(ld,parameters.shadow_forward.xyz);
             if(lz>.00001 && dot(n,normalize(-ld))>.05) {
                 vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
@@ -153,9 +169,24 @@ void main() {
                     ivec2 q=ivec2(xy)+ivec2(x,y);float z=1.0/(1.0/lz+dot(gradient,vec2(q)+.5-xy));
                     vec2 uv=(vec2(q)+.5)/float(SHADOW_SIZE);
                     vec3 ray=parameters.shadow_forward.xyz+parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
-                    if(z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
+                    if(z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE)))){if(phase.value.w==1)atomicMin(static_shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));else atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));}
                 }
             }
+        }
+        return;
+    }
+    if(stage==2 || stage==3) {
+        if(i>=uint(parameters.counts.x))return;
+        uint j=job_index(i);uvec4 job=jobs.v[j];uint sid=job.x+i-job.w;
+        Sample s=samples.v[sid];Instance inst=instances.v[job.z];
+        mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);
+        Projection p;
+        if(stage==2) {
+            p=projected.v[i];
+            vec3 world=p.world.xyz;float radius=p.world.w;vec3 n=p.geometry.xyz;
+            vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
+            float front=dot(n,normalize(-delta));
+            p.normal.w=front;p.screen=vec4(0);p.gradient.xy=vec2(0);p.ellipse=vec4(0);
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.015) {
                 vec2 xy=project(world,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw));
                 vec3 tangent=normalize(cross(n,abs(n.y)<.9?vec3(0,1,0):vec3(1,0,0)));vec3 bitangent=cross(n,tangent);
