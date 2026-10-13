@@ -47,6 +47,9 @@ jobs:
           assert cat['collision']['spatial_envelope_count']==1 and cat['original_meshes_drawn'] is False
           assert cat['source_scan_sha256']==proven['expected_sha256']
           assert proven['license']=='CC BY 4.0'
+          print('LIGHT MODEL SOURCE HASH',hashlib.sha256(node_codes).hexdigest(),flush=True)
+          print('LIGHT MODEL ORIGINAL ARTIFACT HASH',hashlib.sha256((measured/'light-model.json').read_bytes()).hexdigest(),flush=True)
+          print('LIGHT MODEL DESIRED HASH',cat['lighting']['sha256'],flush=True)
           assert hashlib.sha256(node_codes).hexdigest()==cat['lighting']['sha256']
           assert hashlib.sha256((measured/'light-model.json').read_bytes()).hexdigest()==cat['lighting']['sha256']
           report=json.loads((evidence/'LIE-WALL02-native-validation.json').read_text())
