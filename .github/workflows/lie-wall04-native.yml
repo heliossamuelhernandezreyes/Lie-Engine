@@ -55,6 +55,7 @@ jobs:
           assert profile['local_brick_edge_calibration']['nearest_scan_bricks']==2
           assert profile['local_brick_edge_calibration']['sample_queries_near_source']>10000
           assert profile['local_brick_edge_calibration']['original_scanned_xyz_rgb_edited'] is False
+          print('Scanned local edge z range:',profile['local_brick_edge_calibration']['observed_face_z_min_m'],profile['local_brick_edge_calibration']['observed_face_z_max_m'])
           print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
           print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
           PY
