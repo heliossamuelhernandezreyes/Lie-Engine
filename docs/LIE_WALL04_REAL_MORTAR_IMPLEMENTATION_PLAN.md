@@ -79,3 +79,18 @@ Si G0/G1 fallan, detener integración de 04 y volver a selección de fuente, NO 
 ## Riesgos
 
 El material de referencia es una pared fotografiada, no un asset aislado de mortero. La extracción es difícil y requiere validación manual; las juntas del modelo donante no coinciden 1:1 con las de Stratford. Sus mapas pueden representar desplazamiento relativo y no medición absoluta. Una buena resolución no implica buena fidelidad de altura. Mantener estas incertidumbres explícitas.
+
+## Resultado real de implementación parcial (13 de octubre de 2026)
+
+Evidencia, fuentes y archivos reproducibles, todos en esta rama experimental:
+
+- Banco 8K CC0 `brick_wall_13`: hashes de diffuse, normal GL, displacement, roughness, AO en `assets/material_masters/mortar/hero/real_masonry_joint/source/source-lock.json`.
+- 6 recortes horizontales y 6 verticales de la fuente 8K. Máscaras y PBR alineados en `derived/`. **Advertencia:** candidato **G1 NO APROBADO**; la extracción detecta algunas grietas del ladrillo donante como mortero. El desplazamiento se usó como relativo; su escala milimétrica no está calibrada.
+- `gpu_compute/assets/lie_mortar01/`: **154.610 muestras de mortero 3D**, 80 B/muestra, distribuidas en tres LOD de 113.433 / 28.549 / 12.628. La fuente es fotografiada, pero las uniones y reubicación sobre el muro son reconstrucciones.
+- `gpu_compute/assets/lie_wall04/`: banco conjunto de **686.450 muestras** en tres LOD (497.433 / 153.349 / 35.668). Los 96 ladrillos originales, sus XYZ y RGB se conservan **byte por byte**; el mortero procedural anterior se reemplaza sin modificar el banco WALL03 original.
+- Godot 4.7.2 software Vulkan (Mesa) compiló e hizo capturas auténticas `evidence/LIE-WALL04-CapturedMortar-Neutral.png` y `evidence/LIE-WALL04-CapturedMortar-Raking.png`. Un modo DIAGNÓSTICO **no físico** marca en verde sólo las muestras fotográficas realmente ganadoras de los tests de profundidad: `evidence/LIE-WALL04-CapturedMortar-CoverageDEBUG.png`.
+- Imagen a 1080×1080, cámara/luz constantes: primeras 89.918 muestras mortero en los 3 LOD produjeron **36.635** píxeles diagnosticados como mortero y **61.408** píxeles opacos casi negros; la variante densa produjo **45.737** píxeles de mortero y **58.995** opacos casi negros. Cambio: **+9.102 muestras visibles (+24,8%)** y **-2.413 opacos negros (-3,9%)**. El área visible total pasó de 318.339 a 321.876 píxeles.
+- La energía del mortero fotografiado SI aparece en el shader: los 45.737 píxeles diagnosticados tenían luminancia no negra. Persisten bandas oscuras y zonas sin cobertura **fuera** de las muestras de mortero. No falsificar el origen del negro ni eliminar la geometría real del ladrillo para pintarlo.
+- **El resultado NO está aceptado como fotorrealista**. No hay validación G1 de máscaras, referencia fotográfica ajustada a la misma cámara y exposición, prueba de intersección real de las aristas escaneadas ni benchmark GPU de Android. La medición Mesa Vulkan es una prueba funcional, no una afirmación de FPS del teléfono.
+
+Siguiente bloqueo técnico: diferenciar con una máscara de propietario/luz los píxeles de ladrillo oscuro, la ausencia de muestras del escaneo y los huecos nominales de junta; después reconstruir el perfil de contacto ladrillo-mortero con fuentes fotografiadas sin invadir la cara escaneada. Comparar A/B de cobertura y aspecto bajo igual luz, vigilar sobrepintado y evitar presupuestos de GPU desconocidos. Mantener separado el modo de diagnóstico verde del material final.
