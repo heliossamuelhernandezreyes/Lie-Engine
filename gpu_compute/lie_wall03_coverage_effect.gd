@@ -13,6 +13,49 @@ func capture_root() -> String:
 func shader_resource() -> RDShaderFile:
     return HoleShader
 
+func _joint_layout_bytes() -> PackedByteArray:
+    var source: Dictionary=catalog.get("wall_layout",{}).get("mortar_shader_layout",{})
+    if source.is_empty():
+        failure="LIE-WALL03 missing measured brick layout for procedural mortar"
+        return PackedByteArray()
+    var values:=PackedFloat32Array([
+        float(source["brick_length_m"]),float(source["brick_height_m"]),
+        float(source["pitch_x_m"]),float(source["pitch_y_m"]),
+        float(source["first_brick_x_m"]),float(source["first_brick_y_m"]),
+        float(source["mortar_plane_z_m"]),float(source["running_bond_stagger_fraction"]),
+        float(source["columns"]),float(source["rows"]),
+        float(catalog["wall_layout"]["mortar_gap_m"]),1.0
+    ])
+    return values.to_byte_array()
+
+func _make_set() -> void:
+    if not _buffers.has(16):
+        var data: PackedByteArray=_joint_layout_bytes()
+        if data.size()!=48:
+            failure="LIE-WALL03 invalid 48-byte GPU joint mask contract"
+            return
+        _buffer(16,data.size(),data)
+    if _set.is_valid():
+        _rd.free_rid(_set)
+    _set=RID()
+    if transport==null or not transport.get("gpu_ready"):
+        failure="Missing original LIE11 source lighting"
+        return
+    var irr: RID=transport.get("output_rid")
+    var material: RID=transport.call("material_codes_rid")
+    if not irr.is_valid() or not material.is_valid():
+        failure="Missing actual LIE11 node RGB and material buffer"
+        return
+    var bindings: Array[RDUniform]=[]
+    for binding in _buffers:
+        bindings.append(_uniform(binding,_buffers[binding]))
+    for binding in _images:
+        bindings.append(_uniform(binding,_images[binding],true))
+    bindings.append(_uniform(14,irr,true))
+    bindings.append(_uniform(15,material))
+    _set=_rd.uniform_set_create(bindings,_shader,0)
+    transport_bound=_set.is_valid()
+
 func set_coverage_enabled(value: bool) -> void:
     if coverage_enabled==value:
         return
