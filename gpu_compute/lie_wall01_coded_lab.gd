@@ -25,11 +25,20 @@ func _ready() -> void:
     state["clay_absorption"]=0.0
     super._ready()
 
+func _transport_factory() -> CompositorEffect:
+    return LightTransport.new()
+
+func _coded_source() -> String:
+    return SOURCE
+
 func _make_effect() -> CompositorEffect:
-    transport=LightTransport.new()
-    var value: Variant=JSON.parse_string(FileAccess.get_file_as_string(SOURCE))
+    transport=_transport_factory()
+    var value: Variant=JSON.parse_string(FileAccess.get_file_as_string(_coded_source()))
     if value is Dictionary:
         light_model=value
+        if transport.has_method("assign_shadow_boxes"):
+            if not transport.call("assign_shadow_boxes",light_model.get("direct_shadow_boxes",[])):
+                push_error("LIE-WALL02: invalid real brick shadow visibility data")
         transport.call("configure",light_model)
     var coded:=CodedWallEffect.new(1080)
     coded.transport=transport
@@ -104,6 +113,8 @@ func _apply() -> void:
                 original_core=light_model.get("blockers",[]).duplicate(true)
                 light_model["wall_opaque_core"]=original_core
             light_model["blockers"]=original_core.duplicate(true) if shadows else []
+            if transport.has_method("set_direct_shadow_enabled"):
+                transport.call("set_direct_shadow_enabled",shadows)
             if not transport.get("gpu_ready") or shadows!=last_shadows:
                 transport.call("configure",light_model)
             else:
