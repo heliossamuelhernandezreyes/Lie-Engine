@@ -1,0 +1,90 @@
+name: LIE-WALL04 native Vulkan photographed mortar prototype
+on:
+  push:
+    branches: ["experiment/lie-wall04-real-mortar-plan"]
+    paths:
+      - ".github/workflows/lie-wall04-native.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  photographed-mortar-native-vulkan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install numeric authoring and native Mesa Vulkan runner
+        run: |
+          python -m pip install numpy pillow scipy
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip \
+            https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Check Morton authoring ABI and verified source-only records
+        run: |
+          python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
+          python -m unittest discover -s tests -p 'test_lie_mortar01.py' -v
+      - name: Produce measured composite WALL04 and verify 96 original bricks byte-identical
+        run: |
+          python tools/lie_wall04_compose.py
+          python tools/lie_wall04_compose.py --restore
+          python - <<'PY'
+          import hashlib,json,numpy as np,pathlib,zlib
+          R=pathlib.Path('gpu_compute/assets')
+          base=json.loads((R/'lie_wall03/catalog.json').read_text())
+          updated=json.loads((R/'lie_wall04/catalog.json').read_text())
+          mortar=json.loads((R/'lie_mortar01/catalog.json').read_text())
+          old=np.frombuffer(zlib.decompress((R/'lie_wall03/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
+          new=np.frombuffer(zlib.decompress((R/'lie_wall04/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
+          assert updated['lighting']['sha256']==base['lighting']['sha256']
+          assert updated['collision']['spatial_envelope_count']==1
+          assert updated['source_scan_sha256']==base['source_scan_sha256']
+          assert updated['sample_count']<750000
+          assert sum(x['count'] for x in updated['masters']['real_scan_wall']['levels'])==len(new)
+          for o,n,expected in zip(base['masters']['real_scan_wall']['levels'],
+                                  updated['masters']['real_scan_wall']['levels'],
+                                  updated['wall04']['original_brick_record_sha256_by_lod']):
+            lo=old[o['start']:o['start']+o['count']]
+            hi=new[n['start']:n['start']+n['count']]
+            real=lo[lo[:,9]<864]
+            assert hashlib.sha256(real.tobytes()).hexdigest()==expected
+            assert hi[:len(real)].tobytes()==real.tobytes()
+            assert n['captured_mortar_samples']>0
+          assert not updated['wall04']['product_quality_accepted']
+          print('WALL04: 96 exact brick records, 1 invisible box, true 3D photo-mortar source sample bank',updated['sha256'])
+          PY
+      - name: Compile GDScript and compute shader
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie_wall04_mortar_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          data=Path('import.log').read_text()
+          assert 'SCRIPT ERROR:' not in data, data[-20000:]
+          PY
+      - name: Native Mesa Vulkan only - never claim Android FPS
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py \
+              --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" \
+              --lab liewall04 --directory /tmp/lie-wall04-native --audio-driver Dummy
+            python tools/lie_wall04_native_smoke.py --directory /tmp/lie-wall04-native
+          '
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-wall04-photographed-mortar-real-vulkan-experimental
+          path: |
+            import.log
+            gpu_compute/captures/liewall04/catalog.json
+            /tmp/lie-wall04-native/*.png
+            /tmp/lie-wall04-native/*.json
+            /tmp/lie-wall04-native/godot.log
+          if-no-files-found: warn
+          retention-days: 30
