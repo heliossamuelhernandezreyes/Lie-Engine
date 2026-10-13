@@ -22,8 +22,8 @@ DEFAULT_WALL = ROOT / "gpu_compute/assets/lie_wall03/catalog.json"
 DEFAULT_DEST = ROOT / "gpu_compute/assets/lie_mortar01"
 STRIDE_BYTES = 80
 SOURCE_PX_PER_M = 8192 / 2.0
-LODS = (0.00135, 0.00270, 0.00420)
-SAFETY_M = 0.0015
+LODS = (0.00120, 0.00240, 0.00360)
+SAFETY_M = 0.00075  # 0.75mm brick protection; source extends across 7mm of 8.5mm joint
 # EXPLICIT HEURISTIC: photographic displacement units are NOT calibrated mm.
 RELIEF_GAIN_M = 0.0015
 ORIGINAL_WALL_SHA = "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba"
@@ -95,7 +95,8 @@ class Donor:
             yy = np.clip(np.rint(center - across_m * SOURCE_PX_PER_M).astype(np.int32), 0, h-1)
             xx = u
         sy, sx = self.nearest_y[yy, xx], self.nearest_x[yy, xx]
-        # Maximum 14 source pixels ~= 3.4 mm, reject far-away brick pixels.
+        # Maximum 14 source pixels ~= 3.4 mm from the measured donor
+        # source joint. Never sample the raw donor brick surface.
         accepted = self.distance[yy, xx] <= 14.
         color = self.color_linear[sy, sx]
         n = self.normal[sy, sx, :3].astype(np.float32) / 127.5 - 1.
@@ -164,7 +165,7 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
         data[:, 1] = a
         extent = (across_center-half, lo, across_center+half, hi)
     data[:, 2] = plane_z + dz
-    data[:, 3] = spacing * .72
+    data[:, 3] = spacing * .80
     data[:, 4:7] = nrm
     data[:, 7] = 1.
     data[:, 8] = 3.
