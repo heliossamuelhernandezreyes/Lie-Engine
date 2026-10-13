@@ -40,9 +40,12 @@ func _make_effect() -> CompositorEffect:
             if not transport.call("assign_shadow_boxes",light_model.get("direct_shadow_boxes",[])):
                 push_error("LIE-WALL02: invalid real brick shadow visibility data")
         transport.call("configure",light_model)
-    var coded:=CodedWallEffect.new(1080)
+    var coded:=_coded_effect_factory()
     coded.transport=transport
     return coded
+
+func _coded_effect_factory() -> CompositorEffect:
+    return CodedWallEffect.new(1080)
 
 func _compositor_effects() -> Array[CompositorEffect]:
     var result: Array[CompositorEffect]=[]
