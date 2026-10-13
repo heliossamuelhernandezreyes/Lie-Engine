@@ -6544,12 +6544,12 @@
   "candidate_crops": [
     {
       "source_bbox_xyxy": [
-        344,
-        16,
-        432,
-        184
+        1384,
+        2528,
+        2152,
+        2616
       ],
-      "kind": "vertical",
+      "kind": "horizontal",
       "source_files": {
         "color": "candidate-00-color.png",
         "normal_gl": "candidate-00-normal_gl.png",
@@ -6561,12 +6561,12 @@
     },
     {
       "source_bbox_xyxy": [
-        3760,
-        16,
-        3848,
-        184
+        2312,
+        7856,
+        3080,
+        7944
       ],
-      "kind": "vertical",
+      "kind": "horizontal",
       "source_files": {
         "color": "candidate-01-color.png",
         "normal_gl": "candidate-01-normal_gl.png",
@@ -6578,12 +6578,12 @@
     },
     {
       "source_bbox_xyxy": [
-        4168,
-        16,
-        4256,
-        184
+        3240,
+        1288,
+        4008,
+        1376
       ],
-      "kind": "vertical",
+      "kind": "horizontal",
       "source_files": {
         "color": "candidate-02-color.png",
         "normal_gl": "candidate-02-normal_gl.png",
@@ -6595,12 +6595,12 @@
     },
     {
       "source_bbox_xyxy": [
-        7080,
-        16,
-        7168,
-        184
+        4176,
+        5696,
+        4944,
+        5784
       ],
-      "kind": "vertical",
+      "kind": "horizontal",
       "source_files": {
         "color": "candidate-03-color.png",
         "normal_gl": "candidate-03-normal_gl.png",
@@ -6612,12 +6612,12 @@
     },
     {
       "source_bbox_xyxy": [
-        7312,
-        16,
-        7400,
-        184
+        5104,
+        5992,
+        5872,
+        6080
       ],
-      "kind": "vertical",
+      "kind": "horizontal",
       "source_files": {
         "color": "candidate-04-color.png",
         "normal_gl": "candidate-04-normal_gl.png",
@@ -6629,12 +6629,12 @@
     },
     {
       "source_bbox_xyxy": [
-        7592,
-        16,
-        7680,
-        184
+        6032,
+        3784,
+        6800,
+        3872
       ],
-      "kind": "vertical",
+      "kind": "horizontal",
       "source_files": {
         "color": "candidate-05-color.png",
         "normal_gl": "candidate-05-normal_gl.png",
@@ -6646,9 +6646,9 @@
     },
     {
       "source_bbox_xyxy": [
-        7792,
+        344,
         16,
-        7880,
+        432,
         184
       ],
       "kind": "vertical",
@@ -6663,10 +6663,10 @@
     },
     {
       "source_bbox_xyxy": [
-        440,
-        216,
-        528,
-        464
+        3760,
+        16,
+        3848,
+        184
       ],
       "kind": "vertical",
       "source_files": {
@@ -6680,10 +6680,10 @@
     },
     {
       "source_bbox_xyxy": [
-        3504,
-        216,
-        3592,
-        464
+        4168,
+        16,
+        4256,
+        184
       ],
       "kind": "vertical",
       "source_files": {
@@ -6697,10 +6697,10 @@
     },
     {
       "source_bbox_xyxy": [
-        3776,
-        216,
-        3864,
-        464
+        7080,
+        16,
+        7168,
+        184
       ],
       "kind": "vertical",
       "source_files": {
@@ -6714,10 +6714,10 @@
     },
     {
       "source_bbox_xyxy": [
-        5272,
-        216,
-        5360,
-        464
+        7312,
+        16,
+        7400,
+        184
       ],
       "kind": "vertical",
       "source_files": {
@@ -6731,10 +6731,10 @@
     },
     {
       "source_bbox_xyxy": [
-        5648,
-        216,
-        5736,
-        464
+        7592,
+        16,
+        7680,
+        184
       ],
       "kind": "vertical",
       "source_files": {
@@ -6747,5 +6747,7 @@
       "status": "unreviewed"
     }
   ],
+  "horizontal_crops": 6,
+  "vertical_crops": 6,
   "next_gate": "Human inspection: reject brick contamination; NO LIE bank before approval"
 }

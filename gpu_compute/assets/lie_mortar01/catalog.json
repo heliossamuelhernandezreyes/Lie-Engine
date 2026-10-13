@@ -1,0 +1,51 @@
+{
+  "schema": "lie-mortar01/experimental/1.0",
+  "stride": 80,
+  "sample_count": 89918,
+  "bytes": 7193440,
+  "sha256": "0a4771eedccb7a41f549da447ed1bf8436ce0ebcfc4fdeb7745b526649864b9a",
+  "levels": [
+    {
+      "start": 0,
+      "count": 67416,
+      "spacing_m": 0.00135
+    },
+    {
+      "start": 67416,
+      "count": 17015,
+      "spacing_m": 0.0027
+    },
+    {
+      "start": 84431,
+      "count": 5487,
+      "spacing_m": 0.0042
+    }
+  ],
+  "source_material_id": "mortar.hero.real_masonry_joint",
+  "source_sha256": {
+    "color": "a7b3cfd953d8b71b54dd53e5f0409d1b83e5f10a228f5da2e5be15429a230ac8",
+    "normal_gl": "7db17a8452c59f0a46170103f14e7e2e4b04e02357f8e097666f671e52816a4c",
+    "height": "5926122a082220ecb6e9a677ab7fe5a974cb89bdcfaf3b13b6e8280be3374c48",
+    "roughness": "ce99dc3a1616cc52b46c62a24fabdae030c0c9dfe72e0194615a5419c9a1005e",
+    "ao": "503cea54bb2d7d346e9c8be7d695ed7b78b44d98955dc068f3e40bffb2b9b78e"
+  },
+  "source_license": "CC0-1.0",
+  "source_kind": "photographic PBR, not individual 3D source scan",
+  "source_brick_pixels_used_as_surface": false,
+  "photographic_joint_masks_reviewed": false,
+  "source_height_is_metric": false,
+  "relative_relief_gain_m": 0.0015,
+  "workshop_only_not_renderer_accepted": true,
+  "lighting_node_range": [
+    864,
+    871
+  ],
+  "brick_source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
+  "unchanged_brick_source_samples": true,
+  "collision": {
+    "spatial_envelope_count": 1,
+    "geometry": "unchanged WALL03 invisible spatial box"
+  },
+  "source_meshes_drawn": false,
+  "hero_quality_accepted": false
+}
