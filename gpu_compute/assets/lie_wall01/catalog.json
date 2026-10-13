@@ -1,0 +1,75 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 560866,
+  "bytes": 44869280,
+  "sha256": "9446ac800318cc1967b09f8f1c59ddde3d76c95e877705e4f95a364e29d0c031",
+  "masters": {
+    "real_scan_wall": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 404564
+        },
+        {
+          "start": 404564,
+          "count": 131548
+        },
+        {
+          "start": 536112,
+          "count": 24754
+        }
+      ],
+      "bounds_size": [
+        2.64675009727478,
+        0.6878780770301819,
+        0.12861716479063035
+      ],
+      "bounds_center": [
+        0.0529249906539917,
+        0.0,
+        0.0
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "source_title": "Stratford New Place Brick Ver 2",
+  "source_author": "Centre-of-Archaeology",
+  "source_url": "https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a",
+  "license": "CC BY 4.0",
+  "source_scan_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "source_master_sha256": "fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb",
+  "source_original_triangles": 500000,
+  "original_meshes_drawn": false,
+  "source_vertex_colors_used": true,
+  "wall_layout": {
+    "rows": 8,
+    "columns": 12,
+    "brick_count": 96,
+    "bond": "running with open staggered ends",
+    "seed": 2102,
+    "mortar_gap_m": 0.0085,
+    "procedural_recessed_mortar": true,
+    "mortar_mask": "joints only, never occlude full scanned XY brick faces"
+  },
+  "lighting": {
+    "pipeline": "LIE11 real GPU node RGB light transport -> LIE33 wall samples",
+    "node_count": 577,
+    "nodes_per_brick": 6,
+    "file": "light-model.json",
+    "sha256": "7bbc05e2c49527f1549a6a62d6bcbed12a7a588477d93ed5f2f492f94b88273e",
+    "per_pixel_shadows": false,
+    "absorption_and_color_stored_separately": true
+  },
+  "collision": {
+    "spatial_envelope_count": 1,
+    "geometry": "one invisible BoxShape3D",
+    "collision_is_coarse": true
+  },
+  "hero_quality_accepted": false,
+  "note": "Real scanned bricks with deterministic variations; PBR scan fidelity and hardware speed require A/B."
+}
