@@ -27,6 +27,18 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
           python -m unittest discover -s tests -p 'test_lie_mortar01.py' -v
+      - name: Rebuild denser source-backed mortars from committed photographic PBR crops
+        run: |
+          python tools/lie_wall04_bake.py --allow-unreviewed
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('gpu_compute/assets/lie_mortar01/catalog.json')
+          r=json.loads(p.read_text())
+          assert r['workshop_only_not_renderer_accepted']
+          assert r['sample_count']>89918, r['sample_count']
+          assert r['collision']['spatial_envelope_count']==1
+          print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
+          PY
       - name: Produce measured composite WALL04 and verify 96 original bricks byte-identical
         run: |
           python tools/lie_wall04_compose.py
