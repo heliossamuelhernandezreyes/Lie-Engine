@@ -161,17 +161,24 @@ def measured_brick_front_plane(wall_catalog_path: Path, wall: dict) -> tuple[flo
     if len(front) < 10000 or not np.isfinite(front).all():
         raise ValueError("Insufficient authentic brick front-face samples")
     z = front[:, 2]
-    plane = float(np.median(z))
-    q10, q90 = (float(v) for v in np.percentile(z, [10, 90]))
+    # The median is the *depth through the rough scanned surface*, NOT its
+    # exposed face. Real render evidence showed median=0.04385m while the
+    # earlier mortar plane was 0.05631m: that error buried the mortar 12.5mm
+    # and produced more black joints. Use the upper tail of actual +Z-facing
+    # scanned pixels as a robust flush datum, not their internal depth.
+    q10, q50, q90, q975 = (float(v) for v in np.percentile(z,[10, 50, 90, 97.5]))
+    plane = q975
     nominal = float(wall["wall_layout"]["mortar_shader_layout"]["mortar_plane_z_m"])
     if not (np.isfinite(plane) and .03 < plane < .09 and
-            abs(plane - nominal) < .015 and q90 >= q10):
-        raise ValueError("Measured brick front plane not compatible with photographed mortar")
+            nominal - .0015 <= plane <= nominal + .009 and q975 >= q90 >= q50 >= q10):
+        raise ValueError("Exposed scanned face calibration failed: do not bury mortar behind brick")
     return plane, {
-        "method": "median of authentic scan front-facing brick samples (normal.z > 0.70)",
+        "method": "97.5th percentile Z of actual +Z-facing scanned brick samples",
         "source_front_samples": int(len(front)),
         "source_front_z_p10_m": q10,
+        "source_front_z_median_m": q50,
         "source_front_z_p90_m": q90,
+        "source_front_z_p975_m": q975,
         "legacy_recessed_mortar_plane_z_m": nominal,
         "local_per_brick_flush_verified": False,
     }
