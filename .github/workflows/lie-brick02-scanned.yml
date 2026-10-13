@@ -8,27 +8,57 @@ on:
       - 'tests/test_lie_brick02_capture.py'
       - 'gpu_compute/lie_brick02_*'
       - 'gpu_compute/lie_brick01_lab.gd'
+      - 'gpu_compute/workshop/lie_agent_session.gd'
       - 'tools/lie_agent_launch.py'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  source-geometry:
+  source-geometry-and-native-vulkan:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
-      - name: Install source processing dependencies
-        run: python -m pip install numpy pillow trimesh
-      - name: Inspect physical 3D fixture and capture bank ABI
+      - name: Install source geometry support and software Vulkan
+        run: |
+          python -m pip install numpy pillow trimesh
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Check full 3D source geometry, colors, normals, LOD ABI and provenance
         run: |
           python -m unittest discover -s tests -p 'test_lie_brick02_capture.py' -v
           python tools/lie_brick02_fixture.py --directory /tmp/liebrick02source
-          python tools/lie_brick02_capture_scan.py --source /tmp/liebrick02source/SYNTHETIC_NOT_PHOTOGRAMMETRY.glb --provenance /tmp/liebrick02source/provenance.json --output gpu_compute/captures/liebrick02 --hero 25000 --middle 6000 --far 1200
+          python tools/lie_brick02_capture_scan.py --source /tmp/liebrick02source/SYNTHETIC_NOT_PHOTOGRAMMETRY.glb --provenance /tmp/liebrick02source/provenance.json --output gpu_compute/captures/liebrick02 --hero 90000 --middle 18000 --far 3000
+      - name: Import and syntax-check Godot 4.7.2 LIE-BRICK02
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie_brick02_scan_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('import.log').read_text()
+          assert 'SCRIPT ERROR:' not in text,text[-9000:]
+          PY
+      - name: Verify true Vulkan GPU sample drawing at 1080 in three views
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab liebrick02 --directory /tmp/lie-brick02-native --audio-driver Dummy
+            python tools/lie_brick02_native_smoke.py --directory /tmp/lie-brick02-native
+          '
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lie-brick02-synthetic-only-abi
+          name: lie-brick02-synthetic-test-native-vulkan
           path: |
+            import.log
             gpu_compute/captures/liebrick02/catalog.json
+            /tmp/lie-brick02-native/*.png
+            /tmp/lie-brick02-native/*.json
+            /tmp/lie-brick02-native/godot.log
           if-no-files-found: warn
