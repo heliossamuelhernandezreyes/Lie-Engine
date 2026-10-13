@@ -40,7 +40,7 @@ class RealScannedWallTest(unittest.TestCase):
         import tempfile
         with tempfile.TemporaryDirectory() as directory:
             destination=Path(directory)
-            meta=wall.build(output=destination)
+            meta=wall.build(destination=destination)
             raw=(destination/"library.bin").read_bytes()
             codes=(destination/"light-model.json").read_bytes()
             self.assertEqual(meta["source_original_triangles"],500000)
