@@ -131,11 +131,28 @@ def extract(root: Path=MATERIAL, preview_width: int=1024, max_crops: int=12) -> 
     original_w,original_h=dimensions
     small_h,small_w=mask.shape
     candidates=[]
-    ranked=sorted(detected["features"],key=lambda item:item["coverage"],reverse=True)
-    for i,feature in enumerate(ranked[:max_crops]):
+    # Force a balanced atlas. The first extractor ranked by confidence alone,
+    # which returned 12 VERTICAL joints and ZERO horizontal ones on the
+    # genuine Brick Wall 13 source. A useful 3D mortar bank requires both.
+    horizontal=sorted((v for v in detected["features"]
+                       if v["kind"]=="horizontal"),key=lambda v:v["coverage"],reverse=True)
+    verticals=sorted((v for v in detected["features"]
+                     if v["kind"]=="vertical"),key=lambda v:v["coverage"],reverse=True)
+    half=max_crops//2
+    if not horizontal or not verticals:
+        raise UncertainSegmentation("Both joint orientations must be present")
+    ranked=horizontal[:half]+verticals[:max_crops-half]
+    if len(ranked)<max_crops:
+        raise UncertainSegmentation("Insufficient observed joints in each orientation")
+    for i,feature in enumerate(ranked):
         if feature["kind"]=="horizontal":
             y=feature["center_preview_y"]
-            x0,x1=round(small_w*.25),round(small_w*.75)
+            # 96 preview pixels = ~18.8 cm of the physically scaled 8K source.
+            # Multiple distinct regions along different courses, rather than
+            # one giant repeated strip filled mostly with source bricks.
+            span=min(small_w//6,96)
+            center=int(small_w*(.16+.68*(i+.5)/max(half,1)))
+            x0,x1=max(0,center-span//2),min(small_w,center+span//2)
             y0,y1=max(0,y-5),min(small_h,y+6)
         else:
             x=feature["center_preview_x"]
@@ -163,6 +180,8 @@ def extract(root: Path=MATERIAL, preview_width: int=1024, max_crops: int=12) -> 
             "detected_horizontal_rows":len(detected["rows"]),
             "detected_vertical_segments":detected["vertical_count"],
             "features":detected["features"],"candidate_crops":candidates,
+            "horizontal_crops":sum(x["kind"]=="horizontal" for x in candidates),
+            "vertical_crops":sum(x["kind"]=="vertical" for x in candidates),
             "next_gate":"Human inspection: reject brick contamination; NO LIE bank before approval"}
     (derived/"mortar-unreviewed-report.json").write_text(json.dumps(report,indent=2)+"\n")
     return report
