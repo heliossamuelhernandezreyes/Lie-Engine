@@ -10,6 +10,7 @@ var light_model: Dictionary={}
 var last_light_key: String=""
 var last_absorption: int=-1
 var last_shadows: bool=true
+var last_direct_shadows: bool=true
 var lighting_update_count: int=0
 
 func _ready() -> void:
@@ -88,6 +89,9 @@ func command(request: Variant) -> Dictionary:
                 return {"ok":false,"error":"absorption_range","revision":revision}
     return super.command(request)
 
+func _direct_shadow_enabled() -> bool:
+    return bool(state["shadows"])
+
 func _apply() -> void:
     if not light_model.is_empty() and effect!=null and effect.get("capture_loaded"):
         var presets: Dictionary={
@@ -106,7 +110,9 @@ func _apply() -> void:
         var key: String=JSON.stringify([state["lighting_preset"],float(state["light_azimuth"]),power])
         var absorption: int=int(round(float(state["clay_absorption"])*1000.0))
         var shadows: bool=bool(state["shadows"])
-        if key!=last_light_key or absorption!=last_absorption or shadows!=last_shadows or not transport.get("gpu_ready"):
+        var direct_enabled: bool=_direct_shadow_enabled()
+        var direct_changed: bool=direct_enabled!=last_direct_shadows
+        if key!=last_light_key or absorption!=last_absorption or shadows!=last_shadows or direct_changed or not transport.get("gpu_ready"):
             light_model["lights"][0]["position"]=[light_position.x,light_position.y,light_position.z]
             light_model["lights"][0]["power_rgb"]=[power*selected.x,power*selected.y,power*selected.z]
             light_model["lights"][0]["radius"]=6.0
@@ -117,15 +123,20 @@ func _apply() -> void:
                 light_model["wall_opaque_core"]=original_core
             light_model["blockers"]=original_core.duplicate(true) if shadows else []
             if transport.has_method("set_direct_shadow_enabled"):
-                transport.call("set_direct_shadow_enabled",shadows)
+                transport.call("set_direct_shadow_enabled",direct_enabled)
             if not transport.get("gpu_ready") or shadows!=last_shadows:
                 transport.call("configure",light_model)
             else:
                 if key!=last_light_key:transport.call("set_light_codes",light_model)
                 if absorption!=last_absorption:transport.call("set_material_codes",light_model)
+                # Re-run ORIGINAL light injection with unchanged RGB values
+                # when only the optional direct shadow GPU buffer changes.
+                if direct_changed and key==last_light_key:
+                    transport.call("set_light_codes",light_model)
             last_light_key=key
             last_absorption=absorption
             last_shadows=shadows
+            last_direct_shadows=direct_enabled
             lighting_update_count+=1
             effect.call("invalidate_lighting")
     super._apply()
