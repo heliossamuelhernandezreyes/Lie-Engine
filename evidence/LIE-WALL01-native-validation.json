@@ -1,0 +1,69 @@
+{
+  "kind": "LIE11 original GPU coded irradiance to LIE33 scan wall",
+  "source_title": "Stratford New Place Brick Ver 2",
+  "source_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "source_original_triangles": 500000,
+  "original_meshes_rendered": 0,
+  "bricks": 96,
+  "coarse_spatial_boxes": 1,
+  "wall_render_instances": 1,
+  "light_nodes": 577,
+  "two_conservative_bounces": true,
+  "native_output_pixels": [
+    1080,
+    1080
+  ],
+  "software_Vulkan": true,
+  "real_hardware_GPU_fps_measured": false,
+  "photo_reference_AB_passed": false,
+  "lod_hero_samples": 404564,
+  "lod_distant_samples": 24754,
+  "light_updates": 4,
+  "transport_frames": 227,
+  "views": {
+    "neutral": {
+      "filename": "LIE-WALL01-RealScan-Neutral.png",
+      "sha256": "3db253c0a4a4759c3b22253d2258b8cbb57320485b2a768996aaa4af3591a80c",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        98.13910675048828,
+        81.43431854248047,
+        70.20856475830078
+      ],
+      "mean_luminance": 84.17521201467552
+    },
+    "warm_raking": {
+      "filename": "LIE-WALL01-RealScan-warm_raking.png",
+      "sha256": "96dc17a942fd7d08b8750a7c003f5305694225eb6747a3ee7d76f57da6a759ad",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        89.93277740478516,
+        60.78457260131836,
+        39.904747009277344
+      ],
+      "mean_luminance": 65.47383615683555
+    },
+    "cool_ambient": {
+      "filename": "LIE-WALL01-RealScan-cool_ambient.png",
+      "sha256": "07bd1901476dfa78246d9e2220d8aee6e552528b0b545ae136fed03ce01d6288",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        70.13448333740234,
+        72.75897979736328,
+        74.49337005615234
+      ],
+      "mean_luminance": 72.32623613820654
+    },
+    "absorbed": {
+      "filename": "LIE-WALL01-RealScan-Absorption60.png",
+      "sha256": "1d23fa770d3289baf15cb193a7d371aa7859082c191358e202ea224c79b9a99d",
+      "opaque_pixels": 193247,
+      "mean_rgb": [
+        50.93073272705078,
+        53.558815002441406,
+        55.225311279296875
+      ],
+      "mean_luminance": 53.120404310545574
+    }
+  }
+}

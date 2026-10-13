@@ -1,0 +1,55 @@
+{
+  "title": "Stratford New Place Brick Ver 2",
+  "author": "Centre-of-Archaeology",
+  "license": "CC BY 4.0",
+  "source_url": "https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a",
+  "capture_kind": "structured-light 3D scan (heritage publisher description)",
+  "expected_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "dataset_url": "https://huggingface.co/datasets/allenai/objaverse",
+  "dataset_uid": "6077f6801089403993f6a6612ff5739a",
+  "dataset_annotation": {
+    "license": "by",
+    "name": "Stratford New Place Brick Ver 2",
+    "uri": "https://api.sketchfab.com/v3/models/6077f6801089403993f6a6612ff5739a",
+    "viewerUrl": "https://sketchfab.com/3d-models/6077f6801089403993f6a6612ff5739a",
+    "user": {
+      "uid": "b4a8b64cb3a648b6bad4fb897f12d8a6",
+      "username": "Centre-of-Archaeology",
+      "displayName": "Centre-of-Archaeology",
+      "profileUrl": "https://sketchfab.com/Centre-of-Archaeology",
+      "account": "prem",
+      "avatar": {
+        "uri": "https://api.sketchfab.com/v3/avatars/75fd05aefe8e4b6abd814a3e4edaf575",
+        "images": [
+          {
+            "size": 773,
+            "width": 32,
+            "url": "https://media.sketchfab.com/avatars/75fd05aefe8e4b6abd814a3e4edaf575/d9420f7f51694492a7c612fd093e48d9.jpeg",
+            "height": 32
+          },
+          {
+            "size": 1142,
+            "width": 48,
+            "url": "https://media.sketchfab.com/avatars/75fd05aefe8e4b6abd814a3e4edaf575/5f8372c7de554ef99f5ee816575599b0.jpeg",
+            "height": 48
+          },
+          {
+            "size": 2290,
+            "width": 90,
+            "url": "https://media.sketchfab.com/avatars/75fd05aefe8e4b6abd814a3e4edaf575/099614cd6ed64249b13be7683258fdae.jpeg",
+            "height": 90
+          },
+          {
+            "size": 2678,
+            "width": 100,
+            "url": "https://media.sketchfab.com/avatars/75fd05aefe8e4b6abd814a3e4edaf575/383c27d33c7b41cd93008828a424cfb9.jpeg",
+            "height": 100
+          }
+        ]
+      },
+      "uri": "https://api.sketchfab.com/v3/users/b4a8b64cb3a648b6bad4fb897f12d8a6"
+    }
+  },
+  "download_method": "public CC-licensed Objaverse 1.0 GLB, official load_objects",
+  "source_size_bytes": 20324708
+}
