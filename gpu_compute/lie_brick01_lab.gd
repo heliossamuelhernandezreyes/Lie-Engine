@@ -19,10 +19,17 @@ func _make_effect() -> CompositorEffect:return Effect.new(1080)
 func _lab_heading() -> String:return "LIE-BRICK-01 · Ladrillo PBR derivado"
 func _lab_geometry_text() -> String:return "1 ladrillo hero visible · una caja invisible\nBordes erosionados y esquinas dañadas\nNormal + altura PBR CC0 4K\nTres niveles de muestras"
 func _lab_source_text() -> String:return "Fuente Poly Haven Red Brick CC0\nGeometría LIE procedimental no plana\nNO es escaneo 3D individual\nCalidad hero pendiente de aprobación"
+func _compositor_effects() -> Array[CompositorEffect]:
+    var list: Array[CompositorEffect]=[]
+    list.append(effect)
+    return list
+func _camera_distance_multiplier() -> float:return 2.7
+func _extra_light_controls(_panel: VBoxContainer) -> void:pass
+
 func _ready() -> void:
     get_window().size=Vector2i(1280,800);effect=_make_effect()
     var world:=WorldEnvironment.new();var environment:=Environment.new();environment.background_mode=Environment.BG_COLOR;environment.background_color=Color(.025,.034,.045);world.environment=environment
-    var compositor:=Compositor.new();compositor.compositor_effects=[effect];world.compositor=compositor;add_child(world)
+    var compositor:=Compositor.new();compositor.compositor_effects=_compositor_effects();world.compositor=compositor;add_child(world)
     camera=Camera3D.new();camera.current=true;camera.near=.001;camera.far=40;add_child(camera)
     _ui();_apply();_refresh()
     if effect.get("capture_loaded"):_build_invisible_proxies()
@@ -63,6 +70,7 @@ func _ui() -> void:
     var right: VBoxContainer=_panel(ui,Vector2(1000,70));_label(right,"CÁMARA Y LUZ",13).add_theme_color_override("font_color",Color(.4,.85,1))
     for pair in [["camera_yaw","Órbita"],["camera_elevation","Altura"],["distance_factor","Distancia"],["light_azimuth","Dirección de luz"],["light_power","Intensidad"],["exposure","Exposición"]]:_slider(right,pair[0],pair[1])
     _check(right,"shadows","Sombras")
+    _extra_light_controls(right)
     status=_label(right,"Preparando biblioteca…",12);status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;status.custom_minimum_size.x=225
     var caption:=_label(ui,"LIE · 1080×1080 px · Vulkan",12);caption.position=Vector2(310,760)
 
@@ -121,6 +129,8 @@ func _build_invisible_proxies() -> void:
     var dims: Array=effect.get("catalog")["masters"][state["master"]]["bounds_size"]
     box.size=Vector3(float(dims[0]),float(dims[1]),float(dims[2]))
     shape.shape=box
+    var bounds_center: Array=effect.get("catalog")["masters"][state["master"]].get("bounds_center",[0.0,0.0,0.0])
+    shape.position=Vector3(float(bounds_center[0]),float(bounds_center[1]),float(bounds_center[2]))
     body.add_child(shape)
     add_child(body)
 
@@ -130,8 +140,10 @@ func _apply() -> void:
     var target:=Vector3.ZERO
     var distance: float=.65
     if state["mode"]=="master":
-        var size: Array=effect.get("catalog")["masters"][state["master"]]["bounds_size"];distance=maxf(maxf(size[0],size[1]),size[2])*2.7
+        var size: Array=effect.get("catalog")["masters"][state["master"]]["bounds_size"];distance=maxf(maxf(size[0],size[1]),size[2])*_camera_distance_multiplier()
         if state["master"]=="corner":target=Vector3(.125,0,-.125)
+        var center_array: Array=effect.get("catalog")["masters"][state["master"]].get("bounds_center",[0.0,0.0,0.0])
+        if state["master"]!="corner":target=Vector3(float(center_array[0]),float(center_array[1]),float(center_array[2]))
     if has_node("InvisibleBrick"):
         var box_node: CollisionShape3D=get_node("InvisibleBrick/OnlyCollider")
         var dimensions: Array=effect.get("catalog")["masters"][state["master"]]["bounds_size"]
