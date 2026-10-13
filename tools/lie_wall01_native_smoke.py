@@ -50,7 +50,8 @@ def smoke(directory: Path):
     assert snapshot["metrics"]["visible_source_meshes"]==0
     assert snapshot["lighting_node_count"]==577
     assert snapshot["coded_light"]["legacy_point_light_double_counting"] is False
-    assert snapshot["metrics"]["sample_invocations"]==410000,snapshot["metrics"]
+    hero_count=m["masters"]["real_scan_wall"]["levels"][0]["count"]
+    assert snapshot["metrics"]["sample_invocations"]==hero_count,snapshot["metrics"]
 
     def capture(label):
         filename=f"LIE-WALL01-RealScan-{label}.png"
@@ -96,7 +97,8 @@ def smoke(directory: Path):
     time.sleep(.5)
     lod=request({"op":"snapshot"})["snapshot"]
     assert lod["metrics"]["lod"]==2,lod
-    assert lod["metrics"]["sample_invocations"]==24340,lod["metrics"]
+    far_count=m["masters"]["real_scan_wall"]["levels"][2]["count"]
+    assert lod["metrics"]["sample_invocations"]==far_count,lod["metrics"]
     report={
         "kind":"LIE11 original GPU coded irradiance to LIE33 scan wall",
         "source_title":m["source_title"],"source_sha256":m["source_scan_sha256"],
@@ -105,7 +107,7 @@ def smoke(directory: Path):
         "light_nodes":577,"two_conservative_bounces":True,
         "native_output_pixels":[1080,1080],"software_Vulkan":True,
         "real_hardware_GPU_fps_measured":False,"photo_reference_AB_passed":False,
-        "lod_hero_samples":410000,"lod_distant_samples":24340,
+        "lod_hero_samples":hero_count,"lod_distant_samples":far_count,
         "light_updates":lod["lighting_updates"],"transport_frames":lod["transport_frame_count"],
         "views":result}
     (directory/"LIE-WALL01-native-validation.json").write_text(json.dumps(report,indent=2))
