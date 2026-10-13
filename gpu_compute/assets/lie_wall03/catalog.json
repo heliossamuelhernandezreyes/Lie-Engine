@@ -1,0 +1,104 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 560866,
+  "bytes": 44869280,
+  "sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
+  "masters": {
+    "real_scan_wall": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 404564
+        },
+        {
+          "start": 404564,
+          "count": 131548
+        },
+        {
+          "start": 536112,
+          "count": 24754
+        }
+      ],
+      "bounds_size": [
+        2.64675009727478,
+        0.6878780770301819,
+        0.12861716479063035
+      ],
+      "bounds_center": [
+        0.0529249906539917,
+        0.0,
+        0.0
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "source_title": "Stratford New Place Brick Ver 2",
+  "source_author": "Centre-of-Archaeology",
+  "source_url": "https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a",
+  "license": "CC BY 4.0",
+  "source_scan_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "source_master_sha256": "fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb",
+  "source_original_triangles": 500000,
+  "original_meshes_drawn": false,
+  "source_vertex_colors_used": true,
+  "wall_layout": {
+    "rows": 8,
+    "columns": 12,
+    "brick_count": 96,
+    "bond": "running with open staggered ends",
+    "seed": 2102,
+    "mortar_gap_m": 0.0085,
+    "procedural_recessed_mortar": true,
+    "mortar_mask": "joints only, never occlude full scanned XY brick faces",
+    "mortar_recess_m": 0.0035,
+    "mortar_nodes_by_row": true,
+    "mortar_shader_layout": {
+      "brick_length_m": 0.2032,
+      "brick_height_m": 0.07742225992271486,
+      "pitch_x_m": 0.2117,
+      "pitch_y_m": 0.08592225992271485,
+      "first_brick_x_m": -1.1643500328063965,
+      "first_brick_y_m": -0.300727903842926,
+      "mortar_plane_z_m": 0.0563086,
+      "running_bond_stagger_fraction": 0.5,
+      "rows": 8,
+      "columns": 12,
+      "procedural_joint_surface_only": true
+    },
+    "mortar_samples_per_lod": [
+      20564,
+      6748,
+      1714
+    ],
+    "scanned_brick_xyz_and_colors_unchanged": true
+  },
+  "lighting": {
+    "pipeline": "LIE11 real GPU node RGB light transport -> LIE33 wall samples",
+    "node_count": 872,
+    "nodes_per_brick": 9,
+    "front_micro_patches_per_brick": 4,
+    "direct_shadow_occluders": 96,
+    "lighting_visibility": "source-derived micro patches, inset-brick direct shadows and existing core bounce proxy",
+    "file": "light-model.json",
+    "sha256": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb",
+    "per_pixel_shadows": false,
+    "absorption_and_color_stored_separately": true,
+    "mortar_nodes": 8,
+    "mortar_light_regions": "one finite patch per course; local RGB code, dynamic",
+    "screen_space_reconstruction": "opt-in geometry/depth/normal constrained GPU interior hole recovery",
+    "photographic_material_texture_invented": false,
+    "gpu_joint_coverage": "ray intersect mortar recess; reject every nominal scan brick footprint; use per-row LIE11 light code"
+  },
+  "collision": {
+    "spatial_envelope_count": 1,
+    "geometry": "one invisible BoxShape3D",
+    "collision_is_coarse": true
+  },
+  "hero_quality_accepted": false,
+  "note": "One invisible box; original scanned bricks; no added geometry; 8 separately lit procedural mortar courses; GPU interior coverage pass optional."
+}

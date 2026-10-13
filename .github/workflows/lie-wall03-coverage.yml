@@ -1,0 +1,67 @@
+name: LIE-WALL03 real scan coverage and mortar RGB
+on:
+  push:
+    branches: ["experiment/lie-wall03-coverage-mortar"]
+    paths:
+      - ".github/workflows/lie-wall03-coverage.yml"
+      - "tools/lie_wall03_*"
+      - "tests/test_lie_wall03_coverage.py"
+      - "gpu_compute/lie_wall03_*"
+      - "gpu_compute/shaders/lie_wall03_coverage.glsl"
+      - "tools/lie_agent_launch.py"
+      - "gpu_compute/workshop/lie_agent_session.gd"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tested-native-sample-coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install source dependencies and software Vulkan
+        run: |
+          python -m pip install numpy pillow
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Restore immutable authentic Stratford brick
+        run: python tools/lie_brick02_restore.py
+      - name: Bake original scan, eight independently lit mortar rows and verify conservation
+        run: |
+          python tools/lie_wall03_bake.py --output gpu_compute/captures/liewall03
+          python -m unittest discover -s tests -p 'test_lie_wall03_coverage.py' -v
+      - name: Compile Godot project and GLSL compute pass
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie_wall03_coverage_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          data=Path("import.log").read_text()
+          assert "SCRIPT ERROR:" not in data,data[-16000:]
+          PY
+      - name: "Render real 1080 Vulkan images: interior coverage A/B and eight mortar-light codes"
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --lab liewall03 --directory /tmp/lie-wall03-native --audio-driver Dummy
+            python tools/lie_wall03_native_smoke.py --directory /tmp/lie-wall03-native
+            python tools/lie_wall03_benchmark.py --directory /tmp/lie-wall03-native --poses 5
+          '
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-wall03-authentic-source-coverage-mortar-vulkan
+          path: |
+            import.log
+            gpu_compute/captures/liewall03/catalog.json
+            gpu_compute/captures/liewall03/light-model.json
+            /tmp/lie-wall03-native/*.png
+            /tmp/lie-wall03-native/*.json
+            /tmp/lie-wall03-native/godot.log
+          if-no-files-found: warn
