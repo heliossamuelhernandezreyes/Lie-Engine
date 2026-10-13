@@ -68,6 +68,27 @@ func run() -> void:
             await process_frame
             if lab.effect.gpu_ready and lab._connected and lab.effect.frame_count>0:break
         expect(lab.effect.gpu_ready and lab._connected and lab.effect.frame_count>0,"Actual Mobile Vulkan compositor draws the touch scene")
+        var paired: Array=[]
+        for i in range(10):
+            lab.command({"op":"set_values","values":{"camera_yaw":lab.state["camera_yaw"]+.05}})
+            await process_frame
+            var perf: Dictionary=lab.effect.performance_snapshot()
+            var viewport_ms: float=RenderingServer.viewport_get_measured_render_time_gpu(root.get_viewport_rid())
+            if perf.has("lie_gpu_ns") and viewport_ms>0:paired.append({"lie_gpu_ms":perf["lie_gpu_ns"]/1000000.0,"viewport_gpu_ms":viewport_ms})
+        expect(not paired.is_empty(),"Real Vulkan timestamp and whole-viewport GPU metrics available")
+        hud.diagnostics.sample(lab.effect,root)
+        var measured: Dictionary=hud.diagnostics.latest
+        expect(measured["gpu_lie_samples"]>0 and measured["gpu_lie_ms_last"]>0 and measured["gpu_frame_ms"]>0,"Measured GPU durations; no CPU substitution")
+        expect(measured["gpu_rd_memory_bytes"]>=measured["gpu_lie_reserved_bytes"] and measured["gpu_lie_reserved_bytes"]>0,"Global GPU allocator covers tracked LIE buffers/images")
+        expect(measured["rss_bytes"]>0 and measured["cpu_process_total_capacity_percent"]>=0,"Real process memory and CPU counters")
+        expect(measured["gpu_total_utilization_percent"]==null,"Unavailable hardware utilization explicitly null")
+        var panel_visible: bool=hud.metrics_panel.visible
+        gui_tap("Datos",10);expect(hud.metrics_panel.visible!=panel_visible,"Metrics panel toggle uses native touch GUI");gui_tap("Datos",10)
+        var copy_point: Vector2=hud.metrics_buttons[0].get_global_rect().get_center()
+        finger(10,true,copy_point);finger(10,false,copy_point)
+        var copied: Variant=JSON.parse_string(DisplayServer.clipboard_get())
+        expect(copied is Dictionary and copied.get("app_version")=="0.1.1-r2-metrics" and copied.get("scopes") is Dictionary,"Native touch copies actual JSON report to clipboard")
+        var metrics_file:=FileAccess.open("res://robot-touch-performance.json",FileAccess.WRITE);metrics_file.store_string(JSON.stringify({"live":measured,"concurrent_gpu_readouts":paired,"timing_scope":"Asynchronously collected LIE and viewport markers, potentially adjacent frames; same units, not frame-identical pairing."},"  "));metrics_file.close()
         lab.effect.request_readback()
         for i in range(8):await process_frame
         var read: Dictionary=lab.effect.readback()

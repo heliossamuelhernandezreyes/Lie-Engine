@@ -6,7 +6,8 @@ assembly and custom LIE compute compositor. This is a playable test, not a
 production game. Source meshes remain collision-only and are not displayed.
 
 The APK is an offline ARM64 Android application, package
-`org.lieengine.robotdemo`, label **LIE R2 Robot**, version `0.1.0-r2-test`.
+`org.lieengine.robotdemo`, label **LIE R2 Robot**, version `0.1.1-r2-metrics`
+(version code 2). It updates the first signed APK with the same certificate.
 Godot's 4.7.2 prebuilt template declares minimum API 24 and target API 36.
 Actual use needs a working Vulkan Mobile renderer; the Poco X7 Pro must still
 be tested by its owner. There is no physical Android/FPS claim.
@@ -20,6 +21,55 @@ and looking work simultaneously. Releasing movement clears its input; losing
 application focus clears every finger and pauses. The top buttons reset the
 entrance, toggle overview/roof/shadows/grip, adjust camera distance and pause.
 The roof adds/removes the same source collision surfaces as the desktop.
+
+## On-screen performance monitor
+
+The **Datos** button shows/hides a live panel; **Copiar informe** copies the
+actual readings and their scopes as JSON for sharing from a phone. **Reiniciar**
+starts a new rolling measurement window. It refreshes approximately every
+0.5 seconds (later if a frame stalls) without full GPU readback, networking,
+root or additional Android permissions.
+
+- Screen FPS is Godot's once-per-second rendered-frame monitor. **Reconstr.
+  LIE/s** counts actual compute reconstruction updates, which can be zero when
+  an unchanged image is cached. Screen FPS alone is not reconstruction speed.
+- Frame p50/p95 uses the monotonic wall clock between process callbacks, over
+  at most 600 recent samples. It includes scheduling and vsync. Simulation
+  `delta` can be capped/time-scaled, so it must not stand in for real frame time.
+- **CPU proceso** is the change in `/proc/self/stat` utime+stime over elapsed
+  clock time, normalized by the logical core count. Raw one-core percentage
+  remains in the report (100% = one busy core; it can exceed 100% across
+  threads). The tick frequency is read from `AT_CLKTCK` in `/proc/self/auxv`,
+  the same source as Android bionic `sysconf(_SC_CLK_TCK)`; it is not assumed.
+  This measures this process, not other apps, CPU frequency or thermals.
+- RAM is approximate process RSS and kernel peak RSS from `/proc/self/status`.
+  Shared resident pages are included; this is not Android PSS or exclusive
+  private memory. Godot's allocator counter is a separate report field.
+- GPU frame time comes from native viewport timestamp measurements. **GPU
+  LIE última** is the last compute-marker duration and its age, converted from
+  the pinned 4.7.2 Vulkan driver's nanoseconds to milliseconds. Captured marker
+  and viewport values can refer to adjacent frames because profiling is
+  asynchronous; do not subtract them as if they were one aligned frame.
+- GPU memory distinguishes the global RenderingDevice/Vulkan allocator from
+  requested LIE buffer/image bytes. On unified-memory phones these can overlap
+  system RAM; do not sum them with RSS.
+- Overall hardware GPU utilization is explicitly **N/D** / JSON null. It is
+  not inferred from FPS or timestamp duration. Denied proc reads, unavailable
+  driver counters and a first CPU sample also report unavailable/waiting.
+
+The monitor contributes some overhead. It is a practical diagnostic tool, not
+an Android system profiler or a physical-device performance guarantee.
+
+Sources: Godot `Performance`, `RenderingServer` and `RenderingDevice` class
+references; Linux procfs documentation; Android bionic sysconf implementation.
+Note: the Godot RenderingDevice reference currently describes GPU timestamp
+units as microseconds, while the pinned 4.7.2 Vulkan driver's
+`timestamp_query_result_to_time` returns nanoseconds. The implementation was
+checked directly and concurrent viewport readings confirm millisecond scale.
+
+https://github.com/godotengine/godot/blob/4.7.2-stable/drivers/vulkan/rendering_device_driver_vulkan.cpp
+https://android.googlesource.com/platform/bionic/+/refs/heads/main/libc/bionic/sysconf.cpp
+https://www.kernel.org/doc/Documentation/filesystems/proc.txt
 
 The HUD keeps the original square reconstruction centered in a responsive
 landscape viewport. Output is 512 square / internal reconstruction 1024 square,
@@ -87,11 +137,15 @@ The touch test sends actual screen-touch/drag events through the native
 Viewport. It exercises simultaneous movement/camera, a third-finger GUI
 button, release order, turning, collision movement, focus loss, reset, roof
 colliders and grip. Buttons receive native touch without mouse emulation.
-GPU mode checks real Mobile-compositor pixels and bank residency and saves an
-actual native HUD screenshot. Latest result: **262,165 checks pass** on
+GPU mode checks real Mobile-compositor pixels, bank residency, live process/
+GPU counters, native touch toggling and actual clipboard JSON, and saves an
+actual native HUD screenshot. Latest result: **262,172 checks pass** on
 llvmpipe software Vulkan, with one immutable bank upload. Existing motion
 3,019 checks, rig 3,734 checks, agent 20 checks and Python 72 tests (one skip)
 also pass. No Android device/emulator has run the packaged application yet.
+`test_robot_performance.gd` adds 15 checks, including actual procfs counters,
+a real CPU workload, unavailable data handling, auxiliary clock units and
+elapsed frame time despite a deliberately short simulation delta.
 
 The first visual check found joystick drawing covered by the background;
 controls now draw in a separate top overlay. Export attempts also retained the
@@ -99,3 +153,7 @@ missing ETC2 import flag, invalid prebuilt SDK overrides and untyped feature
 metadata failures. The corrected pipeline enables ETC2/ASTC imports and uses
 the template's SDK levels. These are development failures, not successful phone
 tests. Future art, contact physics and physical-device performance remain work.
+The first monitor screenshot used simulation delta for frame pacing and
+underreported stalls; retained evidence shows it beside real GPU timings.
+The corrected version uses monotonic elapsed time and explicitly labels
+asynchronous GPU sample age and memory/CPU scopes.

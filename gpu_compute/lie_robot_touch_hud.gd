@@ -1,5 +1,6 @@
 extends Control
 ## Finger IDs remain independent. Every mutation uses the existing lab command.
+const PerformanceMonitor=preload("res://lie_robot_performance.gd")
 var lab: Node3D
 var picture: TextureRect
 var status: Label
@@ -12,6 +13,12 @@ var radius: float=88
 var _mouse_mode: int=0
 var _ready_seconds: float=0
 var _paused: bool=false
+var diagnostics:=PerformanceMonitor.new()
+var metrics_panel: PanelContainer
+var metrics_text: Label
+var metrics_device: Label
+var metrics_buttons: Array[Button]=[]
+var _copied_until: int=0
 
 func _ready() -> void:
     set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -20,14 +27,17 @@ func _ready() -> void:
     picture=TextureRect.new();picture.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;picture.mouse_filter=Control.MOUSE_FILTER_IGNORE;add_child(picture)
     var top:=HBoxContainer.new();top.position=Vector2(28,20);top.add_theme_constant_override("separation",12);add_child(top)
     var title:=Label.new();title.text="LIE / R2";title.add_theme_font_size_override("font_size",24);top.add_child(title)
-    for action in [["Entrada",_reset],["Ver casa",_view],["Techo",_roof],["Sombras",_shadows],["Pinzas",_grip],["−",_farther],["+",_closer],["Pausa",_pause]]:
+    for action in [["Entrada",_reset],["Ver casa",_view],["Techo",_roof],["Sombras",_shadows],["Pinzas",_grip],["−",_farther],["+",_closer],["Pausa",_pause],["Datos",_toggle_metrics]]:
         var button:=Button.new();button.text=action[0];button.custom_minimum_size=Vector2(66,48);button.add_theme_font_size_override("font_size",18);button.focus_mode=Control.FOCUS_NONE;button.pressed.connect(action[1]);top.add_child(button)
     status=Label.new();status.position=Vector2(28,80);status.add_theme_font_size_override("font_size",17);status.text="Cargando robot y casa…";status.mouse_filter=Control.MOUSE_FILTER_IGNORE;add_child(status)
     overlay=Control.new();overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);overlay.mouse_filter=Control.MOUSE_FILTER_IGNORE;add_child(overlay);overlay.draw.connect(_draw_controls.bind(overlay))
+    _metrics_ui()
+    RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(),true)
     resized.connect(_layout);_layout()
 
 func _layout() -> void:
     move_center=Vector2(150,size.y-145)
+    if metrics_panel!=null:metrics_panel.position=Vector2(size.x-310,140)
     if overlay!=null:overlay.queue_redraw()
 
 func _draw_controls(canvas: Control) -> void:
@@ -59,6 +69,9 @@ func touch(index: int,pressed: bool,point: Vector2) -> bool:
         if index==look_finger:look_finger=-1;return true
         return false
     if point.y<145:return false # Leave the top buttons to Godot GUI.
+    if metrics_panel.visible:
+        for button in metrics_buttons:
+            if button.get_global_rect().has_point(point):return false
     if point.distance_to(move_center)<=radius*1.4 and move_finger<0:
         move_finger=index;_movement(point);return true
     if look_finger<0:look_finger=index;return true
@@ -99,8 +112,31 @@ func _closer() -> void:_send({"camera_distance":maxf(1.5,lab.state["camera_dista
 func _pause() -> void:
     release_all();_paused=true
 
+func _metrics_ui() -> void:
+    metrics_panel=PanelContainer.new();metrics_panel.custom_minimum_size=Vector2(290,0);metrics_panel.mouse_filter=Control.MOUSE_FILTER_IGNORE
+    var style:=StyleBoxFlat.new();style.bg_color=Color(.025,.05,.075,.96)
+    for side in [SIDE_LEFT,SIDE_TOP,SIDE_RIGHT,SIDE_BOTTOM]:style.set_content_margin(side,12)
+    metrics_panel.add_theme_stylebox_override("panel",style);add_child(metrics_panel)
+    var box:=VBoxContainer.new();box.mouse_filter=Control.MOUSE_FILTER_IGNORE;box.add_theme_constant_override("separation",7);metrics_panel.add_child(box)
+    var title:=Label.new();title.text="RENDIMIENTO / R2";title.add_theme_font_size_override("font_size",18);title.mouse_filter=Control.MOUSE_FILTER_IGNORE;box.add_child(title)
+    metrics_text=Label.new();metrics_text.text="Recogiendo mediciones…";metrics_text.custom_minimum_size.x=264;metrics_text.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;metrics_text.add_theme_font_size_override("font_size",15);metrics_text.mouse_filter=Control.MOUSE_FILTER_IGNORE;box.add_child(metrics_text)
+    metrics_device=Label.new();metrics_device.custom_minimum_size.x=264;metrics_device.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;metrics_device.add_theme_font_size_override("font_size",12);metrics_device.mouse_filter=Control.MOUSE_FILTER_IGNORE;box.add_child(metrics_device)
+    var row:=HBoxContainer.new();box.add_child(row)
+    for action in [["Copiar informe",_copy_metrics],["Reiniciar",_reset_metrics]]:
+        var button:=Button.new();button.text=action[0];button.custom_minimum_size.y=42;button.focus_mode=Control.FOCUS_NONE;button.pressed.connect(action[1]);row.add_child(button);metrics_buttons.append(button)
+    var note:=Label.new();note.text="RSS aproximado · GPU % no disponible\nRAM y memoria GPU pueden solaparse.";note.add_theme_font_size_override("font_size",12);note.mouse_filter=Control.MOUSE_FILTER_IGNORE;box.add_child(note)
+
+func _toggle_metrics() -> void:metrics_panel.visible=not metrics_panel.visible
+func _copy_metrics() -> void:
+    DisplayServer.clipboard_set(diagnostics.report_text());_copied_until=Time.get_ticks_usec()+2000000
+func _reset_metrics() -> void:diagnostics.reset();metrics_text.text="Recogiendo mediciones…"
+
 func _process(delta: float) -> void:
+    if diagnostics.tick(delta,lab.effect,get_viewport()):
+        metrics_text.text=diagnostics.display_text()
+        metrics_device.text="GPU: "+str(diagnostics.latest.get("gpu_device","N/D"))
     _ready_seconds+=delta
     if not lab.effect.failure.is_empty():status.text="No se pudo iniciar LIE: "+lab.effect.failure
     elif not lab.effect.gpu_ready:status.text="Preparando imagen…" if _ready_seconds<20 else "La GPU aún no responde. Cierra y vuelve a abrir la prueba."
     else:status.text="Pausa · toca el joystick para continuar" if _paused else "%.2f m recorridos · joystick izquierdo + cámara derecha"%lab.state["motion"]["travel"]
+    if Time.get_ticks_usec()<_copied_until:status.text="Informe copiado. Puedes pegarlo en el chat."

@@ -31,6 +31,12 @@ var _resident:=PackedByteArray()
 var _readback: Dictionary={}
 var _profiles: Array=[]
 var _profile_frame: int=-1
+var _profile_total: int=0
+var _performance: Dictionary={}
+var _memory_profile_usec: int=0
+
+func performance_snapshot() -> Dictionary:
+    _mutex.lock();var result: Dictionary=_performance.duplicate(true);_mutex.unlock();return result
 
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
@@ -109,6 +115,11 @@ func _initialize() -> bool:
     output_rid=_images[12];_make_set();gpu_ready=_set.is_valid() and _pipeline.is_valid();return gpu_ready
 
 func _collect_profile() -> void:
+    var now: int=Time.get_ticks_usec()
+    if now-_memory_profile_usec>=500000:
+        _memory_profile_usec=now
+        var memory: Dictionary={"device":_rd.get_device_name(),"rd_memory_bytes":_rd.get_memory_usage(RenderingDevice.MEMORY_TOTAL),"lie_allocation_bytes":allocation_bytes,"memory_sample_usec":now}
+        _mutex.lock();_performance.merge(memory,true);_mutex.unlock()
     var frame: int=_rd.get_captured_timestamps_frame()
     if frame==_profile_frame:return
     _profile_frame=frame
@@ -117,7 +128,12 @@ func _collect_profile() -> void:
         if _rd.get_captured_timestamp_name(i)=="lie22-begin":begin=_rd.get_captured_timestamp_gpu_time(i)
         if _rd.get_captured_timestamp_name(i)=="lie22-end":end=_rd.get_captured_timestamp_gpu_time(i)
     if end>begin and begin>=0:
+        # 4.7.2 Vulkan timestamp_query_result_to_time returns nanoseconds.
+        # The class reference currently labels these as microseconds; use the
+        # pinned Vulkan driver's implementation, verified against viewport ms.
+        _profile_total+=1
         _mutex.lock();_profiles.append({"gpu_ns":end-begin})
+        _performance.merge({"lie_gpu_ns":end-begin,"gpu_samples":_profile_total,"gpu_sample_usec":now,"gpu_marker_frame":frame},true)
         if _profiles.size()>120:_profiles.pop_front()
         _mutex.unlock()
 
