@@ -23,6 +23,31 @@ jobs:
       - name: Acquire exact CC BY original from authorized Objaverse public research release
         run: |
           python tools/lie_brick02_acquire_objaverse.py --directory /tmp/lie-brick02-original
+      - name: Inspect authentic GLB mesh materials, color channels and UV topology
+        run: |
+          python - <<'PY'
+          import json, pathlib, numpy as np, trimesh
+          p=pathlib.Path("/tmp/lie-brick02-original/6077f6801089403993f6a6612ff5739a.glb")
+          scene=trimesh.load(str(p),force="scene",process=False)
+          rows=[]
+          for i,m in enumerate(scene.dump()):
+              if not isinstance(m,trimesh.Trimesh):continue
+              v=m.visual
+              material=getattr(v,"material",None)
+              item={"mesh":i,"vertices":len(m.vertices),"triangles":len(m.faces),"visual_kind":v.kind,"visual_type":type(v).__name__,
+                  "uv_shape":list(np.shape(getattr(v,"uv",None))),
+                  "vertex_colors_shape":list(np.shape(getattr(v,"vertex_colors",None))) if v.kind=="vertex" else [],
+                  "material_type":type(material).__name__,
+                  "base_color_image":type(getattr(material,"baseColorTexture",None)).__name__,
+                  "material_image":type(getattr(material,"image",None)).__name__,
+                  "center":m.bounds.mean(axis=0).tolist()}
+              rows.append(item)
+          report={"source_sha256":"b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+                  "mesh_count":len(rows),"meshes":rows}
+          out=pathlib.Path("/tmp/lie-brick02-original/geometry-inspection.json")
+          out.write_text(json.dumps(report,indent=2))
+          print("ORIGINAL_GLTF_GEOMETRY_INSPECTION",json.dumps(report)[:10000],flush=True)
+          PY
       - name: Read actual scanned shape and texture, capture 3 LODs in LIE bank
         run: |
           python tools/lie_brick02_capture_scan.py --source /tmp/lie-brick02-original/6077f6801089403993f6a6612ff5739a.glb --provenance /tmp/lie-brick02-original/provenance.json --output gpu_compute/captures/liebrick02 --length-m 0.2032 --hero 220000 --middle 52000 --far 9000
@@ -83,6 +108,8 @@ jobs:
           path: |
             /tmp/lie-brick02-original/provenance.json
             /tmp/lie-brick02-original/acquisition-report.json
+            /tmp/lie-brick02-original/geometry-inspection.json
+            /tmp/lie-brick02-original/6077f6801089403993f6a6612ff5739a.glb
             gpu_compute/captures/liebrick02/catalog.json
             gpu_compute/captures/liebrick02/real_brick_bank.zlib
             /tmp/lie-brick02-native-real/*.png
