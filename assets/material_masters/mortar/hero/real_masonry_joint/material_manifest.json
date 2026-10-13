@@ -1,0 +1,56 @@
+{
+  "schema": "lie-material-manifest/1.0",
+  "id": "mortar.hero.real_masonry_joint",
+  "name": "Captured Masonry Joint Mortar",
+  "category": "mortar",
+  "variant": "hero",
+  "description": "Extraction of physically observed masonry mortar joints from aligned Poly Haven photographic PBR maps. No source brick pixels admitted.",
+  "provenance": {
+    "provider": "Poly Haven",
+    "asset_id": "brick_wall_13",
+    "page": "https://polyhaven.com/a/brick_wall_13",
+    "api": "https://api.polyhaven.com/files/brick_wall_13",
+    "license": "CC0-1.0",
+    "license_url": "https://polyhaven.com/license",
+    "source_type": "photographic PBR wall surface, NOT standalone mortar and NOT a complete scanned 3D object",
+    "attribution_required": false
+  },
+  "acquisition": {
+    "status": "catalogued_not_downloaded",
+    "preferred_resolution": "8k",
+    "required_maps": [
+      "color",
+      "normal_gl",
+      "height",
+      "roughness"
+    ],
+    "optional_maps": [
+      "ao"
+    ],
+    "requested_format": "png",
+    "note": "Only successful downloads with SHA256, source pixel dimensions and official API record qualify as acquired. source-lock.json absent until acquisition."
+  },
+  "physical_scale": {
+    "width_m": 2,
+    "px_per_cm_at_8k": 41,
+    "provider_metadata_verified": true,
+    "height_scale_absolute_verified": false,
+    "height_units": "relative_only_until_calibrated",
+    "note": "Source width from Poly Haven; displacement intensity alone does not establish absolute millimeters."
+  },
+  "lie_contract": {
+    "joint_only": true,
+    "legacy_lie_wall03_preserved": true,
+    "brick_xyz_color_unchanged": true,
+    "coarse_spatial_envelopes": 1,
+    "source_triangles_rendered": 0,
+    "visual_sample_bank": "not_yet_generated",
+    "status": "SOURCE_ACQUISITION_PENDING",
+    "hero_visual_quality_accepted": false
+  },
+  "local_paths": {
+    "source": "source/",
+    "derived": "derived/",
+    "capture_bank": "capture_bank/"
+  }
+}
