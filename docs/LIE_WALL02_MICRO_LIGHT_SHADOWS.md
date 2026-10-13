@@ -1,5 +1,17 @@
 # LIE-WALL-02 — micro-nodos del escaneo real y sombras directas por ladrillo
 
+## RESULTADO VERIFICADO Y PUBLICADO — 2026-10-13
+
+- **[Prueba GPU completa APROBADA](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38353380788):** Godot 4.7.2/Mesa Vulkan, resolución 1080×1080, 6 imágenes verdaderas; 865 nodos válidos y transporte LIE11 conservativo, luz neutra/cálida/fría, control de absorción y vista cercana.
+- **[Publicación persistente APROBADA](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38353528878):** fuente auténtica CC BY, banco comprimido, SHA-256, modelo RGB y 6 imágenes en la rama experimental de GitHub. Restaurar con `python tools/lie_wall02_restore.py` sin necesidad de descargar el GLB original.
+- **Banco de muestras 80 bytes**, 560.866 muestras, LOD cercano/intermedio/lejano **404.564 / 131.548 / 24.754**, SHA-256 `510cb9111da9fb8878f3a956288f3fe00c85a056a9e32397fe425c32ca4b0eb0`; origen original 500.000 triángulos / CC BY 4.0.
+- **Modelo luminotécnico:** 865 nodos (864 de arcilla real, uno de mortero), 96 proxies GPU independientes solo para luz directa, **una caja invisible física**, 0 triángulos fuente dibujados. Código RGB numérico canonizado a precisión 1e-7 para evitar discrepancias de hash en distintos CPUs; SHA-256 `e5d911c89f9192f361fde626ac9cdd69552aebbfec766c30c24ec8cfab9b4e4e`.
+- **Comparación aislada de sombras directas:** la misma luz rasante cálida, el mismo `shadows=true` de bloqueo de núcleo, exactamente la misma geometría: **56,09** luminancia media sRGB (proxies directos activos) contra **70,44** (solo los proxies directos desactivados). Así queda demostrado el consumo real del nuevo buffer de visibilidad GPU.
+- **Captura cercana:** `evidence/LIE-WALL02-MicroLight-real_scan_closeup.png`. Se ven huecos negros, grano y juntas excesivamente oscuras. Resultado **funcional, no fotorrealista ni listo para producción**. Sin referencia fotográfica controlada, benchmark Android o ahorro de GPU certificado.
+- **Error reproducible corregido:** la primera publicación encontraba un SHA diferente del JSON de nodos entre runners, aun con banco visual byte-a-byte idéntico. Los metadatos de promedios de nodo se cuantizan a 7 decimales antes de calcular SHA, sin modificar las muestras escaneadas.
+
+---
+
 ## Qué corregimos de LIE-WALL-01
 
 La pared LIE-WALL-01 ya dispone de **96 ladrillos realmente capturados**, un `VisualSampleBank` compartido y **una sola caja invisible** que representa la pared. Su luz viene de los códigos originales LIE-11: potencia RGB lineal, reflectancia/absorción, inyección en nodos y 2 rebotes conservadores. Sin embargo, cada ladrillo agrupaba una cara frontal entera en **un único nodo**; el bloqueo de luz también se aproximaba mediante **una sola caja interior para toda la pared**.
