@@ -9,6 +9,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+from urllib.parse import urlparse
 from PIL import Image
 from lie_material_masters import BASE_API, fetch_to_path, request_json, select_maps
 
@@ -87,6 +88,33 @@ def acquire(root: Path = MATERIAL, resolution: str = "8k", dry_run: bool = False
     source.mkdir(parents=True, exist_ok=True)
     lock_path = source / "source-lock.json"
     if lock_path.exists():
+        # A previously published source lock is metadata only. CI intentionally
+        # does not commit nearly 935 MB of raw Poly Haven maps. Rehydrate
+        # MISSING files from their pinned official URLs and check SHA-256.
+        pinned = json.loads(lock_path.read_text(encoding="utf-8"))
+        if (pinned.get("schema")!="lie-source-lock/1.0" or
+            pinned.get("material_id")!=manifest["id"] or
+            pinned.get("source_page")!=manifest["provenance"]["page"] or
+            pinned.get("license")!="CC0-1.0" or
+            pinned.get("resolution")!=resolution):
+            raise ValueError("Previously locked mortar source is incompatible")
+        for name, record in pinned["files"].items():
+            filename=record["filename"]
+            if (name not in REQUIRED+OPTIONAL or filename!=name+"."+record["format"] or
+                not filename.endswith((".png",".exr",".jpg"))):
+                raise ValueError("Unsafe prior PBR filename")
+            url=urlparse(record["url"])
+            if (url.scheme!="https" or
+                not (url.hostname=="polyhaven.org" or
+                     (url.hostname or "").endswith(".polyhaven.org"))):
+                raise ValueError("Non-official pinned PBR source host")
+            target=source/filename
+            if not target.exists():
+                recovered=fetch_to_path(record["url"],target)
+                if (recovered["sha256"]!=record["sha256"] or
+                    recovered["bytes"]!=record["bytes"]):
+                    target.unlink(missing_ok=True)
+                    raise ValueError("Recovered image does not match source-lock SHA256")
         return inspect_lock(root)
     result = {"schema": "lie-source-lock/1.0", "material_id": manifest["id"],
               "license": "CC0-1.0", "source_page": manifest["provenance"]["page"],
