@@ -35,6 +35,14 @@ func _make_set() -> void:
     _set=_rd.uniform_set_create(uniforms,_shader,0)
     transport_bound=_set.is_valid()
 
+func invalidate_lighting() -> void:
+    # LIE11 updates a separate persistent RGB code image; camera/geometry bytes
+    # may stay identical. Force LIE33 to consume the new codes next frame.
+    RenderingServer.call_on_render_thread(Callable(self,"_reset_coded_signature"))
+
+func _reset_coded_signature() -> void:
+    _resident=PackedByteArray()
+
 func node_light_status() -> Dictionary:
     return {"transport_bound":transport_bound,
             "transport_ready":transport!=null and transport.get("gpu_ready"),
