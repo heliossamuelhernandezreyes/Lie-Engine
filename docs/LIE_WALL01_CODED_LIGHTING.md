@@ -1,5 +1,36 @@
 # LIE-WALL-01 — pared de ladrillos escaneados + iluminación RGB original de LIE-11
 
+## RESULTADO VERIFICADO — pared de ladrillo real y códigos LIE11 (2026-10-13)
+
+- **Fuente real:** 500.000 triángulos y 357.956 vértices, `Stratford New Place Brick Ver 2`, Centre-of-Archaeology, CC BY 4.0, fuente conservada en `lie_brick02/source_provenance.json`.
+- **Un solo maestro visual de pared:** 96 ladrillos reales capturados y transformados de forma reproducible, **una sola instancia del compositor**, **una caja invisible** `BoxShape3D` de dimensiones **2,64675 × 0,68788 × 0,12862 m**; **0 triángulos fuente dibujados**.
+- **Muestras LIE:** **560.866** muestras reales/procedurales (ladrillos de fuente real y mortero separado), 3 LOD **404.564 / 131.548 / 24.754**, stride 80 B, SHA-256 `9446ac800318cc1967b09f8f1c59ddde3d76c95e877705e4f95a364e29d0c031`.
+- **Iluminación:** **577 nodos físicos codificados** (6 patches por ladrillo + un patch común de mortero), RGB lineal, absorción dinámica y 2 rebotes conservadores del solver **original LIE11 GPU**. Shader del compositor enlazado al buffer/imagen del mismo transportador.
+- **Pruebas:** [workflow real de Mesa Vulkan 1080² aprobado](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38351515530), 4 PNG originales; laboratorio acepta 3 colores de luz y absorción. Referencia independiente Python confirmó invariantes conservadores del campo de 577 patches.
+- **Fuente de verdad persistente:** [GitHub publish workflow completado](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38351765810), banco comprimido `gpu_compute/assets/lie_wall01/wall_bank.zlib`, luz `light-model.json`, catálogo y atribución, imágenes en `evidence/LIE-WALL01-RealScan-*.png`.
+- **Reproducir sin volver a descargar el escaneo:** `python tools/lie_wall01_restore.py`, luego cargar `gpu_compute/lie_wall01_coded_lab.tscn`.
+
+### Hallazgo visual negativo preservado
+
+La **v1** de pared trató el mortero como un plano completo detrás de las caras sobresalientes del ladrillo, pero no detrás de sus cavidades más profundas. Una parte del modelo escaneado quedaba oculta por el plano y la pared mostraba **cuñas triangulares**, aun cuando el transporte RGB y los hashes eran correctos. Es una prueba de por qué la aceptación visual debe ser independiente de las pruebas de geometría/datos.
+
+La **v2** corrigió la máscara: genera mortero **sólo en las juntas entre footprints nominales** y no dentro de los recintos XY de cada ladrillo; el escaneo completo deja de quedar tapado. Lo demuestran las capturas del run `38351515530`. Conserva bordes escalonados abiertos por el aparejo corrido, aliasing/ruido residual y juntas oscuras. **No se aprueba aún como fotorrealista.**
+
+### Comparación controlada de inyección luminosa (v2)
+
+| Escenario original Godot/Vulkan | Luminancia media de píxeles ocupados (sRGB 0–255) |
+| --- | ---: |
+| RGB neutro | 84,18 |
+| Luz cálida rasante | 65,47 |
+| Luz fría lateral | 72,33 |
+| Luz fría con absorción 60% | 53,12 |
+
+La modificación de absorción disminuyó la luminancia sin recapturar el asset, con **4 actualizaciones de códigos** registradas; estos valores son métricas de imagen, **no vatios** ni medidas de GPU física. Luces y poses difieren entre las primeras tres escenas, por lo que no se interpreta su luminancia como un test de conservación de energía; esa invariancia se comprueba por separado en el solver.
+
+**Deuda de calidad:** sombras por patches medios, sin oclusión fina de cada triángulo o muestra; especular desactivado para evitar doble contabilización; mortero procedimental, ausencia de bricks partidos, sin referencia fotográfica A/B y sin benchmarks de GPU Android.
+
+---
+
 ## Auditoría del código existente (antes de modificar)
 
 LIE **sí** incluye iluminación mediante códigos de material y luz por nodos; está implementada y descrita en [LIE-11](LIE_11_CODE_LIGHTING.md) y [LIE-12](LIE_12_CAPTURE_CODE_LIGHTING.md), **pero no estaba conectada al LIE33 usado por LIE-BRICK-02**.
