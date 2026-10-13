@@ -126,8 +126,13 @@ class OriginalBrickEdgeField:
                 face[take]=candidate
             nearby.append(face)
         limit=np.minimum.reduce(nearby)
-        if not np.isfinite(limit).all() or np.min(limit)<=.005:
-            raise ValueError("Unusable photographed edge profile; rejecting mortar")
+        # Genuine worn brick edges may be recessed MUCH farther than the
+        # global face median. A guessed 5mm front-Z floor incorrectly rejected
+        # observed surfaces and could force mortar to float over them. Use
+        # the real source spatial envelope instead, with a small tolerance.
+        if (not np.isfinite(limit).all() or
+                np.min(limit) < -0.09 or np.max(limit) > .09):
+            raise ValueError("Photographed edge outside original brick spatial envelope")
         self.local_values.extend((float(np.min(limit)),float(np.max(limit))))
         return limit.astype(np.float32)
 
