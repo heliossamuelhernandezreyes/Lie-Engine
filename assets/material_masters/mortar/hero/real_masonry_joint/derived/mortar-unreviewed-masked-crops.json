@@ -1,0 +1,187 @@
+{
+  "schema": "lie-mortar01-masked-crops/1.0",
+  "material_id": "mortar.hero.real_masonry_joint",
+  "source_sha256": {
+    "color": "a7b3cfd953d8b71b54dd53e5f0409d1b83e5f10a228f5da2e5be15429a230ac8",
+    "normal_gl": "7db17a8452c59f0a46170103f14e7e2e4b04e02357f8e097666f671e52816a4c",
+    "height": "5926122a082220ecb6e9a677ab7fe5a974cb89bdcfaf3b13b6e8280be3374c48",
+    "roughness": "ce99dc3a1616cc52b46c62a24fabdae030c0c9dfe72e0194615a5419c9a1005e",
+    "ao": "503cea54bb2d7d346e9c8be7d695ed7b78b44d98955dc068f3e40bffb2b9b78e"
+  },
+  "source_resolution": "8k",
+  "mask_interpolation": "nearest_source_pixel_registered_preview",
+  "physical_height_scale_verified": false,
+  "hero_quality_accepted": false,
+  "source_brick_pixels_eligible_for_bank": false,
+  "g1_human_review_passed": false,
+  "candidates": [
+    {
+      "index": 0,
+      "source_bbox_xyxy": [
+        344,
+        16,
+        432,
+        184
+      ],
+      "mask": "candidate-00-pixel-mask.png",
+      "masked_color_preview": "candidate-00-mortar-only-preview.png",
+      "candidate_pixel_count": 5184,
+      "candidate_fraction": 0.35065,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 1,
+      "source_bbox_xyxy": [
+        3760,
+        16,
+        3848,
+        184
+      ],
+      "mask": "candidate-01-pixel-mask.png",
+      "masked_color_preview": "candidate-01-mortar-only-preview.png",
+      "candidate_pixel_count": 5184,
+      "candidate_fraction": 0.35065,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 2,
+      "source_bbox_xyxy": [
+        4168,
+        16,
+        4256,
+        184
+      ],
+      "mask": "candidate-02-pixel-mask.png",
+      "masked_color_preview": "candidate-02-mortar-only-preview.png",
+      "candidate_pixel_count": 5312,
+      "candidate_fraction": 0.35931,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 3,
+      "source_bbox_xyxy": [
+        7080,
+        16,
+        7168,
+        184
+      ],
+      "mask": "candidate-03-pixel-mask.png",
+      "masked_color_preview": "candidate-03-mortar-only-preview.png",
+      "candidate_pixel_count": 5568,
+      "candidate_fraction": 0.37662,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 4,
+      "source_bbox_xyxy": [
+        7312,
+        16,
+        7400,
+        184
+      ],
+      "mask": "candidate-04-pixel-mask.png",
+      "masked_color_preview": "candidate-04-mortar-only-preview.png",
+      "candidate_pixel_count": 4608,
+      "candidate_fraction": 0.31169,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 5,
+      "source_bbox_xyxy": [
+        7592,
+        16,
+        7680,
+        184
+      ],
+      "mask": "candidate-05-pixel-mask.png",
+      "masked_color_preview": "candidate-05-mortar-only-preview.png",
+      "candidate_pixel_count": 5376,
+      "candidate_fraction": 0.36364,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 6,
+      "source_bbox_xyxy": [
+        7792,
+        16,
+        7880,
+        184
+      ],
+      "mask": "candidate-06-pixel-mask.png",
+      "masked_color_preview": "candidate-06-mortar-only-preview.png",
+      "candidate_pixel_count": 4608,
+      "candidate_fraction": 0.31169,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 7,
+      "source_bbox_xyxy": [
+        440,
+        216,
+        528,
+        464
+      ],
+      "mask": "candidate-07-pixel-mask.png",
+      "masked_color_preview": "candidate-07-mortar-only-preview.png",
+      "candidate_pixel_count": 6592,
+      "candidate_fraction": 0.30205,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 8,
+      "source_bbox_xyxy": [
+        3504,
+        216,
+        3592,
+        464
+      ],
+      "mask": "candidate-08-pixel-mask.png",
+      "masked_color_preview": "candidate-08-mortar-only-preview.png",
+      "candidate_pixel_count": 6464,
+      "candidate_fraction": 0.29619,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 9,
+      "source_bbox_xyxy": [
+        3776,
+        216,
+        3864,
+        464
+      ],
+      "mask": "candidate-09-pixel-mask.png",
+      "masked_color_preview": "candidate-09-mortar-only-preview.png",
+      "candidate_pixel_count": 7488,
+      "candidate_fraction": 0.34311,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 10,
+      "source_bbox_xyxy": [
+        5272,
+        216,
+        5360,
+        464
+      ],
+      "mask": "candidate-10-pixel-mask.png",
+      "masked_color_preview": "candidate-10-mortar-only-preview.png",
+      "candidate_pixel_count": 7488,
+      "candidate_fraction": 0.34311,
+      "status": "unreviewed_mortar_candidate_only"
+    },
+    {
+      "index": 11,
+      "source_bbox_xyxy": [
+        5648,
+        216,
+        5736,
+        464
+      ],
+      "mask": "candidate-11-pixel-mask.png",
+      "masked_color_preview": "candidate-11-mortar-only-preview.png",
+      "candidate_pixel_count": 7104,
+      "candidate_fraction": 0.32551,
+      "status": "unreviewed_mortar_candidate_only"
+    }
+  ]
+}
