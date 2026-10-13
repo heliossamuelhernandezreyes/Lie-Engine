@@ -39,6 +39,31 @@ layout(set=0,binding=16,std430) readonly buffer WallJointLayout {
     vec4 config;     // column count, row count, nominal mortar gap, enabled
 } joint;
 
+// WALL04 only: close the nominal 8.5mm spacing to the 6mm visible joint
+// by expanding EACH original scanned brick about its original XY center.
+// The GPU source sample buffer remains byte-identical to WALL03; there is
+// no mesh creation and the one invisible box/collider is unchanged.
+const float WALL04_VISIBLE_JOINT_M = 0.006;
+vec2 wall04_brick_center(uint node) {
+    uint brick=node/9u;
+    uint row=brick/12u, col=brick%12u;
+    float stagger=(row%2u==1u)?joint.origin.w*joint.dimensions.z:0.0;
+    return joint.origin.xy+vec2(float(col)*joint.dimensions.z+stagger,
+                                float(row)*joint.dimensions.w);
+}
+vec2 wall04_brick_xy_scale() {
+    return vec2((joint.dimensions.z-WALL04_VISIBLE_JOINT_M)/joint.dimensions.x,
+                (joint.dimensions.w-WALL04_VISIBLE_JOINT_M)/joint.dimensions.y);
+}
+vec2 wall04_expanded_xy(vec2 xy, uint node) {
+    vec2 center=wall04_brick_center(node);
+    return center+(xy-center)*wall04_brick_xy_scale();
+}
+vec2 wall04_unexpanded_xy(vec2 xy, uint node) {
+    vec2 center=wall04_brick_center(node);
+    return center+(xy-center)/wall04_brick_xy_scale();
+}
+
 layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
 const float PI=3.141592653589793;
 const uint EMPTY=0xffffffffu;
@@ -64,6 +89,8 @@ bool covered(Projection p,vec2 xy) {
     vec2 uv=xy/vec2(parameters.counts.zw);
     vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
     vec3 local=inverse(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz))*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
+    uint source_node=uint(max(round(s.attributes.y),0.0));
+    if(source_node<864u) local.xy=wall04_unexpanded_xy(local.xy,source_node);
     vec3 n=abs(s.normal_gray.xyz);
     vec2 q=n.x>=n.y && n.x>=n.z?local.zy:n.y>=n.z?local.xz:local.xy;
     return all(greaterThanEqual(q,s.support.xy-vec2(.000002))) && all(lessThanEqual(q,s.support.zw+vec2(.000002)));
@@ -131,6 +158,13 @@ void main() {
         Projection p;
         if(stage==2) {
             vec3 local=s.position_radius.xyz;float radius=s.position_radius.w;
+            uint source_node=uint(max(round(s.attributes.y),0.0));
+            bool source_brick=source_node<864u;
+            if(source_brick) {
+                local.xy=wall04_expanded_xy(local.xy,source_node);
+                vec2 scale=wall04_brick_xy_scale();
+                radius*=max(scale.x,scale.y);
+            }
             if(parameters.settings.y<.5) {
                 float r=length(local.xy),inner=.0017,outer=.006;
                 if(int(s.attributes.x)==1 && r>1e-8) {
@@ -139,7 +173,9 @@ void main() {
                 } else if(int(s.attributes.x)==2) {local.xy*=parameters.iris.w/inner;radius*=parameters.iris.w/inner;}
             }
             vec3 world=basis*local+inst.origin.xyz;
-            vec3 n=normalize(transpose(inverse(basis))*s.normal_gray.xyz);
+            vec3 source_normal=s.normal_gray.xyz;
+            if(source_brick) source_normal.xy/=wall04_brick_xy_scale();
+            vec3 n=normalize(transpose(inverse(basis))*source_normal);
             radius*=max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(n,normalize(-delta));
