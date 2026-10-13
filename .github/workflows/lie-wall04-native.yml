@@ -75,6 +75,7 @@ jobs:
               --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" \
               --lab liewall04 --directory /tmp/lie-wall04-native --audio-driver Dummy
             python tools/lie_wall04_native_smoke.py --directory /tmp/lie-wall04-native
+            python tools/lie_wall04_coverage_diagnostic.py --directory /tmp/lie-wall04-native
           '
       - uses: actions/upload-artifact@v4
         if: always()
