@@ -20,7 +20,7 @@ FRONT_NORMAL_Z = 0.75
 FRONT_SURFACE_PERCENTILE = 25.0
 LOCAL_FACE_PERCENTILE = 80.0
 MIN_BRICK_POINTS = 55
-JOINT_VISUAL_WIDTH_M = 0.0060
+JOINT_VISUAL_WIDTH_M = 0.0030
 
 
 class OriginalBrickEdgeField:
@@ -207,6 +207,7 @@ class OriginalBrickEdgeField:
             "near_distance_limit_m":NEAR_LIMIT_M,
             "front_normal_z_cutoff":FRONT_NORMAL_Z,
             "brick_front_layer_percentile":FRONT_SURFACE_PERCENTILE,
+            "source_brick_visual_joint_target_m":JOINT_VISUAL_WIDTH_M,
             "local_edge_face_percentile":LOCAL_FACE_PERCENTILE,
             "exposed_layer_z_min_m":min(self.face_floors),
             "exposed_layer_z_max_m":max(self.face_floors),
