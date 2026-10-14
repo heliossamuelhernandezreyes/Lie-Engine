@@ -1,8 +1,8 @@
 {
   "scenario": "Native Godot Vulkan: authentic scanned original bricks + photographed unreviewed XYZ mortar samples",
   "source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
-  "mortar_source_sha256": "a7b7d3c4a66f85fee3ebd8ade2d79d8dfd787538e3caef4097917ce6b9cf284d",
-  "combined_bank_sha256": "27cb24a8583e5e528285333f5000f0171bb460d7166f82f76d0db2461e55259a",
+  "mortar_source_sha256": "9a7ee5d97861f7b61b20b67303d328bec7dc29e2a40c02f731ee07bf6b7d096d",
+  "combined_bank_sha256": "cf74fa702442e957586341fb556238ae0e9fcfdf6bff530c6ced9f92ea3fc148",
   "source_triangles_drawn": 0,
   "spatial_envelopes": 1,
   "scanned_bricks": 96,
@@ -20,29 +20,65 @@
   "captured_real_vulkan_pngs": {
     "neutral": {
       "file": "LIE-WALL04-CapturedMortar-Neutral.png",
-      "sha256": "20e0c2c802653055b7428712ad8c75fab76fe1468981fed9ec37270f29cc49e6",
-      "occupied_pixels": 339952,
-      "empty_enclosed_single_pixel_holes": 1,
+      "sha256": "07ddf69d5bf9d40964466873402019ab6532d41de2731f1fa1c96c149f386717",
+      "occupied_pixels": 332210,
+      "empty_enclosed_single_pixel_holes": 0,
       "mean_rgb": [
-        99.1114304372382,
-        80.83771238292465,
-        68.66514978585212
+        105.04479997591885,
+        84.65723488155082,
+        71.52728996718943
       ],
-      "mean_luminance": 83.84384582176307,
-      "black_opaque_pixels": 66482
+      "mean_luminance": 88.04364919779657,
+      "black_opaque_pixels": 28774
+    },
+    "core_only_diagnostic": {
+      "file": "LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png",
+      "sha256": "17517a6fa26187905542c985b2a515ac68da015bb90d7af8e95ceb42bb0297d3",
+      "occupied_pixels": 332210,
+      "empty_enclosed_single_pixel_holes": 0,
+      "mean_rgb": [
+        113.180990939466,
+        90.03253965864965,
+        75.44864091990006
+      ],
+      "mean_luminance": 93.90094291201349,
+      "black_opaque_pixels": 326
+    },
+    "no_occluders_diagnostic": {
+      "file": "LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png",
+      "sha256": "17517a6fa26187905542c985b2a515ac68da015bb90d7af8e95ceb42bb0297d3",
+      "occupied_pixels": 332210,
+      "empty_enclosed_single_pixel_holes": 0,
+      "mean_rgb": [
+        113.180990939466,
+        90.03253965864965,
+        75.44864091990006
+      ],
+      "mean_luminance": 93.90094291201349,
+      "black_opaque_pixels": 326
     },
     "raking": {
       "file": "LIE-WALL04-CapturedMortar-Raking.png",
-      "sha256": "4ddc9f642c2a6cf875a6c7c52f01187b8a330acdd8118eaea7d5cfe494dfd2a1",
-      "occupied_pixels": 339952,
-      "empty_enclosed_single_pixel_holes": 1,
+      "sha256": "d6e7324e9c732d7bf7e11c553851307fc153eef1b3530da166ac6b591e45855c",
+      "occupied_pixels": 332210,
+      "empty_enclosed_single_pixel_holes": 0,
       "mean_rgb": [
-        93.05472243140208,
-        62.1333688285405,
-        40.36942862521768
+        94.15383642876493,
+        62.78442250383793,
+        40.767800487643356
       ],
-      "mean_luminance": 67.13589212182895,
-      "black_opaque_pixels": 66550
+      "mean_luminance": 67.86395979470815,
+      "black_opaque_pixels": 61352
     }
+  },
+  "shadow_versus_patch_light_test": {
+    "neutral_black_opaque_pixels": 28774,
+    "core_only_black_opaque_pixels": 326,
+    "no_occluders_black_opaque_pixels": 326,
+    "neutral_luminance": 88.04364919779657,
+    "core_only_luminance": 93.90094291201349,
+    "no_occluders_luminance": 93.90094291201349,
+    "same_original_light_source_rgb_and_camera": true,
+    "occlusion_disabled_result_only_diagnostic": true
   }
 }
