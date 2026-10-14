@@ -214,8 +214,8 @@ void main() {
         }return;
     }
     if(stage==8) {
-        // LIE-WALL04, after stage 6. GPU hole recovery ONLY INSIDE EXISTING
-        // source-brick neighborhoods. 4.6M internal pixels, with expensive
+        // LIE-WALL04, after stage 6. GPU hole recovery within photographed-source support:
+        // original brick neighborhoods or enclosed source-mortar joints. 4.6M internal pixels, with expensive
         // searches limited to invalid pixels. No new triangles/mesh/texture.
         // specular_image is reused as a scratch image AFTER stage 6 has read
         // the specular term. Stage 7 will read this scratch image.
@@ -251,8 +251,11 @@ void main() {
             Projection pr=projected.v[owner];
             uint sid=uint(max(round(pr.gradient.w),0.0));
             uint node=uint(max(round(samples.v[sid].attributes.y),0.0));
-            if(node>=864u) continue; // no mortar stretching during hole fill
-            chosen_group=node/9u;
+            if(node>=872u) continue;
+            // Brick groups 0..95 unchanged; 8 photographed mortar course
+            // groups 96..103 share the same genuine LIE11 source node ID.
+            // Reuse existing lit PHOTO source pixels, NEVER a flat fill.
+            chosen_group=node>=864u ? (96u+node-864u) : node/9u;
             chosen_depth=uintBitsToFloat(depths.v[ix]);
             chosen_normal=normalize(pr.normal.xyz);
         }
@@ -274,8 +277,8 @@ void main() {
             Projection pr=projected.v[owner];
             uint sid=uint(max(round(pr.gradient.w),0.0));
             uint node=uint(max(round(samples.v[sid].attributes.y),0.0));
-            if(node>=864u) continue; // only repair observed brick interiors
-            uint group=node/9u;
+            if(node>=872u) continue;
+            uint group=node>=864u ? (96u+node-864u) : node/9u;
             if(group!=chosen_group || dot(normalize(pr.normal.xyz),chosen_normal)<.65)continue;
             float depth=uintBitsToFloat(depths.v[ix]);
             // 16mm / 1% depth ceiling prevents jumping from front to the
@@ -289,8 +292,31 @@ void main() {
         }
         // Only enclosed interior holes: must have real observed support on
         // BOTH sides of X and/or Y, with >=3 agreeing source neighbors.
+        bool mortar=chosen_group>=96u;
         bool enclosed=n>=3 && ((left && right) || (up && down));
-        if(enclosed && sum>0. && zmax-zmin<max(.014,.008*chosen_depth)) {
+        bool source_physical_joint=true;
+        if(mortar) {
+            // A source-photographed mortar sample must be the observed owner
+            // on multiple sides; never invent a planar gap surface. Restrict
+            // to the physical 8.5mm joint and just under chipped source rims.
+            uint row=chosen_group-96u;
+            vec2 uv=(vec2(q)+vec2(.5))/vec2(parameters.counts.zw);
+            vec3 ray=parameters.forward.xyz+
+                parameters.right.xyz*((2.*uv.x-1.)*parameters.lens.x)+
+                parameters.up.xyz*((1.-2.*uv.y)*parameters.lens.x);
+            vec3 world=parameters.eye.xyz+ray*chosen_depth;
+            float cy=joint.origin.y+float(row)*joint.dimensions.w;
+            float vertical_offset=(row%2u==1u)?joint.origin.w*joint.dimensions.z:0.;
+            float relative=(world.x-joint.origin.x-vertical_offset)/joint.dimensions.z-.5;
+            float between=abs(relative-round(relative))*joint.dimensions.z;
+            bool horizontal=row<7u && abs(world.y-(cy+.5*joint.dimensions.w))
+                <(.5*joint.config.z+.003);
+            bool vertical=abs(world.y-cy)<.5*joint.dimensions.y+.003
+                && between<(.5*joint.config.z+.003);
+            source_physical_joint=horizontal || vertical;
+        }
+        float tolerance=mortar?.004:max(.014,.008*chosen_depth);
+        if(enclosed && source_physical_joint && sum>0. && zmax-zmin<tolerance) {
             imageStore(specular_image,q,vec4(color_sum/sum,1.));
         } else imageStore(specular_image,q,base);
         return;
