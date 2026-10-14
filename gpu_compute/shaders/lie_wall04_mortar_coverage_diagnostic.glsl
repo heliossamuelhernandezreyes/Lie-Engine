@@ -350,6 +350,13 @@ void main() {
             imageStore(output_image,xy,vec4(0.02,2.0,0.02,1.0));return;
         }
         Accumulator acc=accumulated.v[i];vec3 base=vec3(acc.color_weight.xyz)/max(float(acc.color_weight.w),1);
-        imageStore(output_image,xy,vec4(max(base*imageLoad(diffuse_image,xy).rgb+imageLoad(specular_image,xy).rgb,vec3(0)),1));
+        vec3 shaded=max(base*imageLoad(diffuse_image,xy).rgb+imageLoad(specular_image,xy).rgb,vec3(0));
+        // RED indicates a real brick owner whose original LIE11 irradiance
+        // or sampled source color resolved nearly black (alpha still opaque).
+        // Distinguish this objectively from EMPTY pixels that lack geometry.
+        if(max(shaded.r,max(shaded.g,shaded.b))<0.001) {
+            imageStore(output_image,xy,vec4(2.,.02,.02,1.));return;
+        }
+        imageStore(output_image,xy,vec4(shaded,1));
     }
 }
