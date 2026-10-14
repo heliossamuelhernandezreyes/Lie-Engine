@@ -68,13 +68,19 @@ class Wall04SamplesTest(unittest.TestCase):
         self.assertTrue(np.all(sampled[:,17]<=sampled[:,1]))
         self.assertTrue(np.all(sampled[:,19]>=sampled[:,1]))
         j=WALL["wall_layout"]["mortar_shader_layout"]
+        # The core stays outside each original brick footprint; underfill
+        # samples deliberately tuck behind broken rims and are separately
+        # marked in sample.attributes.w without changing the ABI.
+        self.assertGreater(int(np.sum(sampled[:,11]>.5)),1000)
+        self.assertGreater(int(np.sum(sampled[:,11]<.5)),1000)
+        core=sampled[sampled[:,11]<.5]
         for row in range(8):
             for col in range(12):
                 cx=(j["first_brick_x_m"]+col*j["pitch_x_m"]+
                     (row%2)*.5*j["pitch_x_m"])
                 cy=j["first_brick_y_m"]+row*j["pitch_y_m"]
-                violation=(np.abs(sampled[:,0]-cx)<j["brick_length_m"]*.5+.00070)&(
-                    np.abs(sampled[:,1]-cy)<j["brick_height_m"]*.5+.00070)
+                violation=(np.abs(core[:,0]-cx)<j["brick_length_m"]*.5+.00070)&(
+                    np.abs(core[:,1]-cy)<j["brick_height_m"]*.5+.00070)
                 self.assertFalse(np.any(violation),f"sample overlaps source brick {row}/{col}")
 
     def test_unchanging_seed_and_no_flat_random_plane(self):
@@ -121,8 +127,17 @@ class Wall04SamplesTest(unittest.TestCase):
             self.assertGreater(len(strip),50)
             boundaries=surface.face_limit(orientation,2,4,strip[:,0:2])
             self.assertTrue(np.all(strip[:,2]<=boundaries-MORTAR_EDGE_RECESS_M+1e-7))
+            from lie_wall04_bake import MORTAR_SUBSURFACE_EXTRA_RECESS_M
             self.assertTrue(np.all(strip[:,2]>=boundaries-MORTAR_EDGE_RECESS_M-
-                                   MORTAR_EXTRA_MICRO_RELIEF_M-1e-7))
+                                   MORTAR_EXTRA_MICRO_RELIEF_M-
+                                   MORTAR_SUBSURFACE_EXTRA_RECESS_M-1e-7))
+            core=strip[strip[:,11]<.5]
+            backing=strip[strip[:,11]>.5]
+            self.assertGreater(len(core),10)
+            self.assertGreater(len(backing),10)
+            self.assertTrue(np.all(backing[:,2] <= surface.face_limit(
+                orientation,2,4,backing[:,0:2])-MORTAR_EDGE_RECESS_M-
+                MORTAR_SUBSURFACE_EXTRA_RECESS_M+1e-7))
             self.assertGreater(float(np.ptp(strip[:,2])),.0005)
             self.assertTrue(np.isfinite(strip).all())
 
