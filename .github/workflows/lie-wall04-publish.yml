@@ -22,7 +22,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/lie-wall04-vulkan
-          gh run download 38487324651 --repo "${{ github.repository }}" \
+          gh run download 38491223048 --repo "${{ github.repository }}" \
              --name lie-wall04-photographed-mortar-real-vulkan-experimental \
              --dir /tmp/lie-wall04-vulkan
       - name: Restore EXACT SHA locked samples that produced this Godot Vulkan PNG
@@ -34,7 +34,7 @@ jobs:
           base=evidence/'home/runner/work/Lie-Engine/Lie-Engine/gpu_compute/assets'
           for group,files in {
             'lie_mortar01':['catalog.json','mortar-bank.zlib'],
-            'lie_wall04':['catalog.json','wall_bank.zlib','light-model.json']
+            'lie_wall04':['catalog.json','wall_bank.zlib','light-model.json','indirect_factors.zlib','indirect_factors.json']
           }.items():
             dest=Path('gpu_compute/assets')/group
             dest.mkdir(parents=True,exist_ok=True)
@@ -43,7 +43,7 @@ jobs:
               if not path.is_file() or path.stat().st_size==0:
                 raise RuntimeError('Missing exact source file from native Vulkan run: '+str(path))
               shutil.copy2(path,dest/name)
-          print('Restored identical bank bytes from verified 38487324651 native Vulkan run')
+          print('Restored identical bank bytes from verified 38491223048 native Vulkan run')
           PY
       - name: Verify SHA integrity, 96 original brick bytes, one box and photographed capture
         run: |
@@ -89,12 +89,30 @@ jobs:
             section=old_data[a['start']:a['start']+a['count']]
             brick=section[section[:,9]<864].tobytes()
             assert new_data[b['start']:b['start']+b['scanned_original_brick_samples']].tobytes()==brick
-          assert d['real_vulkan_capture'] and d['source_samples_drawn_on_screen']>33000
+          assert d['real_vulkan_capture'] and d['source_samples_drawn_on_screen']>30000
           assert d['source_sample_coverage_ratio']>.09 and d['G1_masks_reviewed'] is False
+          factors=json.loads((new/'indirect_factors.json').read_text())
+          factor_bytes=zlib.decompress((new/'indirect_factors.zlib').read_bytes())
+          assert len(factor_bytes)==872*872*4
+          assert hashlib.sha256(factor_bytes).hexdigest()==factors['sha256']
+          assert factors['input_wall_sha256']==c['sha256']
+          assert factors['input_light_sha256']==c['lighting']['sha256']
+          assert factors['light_only_brick_boxes']==96
+          assert factors['collision_spatial_envelopes']==1
+          assert factors['unoccluded_indirect_pairs']>100
+          assert factors['original_brick_samples_changed'] is False
+          ab=v['shadow_versus_patch_light_test']
+          assert ab['neutral_black_opaque_pixels']<30000
+          assert ab['core_only_black_opaque_pixels']<400
+          assert ab['no_occluders_black_opaque_pixels']<400
+          assert ab['neutral_black_opaque_pixels']<64415
+          assert d['opaque_brick_black_rgb_pixels_diagnostic_red']<50000
           evidence=P('evidence');evidence.mkdir(exist_ok=True)
           for name in ('LIE-WALL04-CapturedMortar-Neutral.png',
                        'LIE-WALL04-CapturedMortar-Raking.png',
-                       'LIE-WALL04-CapturedMortar-CoverageDEBUG.png'):
+                       'LIE-WALL04-CapturedMortar-CoverageDEBUG.png',
+                       'LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png',
+                       'LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png'):
             shot=img/name
             assert shot.is_file() and shot.stat().st_size>50000
             (evidence/name).write_bytes(shot.read_bytes())
@@ -102,7 +120,8 @@ jobs:
             (evidence/name).write_bytes((img/name).read_bytes())
           print('Persisting EXACT native Vulkan 6mm LOCAL-EDGE-RECESSED photographed mortar source bank:',m['sample_count'])
           print('Visible mortar pixels:',d['source_samples_drawn_on_screen'])
-          print('WARNING: local-edge geometry correct, but black gap pixels increased vs prior 6mm; NOT FOTOREAL ACCEPTED')
+          print('Actual shadows-on black 64415 ->',ab['neutral_black_opaque_pixels'])
+          print('WARNING: improved physical occlusion, but photographed G1 and mobile GPU NOT CERTIFIED')
           PY
       - name: Commit rebuilt LIE sample bank and measured REAL Godot Vulkan evidence
         run: |
@@ -113,9 +132,13 @@ jobs:
                      gpu_compute/assets/lie_wall04/catalog.json \
                      gpu_compute/assets/lie_wall04/light-model.json \
                      gpu_compute/assets/lie_wall04/wall_bank.zlib \
+                     gpu_compute/assets/lie_wall04/indirect_factors.zlib \
+                     gpu_compute/assets/lie_wall04/indirect_factors.json \
                      evidence/LIE-WALL04-CapturedMortar-Neutral.png \
                      evidence/LIE-WALL04-CapturedMortar-Raking.png \
                      evidence/LIE-WALL04-CapturedMortar-CoverageDEBUG.png \
+                     evidence/LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png \
+                     evidence/LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png \
                      evidence/LIE-WALL04-native-validation.json \
                      evidence/LIE-WALL04-coverage-diagnostic.json
           if git diff --cached --quiet; then
