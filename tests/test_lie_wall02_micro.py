@@ -11,7 +11,7 @@ import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools"))
-import lie_wall01_bake as wall
+import lie_wall02_bake as wall
 
 
 def ray_hits_box(source: np.ndarray,target: np.ndarray,low: np.ndarray,high: np.ndarray) -> bool:

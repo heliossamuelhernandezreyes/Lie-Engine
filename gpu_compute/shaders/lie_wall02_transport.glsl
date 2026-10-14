@@ -127,6 +127,8 @@ vec3 rho(uint i) {
 float reach(uint i, float parent, vec3 power) {
     if(cfg.tuning.w<0.5) return 0.0;
     float energy=max(power.r,max(power.g,power.b));
+    // Optional Lambertian per-emitter irradiance bound, in relative power/m².
+    if(cfg.tuning.w>1.5) return min(min(parent*cfg.radii.y,sqrt(energy/(PI*cfg.radii.z))),cfg.radii.x)*radius_scale.values[i];
     vec3 survival=rho(i);
     float reflection=max(survival.r,max(survival.g,survival.b));
     return min(min(parent*cfg.radii.y*sqrt(reflection),cfg.radii.x*sqrt(energy/cfg.radii.z)),cfg.radii.x)*radius_scale.values[i];

@@ -26,7 +26,7 @@ func configure_workshop(model: Dictionary) -> bool:
     _count=count; _triangle_count=0
     var config: PackedByteArray=PackedInt32Array([count,model["lights"].size(),int(model["bounces"]),0]).to_byte_array()
     var policy: Dictionary=model["secondary_radii"]
-    config.append_array(PackedFloat32Array([.0025,0,0,1,float(policy["radius_max"]),float(policy["radius_decay"]),float(policy["power_reference"]),float(model["optical_sheets"].size())]).to_byte_array())
+    config.append_array(PackedFloat32Array([.0025,0,0,Model.radius_mode(policy),float(policy["radius_max"]),float(policy["radius_decay"]),Model.radius_reference(policy),float(model["optical_sheets"].size())]).to_byte_array())
     var next: Dictionary={0:Model.patch_bytes(model),1:Model.light_bytes(model),8:config,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model),12:Model.radius_bytes(model),13:Optics.bytes(model["optical_sheets"]),
         "geometry":model["geometry_bytes"],"lights":model["lights"].size(),"bounces":int(model["bounces"]),"instance":model["instance_bytes"],"poses":model["poses"].duplicate(),"slots":model["slots"].duplicate(),"signature":model["signature"],"cpu_pack_us":Time.get_ticks_usec()-started}
     # Compare with consumed inputs on the render thread, not with the previous

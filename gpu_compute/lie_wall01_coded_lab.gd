@@ -152,6 +152,7 @@ func agent_snapshot() -> Dictionary:
     result["lighting_updates"]=lighting_update_count
     result["transport_gpu_ready"]=transport!=null and transport.get("gpu_ready")
     result["transport_frame_count"]=transport.get("frame_count") if transport!=null else 0
+    result["transport_metrics"]=transport.call("transport_metrics") if transport!=null else {}
     result["coded_light"]=effect.call("node_light_status") if effect!=null else {}
     return result
 

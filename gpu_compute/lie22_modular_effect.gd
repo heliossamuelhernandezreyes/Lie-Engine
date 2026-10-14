@@ -4,6 +4,7 @@ const ShaderFile=preload("res://shaders/lie22_modular.glsl")
 const ROOT="res://captures/modular22/"
 const MAX_INSTANCES=128
 const MAX_WORK=750000
+const SharedSamples=preload("res://lie_shared_sample_buffers.gd")
 var catalog: Dictionary={}
 var capture_loaded: bool=false
 var gpu_ready: bool=false
@@ -31,6 +32,8 @@ var _resident:=PackedByteArray()
 var _readback: Dictionary={}
 var _profiles: Array=[]
 var _profile_frame: int=-1
+var _sample_lease: String=""
+var sample_bank_bindings: int=0
 
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
@@ -80,12 +83,21 @@ func _make_set() -> void:
     _set=_rd.uniform_set_create(uniforms,_shader,0)
 
 func _initialize() -> bool:
+    if _shader.is_valid() or not _buffers.is_empty() or not _images.is_empty():_release()
     _rd=RenderingServer.get_rendering_device()
     if _rd==null:failure="RenderingDevice no disponible";return false
     var spirv: RDShaderSPIRV=shader_resource().get_spirv()
     if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure=spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE);return false
-    _shader=_rd.shader_create_from_spirv(spirv);_pipeline=_rd.compute_pipeline_create(_shader)
-    _buffer(0,_samples.size(),_samples);asset_uploads+=1
+    _shader=_rd.shader_create_from_spirv(spirv)
+    if not _shader.is_valid():failure="Unable to create reconstruction shader";return false
+    _pipeline=_rd.compute_pipeline_create(_shader)
+    if not _pipeline.is_valid():failure="Unable to create reconstruction pipeline";_release();return false
+    var lease: Dictionary=SharedSamples.acquire(_rd,_samples,str(catalog["sha256"]),sample_stride())
+    if not lease.get("ok",false):failure="Shared immutable capture buffer: "+str(lease.get("error"));_release();return false
+    _sample_lease=lease["key"];_buffers[0]=lease["rid"];_lengths[0]=lease["bytes"]
+    _samples=lease["cpu_data"] # PackedByteArray COW shares immutable CPU bytes too.
+    allocation_bytes+=lease["bytes"] # Referenced bytes; not additive across consumers.
+    asset_uploads+=1 if lease["uploaded"] else 0;sample_bank_bindings+=1
     _buffer(1,MAX_INSTANCES*96);_buffer(2,MAX_INSTANCES*16)
     projection_capacity=65536;_buffer(3,projection_capacity*96)
     _buffer(4,render_size*render_size*4);_buffer(5,render_size*render_size*4)
@@ -138,7 +150,9 @@ func request_readback() -> void:
 func _capture() -> void:
     if not gpu_ready:return
     var result: Dictionary={"color":_rd.texture_get_data(output_rid,0).to_float32_array(),"depth":_rd.buffer_get_data(_buffers[4]).to_int32_array(),
-        "output_size":output_size,"internal_size":render_size,"asset_uploads":asset_uploads,"allocation_bytes":allocation_bytes,"frames":frame_count,"sample_invocations":sample_invocations,"instances":instance_count,"device":_rd.get_device_name(),"profile":_profiles.duplicate(),"library_bytes":_samples.size()}
+        "output_size":output_size,"internal_size":render_size,"asset_uploads":asset_uploads,"allocation_bytes":allocation_bytes,"frames":frame_count,"sample_invocations":sample_invocations,"instances":instance_count,"device":_rd.get_device_name(),"profile":_profiles.duplicate(),"library_bytes":_samples.size(),
+        "sample_bank_bindings":sample_bank_bindings,"shared_samples":SharedSamples.metrics(_rd),
+        "exclusive_allocation_bytes":allocation_bytes-_samples.size()}
     _mutex.lock();_readback=result;_mutex.unlock()
 func readback() -> Dictionary:
     _mutex.lock();var result: Dictionary=_readback.duplicate();_mutex.unlock();return result
@@ -146,6 +160,11 @@ func shutdown() -> void:
     enabled=false
     if _rd!=null:RenderingServer.call_on_render_thread(Callable(self,"_release"))
 func _release() -> void:
-    for rid in [_set]+_buffers.values()+_images.values()+[_pipeline,_shader]:
+    for rid in [_set]+_images.values()+[_pipeline,_shader]:
         if rid.is_valid():_rd.free_rid(rid)
+    for binding in _buffers:
+        if binding!=0 and _buffers[binding].is_valid():_rd.free_rid(_buffers[binding])
+    if not _sample_lease.is_empty():SharedSamples.release(_rd,_sample_lease);_sample_lease=""
     _buffers.clear();_images.clear();gpu_ready=false
+    _lengths.clear();allocation_bytes=0;projection_capacity=0;_resident=PackedByteArray()
+    _set=RID();_pipeline=RID();_shader=RID();output_rid=RID()

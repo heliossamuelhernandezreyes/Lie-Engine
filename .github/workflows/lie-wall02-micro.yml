@@ -4,7 +4,7 @@ on:
     branches: ["experiment/lie-wall02-micro-light-shadows"]
     paths:
       - '.github/workflows/lie-wall02-micro.yml'
-      - 'tools/lie_wall01_bake.py'
+      - 'tools/lie_wall02_bake.py'
       - 'tools/lie_wall02_*'
       - 'tests/test_lie_wall02_micro.py'
       - 'gpu_compute/lie_wall02_*'
@@ -34,7 +34,7 @@ jobs:
         run: python tools/lie_brick02_restore.py
       - name: Bake micro-node wall from genuine scan COLOR_0, verify irradiance conservation
         run: |
-          python tools/lie_wall01_bake.py --output gpu_compute/captures/liewall02
+          python tools/lie_wall02_bake.py --output gpu_compute/captures/liewall02
           python -m unittest discover -s tests -p 'test_lie_wall02_micro.py' -v
       - name: Import and syntax-check original GPU LIE11 extended visibility shader
         run: |

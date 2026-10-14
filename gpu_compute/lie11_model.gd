@@ -86,6 +86,37 @@ static func factor_bytes(model: Dictionary) -> PackedByteArray:
             factors[i*n+j]/=cap
     return factors.to_byte_array()
 
+static func transfer_geometry_key(model: Dictionary) -> PackedByteArray:
+    # Exact authoring values: factor construction also uses double areas.
+    # Light, material, absorption and optical sheets do not change F_ij.
+    var patches: Array=[]
+    for patch in model["patches"]:
+        patches.append([patch["position"],patch["normal"],patch["area"]])
+    return var_to_bytes([patches,model.get("blockers",[]),model.get("triangles",[]),
+        model.get("mesh_visibility",[]),model.get("factor_normalization","global")])
+
+static func sparse_factor_bytes(dense: PackedByteArray,count: int) -> PackedByteArray:
+    if count<1 or count>1024 or dense.size()!=count*count*4:return PackedByteArray()
+    var factors: PackedFloat32Array=dense.to_float32_array()
+    for source in range(count):
+        var total: float=0.0
+        for receiver in range(count):
+            var value: float=factors[source*count+receiver]
+            if not is_finite(value) or value<0:return PackedByteArray()
+            total+=value
+        if total>1.00001:return PackedByteArray()
+    var offsets:=PackedInt32Array([0]);var edges:=PackedByteArray()
+    for receiver in range(count):
+        for source in range(count):
+            var index: int=source*count+receiver
+            if factors[index]>0:
+                edges.append_array(PackedInt32Array([source]).to_byte_array())
+                edges.append_array(dense.slice(index*4,index*4+4))
+        offsets.append(edges.size()/8)
+    var output:=PackedInt32Array([count,edges.size()/8,4,count+5]).to_byte_array()
+    output.append_array(offsets.to_byte_array());output.append_array(edges)
+    return output
+
 static func patch_bytes(model: Dictionary) -> PackedByteArray:
     var output:=PackedFloat32Array()
     for p in model["patches"]:
@@ -118,6 +149,12 @@ static func radius_bytes(model: Dictionary) -> PackedByteArray:
         output.append(float(model["materials"][p["material"]].get("radius_scale",1.0)))
     return output.to_byte_array()
 
+static func radius_mode(policy: Dictionary) -> float:
+    return 0.0 if policy.is_empty() else 2.0 if policy.get("mode","power")=="irradiance" else 1.0
+
+static func radius_reference(policy: Dictionary) -> float:
+    return float(policy.get("irradiance_cutoff",1)) if policy.get("mode","power")=="irradiance" else float(policy.get("power_reference",1))
+
 static func blocker_bytes(model: Dictionary) -> PackedByteArray:
     var output:=PackedFloat32Array()
     output.resize(16*8)
@@ -146,8 +183,12 @@ static func valid(model: Dictionary) -> bool:
         return false
     if model.get("factor_normalization","global") not in ["global","symmetric_local"]: return false
     if model.has("secondary_radii"):
+        if not model["secondary_radii"] is Dictionary:return false
         var policy: Dictionary=model["secondary_radii"]
-        for key in ["radius_max","radius_decay","power_reference"]:
+        if policy.get("mode","power") not in ["power","irradiance"]:return false
+        var required: Array=["radius_max","radius_decay","irradiance_cutoff" if policy.get("mode")=="irradiance" else "power_reference"]
+        for key in required:
+            if not (policy.get(key) is float or policy.get(key) is int):return false
             if not is_finite(float(policy.get(key,0))) or float(policy.get(key,0))<=0: return false
         if float(policy["radius_decay"])>1: return false
     var patches: Array=model.get("patches",[])

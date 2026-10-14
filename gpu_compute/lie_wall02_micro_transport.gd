@@ -74,6 +74,7 @@ func _update_shadow_header(enabled: bool) -> void:
     _rd.buffer_update(_shadow_rid,0,16,
         PackedInt32Array([count,NODES_PER_BRICK,BRICKS*NODES_PER_BRICK,0]).to_byte_array())
     _shadow_updates+=1
+    invalidate_transport()
 
 func shadow_metrics() -> Dictionary:
     return {"direct_shadow_boxes":_shadow_bounds.size(),

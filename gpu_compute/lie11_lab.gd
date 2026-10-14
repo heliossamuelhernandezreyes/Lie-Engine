@@ -1,7 +1,7 @@
 extends Node3D
 ## Grayscale sprites, XYZ nodes, material codes and real Vulkan light bounces.
 const Model=preload("res://lie11_model.gd")
-const Effect=preload("res://lie11_light_effect.gd")
+const Effect=preload("res://lie11_sparse_light_effect.gd")
 const SurfaceShader: Shader=preload("res://shaders/lie11_gray_sprite.gdshader")
 var effect: CompositorEffect
 var base_model: Dictionary
@@ -23,7 +23,7 @@ func _ready() -> void:
     base_model=Model.load_room()
     if base_model.is_empty(): return
     model=Model.scenario(base_model,scenario_name)
-    effect=Effect.new()
+    effect=_create_transport()
     if not effect.call("configure",model): return
     var compositor:=Compositor.new()
     compositor.compositor_effects=[effect]
@@ -53,6 +53,9 @@ func _ready() -> void:
     layer.add_child(label)
     add_child(layer)
     _update_label()
+
+func _create_transport() -> CompositorEffect:
+    return Effect.new()
 
 func _process(delta: float) -> void:
     if effect==null: return

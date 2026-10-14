@@ -17,7 +17,7 @@ jobs:
         run: |
           python -m pip install numpy pillow
           python tools/lie_brick02_restore.py
-          python tools/lie_wall01_bake.py --output gpu_compute/captures/liewall02
+          python tools/lie_wall02_bake.py --output gpu_compute/captures/liewall02
       - name: Retrieve native Godot Vulkan isolated direct-shadow and micro light evidence
         env:
           GH_TOKEN: ${{ github.token }}

@@ -16,7 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Python reference tests
-        run: python -m unittest discover -s tests -p 'test_*.py' -v
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python tools/lie_ci_prepare.py
+          python -m unittest discover -s tests -p 'test_*.py' -v
 
       - name: Install pinned Godot 4.7.2 stable
         run: |

@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 import zlib
 import numpy as np
+from lie_sparse_transport import pack as pack_sparse_factors
 
 ROOT = Path(__file__).resolve().parents[1]
 OLD_DIR = ROOT/"gpu_compute/assets/lie_wall03"
@@ -142,6 +143,13 @@ def restore(source: Path=DEST,dest: Path=ROOT/"gpu_compute/captures/liewall04") 
             proof["collision_spatial_envelopes"]!=1):
             raise ValueError("Original LIE11 matrix provenance failed")
         (dest/"indirect_factors.bin").write_bytes(factors)
+        (dest/"indirect_factors.json").write_text(json.dumps(proof,indent=2)+"\n")
+        sparse, sparse_meta = pack_sparse_factors(factors,872)
+        sparse_meta["source_factor_sha256"] = proof["sha256"]
+        sparse_meta["input_wall_sha256"] = catalog["sha256"]
+        sparse_meta["input_light_sha256"] = catalog["lighting"]["sha256"]
+        (dest/"indirect_sparse.bin").write_bytes(sparse)
+        (dest/"indirect_sparse.json").write_text(json.dumps(sparse_meta,indent=2)+"\n")
     return catalog
 
 

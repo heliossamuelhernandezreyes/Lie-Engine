@@ -1,0 +1,126 @@
+name: LIE runtime lighting and shared samples
+on:
+  push:
+    branches: ["work/lie-runtime-lighting-hardening"]
+  pull_request:
+    paths:
+      - ".github/workflows/lie-runtime-hardening.yml"
+      - "gpu_compute/lie*"
+      - "gpu_compute/test_lie_runtime*"
+      - "gpu_compute/shaders/**"
+      - "tools/lie*"
+      - "tests/**"
+      - "requirements-ci.txt"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lie-runtime-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  real-bank-vulkan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore SHA-locked source banks and independent numeric oracles
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python tools/lie_ci_prepare.py
+          python tools/lie_wall04_compose.py --restore
+          python tools/lie_light_transport.py
+          python tools/lie_runtime_reference.py
+          python -m unittest discover -s tests -p 'test_*.py' -v
+      - name: Install pinned engine and software Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip \
+            https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --version
+      - name: Import all scripts and shaders and run rig, agent and selector checks
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          text=Path('import.log').read_text()
+          assert 'SCRIPT ERROR:' not in text and 'ERROR:' not in text, text[-20000:]
+          PY
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --script res://test_lie26_rig.gd
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --script res://workshop/test_lie_agent_session.gd
+          cmake -S native -B /tmp/lie-runtime-cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build /tmp/lie-runtime-cmake --parallel 2
+          ctest --test-dir /tmp/lie-runtime-cmake --output-on-failure
+      - name: Real Vulkan dense vs sparse, float64 physics, idle cache and growth
+        run: |
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1280x720x24' \
+            godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute \
+            --rendering-driver vulkan --rendering-method forward_plus --audio-driver Dummy \
+            --script res://test_lie_runtime_transport.gd 2>&1 | tee runtime-transport.log
+      - name: Real 61.8 MB wall bank, two private cameras and lease lifetime
+        run: |
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1600x1200x24' \
+            godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute \
+            --rendering-driver vulkan --rendering-method forward_plus --audio-driver Dummy \
+            --script res://test_lie_runtime_shared_samples.gd 2>&1 | tee runtime-sharing.log
+      - name: Existing LIE11 native lighting acceptance using the new runtime
+        run: |
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1280x720x24' \
+            godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute \
+            --rendering-driver vulkan --rendering-method forward_plus --audio-driver Dummy \
+            --script res://test_lie11_lighting.gd 2>&1 | tee runtime-lie11.log
+      - name: Disposable full-size wall session through the existing command API
+        run: |
+          xvfb-run -a -s '-screen 0 1600x1200x24' bash -euc '
+            python tools/lie_agent_launch.py \
+              --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" \
+              --lab liewall04 --directory /tmp/lie-runtime-wall --audio-driver Dummy
+            python tools/lie_wall04_native_smoke.py --directory /tmp/lie-runtime-wall
+            python tools/lie_wall04_coverage_diagnostic.py --directory /tmp/lie-runtime-wall
+          '
+          python tools/lie_wall04_gap_audit.py --directory /tmp/lie-runtime-wall
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path('/tmp/lie-runtime-wall')
+          native=json.loads((root/'LIE-WALL04-native-validation.json').read_text())
+          coverage=json.loads((root/'LIE-WALL04-coverage-diagnostic.json').read_text())
+          gap=json.loads((root/'LIE-WALL04-gap-audit.json').read_text())
+          neutral=native['captured_real_vulkan_pngs']['neutral']
+          assert native['combined_bank_sha256']=='f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da'
+          assert neutral['empty_enclosed_single_pixel_holes']==0
+          assert neutral['occupied_pixels']>=362000
+          assert neutral['black_opaque_pixels']<=28500
+          assert coverage['source_samples_drawn_on_screen']>=49000
+          assert coverage['photographic_subsurface_backing_blue_pixels']>=24000
+          assert gap['alpha_equal_between_lighting_variants']
+          assert gap['neutral']['in_wall_alpha_empty_pixels']<=36538
+          assert not native['photorealism_certified'] and not native['physical_android_gpu_tested']
+          print('Preserved source-locked full-size WALL04 quality gates:', neutral)
+          PY
+      - name: Preserve numerical results and actual compositor evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-runtime-real-bank-vulkan
+          path: |
+            import.log
+            runtime-*.log
+            gpu_compute/lie-runtime-*.json
+            gpu_compute/lie11-diagnostic.json
+            gpu_compute/lie11-*.png
+            gpu_compute/captures/liewall04/indirect_sparse.json
+            /tmp/lie-runtime-wall/*.json
+            /tmp/lie-runtime-wall/*.png
+            /tmp/lie-runtime-wall/godot.log
+          if-no-files-found: error
+          retention-days: 30
