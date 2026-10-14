@@ -92,6 +92,22 @@ jobs:
           print('WALL04: 96 exact brick records, 1 invisible box, true 3D photo-mortar source sample bank',updated['sha256'])
           print('EXACT native Vulkan WALL04/mortar bank will be uploaded alongside screenshot evidence')
           PY
+      - name: Recalculate LIE11 indirect flux visibility from 96 authentic brick bounds
+        run: |
+          python tools/lie_wall04_factors.py
+          python tools/lie_wall04_factors.py --verify
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('gpu_compute/assets/lie_wall04/indirect_factors.json')
+          data=json.loads(p.read_text())
+          assert data['patches']==872 and data['light_only_brick_boxes']==96
+          assert data['collision_spatial_envelopes']==1
+          assert data['source_triangle_geometry_rendered']==0
+          assert data['original_brick_samples_changed'] is False
+          assert data['unoccluded_indirect_pairs']>100
+          assert data['energy_row_sum_max']<=1.001
+          print('Verified original scanned 96-brick indirect transfer:',data['sha256'])
+          PY
       - name: Confirm 6mm visual brick expansion and original source SHA safety
         run: |
           python - <<'PY'
@@ -104,6 +120,7 @@ jobs:
           assert 'if(covered_by_individual_bricks) continue;' in corrected
           assert 'brick_visibility.configuration.x==96u' in corrected
           assert 'FixedSelfShadowTransport.new()' in lab
+          assert 'indirect_factors.bin' in Path('gpu_compute/lie_wall04_transport.gd').read_text()
           assert 'if (k == owner) continue;' in corrected
           for shader in (base,diagnostic):
             assert 'const float WALL04_VISIBLE_JOINT_M = 0.006;' in shader
@@ -152,6 +169,8 @@ jobs:
             gpu_compute/assets/lie_wall04/catalog.json
             gpu_compute/assets/lie_wall04/wall_bank.zlib
             gpu_compute/assets/lie_wall04/light-model.json
+            gpu_compute/assets/lie_wall04/indirect_factors.zlib
+            gpu_compute/assets/lie_wall04/indirect_factors.json
             gpu_compute/captures/liewall04/catalog.json
             /tmp/lie-wall04-native/*.png
             /tmp/lie-wall04-native/*.json
