@@ -39,6 +39,8 @@ jobs:
           assert r['collision']['spatial_envelope_count']==1
           profile=r['flush_mortar_experiment']
           assert profile['visible_mortar_width_m']==.006
+          assert profile['source_brick_visual_gap_m']==.003
+          assert profile['local_brick_edge_calibration']['source_brick_visual_joint_target_m']==.003
           assert profile['structural_mortar_gap_m']==.0085
           assert profile['max_forward_relief_m']==0
           assert profile['max_back_relief_m']==.0008
@@ -142,7 +144,7 @@ jobs:
           assert 'indirect_factors.bin' in Path('gpu_compute/lie_wall04_transport.gd').read_text()
           assert 'if (k == owner) continue;' in corrected
           for shader in (base,diagnostic):
-            assert 'const float WALL04_VISIBLE_JOINT_M = 0.006;' in shader
+            assert 'const float WALL04_VISIBLE_JOINT_M = 0.003;' in shader
             assert 'wall04_expanded_xy(local.xy,source_node)' in shader
             assert 'wall04_unexpanded_xy(local.xy,source_node)' in shader
             assert 'source_node<864u' in shader
