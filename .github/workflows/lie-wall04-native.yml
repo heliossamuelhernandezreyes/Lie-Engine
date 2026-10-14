@@ -148,6 +148,9 @@ jobs:
             assert 'source_node<864u' in shader
             assert 'chosen_group=node>=864u ? (96u+node-864u) : node/9u;' in shader
             assert 'source_physical_joint=horizontal || vertical;' in shader
+            # Experimental A/B: source-photo-backed mortar footprints only.
+            assert 'radius*=1.35;' in shader
+            assert 'else {\n                // Photo-only conservative splat footprint A/B' in shader
             assert 'tolerance=mortar?.004:max(.014,.008*chosen_depth);' in shader
             assert 'if(enclosed && source_physical_joint && sum>0. && zmax-zmin<tolerance)' in shader, 'Do not interpolate across open/physically invalid mortar seams'
           PY
