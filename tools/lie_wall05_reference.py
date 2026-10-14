@@ -29,9 +29,9 @@ def blocked(a,b,boxes,planes,owner):
         if near<=far:return True
     return False
 
-def reference(root=ROOT/'gpu_compute/captures/liewall05'):
+def reference(root=ROOT/'gpu_compute/captures/liewall05', model_path=None):
     root=Path(root);cat=json.loads((root/'catalog.json').read_text())
-    model=json.loads((ROOT/'gpu_compute/assets/lie_wall04/light-model.json').read_text())
+    model=json.loads((Path(model_path) if model_path else ROOT/'gpu_compute/assets/lie_wall04/light-model.json').read_text())
     patch=model['patches'];n=len(patch)
     p=np.asarray([x['position'] for x in patch],float);normals=np.asarray([x['normal'] for x in patch],float);areas=np.asarray([x['area'] for x in patch])
     size=cat['masters']['real_scan_wall']['bounds_size'];center=np.asarray(cat['masters']['real_scan_wall']['bounds_center']);reach=max(1.,size[0]*.48)

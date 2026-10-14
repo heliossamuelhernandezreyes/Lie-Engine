@@ -17,7 +17,7 @@ RESTORE=ROOT/"gpu_compute/captures/liewall04"
 PATCHES=872
 BRICKS=96
 
-def calculate(light:dict, wall:dict) ->tuple[np.ndarray,dict]:
+def calculate(light:dict, wall:dict, shadow_planes=None) ->tuple[np.ndarray,dict]:
     patches=light["patches"]
     boxes=np.asarray(light["direct_shadow_boxes"],dtype=np.float64)
     n=len(patches)
@@ -84,6 +84,15 @@ def calculate(light:dict, wall:dict) ->tuple[np.ndarray,dict]:
                 hi=np.minimum(hi,np.maximum(near,far))
                 possible &= (hi>=lo)
                 if not np.any(possible):break
+            if shadow_planes is not None and np.any(possible):
+                plane=np.asarray(shadow_planes[k],dtype=np.float64)
+                side=float(center[i]@plane[:3]-plane[3]);rate=delta@plane[:3]
+                parallel=np.abs(rate)<1e-9
+                possible &= ~(parallel & (side>0))
+                safe=np.where(parallel,1.,rate);cross=-side/safe
+                hi=np.where(rate>1e-9,np.minimum(hi,cross),hi)
+                lo=np.where(rate<-1e-9,np.maximum(lo,cross),lo)
+                possible &= hi>=lo
             valid[possible]=False
             if not np.any(valid):break
         rejected_by_other_bricks+=int((was_eligible&~valid).sum())
@@ -117,7 +126,7 @@ def calculate(light:dict, wall:dict) ->tuple[np.ndarray,dict]:
         "unoccluded_indirect_pairs":cross_brick_unoccluded,
         "energy_row_sum_max":float(out.sum(axis=1).max()),
         "min_factor":float(out.min()),"max_factor":float(out.max()),
-        "light_sources_added":0,"original_brick_samples_changed":False,
+        "light_sources_added":0,"original_brick_samples_changed":False,"scan_front_plane_clipping":shadow_planes is not None,
         "limitation":"AABB source-aligned brick volume is an approximation to an irregular scanned outline",
         "accepted_photoreal_quality":False,
         "bytes":out.nbytes,
