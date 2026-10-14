@@ -1,0 +1,65 @@
+name: LIE-MORTAR-01 authentic Poly Haven acquisition and unreviewed joints
+on:
+  push:
+    branches: ["experiment/lie-wall04-real-mortar-plan"]
+    paths:
+      - ".github/workflows/lie-mortar01-source.yml"
+      - "tools/lie_mortar01_*.py"
+      - "tests/test_lie_mortar01.py"
+      - "assets/material_masters/mortar/hero/real_masonry_joint/material_manifest.json"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  acquire-photographic-mortar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install image processing and source verification dependencies
+        run: python -m pip install numpy pillow scipy
+      - name: Offline tests (no invented source asset)
+        run: python -m unittest discover -s tests -p "test_lie_mortar01.py" -v
+      - name: Resolve official Poly Haven 8K PBR maps
+        run: python tools/lie_mortar01_acquire.py --resolution 8k --dry-run
+      - name: Download original full resolution source, verify all channels and SHA-lock
+        run: |
+          python tools/lie_mortar01_acquire.py --resolution 8k
+          python tools/lie_mortar01_acquire.py --verify > /tmp/lie-mortar01-source-validation.json
+      - name: Detect source valleys and export UNREVIEWED PBR-aligned mortar candidates
+        run: |
+          python tools/lie_mortar01_extract.py --preview-width 1024 --max-crops 12
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('assets/material_masters/mortar/hero/real_masonry_joint/derived/mortar-unreviewed-report.json')
+          r=json.loads(p.read_text())
+          assert not r['human_mask_reviewed'] and not r['certified_mortar_only']
+          assert r['detected_horizontal_rows']>=2 and r['detected_vertical_segments']>=2
+          print('UNREVIEWED only — human visual review is a hard acceptance gate',flush=True)
+          PY
+      - name: Upload authentic source extraction diagnostics (no source atlas claimed approved)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-mortar01-authentic-source-unreviewed
+          path: |
+            assets/material_masters/mortar/hero/real_masonry_joint/source/source-lock.json
+            assets/material_masters/mortar/hero/real_masonry_joint/derived/*.png
+            assets/material_masters/mortar/hero/real_masonry_joint/derived/*.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Preserve SHA-locked source manifest and visual candidate diagnostics in PR branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          BASE='assets/material_masters/mortar/hero/real_masonry_joint'
+          git add -f "$BASE/source/source-lock.json" \
+            "$BASE/derived/mortar-unreviewed-overlay.png" \
+            "$BASE/derived/mortar-unreviewed-mask.png" \
+            "$BASE/derived/mortar-unreviewed-report.json"
+          if git diff --cached --quiet; then
+            echo 'Source lock and diagnostic images already identical'
+          else
+            git commit -m 'LIE-MORTAR-01: verify real 8K source SHA and publish UNREVIEWED photographic joint overlay [skip ci]'
+            git push origin HEAD:experiment/lie-wall04-real-mortar-plan
+          fi

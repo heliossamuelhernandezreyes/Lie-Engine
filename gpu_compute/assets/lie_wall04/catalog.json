@@ -1,0 +1,196 @@
+{
+  "schema": 1,
+  "stride": 80,
+  "sample_count": 772097,
+  "bytes": 61767760,
+  "sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+  "masters": {
+    "real_scan_wall": {
+      "levels": [
+        {
+          "start": 0,
+          "count": 535670,
+          "scanned_original_brick_samples": 384000,
+          "captured_mortar_samples": 151670
+        },
+        {
+          "start": 535670,
+          "count": 181896,
+          "scanned_original_brick_samples": 124800,
+          "captured_mortar_samples": 57096
+        },
+        {
+          "start": 717566,
+          "count": 54531,
+          "scanned_original_brick_samples": 23040,
+          "captured_mortar_samples": 31491
+        }
+      ],
+      "bounds_size": [
+        2.64675009727478,
+        0.6878780770301819,
+        0.12861716479063035
+      ],
+      "bounds_center": [
+        0.0529249906539917,
+        0.0,
+        0.0
+      ],
+      "origin_offset": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "source_title": "Stratford New Place Brick Ver 2",
+  "source_author": "Centre-of-Archaeology",
+  "source_url": "https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a",
+  "license": "CC BY 4.0",
+  "source_scan_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
+  "source_master_sha256": "fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb",
+  "source_original_triangles": 500000,
+  "original_meshes_drawn": false,
+  "source_vertex_colors_used": true,
+  "wall_layout": {
+    "rows": 8,
+    "columns": 12,
+    "brick_count": 96,
+    "bond": "running with open staggered ends",
+    "seed": 2102,
+    "mortar_gap_m": 0.0085,
+    "procedural_recessed_mortar": false,
+    "mortar_mask": "joints only, never occlude full scanned XY brick faces",
+    "mortar_recess_m": 0.0035,
+    "mortar_nodes_by_row": true,
+    "mortar_shader_layout": {
+      "brick_length_m": 0.2032,
+      "brick_height_m": 0.07742225992271486,
+      "pitch_x_m": 0.2117,
+      "pitch_y_m": 0.08592225992271485,
+      "first_brick_x_m": -1.1643500328063965,
+      "first_brick_y_m": -0.300727903842926,
+      "mortar_plane_z_m": 0.0563086,
+      "running_bond_stagger_fraction": 0.5,
+      "rows": 8,
+      "columns": 12,
+      "procedural_joint_surface_only": true
+    },
+    "mortar_samples_per_lod": [
+      151670,
+      57096,
+      31491
+    ],
+    "scanned_brick_xyz_and_colors_unchanged": true
+  },
+  "lighting": {
+    "pipeline": "LIE11 real GPU node RGB light transport -> LIE33 wall samples",
+    "node_count": 872,
+    "nodes_per_brick": 9,
+    "front_micro_patches_per_brick": 4,
+    "direct_shadow_occluders": 96,
+    "lighting_visibility": "source-derived micro patches, inset-brick direct shadows and existing core bounce proxy",
+    "file": "light-model.json",
+    "sha256": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb",
+    "per_pixel_shadows": false,
+    "absorption_and_color_stored_separately": true,
+    "mortar_nodes": 8,
+    "mortar_light_regions": "one finite patch per course; local RGB code, dynamic",
+    "screen_space_reconstruction": "opt-in geometry/depth/normal constrained GPU interior hole recovery",
+    "photographic_material_texture_invented": false,
+    "gpu_joint_coverage": "captured_mortar_xyz_samples_no_shader_flat_joint_fallback"
+  },
+  "collision": {
+    "spatial_envelope_count": 1,
+    "geometry": "one invisible BoxShape3D",
+    "collision_is_coarse": true
+  },
+  "hero_quality_accepted": false,
+  "note": "WALL04 EXPERIMENTAL: photographic G1 masks still unreviewed; native GPU not proven by authoring bank.",
+  "wall04": {
+    "version": "LIE-WALL-04 experimental real-photo mortar samples",
+    "original_brick_record_sha256_by_lod": [
+      "ef8d3a90d6d7bbf7a2ab15fff42057752d1839ebd545064f5e7f2f1cc330d058",
+      "beaf13965061002761809198f10c3d3e4fa705461913a8a0c0fa523b6f12237c",
+      "f536bdf82f969377d232f3fdd26b7cc6a80677ef7761640b079636da536ad082"
+    ],
+    "wall03_original_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
+    "mortar01_sha256": "bc4a52aec3500ec73bc56e4efdee87a66823f41f861ea5dd905bcda1e418736b",
+    "mortar01_cc0_source_maps": {
+      "color": "a7b3cfd953d8b71b54dd53e5f0409d1b83e5f10a228f5da2e5be15429a230ac8",
+      "normal_gl": "7db17a8452c59f0a46170103f14e7e2e4b04e02357f8e097666f671e52816a4c",
+      "height": "5926122a082220ecb6e9a677ab7fe5a974cb89bdcfaf3b13b6e8280be3374c48",
+      "roughness": "ce99dc3a1616cc52b46c62a24fabdae030c0c9dfe72e0194615a5419c9a1005e",
+      "ao": "503cea54bb2d7d346e9c8be7d695ed7b78b44d98955dc068f3e40bffb2b9b78e"
+    },
+    "local_brick_edge_recess_profile": {
+      "visible_mortar_width_m": 0.006,
+      "source_brick_visual_gap_m": 0.003,
+      "structural_mortar_gap_m": 0.0085,
+      "edge_protection_m": 0.0005,
+      "radius_scale": 0.8,
+      "support_scale": 0.51,
+      "subsurface_shoulder_rows_per_side": 2,
+      "subsurface_shoulder_extra_recess_m": 0.001,
+      "source_backing_is_real_photographed_PBR_and_depth_tested": true,
+      "max_back_relief_m": 0.0008,
+      "min_recess_from_local_brick_edge_m": 0.0008,
+      "max_extra_relief_from_local_brick_edge_m": 0.0005,
+      "local_brick_edge_calibration": {
+        "method": "minimum of both adjacent authentic BRICK FRONT LAYERS' local z 80th percentiles",
+        "source": "verified WALL03 source XYZ and normals, original 96 bricks",
+        "physical_reference": "per-joint, per-sample nearest front scan neighborhood",
+        "edge_band_m": 0.022,
+        "near_distance_limit_m": 0.028,
+        "front_normal_z_cutoff": 0.75,
+        "brick_front_layer_percentile": 25.0,
+        "source_brick_visual_joint_target_m": 0.003,
+        "local_edge_face_percentile": 80.0,
+        "exposed_layer_z_min_m": 0.03696010261774063,
+        "exposed_layer_z_max_m": 0.03967621177434921,
+        "rejected_deep_scan_samples": 12595,
+        "minimum_source_samples_per_brick_edge": 111,
+        "nearest_scan_bricks": 2,
+        "nearest_observed_front_cap_enabled": true,
+        "nearest_observed_front_samples": 37734,
+        "global_nearest_exposed_scan_queries_capped": 209464,
+        "global_nearest_exposed_scan_cap_mean_mm": 3.3320011401951133,
+        "global_nearest_exposed_scan_cap_max_mm": 14.957711100578308,
+        "min_cap_clearance_against_actual_exposed_scan_m": 0.0,
+        "coverage_model": "per-original-scan-front XY nearest sample, not fabricated planar brick face",
+        "sample_queries_near_source": 264122,
+        "sample_queries_fallback": 216392,
+        "observed_face_z_min_m": 0.036979787051677704,
+        "observed_face_z_max_m": 0.052568063139915466,
+        "original_scanned_xyz_rgb_edited": false,
+        "guarantee": "mortar <= nearest actual exposed photographed brick face z - specified recess",
+        "limitations": "per-brick scanned edge sampling and percentiles cannot prove exact pointwise flush at all rough pores"
+      },
+      "max_forward_relief_m": 0.0,
+      "measured_front_plane_z_m": 0.05780136454850435,
+      "front_plane_source": {
+        "method": "97.5th percentile Z of actual +Z-facing scanned brick samples",
+        "source_front_samples": 53719,
+        "source_front_z_p10_m": 0.033151138573884964,
+        "source_front_z_median_m": 0.0438518263399601,
+        "source_front_z_p90_m": 0.053329445421695716,
+        "source_front_z_p975_m": 0.05780136454850435,
+        "legacy_recessed_mortar_plane_z_m": 0.0563086,
+        "local_per_brick_flush_verified": false
+      },
+      "width_6mm_in_8point5mm_leaves_open_unfilled_margin": true,
+      "product_quality_accepted": false,
+      "global_plane_no_longer_controls_mortar_z": true
+    },
+    "mortar_front_calibration": "local two-adjacent-brick scanned XYZ, not global plane",
+    "min_mortar_edge_recess_m": 0.0008,
+    "mortar_source_masks_reviewed": false,
+    "mortar_source_height_absolute_mm_verified": false,
+    "product_quality_accepted": false,
+    "legacy_mortar_samples_removed": true,
+    "original_brick_samples_byte_identical": true,
+    "source_triangles_rendered": 0,
+    "total_spatial_envelopes": 1,
+    "sha256_of_original_LIE11_light_model": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb"
+  }
+}

@@ -1,0 +1,221 @@
+#[compute]
+#version 450
+// LIE-WALL04: LIE11 original energy/bounces with local receiver self-occlusion corrected.
+// All powers and colors are LINEAR RGB. No screen pixels or visible source mesh.
+layout(local_size_x=64,local_size_y=1,local_size_z=1) in;
+struct Patch { vec4 center_area; vec4 normal_gray; vec4 filter_absorption; };
+struct Light { vec4 position_radius; vec4 power; };
+struct Blocker { vec4 lo; vec4 hi; };
+struct Triangle { vec4 a; vec4 b; vec4 c; };
+struct Sheet { vec4 center_thickness; vec4 right_width; vec4 up_height; vec4 sigma_ior; };
+layout(set=0,binding=13,std430) readonly buffer Sheets { Sheet values[]; } sheets;
+layout(set=0,binding=0,std430) readonly buffer Patches { Patch values[]; } patches;
+layout(set=0,binding=1,std430) readonly buffer Lights { Light values[]; } lights;
+layout(set=0,binding=2,std430) readonly buffer Factors { float values[]; } factors;
+layout(set=0,binding=3,std430) buffer Weights { float values[]; } weights;
+layout(set=0,binding=4,std430) buffer Caps { float values[]; } caps;
+layout(set=0,binding=5,std430) buffer FrontierA { vec4 values[]; } frontier_a;
+layout(set=0,binding=6,std430) buffer FrontierB { vec4 values[]; } frontier_b;
+layout(set=0,binding=7,std430) buffer Received { vec4 values[]; } received;
+layout(set=0,binding=8,std430) readonly buffer Config { ivec4 dims; vec4 tuning; vec4 radii; } cfg;
+layout(set=0,binding=12,std430) readonly buffer RadiusScale { float values[]; } radius_scale;
+layout(set=0,binding=9,std430) readonly buffer Blockers { Blocker values[]; } blockers;
+layout(set=0,binding=11,std430) readonly buffer Triangles { Triangle values[]; } triangles;
+/* LIE-WALL02 optional visibility accelerator, NOT collision geometry.
+   uvec4: [brick_count, node_count_per_brick, mortar_node_id, reserved].
+   BBox pairs are derived from original scanned brick dimension, not meshes.
+   The base LIE11 inverse-square/energy/bounce equations remain unchanged. */
+layout(set=0,binding=17,std430) readonly buffer BrickVisibility {
+    uvec4 configuration;
+    vec4 bounds[];
+} brick_visibility;
+layout(rgba32f,set=0,binding=10) uniform writeonly image2D irradiance;
+layout(push_constant,std430) uniform Phase { ivec4 data; } phase;
+const float PI=3.141592653589793;
+
+vec3 transmittance(vec3 a, vec3 b) {
+    vec3 value=vec3(1.0), delta=b-a;
+    float distance=length(delta);
+    if(distance<1e-10) return value;
+    for(int k=0;k<int(cfg.radii.w);k++) {
+        Sheet s=sheets.values[k];
+        vec3 n=cross(s.right_width.xyz,s.up_height.xyz);
+        float denominator=dot(delta,n);
+        if(abs(denominator)<1e-8) continue;
+        float t=dot(s.center_thickness.xyz-a,n)/denominator;
+        if(t<=0.001 || t>=0.999) continue;
+        vec3 local=a+t*delta-s.center_thickness.xyz;
+        if(abs(dot(local,s.right_width.xyz))>s.right_width.w || abs(dot(local,s.up_height.xyz))>s.up_height.w) continue;
+        float ci=clamp(abs(denominator)/distance,0.0,1.0), eta=s.sigma_ior.w;
+        float ct=sqrt(max(0.0,1.0-(1.0-ci*ci)/(eta*eta)));
+        float rs=(ci-eta*ct)/max(ci+eta*ct,1e-8);
+        float rp=(eta*ci-ct)/max(eta*ci+ct,1e-8);
+        float f=(rs*rs+rp*rp)*0.5;
+        value*=pow(1.0-f,2.0)*exp(-s.sigma_ior.rgb*s.center_thickness.w/max(ct,1e-6));
+    }
+    return value;
+}
+
+bool blocked(vec3 a, vec3 b, uint receiver_node) {
+    vec3 delta=b-a;
+    for(int k=0;k<cfg.dims.w;k++) {
+        // WALL04 fix for real scan patch visibility: the previous coarse
+        // opaque wall core encloses many true chipped/side patch centers.
+        // Ray-box intersection then reports their OWN wall as a blocker,
+        // causing physically impossible 0 irradiance on visible brick faces.
+        // Skip only the volume CONTAINING the receiver; keep all other
+        // core blockers and all 96 original per-brick occlusion proxies.
+        // The GLOBAL wall-opaque core was designed as a coarse
+        // INDIRECT/FORM-FACTOR occluder. WALL04 already has 96 per-brick
+        // scanned-bounds direct-light occluders; including the giant core
+        // in direct rays redundantly darkened ~43k otherwise-lit pixels.
+        // Disable ONLY that global coarse core for DIRECT visibility, and
+        // only while the 96 genuine per-brick light-only boxes are active.
+        vec3 span=blockers.values[k].hi.xyz-blockers.values[k].lo.xyz;
+        bool covered_by_individual_bricks=brick_visibility.configuration.x==96u
+                                        && span.x>2.2 && span.y>.50;
+        if(covered_by_individual_bricks) continue;
+        vec3 self_lo=blockers.values[k].lo.xyz-vec3(0.0002);
+        vec3 self_hi=blockers.values[k].hi.xyz+vec3(0.0002);
+        if(all(greaterThanEqual(a,self_lo)) && all(lessThanEqual(a,self_hi))) continue;
+        float lo=0.001, hi=0.999;
+        for(int axis=0;axis<3;axis++) {
+            if(abs(delta[axis])<1e-8) {
+                if(a[axis]<blockers.values[k].lo[axis] || a[axis]>blockers.values[k].hi[axis]) {
+                    lo=1.0; hi=0.0; break;
+                }
+            } else {
+                float near_t=(blockers.values[k].lo[axis]-a[axis])/delta[axis];
+                float far_t=(blockers.values[k].hi[axis]-a[axis])/delta[axis];
+                lo=max(lo,min(near_t,far_t)); hi=min(hi,max(near_t,far_t));
+            }
+        }
+        if(lo<=hi) return true;
+    }
+    for(int k=0;k<int(cfg.tuning.z);k++) {
+        Triangle tri=triangles.values[k];
+        vec3 e1=tri.b.xyz-tri.a.xyz, e2=tri.c.xyz-tri.a.xyz;
+        vec3 h=cross(delta,e2);
+        float det=dot(e1,h);
+        if(abs(det)<1e-8) continue;
+        vec3 s=a-tri.a.xyz;
+        float u=dot(s,h)/det;
+        if(u<0.0 || u>1.0) continue;
+        vec3 q=cross(s,e1);
+        float v=dot(delta,q)/det;
+        if(v<0.0 || u+v>1.0) continue;
+        float t=dot(e2,q)/det;
+        if(t>=0.001 && t<=0.999) return true;
+    }
+    // Additional direct-light occlusion only. The *indirect* LIE11 form
+    // factors are still cached with the original coarse wall-core blocker.
+    // Do not test receiver's own brick; otherwise all its recessed
+    // source-measured patches would self-occlude at grazing angles.
+    uint n = brick_visibility.configuration.x;
+    uint stride = brick_visibility.configuration.y;
+    uint mortar_id = brick_visibility.configuration.z;
+    uint owner = receiver_node < mortar_id ? receiver_node / max(stride,1u) : 0xffffffffu;
+    for (uint k=0u; k<n; ++k) {
+        if (k == owner) continue;
+        vec3 bmin = brick_visibility.bounds[k*2u].xyz;
+        vec3 bmax = brick_visibility.bounds[k*2u+1u].xyz;
+        float lo = .001, hi = .999;
+        for (int axis=0; axis<3; axis++) {
+            if (abs(delta[axis]) < 1e-8) {
+                if (a[axis] < bmin[axis] || a[axis] > bmax[axis]) {
+                    lo = 1.0; hi = 0.0; break;
+                }
+            } else {
+                float u=(bmin[axis]-a[axis])/delta[axis];
+                float v=(bmax[axis]-a[axis])/delta[axis];
+                lo=max(lo,min(u,v));hi=min(hi,max(u,v));
+            }
+        }
+        if(lo<=hi) return true;
+    }
+    return false;
+}
+
+vec3 rho(uint i) {
+    Patch p=patches.values[i];
+    return clamp(p.filter_absorption.rgb,vec3(0),vec3(1))
+        *(1.0-clamp(p.filter_absorption.a,0.0,1.0))
+        *clamp(p.normal_gray.w,0.0,1.0);
+}
+
+float reach(uint i, float parent, vec3 power) {
+    if(cfg.tuning.w<0.5) return 0.0;
+    float energy=max(power.r,max(power.g,power.b));
+    vec3 survival=rho(i);
+    float reflection=max(survival.r,max(survival.g,survival.b));
+    return min(min(parent*cfg.radii.y*sqrt(reflection),cfg.radii.x*sqrt(energy/cfg.radii.z)),cfg.radii.x)*radius_scale.values[i];
+}
+
+void main() {
+    uint i=gl_GlobalInvocationID.x;
+    uint n=uint(cfg.dims.x), count=uint(cfg.dims.y);
+    if(phase.data.x==0) {
+        if(i>=n*count) return;
+        uint l=i/n, p=i%n;
+        vec3 delta=lights.values[l].position_radius.xyz-patches.values[p].center_area.xyz;
+        float d2=dot(delta,delta), radius=lights.values[l].position_radius.w;
+        float value=0.0;
+        if(d2>1e-10 && radius>0.0 && !blocked(patches.values[p].center_area.xyz,lights.values[l].position_radius.xyz,p)) {
+            float cosine=max(dot(patches.values[p].normal_gray.xyz,delta*inversesqrt(d2)),0.0);
+            float relative=sqrt(d2)/radius;
+            float window=pow(max(0.0,1.0-pow(relative,4.0)),2.0);
+            value=patches.values[p].center_area.w*cosine*window/(4.0*PI*max(d2,cfg.tuning.x));
+        }
+        weights.values[i]=value;
+        return;
+    }
+    if(phase.data.x==1) {
+        if(i>=count) return;
+        float total=0.0;
+        for(uint p=0u;p<n;p++) total+=weights.values[i*n+p];
+        caps.values[i]=max(1.0,total);
+        return;
+    }
+    if(i>=n) return;
+    if(phase.data.x==2) {
+        vec3 incoming=vec3(0.0);
+        float parent=0.0;
+        for(uint l=0u;l<count;l++) {
+            vec3 power=lights.values[l].power.rgb;
+            float w=weights.values[l*n+i]/caps.values[l];
+            incoming+=power*w*transmittance(patches.values[i].center_area.xyz,lights.values[l].position_radius.xyz);
+            if(w*max(power.r,max(power.g,power.b))>0.0) parent=max(parent,lights.values[l].position_radius.w);
+        }
+        received.values[i]=vec4(incoming,0.0);
+        frontier_a.values[i]=vec4(incoming*rho(i),reach(i,parent,incoming*rho(i)));
+        frontier_b.values[i]=vec4(0.0);
+        return;
+    }
+    if(phase.data.x==3) {
+        // Each generation consumes ONLY the preceding frontier. Never feed
+        // accumulated total power back into the transport graph.
+        vec3 incoming=vec3(0.0);
+        float parent=0.0;
+        for(uint source=0u;source<n;source++) {
+            vec4 emitted=phase.data.y==0?frontier_a.values[source]:frontier_b.values[source];
+            float weight=factors.values[source*n+i];
+            if(cfg.tuning.w>0.5) {
+                float d=distance(patches.values[source].center_area.xyz,patches.values[i].center_area.xyz);
+                weight*=emitted.w>0.0?pow(max(0.0,1.0-pow(d/emitted.w,4.0)),2.0):0.0;
+            }
+            if(weight>0.0) incoming+=emitted.rgb*weight*transmittance(patches.values[source].center_area.xyz,patches.values[i].center_area.xyz);
+            if(weight*max(emitted.r,max(emitted.g,emitted.b))>0.0) parent=max(parent,emitted.w);
+        }
+        received.values[i].rgb+=incoming;
+        vec3 reflected=incoming*rho(i);
+        if(max(reflected.r,max(reflected.g,reflected.b))<cfg.tuning.y) reflected=vec3(0.0);
+        float radius=reach(i,parent,reflected);
+        if(phase.data.y==0) frontier_b.values[i]=vec4(reflected,radius);
+        else frontier_a.values[i]=vec4(reflected,radius);
+        return;
+    }
+    if(phase.data.x==4) {
+        vec3 e=received.values[i].rgb/max(patches.values[i].center_area.w,1e-8);
+        imageStore(irradiance,ivec2(int(i),0),vec4(e,1.0));
+    }
+}

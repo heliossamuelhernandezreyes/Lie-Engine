@@ -1,0 +1,242 @@
+name: LIE-WALL04 native Vulkan photographed mortar prototype
+on:
+  push:
+    branches: ["experiment/lie-wall04-real-mortar-plan"]
+    paths:
+      - ".github/workflows/lie-wall04-native.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  photographed-mortar-native-vulkan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install numeric authoring and native Mesa Vulkan runner
+        run: |
+          python -m pip install numpy pillow scipy
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip \
+            https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Check mortar authoring ABI and verified source-only records
+        run: |
+          python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
+          python -m unittest discover -s tests -p 'test_lie_mortar01.py' -v
+      - name: Validate EXACT published photographed mortar bank for same-source A/B
+        run: |
+          # No rebake: compare shaders against the SAME 772097 true source samples.
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('gpu_compute/assets/lie_mortar01/catalog.json')
+          r=json.loads(p.read_text())
+          assert r['workshop_only_not_renderer_accepted']
+          assert r['sample_count']>15000, r['sample_count']
+          assert r['collision']['spatial_envelope_count']==1
+          profile=r['flush_mortar_experiment']
+          assert profile['visible_mortar_width_m']==.006
+          assert profile['source_brick_visual_gap_m']==.003
+          assert profile['local_brick_edge_calibration']['source_brick_visual_joint_target_m']==.003
+          assert profile['structural_mortar_gap_m']==.0085
+          assert profile['max_forward_relief_m']==0
+          assert profile['max_back_relief_m']==.0008
+          assert profile['radius_scale']==.80
+          assert profile['support_scale']==.51
+          assert profile['front_plane_source']['source_front_samples']>10000
+          assert profile['measured_front_plane_z_m'] >= (
+            profile['front_plane_source']['legacy_recessed_mortar_plane_z_m']-.0015)
+          assert profile['front_plane_source']['source_front_z_p975_m'] > (
+            profile['front_plane_source']['source_front_z_median_m']+.001)
+          assert profile['global_plane_no_longer_controls_mortar_z']
+          assert profile['min_recess_from_local_brick_edge_m']==.0008
+          assert profile['subsurface_shoulder_rows_per_side']==2
+          assert profile['subsurface_shoulder_extra_recess_m']==.001
+          assert profile['source_backing_is_real_photographed_PBR_and_depth_tested']
+          from pathlib import Path
+          import zlib,numpy as np
+          mortar_raw=zlib.decompress(Path('gpu_compute/assets/lie_mortar01/mortar-bank.zlib').read_bytes())
+          photo=np.frombuffer(mortar_raw,dtype='<f4').reshape(-1,20)
+          assert photo.shape[0]==r['sample_count']
+          assert (photo[:,11]>.5).sum()>10000
+          assert (photo[:,11]<.5).sum()>10000
+          assert profile['max_extra_relief_from_local_brick_edge_m']==.0005
+          assert profile['local_brick_edge_calibration']['nearest_scan_bricks']==2
+          assert profile['local_brick_edge_calibration']['sample_queries_near_source']>10000
+          assert profile['local_brick_edge_calibration']['original_scanned_xyz_rgb_edited'] is False
+          assert profile['local_brick_edge_calibration']['rejected_deep_scan_samples']>3000
+          assert profile['local_brick_edge_calibration']['exposed_layer_z_min_m']>.025
+          assert profile['local_brick_edge_calibration']['observed_face_z_min_m']>.025
+          assert profile['local_brick_edge_calibration']['nearest_observed_front_cap_enabled']
+          assert profile['local_brick_edge_calibration']['nearest_observed_front_samples']>10000
+          assert profile['local_brick_edge_calibration']['global_nearest_exposed_scan_queries_capped']>10000
+          assert profile['local_brick_edge_calibration']['global_nearest_exposed_scan_cap_mean_mm']>.1
+          assert profile['local_brick_edge_calibration']['min_cap_clearance_against_actual_exposed_scan_m']>=-.0000001
+          print('Scanned local edge z range:',profile['local_brick_edge_calibration']['observed_face_z_min_m'],profile['local_brick_edge_calibration']['observed_face_z_max_m'])
+          print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
+          print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
+          PY
+      - name: Restore SHA-locked 872-node LIE11 lighting (photographic receiver relight remains opt-in research)
+        run: |
+          # A/B run 38514888909 proved re-centering mortar receivers alone
+          # worsens native black pixels 27705 -> 65322. Preserve tested bank
+          # and lighting until geometry/source shadow calibration is fixed.
+          python tools/lie_wall04_compose.py --restore
+          python - <<'PY'
+          import hashlib,json,numpy as np,pathlib,zlib
+          R=pathlib.Path('gpu_compute/assets')
+          base=json.loads((R/'lie_wall03/catalog.json').read_text())
+          updated=json.loads((R/'lie_wall04/catalog.json').read_text())
+          mortar=json.loads((R/'lie_mortar01/catalog.json').read_text())
+          old=np.frombuffer(zlib.decompress((R/'lie_wall03/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
+          new=np.frombuffer(zlib.decompress((R/'lie_wall04/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
+          assert updated['lighting']['sha256']==base['lighting']['sha256'], "Opt-in measured mortar receiver relight gave worse image: do not enable"
+          assert updated['sha256']=="f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da", "Changing the sample bank would invalidate shader-only A/B"
+          assert updated['collision']['spatial_envelope_count']==1
+          assert updated['source_scan_sha256']==base['source_scan_sha256']
+          assert updated['sample_count']<850000, updated['sample_count'] # 3-LOD source-backed rim reconstruction adds samples, never a second mesh
+          assert sum(x['count'] for x in updated['masters']['real_scan_wall']['levels'])==len(new)
+          for o,n,expected in zip(base['masters']['real_scan_wall']['levels'],
+                                  updated['masters']['real_scan_wall']['levels'],
+                                  updated['wall04']['original_brick_record_sha256_by_lod']):
+            lo=old[o['start']:o['start']+o['count']]
+            hi=new[n['start']:n['start']+n['count']]
+            real=lo[lo[:,9]<864]
+            assert hashlib.sha256(real.tobytes()).hexdigest()==expected
+            assert hi[:len(real)].tobytes()==real.tobytes()
+            assert n['captured_mortar_samples']>0
+          assert not updated['wall04']['product_quality_accepted']
+          print('WALL04: 96 exact brick records, 1 invisible box, true 3D photo-mortar source sample bank',updated['sha256'])
+          print('EXACT native Vulkan WALL04/mortar bank will be uploaded alongside screenshot evidence')
+          PY
+      - name: Verify previously published identical 96-brick original light factors
+        run: |
+          python tools/lie_wall04_factors.py --verify
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('gpu_compute/assets/lie_wall04/indirect_factors.json')
+          data=json.loads(p.read_text())
+          assert data['patches']==872 and data['light_only_brick_boxes']==96
+          assert data['collision_spatial_envelopes']==1
+          assert data['source_triangle_geometry_rendered']==0
+          assert data['original_brick_samples_changed'] is False
+          assert data['unoccluded_indirect_pairs']>100
+          assert data['energy_row_sum_max']<=1.001
+          print('Verified original scanned 96-brick indirect transfer:',data['sha256'])
+          PY
+      - name: Confirm 6mm visual brick expansion and original source SHA safety
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          base=Path('gpu_compute/shaders/lie_wall04_mortar.glsl').read_text()
+          diagnostic=Path('gpu_compute/shaders/lie_wall04_mortar_coverage_diagnostic.glsl').read_text()
+          corrected=Path('gpu_compute/shaders/lie_wall04_transport.glsl').read_text()
+          lab=Path('gpu_compute/lie_wall04_mortar_lab.gd').read_text()
+          assert 'if(all(greaterThanEqual(a,self_lo)) && all(lessThanEqual(a,self_hi))) continue;' in corrected
+          assert 'if(covered_by_individual_bricks) continue;' in corrected
+          assert 'brick_visibility.configuration.x==96u' in corrected
+          assert 'FixedSelfShadowTransport.new()' in lab
+          assert 'indirect_factors.bin' in Path('gpu_compute/lie_wall04_transport.gd').read_text()
+          assert 'if (k == owner) continue;' in corrected
+          for shader in (base,diagnostic):
+            assert 'const float WALL04_VISIBLE_JOINT_M = 0.003;' in shader
+            assert 'wall04_expanded_xy(local.xy,source_node)' in shader
+            assert 'wall04_unexpanded_xy(local.xy,source_node)' in shader
+            assert 'source_node<864u' in shader
+            assert 'chosen_group=node>=864u ? (96u+node-864u) : node/9u;' in shader
+            assert 'bool source_physical_joint=true;' in shader
+            # Keep rejected +4mm Z and 1.45x XY raster variants disabled.
+            assert 'local.z+=0.004;' not in shader
+            assert 'local.y=joint_y+dy*1.45;' not in shader
+            assert 'radius*=1.35;' not in shader
+            assert 'tolerance=mortar?.004:max(.014,.008*chosen_depth);' in shader
+            assert 'bool photographic_extension=mortar && n>=4 && nearest_source_sq<=36;' in shader
+            assert 'if(witnessed && source_physical_joint && sum>0. && zmax-zmin<tolerance)' in shader
+            assert 'if(node<864u || node>=872u) continue;' in shader
+            assert 'source_physical_joint=(horizontal || vertical || near_horizontal || near_vertical);' in shader
+          PY
+      - name: Compile GDScript and compute shader
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit > import.log 2>&1
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --check-only --script res://lie_wall04_mortar_lab.gd >> import.log 2>&1
+          cat import.log
+          python - <<'PY'
+          from pathlib import Path
+          data=Path('import.log').read_text()
+          assert 'SCRIPT ERROR:' not in data, data[-20000:]
+          PY
+      - name: Native Mesa Vulkan only - never claim Android FPS
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1600x1200x24" bash -euc '
+            python tools/lie_agent_launch.py \
+              --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" \
+              --lab liewall04 --directory /tmp/lie-wall04-native --audio-driver Dummy
+            python tools/lie_wall04_native_smoke.py --directory /tmp/lie-wall04-native
+            python tools/lie_wall04_coverage_diagnostic.py --directory /tmp/lie-wall04-native
+          '
+          python tools/lie_wall04_gap_audit.py --directory /tmp/lie-wall04-native
+          python - <<'PY'
+          import json,pathlib
+          p=pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-coverage-diagnostic.json')
+          a=json.loads(p.read_text())
+          assert a['red_is_debug_unlit_source_brick_not_material']
+          print('UNLIT BRICK PIXELS:',a['opaque_brick_black_rgb_pixels_diagnostic_red'])
+          print('MORTAR SRC PIXELS:',a['source_samples_drawn_on_screen'])
+          print('EMPTY TRANSPARENT PIXELS:',a['empty_transparent_pixels'])
+          print('PHOTOGRAPHIC SUBSURFACE BACKING BLUE:',a['photographic_subsurface_backing_blue_pixels'])
+          print('6MM ORIGINAL CORE GREEN:',a['photographic_mortar_core_green_pixels'])
+          # Regression to the last SHA-locked *real* Vulkan frame, same camera,
+          # CC0 photographic bank and unchanged 872-node lighting (run 38514541166).
+          n=json.loads(pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-native-validation.json').read_text())
+          neutral=n['captured_real_vulkan_pngs']['neutral']
+          reference={'occupied_pixels':359594,'black_opaque_pixels':27705,
+                     'photographic_mortar_pixels':49511,
+                     'subsurface_backing_pixels':26425}
+          measured={'occupied_pixels':neutral['occupied_pixels'],
+                    'black_opaque_pixels':neutral['black_opaque_pixels'],
+                    'photographic_mortar_pixels':a['source_samples_drawn_on_screen'],
+                    'subsurface_backing_pixels':a['photographic_subsurface_backing_blue_pixels']}
+          assert n['combined_bank_sha256']=='f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da'
+          assert neutral['empty_enclosed_single_pixel_holes']==0, measured
+          assert measured['occupied_pixels']>=362000, 'Lost previously recovered photographic mortar coverage'
+          assert measured['photographic_mortar_pixels']>=49000, 'Photographic mortar interpolation lost'
+          assert measured['subsurface_backing_pixels']>=24000, 'Edge underfill samples lost'
+          assert measured['black_opaque_pixels']<=28500, 'Unacceptable new dark photographed mortar/brick regions'
+          gap=json.loads(pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-gap-audit.json').read_text())
+          assert gap['alpha_equal_between_lighting_variants']
+          assert gap['neutral']['in_wall_alpha_empty_pixels']<=36538, 'Regressed 36538-pixel photographed mortar gap reference'
+          print('WALL04 INTERIOR JOINT GAPS:',gap['neutral']['in_wall_alpha_empty_pixels'])
+          result={'experimental':True,'source':'Native Godot Mesa Vulkan 1080x1080',
+                  'reference':reference,'measured':measured,
+                  'delta':{k:measured[k]-v for k,v in reference.items()},
+                  'quality_accepted':False,
+                  'source_photographic_masks_reviewed':False,
+                  'android_gpu_benchmarked':False}
+          pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-quality-regression.json').write_text(json.dumps(result,indent=2)+'\n')
+          print('WALL04 REAL VULKAN QUALITY REGRESSION:',json.dumps(result))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-wall04-photographed-mortar-real-vulkan-experimental
+          path: |
+            import.log
+            gpu_compute/assets/lie_mortar01/catalog.json
+            gpu_compute/assets/lie_mortar01/mortar-bank.zlib
+            gpu_compute/assets/lie_wall04/catalog.json
+            gpu_compute/assets/lie_wall04/wall_bank.zlib
+            gpu_compute/assets/lie_wall04/light-model.json
+            gpu_compute/assets/lie_wall04/light-node-calibration.json
+            gpu_compute/assets/lie_wall04/indirect_factors.zlib
+            gpu_compute/assets/lie_wall04/indirect_factors.json
+            gpu_compute/captures/liewall04/catalog.json
+            /tmp/lie-wall04-native/*.png
+            /tmp/lie-wall04-native/*.json
+            /tmp/lie-wall04-native/godot.log
+          if-no-files-found: warn
+          retention-days: 30

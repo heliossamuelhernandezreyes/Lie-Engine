@@ -1,0 +1,20 @@
+{
+  "experimental_only": true,
+  "device": "Mesa Vulkan in GitHub CI",
+  "real_vulkan_capture": true,
+  "real_photo_mortar_source": true,
+  "debug_color_is_not_real_mortar_albedo": true,
+  "source_samples_drawn_on_screen": 49511,
+  "photographic_mortar_core_green_pixels": 23086,
+  "photographic_subsurface_backing_blue_pixels": 26425,
+  "brick_or_other_pixels": 265121,
+  "screen_alpha_occupied": 359594,
+  "source_sample_coverage_ratio": 0.1376858345801098,
+  "opaque_brick_black_rgb_pixels_diagnostic_red": 44962,
+  "opaque_visible_brick_nonblack_pixels": 265121,
+  "empty_transparent_pixels": 806806,
+  "red_is_debug_unlit_source_brick_not_material": true,
+  "source_png": "LIE-WALL04-CapturedMortar-CoverageDEBUG.png",
+  "sha256": "1dabf2e89938eeddf128df44c6719c17a2c54cf5f053b6dda25cc4ffda86b0d8",
+  "G1_masks_reviewed": false
+}

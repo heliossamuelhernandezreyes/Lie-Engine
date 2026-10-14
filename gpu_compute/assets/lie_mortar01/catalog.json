@@ -1,0 +1,111 @@
+{
+  "schema": "lie-mortar01/experimental/1.0",
+  "stride": 80,
+  "sample_count": 240257,
+  "bytes": 19220560,
+  "sha256": "bc4a52aec3500ec73bc56e4efdee87a66823f41f861ea5dd905bcda1e418736b",
+  "levels": [
+    {
+      "start": 0,
+      "count": 151670,
+      "spacing_m": 0.0012
+    },
+    {
+      "start": 151670,
+      "count": 57096,
+      "spacing_m": 0.0024
+    },
+    {
+      "start": 208766,
+      "count": 31491,
+      "spacing_m": 0.0036
+    }
+  ],
+  "source_material_id": "mortar.hero.real_masonry_joint",
+  "source_sha256": {
+    "color": "a7b3cfd953d8b71b54dd53e5f0409d1b83e5f10a228f5da2e5be15429a230ac8",
+    "normal_gl": "7db17a8452c59f0a46170103f14e7e2e4b04e02357f8e097666f671e52816a4c",
+    "height": "5926122a082220ecb6e9a677ab7fe5a974cb89bdcfaf3b13b6e8280be3374c48",
+    "roughness": "ce99dc3a1616cc52b46c62a24fabdae030c0c9dfe72e0194615a5419c9a1005e",
+    "ao": "503cea54bb2d7d346e9c8be7d695ed7b78b44d98955dc068f3e40bffb2b9b78e"
+  },
+  "source_license": "CC0-1.0",
+  "source_kind": "photographic PBR, not individual 3D source scan",
+  "source_brick_pixel_contamination_excluded_by_review": false,
+  "source_brick_contamination_status": "unverified_may_include_brick_pixels",
+  "photographic_joint_masks_reviewed": false,
+  "source_height_is_metric": false,
+  "relative_relief_gain_m": 0.0015,
+  "flush_mortar_experiment": {
+    "visible_mortar_width_m": 0.006,
+    "source_brick_visual_gap_m": 0.003,
+    "structural_mortar_gap_m": 0.0085,
+    "edge_protection_m": 0.0005,
+    "radius_scale": 0.8,
+    "support_scale": 0.51,
+    "subsurface_shoulder_rows_per_side": 2,
+    "subsurface_shoulder_extra_recess_m": 0.001,
+    "source_backing_is_real_photographed_PBR_and_depth_tested": true,
+    "max_back_relief_m": 0.0008,
+    "min_recess_from_local_brick_edge_m": 0.0008,
+    "max_extra_relief_from_local_brick_edge_m": 0.0005,
+    "local_brick_edge_calibration": {
+      "method": "minimum of both adjacent authentic BRICK FRONT LAYERS' local z 80th percentiles",
+      "source": "verified WALL03 source XYZ and normals, original 96 bricks",
+      "physical_reference": "per-joint, per-sample nearest front scan neighborhood",
+      "edge_band_m": 0.022,
+      "near_distance_limit_m": 0.028,
+      "front_normal_z_cutoff": 0.75,
+      "brick_front_layer_percentile": 25.0,
+      "source_brick_visual_joint_target_m": 0.003,
+      "local_edge_face_percentile": 80.0,
+      "exposed_layer_z_min_m": 0.03696010261774063,
+      "exposed_layer_z_max_m": 0.03967621177434921,
+      "rejected_deep_scan_samples": 12595,
+      "minimum_source_samples_per_brick_edge": 111,
+      "nearest_scan_bricks": 2,
+      "nearest_observed_front_cap_enabled": true,
+      "nearest_observed_front_samples": 37734,
+      "global_nearest_exposed_scan_queries_capped": 209464,
+      "global_nearest_exposed_scan_cap_mean_mm": 3.3320011401951133,
+      "global_nearest_exposed_scan_cap_max_mm": 14.957711100578308,
+      "min_cap_clearance_against_actual_exposed_scan_m": 0.0,
+      "coverage_model": "per-original-scan-front XY nearest sample, not fabricated planar brick face",
+      "sample_queries_near_source": 264122,
+      "sample_queries_fallback": 216392,
+      "observed_face_z_min_m": 0.036979787051677704,
+      "observed_face_z_max_m": 0.052568063139915466,
+      "original_scanned_xyz_rgb_edited": false,
+      "guarantee": "mortar <= nearest actual exposed photographed brick face z - specified recess",
+      "limitations": "per-brick scanned edge sampling and percentiles cannot prove exact pointwise flush at all rough pores"
+    },
+    "max_forward_relief_m": 0.0,
+    "measured_front_plane_z_m": 0.05780136454850435,
+    "front_plane_source": {
+      "method": "97.5th percentile Z of actual +Z-facing scanned brick samples",
+      "source_front_samples": 53719,
+      "source_front_z_p10_m": 0.033151138573884964,
+      "source_front_z_median_m": 0.0438518263399601,
+      "source_front_z_p90_m": 0.053329445421695716,
+      "source_front_z_p975_m": 0.05780136454850435,
+      "legacy_recessed_mortar_plane_z_m": 0.0563086,
+      "local_per_brick_flush_verified": false
+    },
+    "width_6mm_in_8point5mm_leaves_open_unfilled_margin": true,
+    "product_quality_accepted": false,
+    "global_plane_no_longer_controls_mortar_z": true
+  },
+  "workshop_only_not_renderer_accepted": true,
+  "lighting_node_range": [
+    864,
+    871
+  ],
+  "brick_source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
+  "unchanged_brick_source_samples": true,
+  "collision": {
+    "spatial_envelope_count": 1,
+    "geometry": "unchanged WALL03 invisible spatial box"
+  },
+  "source_meshes_drawn": false,
+  "hero_quality_accepted": false
+}

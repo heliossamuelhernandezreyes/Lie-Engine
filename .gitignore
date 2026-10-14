@@ -126,3 +126,16 @@ gpu_compute/lie14-import.log
 /gpu_compute/lie28-*.json
 /gpu_compute/lie28-*.bin
 /gpu_compute/lie28-*.log
+
+# LIE-MORTAR-01 photographic source: do not accidentally commit full 8K maps
+/assets/material_masters/mortar/hero/real_masonry_joint/source/*
+!/assets/material_masters/mortar/hero/real_masonry_joint/source/.gitkeep
+/assets/material_masters/mortar/hero/real_masonry_joint/derived/*
+!/assets/material_masters/mortar/hero/real_masonry_joint/derived/.gitkeep
+/assets/material_masters/mortar/hero/real_masonry_joint/capture_bank/*
+!/assets/material_masters/mortar/hero/real_masonry_joint/capture_bank/.gitkeep
+
+# WALL04 only reconstructed from SHA-locked WALL03+MORTAR01 sources
+/gpu_compute/captures/liewall04/
+/gpu_compute/lie-wall04-*.png
+/gpu_compute/lie-wall04-*.json

@@ -1,0 +1,103 @@
+name: Persist verified LIE-MORTAR-01 8K extraction evidence
+on:
+  push:
+    branches: ["experiment/lie-wall04-real-mortar-plan"]
+    paths: [".github/workflows/lie-mortar01-persist.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  persist-captured-mortar-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover the SHA-verified original 8K extraction run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/lie-mortar-proof
+          gh run download 38479117636 --repo "${{ github.repository }}" \
+            --name lie-mortar01-authentic-source-unreviewed --dir /tmp/lie-mortar-proof
+          find /tmp/lie-mortar-proof -type f | wc -l
+      - name: Verify source 8K identity and label every result UNREVIEWED
+        run: |
+          python - <<'PY'
+          import json,pathlib
+          P=pathlib.Path
+          root=P('/tmp/lie-mortar-proof')
+          locked=json.loads((root/'source/source-lock.json').read_text())
+          report=json.loads((root/'derived/mortar-unreviewed-report.json').read_text())
+          assert locked['schema']=='lie-source-lock/1.0'
+          assert locked['license']=='CC0-1.0'
+          assert locked['source_page']=='https://polyhaven.com/a/brick_wall_13'
+          assert locked['resolution']=='8k'
+          assert locked['dimensions']==[8192,8192]
+          assert set(['color','height','normal_gl','roughness','ao']) <= set(locked['files'])
+          assert report['source_sha256']=={name:v['sha256'] for name,v in locked['files'].items()}
+          assert report['material_id']==locked['material_id']
+          assert not report['human_mask_reviewed'] and not report['certified_mortar_only']
+          assert not report['absolute_displacement_mm_verified']
+          assert len(report['candidate_crops'])>=4
+          assert (root/'derived/mortar-unreviewed-overlay.png').stat().st_size>10000
+          assert (root/'derived/mortar-unreviewed-mask.png').stat().st_size>10000
+          for part in report['candidate_crops']:
+            assert part['status']=='unreviewed'
+            assert all((root/'derived'/file).is_file() for file in part['source_files'].values())
+          print('Recovered REAL 8K maps verified by prior run; G1 still NOT PASSED')
+          PY
+      - name: Generate alpha-restricted source-mortar candidates (not certified)
+        run: |
+          python -m pip install numpy pillow
+          python tools/lie_mortar01_mask_crops.py --directory /tmp/lie-mortar-proof/derived
+          python - <<'PY'
+          import json,pathlib
+          root=pathlib.Path('/tmp/lie-mortar-proof/derived')
+          data=json.loads((root/'mortar-unreviewed-masked-crops.json').read_text())
+          assert not data['g1_human_review_passed']
+          assert not data['source_brick_pixels_eligible_for_bank']
+          assert len(data['candidates'])>=4
+          PY
+      - name: Validate mortar authoring source, 80-byte ABI and 96-brick collision safety
+        run: |
+          python -m pip install scipy
+          python -m unittest discover -s tests -p "test_lie_wall04_mortar_samples.py" -v
+          python tools/lie_wall04_bake.py             --derived /tmp/lie-mortar-proof/derived             --wall-catalog gpu_compute/assets/lie_wall03/catalog.json             --output /tmp/lie-mortar-proof/lie_mortar01             --allow-unreviewed
+          python - <<'PY'
+          import hashlib,json,pathlib,zlib,numpy as np
+          root=pathlib.Path('/tmp/lie-mortar-proof/lie_mortar01')
+          v=json.loads((root/'catalog.json').read_text())
+          raw=zlib.decompress((root/'mortar-bank.zlib').read_bytes())
+          samples=np.frombuffer(raw,dtype='<f4').reshape(-1,20)
+          assert hashlib.sha256(raw).hexdigest()==v['sha256']
+          assert len(raw)==v['sample_count']*80
+          assert len(v['levels'])==3
+          assert all(x['count']>1000 for x in v['levels'])
+          assert np.isfinite(samples).all()
+          assert np.ptp(samples[:,2])>0.00004
+          assert (samples[:,9].min(),samples[:,9].max())==(864.,871.)
+          assert v['collision']['spatial_envelope_count']==1
+          assert not v['photographic_joint_masks_reviewed']
+          assert v['workshop_only_not_renderer_accepted']
+          print('REAL photographed provisional 3D mortar sample bank',v['sample_count'],'SHA',v['sha256'],flush=True)
+          PY
+      - name: Commit source lock, mask, overlay, aligned candidate crops and review report
+        run: |
+          BASE='assets/material_masters/mortar/hero/real_masonry_joint'
+          mkdir -p "$BASE/source" "$BASE/derived"
+          cp /tmp/lie-mortar-proof/source/source-lock.json "$BASE/source/source-lock.json"
+          cp /tmp/lie-mortar-proof/derived/* "$BASE/derived/"
+          mkdir -p gpu_compute/assets/lie_mortar01
+          cp /tmp/lie-mortar-proof/lie_mortar01/* gpu_compute/assets/lie_mortar01/
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'github-actions[bot]'
+          git add -f "$BASE/source/source-lock.json" "$BASE/derived/" gpu_compute/assets/lie_mortar01/catalog.json gpu_compute/assets/lie_mortar01/mortar-bank.zlib
+          if git diff --cached --quiet; then
+            echo 'Identical photographic diagnostics were already persisted'
+          else
+            git commit -m 'LIE-MORTAR-01: persist authentic 8K CC0 evidence and UNREVIEWED joints [skip ci]'
+            git fetch origin experiment/lie-wall04-real-mortar-plan
+            git rebase origin/experiment/lie-wall04-real-mortar-plan
+            git push origin HEAD:experiment/lie-wall04-real-mortar-plan
+          fi

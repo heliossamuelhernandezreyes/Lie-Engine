@@ -1,0 +1,160 @@
+name: Publish experimental LIE-WALL04 photographic mortars and native Vulkan
+on:
+  push:
+    branches: ["experiment/lie-wall04-real-mortar-plan"]
+    paths: [".github/workflows/lie-wall04-publish.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish-authentic-mortar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify authoring regression tests (DO NOT rebake a different bank)
+        run: |
+          python -m pip install numpy pillow scipy
+          python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
+      - name: Recover existing native Mesa Vulkan evidence from independently successful CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/lie-wall04-vulkan
+          gh run download 38515155581 --repo "${{ github.repository }}" \
+             --name lie-wall04-photographed-mortar-real-vulkan-experimental \
+             --dir /tmp/lie-wall04-vulkan
+      - name: Restore EXACT SHA locked samples that produced this Godot Vulkan PNG
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import shutil
+          evidence=Path('/tmp/lie-wall04-vulkan')
+          base=evidence/'home/runner/work/Lie-Engine/Lie-Engine/gpu_compute/assets'
+          for group,files in {
+            'lie_mortar01':['catalog.json','mortar-bank.zlib'],
+            'lie_wall04':['catalog.json','wall_bank.zlib','light-model.json','indirect_factors.zlib','indirect_factors.json']
+          }.items():
+            dest=Path('gpu_compute/assets')/group
+            dest.mkdir(parents=True,exist_ok=True)
+            for name in files:
+              path=base/group/name
+              if not path.is_file() or path.stat().st_size==0:
+                raise RuntimeError('Missing exact source file from native Vulkan run: '+str(path))
+              shutil.copy2(path,dest/name)
+          print('Restored identical bank bytes from verified 38500975230 native Vulkan run')
+          PY
+      - name: Verify SHA integrity, 96 original brick bytes, one box and photographed capture
+        run: |
+          python - <<'PY'
+          import hashlib,json,pathlib,zlib,numpy as np
+          P=pathlib.Path
+          old=P('gpu_compute/assets/lie_wall03')
+          mortar=P('gpu_compute/assets/lie_mortar01')
+          new=P('gpu_compute/assets/lie_wall04')
+          img=P('/tmp/lie-wall04-vulkan/tmp/lie-wall04-native')
+          o=json.loads((old/'catalog.json').read_text())
+          m=json.loads((mortar/'catalog.json').read_text())
+          c=json.loads((new/'catalog.json').read_text())
+          v=json.loads((img/'LIE-WALL04-native-validation.json').read_text())
+          d=json.loads((img/'LIE-WALL04-coverage-diagnostic.json').read_text())
+          assert m['sha256']==c['wall04']['mortar01_sha256']==v['mortar_source_sha256']
+          assert o['sha256']==c['wall04']['wall03_original_sha256']==v['source_wall03_sha256']
+          assert c['sha256']==v['combined_bank_sha256']
+          assert m['sample_count']>100000 and len(m['levels'])==3
+          profile=m['flush_mortar_experiment']
+          assert profile['visible_mortar_width_m']==.006
+          assert profile['source_brick_visual_gap_m']==.003
+          assert profile['local_brick_edge_calibration']['source_brick_visual_joint_target_m']==.003
+          assert profile['max_back_relief_m']==.0008 and profile['max_forward_relief_m']==0.
+          assert profile['measured_front_plane_z_m']>profile['front_plane_source']['source_front_z_p90_m']
+          assert profile['support_scale']==.51 and profile['radius_scale']==.80
+          assert profile['global_plane_no_longer_controls_mortar_z']
+          assert profile['min_recess_from_local_brick_edge_m']==.0008
+          assert profile['max_extra_relief_from_local_brick_edge_m']==.0005
+          assert profile['local_brick_edge_calibration']['nearest_scan_bricks']==2
+          assert profile['local_brick_edge_calibration']['sample_queries_near_source']>10000
+          assert profile['local_brick_edge_calibration']['original_scanned_xyz_rgb_edited'] is False
+          assert c['wall04']['min_mortar_edge_recess_m']==.0008
+          assert c['collision']['spatial_envelope_count']==v['spatial_envelopes']==1
+          assert c['wall_layout']['brick_count']==v['scanned_bricks']==96
+          assert c['lighting']['node_count']==v['lighting_nodes']==872
+          assert c['source_original_triangles']==500000 and c['original_meshes_drawn'] is False
+          assert v['source_triangles_drawn']==0 and v['physical_android_gpu_tested'] is False
+          assert not c['hero_quality_accepted'] and not v['photorealism_certified']
+          assert not c['wall04']['mortar_source_masks_reviewed'] and not v['photographic_masks_reviewed']
+          assert not m['source_height_is_metric'] and not v['absolute_mortar_relief_scale_verified']
+          old_data=np.frombuffer(zlib.decompress((old/'wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
+          new_data=np.frombuffer(zlib.decompress((new/'wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
+          for a,b in zip(o['masters']['real_scan_wall']['levels'],c['masters']['real_scan_wall']['levels']):
+            section=old_data[a['start']:a['start']+a['count']]
+            brick=section[section[:,9]<864].tobytes()
+            assert new_data[b['start']:b['start']+b['scanned_original_brick_samples']].tobytes()==brick
+          assert d['real_vulkan_capture'] and d['source_samples_drawn_on_screen']>30000
+          assert d['source_sample_coverage_ratio']>.09 and d['G1_masks_reviewed'] is False
+          factors=json.loads((new/'indirect_factors.json').read_text())
+          factor_bytes=zlib.decompress((new/'indirect_factors.zlib').read_bytes())
+          assert len(factor_bytes)==872*872*4
+          assert hashlib.sha256(factor_bytes).hexdigest()==factors['sha256']
+          assert factors['input_wall_sha256']==c['sha256']
+          assert factors['input_light_sha256']==c['lighting']['sha256']
+          assert factors['light_only_brick_boxes']==96
+          assert factors['collision_spatial_envelopes']==1
+          assert factors['unoccluded_indirect_pairs']>100
+          assert factors['original_brick_samples_changed'] is False
+          ab=v['shadow_versus_patch_light_test']
+          assert ab['neutral_black_opaque_pixels']<30000
+          assert ab['core_only_black_opaque_pixels']<500
+          assert ab['no_occluders_black_opaque_pixels']<500
+          assert ab['neutral_black_opaque_pixels']<64415
+          assert ab['neutral_black_opaque_pixels']<=27705, "Do not publish worse visual coverage than source-photo A/B"
+          assert c['sha256']=='f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da', "Require exact published 3D source bank SHA"
+          assert d['opaque_brick_black_rgb_pixels_diagnostic_red']<50000
+          assert d['photographic_subsurface_backing_blue_pixels']>20000
+          assert d['photographic_mortar_core_green_pixels']>20000
+          assert m['flush_mortar_experiment']['subsurface_shoulder_rows_per_side']==2
+          assert m['flush_mortar_experiment']['nearest_observed_front_cap_enabled'] if 'nearest_observed_front_cap_enabled' in m['flush_mortar_experiment'] else m['flush_mortar_experiment']['local_brick_edge_calibration']['nearest_observed_front_cap_enabled']
+          assert c['sample_count']<850000
+          evidence=P('evidence');evidence.mkdir(exist_ok=True)
+          for name in ('LIE-WALL04-CapturedMortar-Neutral.png',
+                       'LIE-WALL04-CapturedMortar-Raking.png',
+                       'LIE-WALL04-CapturedMortar-CoverageDEBUG.png',
+                       'LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png',
+                       'LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png'):
+            shot=img/name
+            assert shot.is_file() and shot.stat().st_size>50000
+            (evidence/name).write_bytes(shot.read_bytes())
+          for name in ('LIE-WALL04-native-validation.json','LIE-WALL04-coverage-diagnostic.json'):
+            (evidence/name).write_bytes((img/name).read_bytes())
+          print('Persisting EXACT native Vulkan 6mm LOCAL-EDGE-RECESSED photographed mortar source bank:',m['sample_count'])
+          print('Visible mortar pixels:',d['source_samples_drawn_on_screen'])
+          print('Actual shadows-on black 64415 ->',ab['neutral_black_opaque_pixels'])
+          print('WARNING: improved physical occlusion, but photographed G1 and mobile GPU NOT CERTIFIED')
+          PY
+      - name: Commit rebuilt LIE sample bank and measured REAL Godot Vulkan evidence
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -f gpu_compute/assets/lie_mortar01/catalog.json \
+                     gpu_compute/assets/lie_mortar01/mortar-bank.zlib \
+                     gpu_compute/assets/lie_wall04/catalog.json \
+                     gpu_compute/assets/lie_wall04/light-model.json \
+                     gpu_compute/assets/lie_wall04/wall_bank.zlib \
+                     gpu_compute/assets/lie_wall04/indirect_factors.zlib \
+                     gpu_compute/assets/lie_wall04/indirect_factors.json \
+                     evidence/LIE-WALL04-CapturedMortar-Neutral.png \
+                     evidence/LIE-WALL04-CapturedMortar-Raking.png \
+                     evidence/LIE-WALL04-CapturedMortar-CoverageDEBUG.png \
+                     evidence/LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png \
+                     evidence/LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png \
+                     evidence/LIE-WALL04-native-validation.json \
+                     evidence/LIE-WALL04-coverage-diagnostic.json
+          if git diff --cached --quiet; then
+            echo 'Same exact photographed samples already published'
+          else
+            git commit -m 'WALL04: SHA-locked 3 LOD photographic mortar, original scanned bricks and native Vulkan G1-pending evidence [skip ci]'
+            git fetch origin experiment/lie-wall04-real-mortar-plan
+            git rebase origin/experiment/lie-wall04-real-mortar-plan
+            git push origin HEAD:experiment/lie-wall04-real-mortar-plan
+          fi

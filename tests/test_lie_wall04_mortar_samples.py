@@ -1,0 +1,185 @@
+"""Source-contract + synthetic-only geometry tests; never pass synthetic as real source."""
+import sys
+import unittest
+from pathlib import Path
+import numpy as np
+
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/"tools"))
+from lie_wall04_bake import (bank_samples, sample_line, deterministic_hash,
+    measured_brick_front_plane, DEFAULT_WALL, ORIGINAL_WALL_SHA,
+    VISIBLE_MORTAR_WIDTH_M, EDGE_PROTECTION_M,
+    MORTAR_MAX_BACK_RELIEF_M, SPLAT_RADIUS_SCALE, SUPPORT_SCALE)
+
+WALL = {
+    "sha256": ORIGINAL_WALL_SHA,
+    "lighting": {"node_count": 872},
+    "collision": {"spatial_envelope_count": 1},
+    "wall_layout": {
+        "mortar_gap_m": .0085,
+        "mortar_shader_layout": {
+            "rows": 8, "columns": 12, "brick_length_m": .2032,
+            "brick_height_m": .07742225992271486,
+            "pitch_x_m": .2117, "pitch_y_m": .08592225992271485,
+            "first_brick_x_m": -1.1643500328063965,
+            "first_brick_y_m": -.300727903842926,
+            "mortar_plane_z_m": .0563086,
+            "running_bond_stagger_fraction": .5
+        }
+    }
+}
+
+
+class SyntheticDonor:
+    """Only unit-test fixture: never used in a real asset or published LOD."""
+    shape=(128,256)
+    def extract(self,along_m,across_m,phase):
+        x=along_m*421. + across_m*2361. + phase
+        n=len(x)
+        color=np.stack((.15+.01*np.sin(x),.12+.006*np.sin(x),.09+.004*np.cos(x)),axis=1).astype(np.float32)
+        normals=np.stack((.05*np.sin(x),.04*np.cos(x),np.ones(n)),axis=1).astype(np.float32)
+        normals/=np.linalg.norm(normals,axis=1,keepdims=True)
+        return (np.ones(n,dtype=bool),color,normals,
+                np.asarray(.00032*np.sin(x),dtype=np.float32),
+                np.asarray(.72+.05*np.cos(x),dtype=np.float32))
+
+
+class UnevenBrickEdgeField:
+    """Synthetic edge-only fixture; never used in authored photographic assets."""
+    def face_limit(self,kind,row,column,xy):
+        # Two original neighbors with different front depths.
+        return (.050 + .001*np.sin(xy[:,0]*85)).astype(np.float32)
+
+
+class Wall04SamplesTest(unittest.TestCase):
+    def test_conservative_joint_centers_and_single_invisible_box(self):
+        donor=SyntheticDonor()
+        sampled=bank_samples(WALL,{"horizontal":[donor,donor],"vertical":[donor,donor]},.00135)
+        self.assertGreater(len(sampled),35000)
+        self.assertLess(len(sampled),250000)
+        self.assertEqual(sampled.shape[1],20)
+        self.assertTrue(np.isfinite(sampled).all())
+        self.assertEqual(int(sampled[:,9].min()),864)
+        self.assertEqual(int(sampled[:,9].max()),871)
+        self.assertGreater(float(np.ptp(sampled[:,2])),.00005)
+        self.assertEqual(WALL["collision"]["spatial_envelope_count"],1)
+        self.assertTrue(np.all(sampled[:,16]<=sampled[:,0]))
+        self.assertTrue(np.all(sampled[:,18]>=sampled[:,0]))
+        self.assertTrue(np.all(sampled[:,17]<=sampled[:,1]))
+        self.assertTrue(np.all(sampled[:,19]>=sampled[:,1]))
+        j=WALL["wall_layout"]["mortar_shader_layout"]
+        # The core stays outside each original brick footprint; underfill
+        # samples deliberately tuck behind broken rims and are separately
+        # marked in sample.attributes.w without changing the ABI.
+        self.assertGreater(int(np.sum(sampled[:,11]>.5)),1000)
+        self.assertGreater(int(np.sum(sampled[:,11]<.5)),1000)
+        core=sampled[sampled[:,11]<.5]
+        for row in range(8):
+            for col in range(12):
+                cx=(j["first_brick_x_m"]+col*j["pitch_x_m"]+
+                    (row%2)*.5*j["pitch_x_m"])
+                cy=j["first_brick_y_m"]+row*j["pitch_y_m"]
+                violation=(np.abs(core[:,0]-cx)<j["brick_length_m"]*.5+.00070)&(
+                    np.abs(core[:,1]-cy)<j["brick_height_m"]*.5+.00070)
+                self.assertFalse(np.any(violation),f"sample overlaps source brick {row}/{col}")
+
+    def test_unchanging_seed_and_no_flat_random_plane(self):
+        donors=[SyntheticDonor(),SyntheticDonor()]
+        a=sample_line("vertical",4,3,0.,.077,.2,.00135,.0085,.0563,donors)
+        b=sample_line("vertical",4,3,0.,.077,.2,.00135,.0085,.0563,donors)
+        np.testing.assert_array_equal(a,b)
+        self.assertGreater(float(np.ptp(a[:,2])),.00002)
+        self.assertTrue(np.all(a[:,3]>.0))
+        self.assertTrue(np.all((a[:,10]>=.2)&(a[:,10]<=.99)))
+
+    def test_mortar_is_six_millimeters_and_flush_to_real_scanned_face(self):
+        import json
+        wall=json.loads(DEFAULT_WALL.read_text())
+        front,proof=measured_brick_front_plane(DEFAULT_WALL,wall)
+        self.assertGreater(proof["source_front_samples"],10000)
+        self.assertFalse(proof["local_per_brick_flush_verified"])
+        self.assertGreaterEqual(front, proof["legacy_recessed_mortar_plane_z_m"]-.0015)
+        self.assertGreater(proof["source_front_z_p975_m"],proof["source_front_z_median_m"]+.001)
+        donor=SyntheticDonor()
+        strip=sample_line("vertical",2,5,0.0,.077,.15,.0012,.0085,
+                          front,[donor,donor])
+        self.assertGreater(len(strip),30)
+        # X is the across-joint coordinate of a vertical joint.
+        half=VISIBLE_MORTAR_WIDTH_M*.5-EDGE_PROTECTION_M
+        core=strip[strip[:,11]<.5]
+        shoulders=strip[strip[:,11]>.5]
+        self.assertGreater(len(core),10)
+        self.assertGreater(len(shoulders),10)
+        self.assertLessEqual(float(np.max(np.abs(core[:,0]-.15))),half+.00001)
+        self.assertLessEqual(float(core[:,2].max()),front+1e-7)
+        self.assertGreaterEqual(float(core[:,2].min()),front-MORTAR_MAX_BACK_RELIEF_M-1e-7)
+        self.assertTrue(np.all(shoulders[:,2]<=front-.0006))
+        self.assertGreater(float(np.ptp(strip[:,2])),.00001)
+        np.testing.assert_array_less(strip[:,16],strip[:,18])
+        np.testing.assert_array_less(strip[:,17],strip[:,19])
+        self.assertAlmostEqual(float(strip[0,3]),.0012*SPLAT_RADIUS_SCALE,places=7)
+        self.assertAlmostEqual(VISIBLE_MORTAR_WIDTH_M,.0060)
+        self.assertAlmostEqual(SUPPORT_SCALE,.51)
+
+    def test_mortar_is_recessed_below_EVERY_measured_local_brick_edge(self):
+        from lie_wall04_bake import MORTAR_EDGE_RECESS_M, MORTAR_EXTRA_MICRO_RELIEF_M
+        donor=SyntheticDonor()
+        surface=UnevenBrickEdgeField()
+        for orientation,lo,hi,center in (("vertical",0.,.077,.15),
+                                          ("horizontal",-.22,.22,-.02)):
+            strip=sample_line(orientation,2,4,lo,hi,center,.0012,.0085,.057,
+                              [donor],edge_field=surface)
+            self.assertGreater(len(strip),50)
+            boundaries=surface.face_limit(orientation,2,4,strip[:,0:2])
+            self.assertTrue(np.all(strip[:,2]<=boundaries-MORTAR_EDGE_RECESS_M+1e-7))
+            from lie_wall04_bake import MORTAR_SUBSURFACE_EXTRA_RECESS_M
+            self.assertTrue(np.all(strip[:,2]>=boundaries-MORTAR_EDGE_RECESS_M-
+                                   MORTAR_EXTRA_MICRO_RELIEF_M-
+                                   MORTAR_SUBSURFACE_EXTRA_RECESS_M-1e-7))
+            core=strip[strip[:,11]<.5]
+            backing=strip[strip[:,11]>.5]
+            self.assertGreater(len(core),10)
+            self.assertGreater(len(backing),10)
+            self.assertTrue(np.all(backing[:,2] <= surface.face_limit(
+                orientation,2,4,backing[:,0:2])-MORTAR_EDGE_RECESS_M-
+                MORTAR_SUBSURFACE_EXTRA_RECESS_M+1e-7))
+            self.assertGreater(float(np.ptp(strip[:,2])),.0005)
+            self.assertTrue(np.isfinite(strip).all())
+
+    def test_original_neighbor_bricks_query_from_sha_locked_scanned_front(self):
+        import json
+        from lie_wall04_edge_surface import OriginalBrickEdgeField
+        wall=json.loads(DEFAULT_WALL.read_text())
+        field=OriginalBrickEdgeField(DEFAULT_WALL,wall)
+        j=wall["wall_layout"]["mortar_shader_layout"]
+        seam_x=j["first_brick_x_m"]+(5.5)*j["pitch_x_m"]
+        seam_y=j["first_brick_y_m"]+3*j["pitch_y_m"]
+        coords=np.array([[seam_x,seam_y-.01],[seam_x,seam_y],
+                         [seam_x,seam_y+.01]],dtype=np.float32)
+        face=field.face_limit("vertical",2,5,coords)
+        self.assertEqual(face.shape,(3,))
+        self.assertTrue(np.isfinite(face).all())
+        self.assertGreater(float(face.min()),.025)
+        self.assertGreaterEqual(float(face.min()),field.report()["exposed_layer_z_min_m"]-.003)
+        report=field.report()
+        self.assertEqual(report["nearest_scan_bricks"],2)
+        self.assertTrue(report["nearest_observed_front_cap_enabled"])
+        self.assertGreater(report["nearest_observed_front_samples"],10000)
+        # Real photographed front XYZ, after the IDENTICAL XY transform
+        # applied by the GPU, must be no farther back than the mortar surface.
+        # Test the actual local-query operation, not just catalog metadata.
+        _,nearest_id=field.exposed_surface_tree.query(coords,k=1)
+        nearest_z=field.exposed_world_z[nearest_id]
+        self.assertTrue(np.all(face<=nearest_z+1e-7))
+        self.assertGreaterEqual(report["min_cap_clearance_against_actual_exposed_scan_m"],-1e-7)
+        self.assertFalse(report["original_scanned_xyz_rgb_edited"])
+
+    def test_invalid_source_layout_fails_closed(self):
+        donor=SyntheticDonor()
+        wall={**WALL,"collision":{"spatial_envelope_count":2}}
+        with self.assertRaises(ValueError):
+            bank_samples(wall,{"horizontal":[donor],"vertical":[donor]},.0027)
+        with self.assertRaises(ValueError):
+            sample_line("horizontal",0,0,0.,1.,0.,.0027,.0010,.0563,[donor])
+
+if __name__=="__main__":unittest.main()
