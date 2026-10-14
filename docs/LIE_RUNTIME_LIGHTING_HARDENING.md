@@ -39,7 +39,12 @@ los búferes por tile antes de sustituir los datos publicados.
 La matriz original tiene 872 × 872 pesos, 3,041,536 bytes y 2,618 aristas
 distintas de cero. Su CSR ocupa 24,452 bytes: 99.1961% menos almacenamiento
 de factores. Un rebote inspecciona 2,618 aristas, frente a 760,384 entradas
-del bucle denso. Estos son conteos verificables, no una promesa de aceleración
+del bucle denso. CSR no reduce almacenamiento en todos los grafos: sus aristas
+guardan índice y peso, y una matriz muy poblada puede ocupar menos en denso.
+El demo de habitación de 64 parches reserva más bytes de factores en CSR;
+se priorizó comprobar las mismas ecuaciones y reutilizar su geometría. Elegir
+backend por densidad es una continuación para el transporte genérico.
+Estos son conteos verificables, no una promesa de aceleración
 de igual magnitud. El banco original y su SHA no se reemplazan: CSR se deriva
 al restaurar los captures y se verifica contra su procedencia.
 
@@ -100,8 +105,10 @@ transporte: ocultar un visual no demuestra que su luz sea irrelevante.
 ## Investigación de hardware y de Godot
 
 Las recomendaciones de Arm favorecen medir contención de atomics, accesos y
-memoria antes de elegir trabajo. Se conserva el grupo de 64 hilos de
-transporte y el de 8 × 8 de imagen; no se presupone un subgroup de 32 o 64.
+memoria antes de elegir trabajo. Los kernels de transporte y de WALL04
+conservan sus grupos de 64 hilos. Los grupos de imagen de 8 × 8 recomendados
+por Arm son una variante por evaluar, no un cambio ya aplicado a WALL04;
+no se presupone un subgroup de 32 o 64.
 CSR evita lecturas inútiles; compartir el banco evita una subida/copia por
 consumidor; la caché evita despachar generaciones idénticas. Ninguna de estas
 medidas requiere modificar el núcleo de Godot.
@@ -195,3 +202,27 @@ navegación. Se añadió cierre ordenado por `shutdown`, ligado a la identidad
 exacta de sesión, y el helper Linux `lie_agent_stop.py` espera la salida
 antes de apagar el display. La suite de agente comprueba los rechazos de
 identidad ausente/vieja y un cierre único; el smoke valida la salida real.
+
+## Resultado validado
+
+El commit de código `454b51a` pasó los **17 workflows de regresión**.
+El [run nativo final 38601980635](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980635)
+pasó 122 pruebas Python (una omisión por fuente externa), rig de 247 checks,
+agente de 25, contrato C++, 623 checks de transporte, 30 de muestras compartidas,
+aceptación gráfica LIE11, WALL04 a 1080 y cierre de sesión sin errores
+inesperados. Solo se permite el rechazo deliberado de una política inválida.
+
+La diferencia denso/CSR fue **0** en los casos GPU probados, incluidos los
+toggles de sombra de WALL04. El error máximo de irradiancia del modo nuevo
+frente al oráculo float64 quedó por debajo de 0.000002. Dos consumidores
+compartieron una única subida de 61,767,760 bytes; al cerrar uno siguió
+renderizando el otro, y al cerrar el último quedaron cero leases y bancos.
+El SHA de la PNG neutra de WALL04 sigue siendo
+`78056dece54a7f2545135071a813055bac2d56ddde310ed273eeb13afe605b53`.
+
+Los JSON reales, procedencia, resultados de compatibilidad y límites quedan
+preservados en [LIE_RUNTIME_CHECKPOINT.json](checkpoints/LIE_RUNTIME_CHECKPOINT.json).
+El ZIP del run tiene SHA-256
+`e96a9f0dd63ddfaaa3d016bfb18517e78449d67900f3fe8bb26bf1f60ee5b6d6`.
+La evidencia usa llvmpipe, no un GPU físico. Sus tiempos incluyen compilación
+inicial y re-renders diagnósticos: no se publican como mejora de FPS móviles.

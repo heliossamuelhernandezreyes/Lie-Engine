@@ -1,0 +1,691 @@
+{
+  "schema": "lie-runtime-checkpoint/1",
+  "date_utc": "2026-10-14",
+  "tested_code_commit": "454b51a248266c4d7d1cf357c9d4eea1995cc437",
+  "base_commit": "7c12dcf492a71c51c5c981a50852cf8b2e51b17d",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "native_run_url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980635",
+  "artifact_id": 11913533381,
+  "artifact_sha256": "e96a9f0dd63ddfaaa3d016bfb18517e78449d67900f3fe8bb26bf1f60ee5b6d6",
+  "physical_gpu_measured": false,
+  "source_mesh_triangles_rendered": 0,
+  "python_tests": {
+    "total": 122,
+    "skipped_external_source": 1,
+    "failed": 0
+  },
+  "cpu_rig_checks": 247,
+  "agent_protocol_checks": 25,
+  "cpp_view_contract": "pass",
+  "native_error_gate": {
+    "unexpected_errors": 0,
+    "deliberate_invalid_policy_rejections": 1,
+    "orderly_disposable_session_exit": true
+  },
+  "source_reciprocity": {
+    "normalization": "symmetric_local",
+    "relative_l1": 6.067988844375654e-09,
+    "max_absolute": 1.9810497773470326e-10,
+    "max_row_energy_sum": 1.0000000298023224
+  },
+  "limits": [
+    "Software Vulkan timing is not physical/mobile performance.",
+    "Per-camera private buffers remain 248457520 bytes at 720 square output.",
+    "WALL04 remains a precomposed 96-brick wall bank.",
+    "Photographic mortar masks and metric relief remain unreviewed.",
+    "LIE27 custom capture buffers and Android branch are outside this integration.",
+    "Dense graphs can consume more factor bytes in CSR."
+  ],
+  "reports": {
+    "transport": {
+      "cases": {
+        "absorbing": {
+          "dense_sparse_max_error": 0.0
+        },
+        "blocked": {
+          "dense_sparse_max_error": 0.0
+        },
+        "bounce": {
+          "dense_sparse_max_error": 0.0
+        },
+        "cool": {
+          "dense_sparse_max_error": 0.0
+        },
+        "direct": {
+          "dense_sparse_max_error": 0.0
+        },
+        "irradiance": {
+          "oracle_max_error": 1.123561986560162e-06,
+          "oracle_relative_l1": 9.065378411409119e-08
+        },
+        "moved": {
+          "dense_sparse_max_error": 0.0
+        },
+        "power": {
+          "oracle_max_error": 9.449958513485512e-07,
+          "oracle_relative_l1": 8.285710107407243e-08
+        },
+        "transmission": {
+          "oracle_max_error": 1.0740972511413815e-06,
+          "oracle_relative_l1": 8.685934902972317e-08
+        },
+        "wall_shadow_false": {
+          "max_error": 0.0
+        },
+        "wall_shadow_true": {
+          "max_error": 0.0
+        }
+      },
+      "checks": 623,
+      "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "factor_builds": 3,
+      "factor_reuses": 10,
+      "failed": false,
+      "physical_gpu_measured": false,
+      "sparse_metrics": {
+        "cache_hits": 147,
+        "cache_static_transport": true,
+        "factor_buffer_capacity_bytes": 24852,
+        "input_upload_bytes": 80924,
+        "profile": [
+          {
+            "gpu_ns": 65330550,
+            "marker_frame": 1,
+            "serial": 1
+          },
+          {
+            "gpu_ns": 109303,
+            "marker_frame": 12,
+            "serial": 2
+          },
+          {
+            "gpu_ns": 227207,
+            "marker_frame": 20,
+            "serial": 3
+          },
+          {
+            "gpu_ns": 206235,
+            "marker_frame": 28,
+            "serial": 4
+          },
+          {
+            "gpu_ns": 179119,
+            "marker_frame": 36,
+            "serial": 5
+          },
+          {
+            "gpu_ns": 211861,
+            "marker_frame": 44,
+            "serial": 6
+          },
+          {
+            "gpu_ns": 211043,
+            "marker_frame": 52,
+            "serial": 7
+          },
+          {
+            "gpu_ns": 192882,
+            "marker_frame": 60,
+            "serial": 8
+          },
+          {
+            "gpu_ns": 226876,
+            "marker_frame": 68,
+            "serial": 9
+          },
+          {
+            "gpu_ns": 273333,
+            "marker_frame": 76,
+            "serial": 10
+          },
+          {
+            "gpu_ns": 235326,
+            "marker_frame": 84,
+            "serial": 11
+          },
+          {
+            "gpu_ns": 207628,
+            "marker_frame": 102,
+            "serial": 12
+          }
+        ],
+        "solves": 12
+      },
+      "wall_dense_metrics": {
+        "backend": "dense",
+        "cache_hits": 35,
+        "cache_static_transport": true,
+        "factor_buffer_capacity_bytes": 3041536,
+        "graph": {
+          "bytes": 3041536,
+          "dense_bytes": 3041536,
+          "edges": 760384
+        },
+        "input_upload_bytes": 3089024,
+        "profile": [
+          {
+            "gpu_ns": 93289881,
+            "marker_frame": 122,
+            "serial": 1
+          },
+          {
+            "gpu_ns": 2736328,
+            "marker_frame": 136,
+            "serial": 2
+          },
+          {
+            "gpu_ns": 1966196,
+            "marker_frame": 144,
+            "serial": 3
+          }
+        ],
+        "solves": 3,
+        "source_factor_rebuilt_in_runtime": false
+      },
+      "wall_sparse_metrics": {
+        "backend": "receiver_csr",
+        "cache_hits": 35,
+        "cache_static_transport": true,
+        "factor_buffer_capacity_bytes": 24452,
+        "graph": {
+          "bytes": 24452.0,
+          "dense_bytes": 3041536.0,
+          "dense_sha256": "d07c447269826823d6ba37abf15f1432880bf5c44256e6d7f283659bd61baec2",
+          "edges": 2618.0,
+          "input_light_sha256": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb",
+          "input_wall_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+          "patches": 872.0,
+          "schema": "lie-receiver-csr-f32/1",
+          "sha256": "099fefb63ed17b4a90e66b677ed364ce7aa274f520087c4406d615060400894e",
+          "source_factor_sha256": "d07c447269826823d6ba37abf15f1432880bf5c44256e6d7f283659bd61baec2",
+          "source_order_preserved": true,
+          "weights_requantized": false,
+          "zero_threshold": 0.0
+        },
+        "input_upload_bytes": 71940,
+        "profile": [
+          {
+            "gpu_ns": 86352181,
+            "marker_frame": 122,
+            "serial": 1
+          },
+          {
+            "gpu_ns": 284762,
+            "marker_frame": 136,
+            "serial": 2
+          },
+          {
+            "gpu_ns": 409624,
+            "marker_frame": 144,
+            "serial": 3
+          }
+        ],
+        "solves": 3,
+        "source_factor_rebuilt_in_runtime": false
+      }
+    },
+    "shared_samples": {
+      "checks": 30,
+      "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "failed": false,
+      "first_view_profile": [
+        {
+          "gpu_ns": 320912347,
+          "marker_frame": 12,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 2
+        },
+        {
+          "gpu_ns": 364533636,
+          "marker_frame": 14,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 3
+        },
+        {
+          "gpu_ns": 369445660,
+          "marker_frame": 16,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 4
+        },
+        {
+          "gpu_ns": 370243246,
+          "marker_frame": 18,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 5
+        },
+        {
+          "gpu_ns": 375784034,
+          "marker_frame": 20,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 6
+        },
+        {
+          "gpu_ns": 385681667,
+          "marker_frame": 22,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 7
+        },
+        {
+          "gpu_ns": 332875863,
+          "marker_frame": 24,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 8
+        },
+        {
+          "gpu_ns": 305232694,
+          "marker_frame": 26,
+          "owner_instance_id": -9223371991019420162,
+          "serial": 9
+        }
+      ],
+      "immutable_bank_bytes_avoided": 61767760,
+      "loaded": {
+        "live_banks": 1,
+        "live_references": 2,
+        "physical_uploads_total": 1,
+        "scope": "immutable sample buffers on this RenderingDevice, not engine/process RAM",
+        "unique_resident_bytes": 61767760
+      },
+      "physical_gpu_measured": false,
+      "private_render_bytes_per_consumer": 248457520,
+      "released": {
+        "live_banks": 0,
+        "live_references": 0,
+        "physical_uploads_total": 1,
+        "scope": "immutable sample buffers on this RenderingDevice, not engine/process RAM",
+        "unique_resident_bytes": 0
+      },
+      "second_view_profile": [
+        {
+          "gpu_ns": 304786402,
+          "marker_frame": 12,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 2
+        },
+        {
+          "gpu_ns": 361405102,
+          "marker_frame": 14,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 3
+        },
+        {
+          "gpu_ns": 453151003,
+          "marker_frame": 16,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 4
+        },
+        {
+          "gpu_ns": 373759177,
+          "marker_frame": 18,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 5
+        },
+        {
+          "gpu_ns": 372123032,
+          "marker_frame": 20,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 6
+        },
+        {
+          "gpu_ns": 383295227,
+          "marker_frame": 22,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 7
+        },
+        {
+          "gpu_ns": 313704409,
+          "marker_frame": 24,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 8
+        },
+        {
+          "gpu_ns": 306114126,
+          "marker_frame": 31,
+          "owner_instance_id": -9223371987764640099,
+          "serial": 10
+        }
+      ],
+      "source_bank_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+      "source_bytes": 61767760,
+      "source_meshes_rendered": false,
+      "surviving": {
+        "live_banks": 1,
+        "live_references": 1,
+        "physical_uploads_total": 1,
+        "scope": "immutable sample buffers on this RenderingDevice, not engine/process RAM",
+        "unique_resident_bytes": 61767760
+      },
+      "two_camera_source_uploads": 1
+    },
+    "lie11": {
+      "backend": "GitHub CI Vulkan software; not mobile hardware",
+      "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "experiment": "LIE11-coded-gray-sprites-v1",
+      "frame_pacing_direct_ms": {
+        "p50": 7.675,
+        "p95": 8.145,
+        "p99": 8.503,
+        "samples": 120
+      },
+      "frame_pacing_two_bounces_ms": {
+        "p50": 7.649,
+        "p95": 8.216,
+        "p99": 8.484,
+        "samples": 120
+      },
+      "grayscale_sprite_nodes": 64,
+      "lighting_owned_gpu_allocation_bytes": 38580,
+      "limitations": "Finite planar patches, center quadrature, diffuse RGB only; timings include entire process scheduling on software Vulkan. No physical GPU speedup or full GI accuracy claimed.",
+      "max_bounces": 2,
+      "perspective_area_ratio_at_1_5x_distance": 0.403541957297898,
+      "scenarios": {
+        "absorbing": {
+          "gpu_reference_max_absolute_error": 7.98996359741011e-07,
+          "gpu_reference_relative_l1_error": 9.13488024329587e-08
+        },
+        "blocked": {
+          "gpu_reference_max_absolute_error": 4.16630097976878e-07,
+          "gpu_reference_relative_l1_error": 7.4539769450433e-08
+        },
+        "bounce": {
+          "gpu_reference_max_absolute_error": 1.26379185783065e-06,
+          "gpu_reference_relative_l1_error": 9.05019934701326e-08,
+          "visible_reference_mean_rgb_error": 0.0
+        },
+        "cool": {
+          "gpu_reference_max_absolute_error": 1.26379185783065e-06,
+          "gpu_reference_relative_l1_error": 9.11572167747723e-08
+        },
+        "direct": {
+          "gpu_reference_max_absolute_error": 5.48483289897206e-07,
+          "gpu_reference_relative_l1_error": 1.01376312598169e-07
+        },
+        "moved": {
+          "gpu_reference_max_absolute_error": 2.25055489977422e-06,
+          "gpu_reference_relative_l1_error": 6.94780147428033e-08
+        }
+      },
+      "two_bounce_relative_l1_error_vs_infinite_same_graph": 0.0470584377470087,
+      "viewport": [
+        1280,
+        720
+      ],
+      "visible_source_mesh_nodes": 0
+    },
+    "wall": {
+      "scenario": "Native Godot Vulkan: authentic scanned original bricks + photographed unreviewed XYZ mortar samples",
+      "source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
+      "mortar_source_sha256": "bc4a52aec3500ec73bc56e4efdee87a66823f41f861ea5dd905bcda1e418736b",
+      "combined_bank_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+      "source_triangles_drawn": 0,
+      "spatial_envelopes": 1,
+      "scanned_bricks": 96,
+      "lighting_nodes": 872,
+      "photographic_masks_reviewed": false,
+      "absolute_mortar_relief_scale_verified": false,
+      "photorealism_certified": false,
+      "physical_android_gpu_tested": false,
+      "mesa_vulkan_is_not_mobile_performance": true,
+      "sample_counts": [
+        535670,
+        181896,
+        54531
+      ],
+      "captured_real_vulkan_pngs": {
+        "neutral": {
+          "file": "LIE-WALL04-CapturedMortar-Neutral.png",
+          "sha256": "78056dece54a7f2545135071a813055bac2d56ddde310ed273eeb13afe605b53",
+          "occupied_pixels": 362647,
+          "empty_enclosed_single_pixel_holes": 0,
+          "mean_rgb": [
+            105.78947847355693,
+            86.15552313958202,
+            72.95500031711279
+          ],
+          "mean_luminance": 89.3766242958028,
+          "black_opaque_pixels": 28024
+        },
+        "core_only_diagnostic": {
+          "file": "LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png",
+          "sha256": "5a7a3aae90ef9dc81ccdb062ffc45364d0489bc1a93ac43565b2b24928121d01",
+          "occupied_pixels": 362647,
+          "empty_enclosed_single_pixel_holes": 0,
+          "mean_rgb": [
+            112.57693018279484,
+            90.56408573626695,
+            76.1166533846964
+          ],
+          "mean_luminance": 94.20091184981538,
+          "black_opaque_pixels": 445
+        },
+        "no_occluders_diagnostic": {
+          "file": "LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png",
+          "sha256": "5a7a3aae90ef9dc81ccdb062ffc45364d0489bc1a93ac43565b2b24928121d01",
+          "occupied_pixels": 362647,
+          "empty_enclosed_single_pixel_holes": 0,
+          "mean_rgb": [
+            112.57693018279484,
+            90.56408573626695,
+            76.1166533846964
+          ],
+          "mean_luminance": 94.20091184981538,
+          "black_opaque_pixels": 445
+        },
+        "raking": {
+          "file": "LIE-WALL04-CapturedMortar-Raking.png",
+          "sha256": "d998a3eda1e6d69a3e5a7bf74806a160cbca8f3b57336fd2b44cc2bacc91cebe",
+          "occupied_pixels": 362647,
+          "empty_enclosed_single_pixel_holes": 0,
+          "mean_rgb": [
+            94.86776396881817,
+            63.536000573560514,
+            41.173513085728
+          ],
+          "mean_luminance": 68.58256187477078,
+          "black_opaque_pixels": 56390
+        }
+      },
+      "shadow_versus_patch_light_test": {
+        "neutral_black_opaque_pixels": 28024,
+        "core_only_black_opaque_pixels": 445,
+        "no_occluders_black_opaque_pixels": 445,
+        "neutral_luminance": 89.3766242958028,
+        "core_only_luminance": 94.20091184981538,
+        "no_occluders_luminance": 94.20091184981538,
+        "same_original_light_source_rgb_and_camera": true,
+        "occlusion_disabled_result_only_diagnostic": true
+      }
+    },
+    "coverage": {
+      "experimental_only": true,
+      "device": "Mesa Vulkan in GitHub CI",
+      "real_vulkan_capture": true,
+      "real_photo_mortar_source": true,
+      "debug_color_is_not_real_mortar_albedo": true,
+      "source_samples_drawn_on_screen": 49327,
+      "photographic_mortar_core_green_pixels": 23921,
+      "photographic_subsurface_backing_blue_pixels": 25406,
+      "brick_or_other_pixels": 267933,
+      "screen_alpha_occupied": 362647,
+      "source_sample_coverage_ratio": 0.1360193245773438,
+      "opaque_brick_black_rgb_pixels_diagnostic_red": 45387,
+      "opaque_visible_brick_nonblack_pixels": 267933,
+      "empty_transparent_pixels": 803753,
+      "red_is_debug_unlit_source_brick_not_material": true,
+      "source_png": "LIE-WALL04-CapturedMortar-CoverageDEBUG.png",
+      "sha256": "623dce4abb6c1390f33cdc52e9ed2d9961b8e1758e57b23203b923a17493d12d",
+      "G1_masks_reviewed": false
+    },
+    "gaps": {
+      "experimental_screen_space_diagnostic": true,
+      "real_native_vulkan_png_only": true,
+      "source_photo_masks_G1_reviewed": false,
+      "never_treat_transparent_background_as_missing_mortar": true,
+      "reference_baseline_in_wall_gaps": 38564,
+      "delta_in_wall_gaps": -2026,
+      "neutral": {
+        "filename": "LIE-WALL04-CapturedMortar-Neutral.png",
+        "sha256": "78056dece54a7f2545135071a813055bac2d56ddde310ed273eeb13afe605b53",
+        "pixels_alpha_ge_128": 359865,
+        "wall_columns": 1080,
+        "column_bounded_wall_pixels": 396403,
+        "in_wall_alpha_empty_pixels": 36538,
+        "in_wall_alpha_gap_fraction": 0.09217387355797005,
+        "visible_dark_opaque_pixels_max_rgb_le_10": 28748,
+        "vertical_gap_runs_by_length": {
+          "1_to_2": 1654,
+          "3_to_5": 2276,
+          "6_to_9": 2551,
+          "10_to_31": 586,
+          "32_or_more": 0
+        }
+      },
+      "without_shadow_occluders": {
+        "filename": "LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png",
+        "sha256": "5a7a3aae90ef9dc81ccdb062ffc45364d0489bc1a93ac43565b2b24928121d01",
+        "pixels_alpha_ge_128": 359865,
+        "wall_columns": 1080,
+        "column_bounded_wall_pixels": 396403,
+        "in_wall_alpha_empty_pixels": 36538,
+        "in_wall_alpha_gap_fraction": 0.09217387355797005,
+        "visible_dark_opaque_pixels_max_rgb_le_10": 399,
+        "vertical_gap_runs_by_length": {
+          "1_to_2": 1654,
+          "3_to_5": 2276,
+          "6_to_9": 2551,
+          "10_to_31": 586,
+          "32_or_more": 0
+        }
+      },
+      "alpha_equal_between_lighting_variants": true
+    },
+    "sparse_graph": {
+      "schema": "lie-receiver-csr-f32/1",
+      "patches": 872,
+      "edges": 2618,
+      "dense_bytes": 3041536,
+      "bytes": 24452,
+      "dense_sha256": "d07c447269826823d6ba37abf15f1432880bf5c44256e6d7f283659bd61baec2",
+      "sha256": "099fefb63ed17b4a90e66b677ed364ce7aa274f520087c4406d615060400894e",
+      "zero_threshold": 0,
+      "weights_requantized": false,
+      "source_order_preserved": true,
+      "source_factor_sha256": "d07c447269826823d6ba37abf15f1432880bf5c44256e6d7f283659bd61baec2",
+      "input_wall_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+      "input_light_sha256": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb"
+    }
+  },
+  "report_sha256": {
+    "transport": "a0b264a375e8ad75f64dd3d0e5a2df82876927b3c0e1b727210a28828d6e6607",
+    "shared_samples": "b10882401518b9071b8718f257ec909ba5a45e58a86ca99afaaa2899f33663ff",
+    "lie11": "3f88fb52750f89b6c5903399b74dc436c3ebe1dedec22e3262b603bd96542194",
+    "wall": "2caf77a7e99650467ea7b351ba7b4938399102e34df6be447547db5ca94f1bf2",
+    "coverage": "1a7a577778bd95f6582f355dce7205f0c23a378b385b3de395596c77cc577a09",
+    "gaps": "102ed7d8b561c72f1fe1b8a795911c3fe09b302ef2a4694b15cdf5a7854ff173",
+    "sparse_graph": "21299e7cb98bcf5bc0a79e6d927ba27f6027315af56759f3ef99747ad2aa8224"
+  },
+  "regression_workflows": [
+    {
+      "id": 38601980635,
+      "name": "LIE runtime lighting and shared samples",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980635"
+    },
+    {
+      "id": 38601980658,
+      "name": "LIE-16 stable capture quality and measured consumer cost",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980658"
+    },
+    {
+      "id": 38601980621,
+      "name": "LIE-27 spherical regions and face",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980621"
+    },
+    {
+      "id": 38601980470,
+      "name": "LIE-26 anatomical rig",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980470"
+    },
+    {
+      "id": 38601980566,
+      "name": "LIE-14 rigid masters and perception boxes",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980566"
+    },
+    {
+      "id": 38601980595,
+      "name": "LIE-11 coded sprite light transport",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980595"
+    },
+    {
+      "id": 38601980587,
+      "name": "LIE-12 captured grayscale material and node lighting",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980587"
+    },
+    {
+      "id": 38601980589,
+      "name": "LIE-15 Arcont robot and compact camera reconstruction",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980589"
+    },
+    {
+      "id": 38601980539,
+      "name": "LIE-21 human quality versus Cycles and LIE-20",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980539"
+    },
+    {
+      "id": 38601980490,
+      "name": "LIE-22 shared eyes and modular destruction",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980490"
+    },
+    {
+      "id": 38601980582,
+      "name": "LIE-20 captured human, invisible deformation and skin",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980582"
+    },
+    {
+      "id": 38601980471,
+      "name": "LIE-18 workshop, shared agent API and GPU transport",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980471"
+    },
+    {
+      "id": 38601980501,
+      "name": "LIE-17 contrast-guided edges and measured filter cost",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980501"
+    },
+    {
+      "id": 38601980491,
+      "name": "LIE-13 finite secondary radii and dielectric sprites",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980491"
+    },
+    {
+      "id": 38601980497,
+      "name": "LIE-01 native acceptance",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980497"
+    },
+    {
+      "id": 38601980588,
+      "name": "LIE-23 integrated eyes and continuous captured eyelids",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980588"
+    },
+    {
+      "id": 38601980509,
+      "name": "LIE-24 captured facial construction and compatible modules",
+      "conclusion": "success",
+      "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38601980509"
+    }
+  ]
+}
