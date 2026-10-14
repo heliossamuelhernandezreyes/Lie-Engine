@@ -51,6 +51,8 @@ func run() -> void:
     check(same["instances"]==97 and same["cache"]["brick_master_count"]==1,"96 true brick instances reference one source master")
     var revision: int=lab.revision
     check(not lab.command({"op":"set_values","values":{"optical_codes":3,"light_power":2}})["ok"] and lab.revision==revision,"Invalid optical transaction is atomic")
+    check(not lab.command({"op":"set_values","values":{"master":"brick_wall","light_power":2}})["ok"] and lab.revision==revision,"Internal source IDs cannot become an unsupported public scene")
+    check(lab.agent_snapshot()["control_contract"]["masters"]==["real_scan_wall"] and lab.agent_snapshot()["control_contract"]["booleans"].has("optical_codes"),"Discovery advertises the actual wall controls")
     var gc: int=lab.effect.geometry_rebuilds;var light: int=lab.effect.lighting_resolves;var output: int=lab.effect.output_resolves
     await settle(20);check(lab.effect.geometry_rebuilds==gc and lab.effect.output_resolves==output,"Idle image stays cached")
     lab.command({"op":"set_values","values":{"exposure":1.7}});await settle()
@@ -92,6 +94,13 @@ func run() -> void:
     # Direct plus two received generations <= three times direct lamp power.
     var power: Array=lab.light_model["lights"][0]["power_rgb"]
     check(total.x<=3.*power[0]+.001 and total.y<=3.*power[1]+.001 and total.z<=3.*power[2]+.001,"Three frontier generations respect the lamp energy bound")
+    gc=lab.effect.geometry_rebuilds
+    lab.command({"op":"set_values","values":{"energy_radius":true}});await settle()
+    var bounded: Dictionary=await capture(lab.effect)
+    check(lab.light_model["secondary_radii"]["mode"]=="irradiance" and lab.effect.geometry_rebuilds==gc and not bounded.is_empty(),"Effective-radius policy reaches the sparse optical scene and preserves geometry")
+    lab.command({"op":"set_values","values":{"energy_radius":false}});await settle()
+    var range_restored: Dictionary=await capture(lab.effect)
+    check(comparison(angular["color"],range_restored["color"])["max"]<.0001,"Removing the cutoff restores the same optical image")
     lab.command({"op":"set_values","values":{"quality_2x":false}});await settle()
     var balanced: Dictionary=await capture(lab.effect);save(balanced,"balanced")
     check(balanced["internal_size"]==1080 and balanced["output_size"]==720 and balanced["asset_uploads"]==1,"Balanced internal resolution preserves output and bank RID")

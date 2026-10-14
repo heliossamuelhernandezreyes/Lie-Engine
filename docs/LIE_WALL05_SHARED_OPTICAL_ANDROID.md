@@ -57,6 +57,10 @@ emisor/lóbulo. Los códigos ópticos agrupan normales, RGB lineal y rugosidad
 IOR 1.5, espesor 0 y extinción 0 son datos de autoría explícitos para arcilla
 y mortero opacos; no se deducen de las fotografías.
 
+La rugosidad del ladrillo es el valor de autoría 0.6 del importador del
+escaneo; el mortero usa su mapa PBR. Leer el atributo guardado no constituye
+una medición física de rugosidad ni una inferencia automática de materiales.
+
 La frontera guarda energía incidente y una dirección media ponderada por
 potencia. La distribución difusa y el lóbulo reflejado aproximado de LIE35
 reemplazan el factor angular de emisión una vez. Fresnel/reflectancia y
@@ -73,6 +77,11 @@ una solución GGX completa, ni un trazador de cáusticas. Una dirección media
 no conserva mezclas angulares de múltiples luces. La visibilidad y las
 normales de cuadratura siguen siendo aproximadas. Se requiere una comparación
 con Cycles para certificar calidad física o fotorealismo.
+
+La opción de radio conserva la política de umbral heredada de WALL04. Su
+estimación Lambertiana es un criterio de calidad; no certifica un error
+máximo de irradiancia para un lóbulo reflejado direccional, ni para la suma
+de varios emisores. La conservación de energía se limita por separado.
 
 ## Inclinación y franjas
 

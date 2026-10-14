@@ -20,9 +20,18 @@ func _instances() -> Array:
 func command(request: Variant) -> Dictionary:
     if request is Dictionary and request.get("values",{}) is Dictionary:
         var values: Dictionary=request.get("values",{})
+        if values.has("master") and values["master"]!="real_scan_wall":return {"ok":false,"error":"wall_master_only","revision":revision}
         for key in ["quality_2x","optical_codes","scan_shadows"]:
             if values.has(key) and not values[key] is bool:return {"ok":false,"error":key+"_type","revision":revision}
     return super.command(request)
+func agent_snapshot() -> Dictionary:
+    var snapshot: Dictionary=super.agent_snapshot()
+    snapshot["control_contract"]["masters"]=["real_scan_wall"]
+    for key in ["energy_radius","direct_shadow_proxies","coverage_enabled","quality_2x","optical_codes","scan_shadows"]:
+        if state.has(key) and not snapshot["control_contract"]["booleans"].has(key):snapshot["control_contract"]["booleans"].append(key)
+    snapshot["shared_wall"]=effect.cache_metrics() if effect!=null else {}
+    snapshot["optical_transport"]=transport.optical_metrics() if transport!=null else {}
+    return snapshot
 func _apply() -> void:
     if effect!=null:
         var quality: int=1 if state.get("quality_2x",false) else 0
