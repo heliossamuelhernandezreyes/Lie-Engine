@@ -2,9 +2,13 @@ extends "res://lie_wall03_coverage_lab.gd"
 ## WALL04 keeps WALL03's single invisible BoxShape3D and 96 original bricks.
 ## This experimental captured mortars lab is NOT an accepted photoreal master.
 const CapturedMortarEffect=preload("res://lie_wall04_mortar_effect.gd")
+const FixedSelfShadowTransport=preload("res://lie_wall04_transport.gd")
 
 func _coded_source() -> String:
     return "res://captures/liewall04/light-model.json"
+
+func _transport_factory() -> CompositorEffect:
+    return FixedSelfShadowTransport.new()
 
 func _coded_effect_factory() -> CompositorEffect:
     return CapturedMortarEffect.new(1080)
