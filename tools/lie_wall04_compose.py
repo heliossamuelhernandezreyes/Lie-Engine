@@ -125,6 +125,23 @@ def restore(source: Path=DEST,dest: Path=ROOT/"gpu_compute/captures/liewall04") 
     (dest/"library.bin").write_bytes(raw)
     (dest/"catalog.json").write_text(json.dumps(catalog,indent=2)+"\n")
     (dest/"light-model.json").write_bytes(light)
+    # Recover the exact 872 x 872 indirect LIE11 transfer from the scanned
+    # source. No synthetic/zero-factor fallback is permitted.
+    locked=source/"indirect_factors.json"
+    packed=source/"indirect_factors.zlib"
+    if locked.exists() or packed.exists():
+        if not locked.is_file() or not packed.is_file():
+            raise ValueError("Incomplete scanned 96-brick indirect visibility bank")
+        proof=json.loads(locked.read_text())
+        factors=zlib.decompress(packed.read_bytes())
+        if (len(factors)!=872*872*4 or len(factors)!=proof["bytes"] or
+            hashlib.sha256(factors).hexdigest()!=proof["sha256"] or
+            proof["input_light_sha256"]!=catalog["lighting"]["sha256"] or
+            proof["input_wall_sha256"]!=catalog["sha256"] or
+            proof["light_only_brick_boxes"]!=96 or
+            proof["collision_spatial_envelopes"]!=1):
+            raise ValueError("Original LIE11 matrix provenance failed")
+        (dest/"indirect_factors.bin").write_bytes(factors)
     return catalog
 
 
