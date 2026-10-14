@@ -23,6 +23,11 @@ El banco WALL04 tiene 61,767,760 bytes. Dos consumidores deben referenciar
 una copia de esos bytes en GPU y conservar sus salidas independientes. El
 banco CPU se comparte con PackedByteArray COW después de adquirir el lease;
 su lectura y validación inicial pueden tener memoria transitoria adicional.
+La prueba nativa a 720 × 720 todavía mide 248,457,520 bytes privados por
+consumidor: dos vistas más su maestro compartido referencian 558,682,800 bytes
+de esos búferes, sin contar luz, motor y memoria transitoria. Compartir el
+maestro es una mejora real, pero la proyección y acumulación privadas siguen
+siendo un problema de memoria para móvil.
 
 La matriz original tiene 872 × 872 pesos, 3,041,536 bytes y 2,618 aristas
 distintas de cero. Su CSR ocupa 24,452 bytes: 99.1961% menos almacenamiento
@@ -156,3 +161,7 @@ transportes con sombra: el búfer de sombra se liberaba antes de su uniform
 set y RenderingDevice eliminaba este último automáticamente. Se corrigió
 el orden y se añadió un gate que rechaza errores nativos inesperados.
 La segunda ejecución comprueba ese arreglo y timestamps privados por vista.
+En ella desaparecieron los RID inválidos, pero el nuevo test de timestamps
+detectó perfiles vacíos en las dos vistas. El recolector ahora identifica
+resoluciones por serial y reintenta capturas aún incompletas, en vez de
+marcar un frame como recogido antes de disponer de sus intervalos.

@@ -31,7 +31,7 @@ var _factor_capacity: int=0
 var _transport_cache_hits: int=0
 var _transport_upload_bytes: int=0
 var _transport_profiles: Array=[]
-var _transport_profile_frame: int=-1
+var _transport_last_profile_serial: int=0
 
 func _init() -> void:
     effect_callback_type=EFFECT_CALLBACK_TYPE_PRE_OPAQUE
@@ -234,8 +234,6 @@ func _render_callback(kind: int, _render_data: RenderData) -> void:
 
 func _collect_transport_profile() -> void:
     var frame: int=_rd.get_captured_timestamps_frame()
-    if frame==_transport_profile_frame:return
-    _transport_profile_frame=frame
     var intervals: Dictionary={}
     for i in range(_rd.get_captured_timestamps_count()):
         var parts: PackedStringArray=_rd.get_captured_timestamp_name(i).split("|")
@@ -246,8 +244,9 @@ func _collect_transport_profile() -> void:
     _lock.lock()
     for serial in intervals:
         var row: Dictionary=intervals[serial]
-        if row.has_all(["begin","end"]) and row["end"]>=row["begin"]:
+        if serial>_transport_last_profile_serial and row.has_all(["begin","end"]) and row["end"]>row["begin"]:
             _transport_profiles.append({"serial":serial,"marker_frame":frame,"gpu_ns":row["end"]-row["begin"]})
+            _transport_last_profile_serial=serial
     if _transport_profiles.size()>180:_transport_profiles=_transport_profiles.slice(_transport_profiles.size()-180)
     _lock.unlock()
 

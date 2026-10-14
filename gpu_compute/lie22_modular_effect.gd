@@ -31,7 +31,7 @@ var _pending: Dictionary={}
 var _resident:=PackedByteArray()
 var _readback: Dictionary={}
 var _profiles: Array=[]
-var _profile_frame: int=-1
+var _last_profile_serial: int=0
 var _sample_lease: String=""
 var sample_bank_bindings: int=0
 
@@ -112,9 +112,8 @@ func _profile_marker(edge: String) -> String:
     return "lie22|%d|%d|%s" % [get_instance_id(),frame_count+1,edge]
 
 func _collect_profile() -> void:
+    if frame_count==0:return
     var frame: int=_rd.get_captured_timestamps_frame()
-    if frame==_profile_frame:return
-    _profile_frame=frame
     var intervals: Dictionary={}
     for i in range(_rd.get_captured_timestamps_count()):
         var parts: PackedStringArray=_rd.get_captured_timestamp_name(i).split("|")
@@ -125,8 +124,9 @@ func _collect_profile() -> void:
     _mutex.lock()
     for serial in intervals:
         var row: Dictionary=intervals[serial]
-        if row.has_all(["begin","end"]) and row["end"]>=row["begin"]:
+        if serial>_last_profile_serial and row.has_all(["begin","end"]) and row["end"]>row["begin"]:
             _profiles.append({"owner_instance_id":get_instance_id(),"serial":serial,"marker_frame":frame,"gpu_ns":row["end"]-row["begin"]})
+            _last_profile_serial=serial
     if _profiles.size()>120:_profiles=_profiles.slice(_profiles.size()-120)
     _mutex.unlock()
 
@@ -158,10 +158,16 @@ func request_readback() -> void:
     _mutex.lock();_readback={};_mutex.unlock();RenderingServer.call_on_render_thread(Callable(self,"_capture"))
 func _capture() -> void:
     if not gpu_ready:return
+    _collect_profile()
     var result: Dictionary={"color":_rd.texture_get_data(output_rid,0).to_float32_array(),"depth":_rd.buffer_get_data(_buffers[4]).to_int32_array(),
         "output_size":output_size,"internal_size":render_size,"asset_uploads":asset_uploads,"allocation_bytes":allocation_bytes,"frames":frame_count,"sample_invocations":sample_invocations,"instances":instance_count,"device":_rd.get_device_name(),"profile":_profiles.duplicate(),"library_bytes":_samples.size(),
         "sample_bank_bindings":sample_bank_bindings,"shared_samples":SharedSamples.metrics(_rd),
         "exclusive_allocation_bytes":allocation_bytes-_samples.size()}
+    if _profiles.is_empty():
+        # Diagnostic readback only: exposes unsupported/unavailable timestamps.
+        var names: Array=[]
+        for i in range(_rd.get_captured_timestamps_count()):names.append(str(_rd.get_captured_timestamp_name(i)))
+        result["timestamp_diagnostic"]={"frame":_rd.get_captured_timestamps_frame(),"names":names,"owner":str(get_instance_id())}
     _mutex.lock();_readback=result;_mutex.unlock()
 func readback() -> Dictionary:
     _mutex.lock();var result: Dictionary=_readback.duplicate();_mutex.unlock();return result

@@ -60,6 +60,7 @@ func run() -> void:
     check(a.get("asset_uploads")+b.get("asset_uploads")==1,"Physical upload only once")
     for pair in [[a,original],[b,identical]]:
         check(not pair[1]["profile"].is_empty(),"Actual GPU timestamps collected for each view")
+        if pair[1]["profile"].is_empty():printerr("GPU timestamp diagnostics: ",JSON.stringify(pair[1].get("timestamp_diagnostic",{})))
         for row in pair[1]["profile"]:
             check(row.get("owner_instance_id")==pair[0].get_instance_id() and row.get("gpu_ns",-1)>=0,"Timestamps belong to this consumer only")
     var reply: Dictionary=second["lab"].command({"op":"set_values","values":{"camera_yaw":-22.0,"clay_absorption":.35}})
