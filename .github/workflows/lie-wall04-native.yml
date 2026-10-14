@@ -51,6 +51,16 @@ jobs:
             profile['front_plane_source']['source_front_z_median_m']+.001)
           assert profile['global_plane_no_longer_controls_mortar_z']
           assert profile['min_recess_from_local_brick_edge_m']==.0008
+          assert profile['subsurface_shoulder_rows_per_side']==2
+          assert profile['subsurface_shoulder_extra_recess_m']==.001
+          assert profile['source_backing_is_real_photographed_PBR_and_depth_tested']
+          from pathlib import Path
+          import zlib,numpy as np
+          mortar_raw=zlib.decompress(Path('gpu_compute/assets/lie_mortar01/mortar-bank.zlib').read_bytes())
+          photo=np.frombuffer(mortar_raw,dtype='<f4').reshape(-1,20)
+          assert photo.shape[0]==mortar['sample_count']
+          assert (photo[:,11]>.5).sum()>10000
+          assert (photo[:,11]<.5).sum()>10000
           assert profile['max_extra_relief_from_local_brick_edge_m']==.0005
           assert profile['local_brick_edge_calibration']['nearest_scan_bricks']==2
           assert profile['local_brick_edge_calibration']['sample_queries_near_source']>10000
@@ -166,6 +176,8 @@ jobs:
           print('UNLIT BRICK PIXELS:',a['opaque_brick_black_rgb_pixels_diagnostic_red'])
           print('MORTAR SRC PIXELS:',a['source_samples_drawn_on_screen'])
           print('EMPTY TRANSPARENT PIXELS:',a['empty_transparent_pixels'])
+          print('PHOTOGRAPHIC SUBSURFACE BACKING BLUE:',a['photographic_subsurface_backing_blue_pixels'])
+          print('6MM ORIGINAL CORE GREEN:',a['photographic_mortar_core_green_pixels'])
           PY
       - uses: actions/upload-artifact@v4
         if: always()
