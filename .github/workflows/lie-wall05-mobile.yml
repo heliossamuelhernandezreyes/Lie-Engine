@@ -53,11 +53,14 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: '12266719'
+          packages: 'platform-tools build-tools;36.0.0'
+          log-accepted-android-sdk-licenses: false
       - name: Verified official Android template and SDK
         run: |
-          sdkmanager_path="$(rg --files "$ANDROID_HOME/cmdline-tools" -g sdkmanager | head -1)"
-          test -n "$sdkmanager_path"
-          "$sdkmanager_path" 'build-tools;36.0.0' 'platform-tools'
+          test -x "$ANDROID_HOME/build-tools/36.0.0/apksigner"
           curl -fL --retry 3 -o godot-templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
           echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  godot-templates.tpz' | sha256sum -c -
           mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
