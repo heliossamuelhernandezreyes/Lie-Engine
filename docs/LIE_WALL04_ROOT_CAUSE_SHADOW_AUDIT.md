@@ -47,3 +47,26 @@ Registros: evidence/LIE-WALL04-native-validation.json y evidence/LIE-WALL04-cove
 Esto NO cierra la aceptación fotorrealista. Persisten 28774 píxeles negros opacos con sombras reales, mezcla de sombras físicas posibles y cobertura incompleta de fuente. Máscaras del mortero fotográfico G1 sin inspección final y escala absoluta del mapa de relieve sin calibración métrica. Los AABB son aproximaciones del ladrillo irregular escaneado. No se ha medido hardware Android. PR #44 continúa como borrador.
 
 Continuar con auditoría de propietario/profundidad y cobertura de juntas, sin pintar vacíos ni añadir polígonos visibles o colisionadores.
+## 2026-10-13: Recuperación fotográfica de huecos y calibración de ocho nodos
+
+### Prueba A/B de cobertura sobre el banco idéntico
+
+La ejecución https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38514541166 comprobó el mismo banco fuente SHA-256 f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da, sin alteración de 772097 muestras, de las cuales 240257 son mortero, sin cajas extras ni triángulos visibles.
+
+Las dos variantes del shader WALL04 ahora permiten rellenar solo pequeños intervalos encerrados por píxeles de mortero fotográfico del mismo curso. Exigen profundidad local consistente y posición correspondiente a la junta física. No crean ningún plano ni inventan RGB.
+
+| Métrica, misma captura neutral | Antes | Después |
+| --- | ---: | ---: |
+| Píxeles ocupados | 355380 | 359594 |
+| Píxeles clasificados como mortero fotografiado | 47942 | 49511 |
+| Píxeles negros opacos | 27811 | 27705 |
+
+La superficie recuperó 4214 píxeles con la misma fuente y 106 píxeles opacos casi negros menos. Mejora real, pero insuficiente para aceptación visual.
+
+### Experimento negativo: mortero iluminado 17mm por delante de la superficie fuente
+
+En el modelo histórico, los ocho nodos mortero LIE11 864..871 tenían z=0.0563086m, mientras que el banco nuevo fotografiado tiene z cerca de 0.039m, aproximadamente 17mm más atrás. Se creó la herramienta de investigación opt-in tools/lie_wall04_relight.py que reubica únicamente esos ocho códigos a XYZ y normal medidos del banco fotográfico CC0. Conserva idénticos los otros 864 nodos de ladrillo, fuentes de luz, energía, colores, normales, banco de ladrillos y una sola caja invisible; recalcula el transporte indirecto entre los 872 nodos.
+
+La prueba Vulkan https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38514888909 compiló y renderizó, pero empeoró el resultado: 27705 -> 65322 píxeles negros opacos; luminancia media ~89.4 -> ~79.7. La geometría 17mm atrás recibe muy poca luz cuando los 96 envolventes AABB representan sombras de ladrillos macizos. Reubicar nodos por sí solo es físicamente insuficiente y no se puede aprobar.
+
+El workflow principal WALL04 no habilita la recalibración opcional mientras no se corrija al mismo tiempo el acceso real a la luz y el contacto/relieve escaneado. Conservar como referencia funcional la variante anterior, y la nueva herramienta únicamente como evidencia/prototipo. Persisten huecos transparentes, caras inferiores de ladrillo oscuras y falta de revisión G1 de máscaras fotográficas. No se ha medido rendimiento en GPU Android.
