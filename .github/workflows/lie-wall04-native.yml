@@ -149,6 +149,7 @@ jobs:
             assert 'chosen_group=node>=864u ? (96u+node-864u) : node/9u;' in shader
             assert 'source_physical_joint=horizontal || vertical;' in shader
             assert 'tolerance=mortar?.004:max(.014,.008*chosen_depth);' in shader
+            assert 'if(enclosed && source_physical_joint && sum>0. && zmax-zmin<tolerance)' in shader, 'Do not interpolate across open/physically invalid mortar seams'
           PY
       - name: Compile GDScript and compute shader
         run: |
@@ -181,6 +182,31 @@ jobs:
           print('EMPTY TRANSPARENT PIXELS:',a['empty_transparent_pixels'])
           print('PHOTOGRAPHIC SUBSURFACE BACKING BLUE:',a['photographic_subsurface_backing_blue_pixels'])
           print('6MM ORIGINAL CORE GREEN:',a['photographic_mortar_core_green_pixels'])
+          # Regression to the last SHA-locked *real* Vulkan frame, same camera,
+          # CC0 photographic bank and unchanged 872-node lighting (run 38514541166).
+          n=json.loads(pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-native-validation.json').read_text())
+          neutral=n['captured_real_vulkan_pngs']['neutral']
+          reference={'occupied_pixels':359594,'black_opaque_pixels':27705,
+                     'photographic_mortar_pixels':49511,
+                     'subsurface_backing_pixels':26425}
+          measured={'occupied_pixels':neutral['occupied_pixels'],
+                    'black_opaque_pixels':neutral['black_opaque_pixels'],
+                    'photographic_mortar_pixels':a['source_samples_drawn_on_screen'],
+                    'subsurface_backing_pixels':a['photographic_subsurface_backing_blue_pixels']}
+          assert n['combined_bank_sha256']=='f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da'
+          assert neutral['empty_enclosed_single_pixel_holes']==0, measured
+          assert measured['occupied_pixels']>=359000, 'Reintroduced uncovered source holes'
+          assert measured['photographic_mortar_pixels']>=49000, 'Photographic mortar interpolation lost'
+          assert measured['subsurface_backing_pixels']>=24000, 'Edge underfill samples lost'
+          assert measured['black_opaque_pixels']<=29000, 'Dark mortar/bricks regressed significantly'
+          result={'experimental':True,'source':'Native Godot Mesa Vulkan 1080x1080',
+                  'reference':reference,'measured':measured,
+                  'delta':{k:measured[k]-v for k,v in reference.items()},
+                  'quality_accepted':False,
+                  'source_photographic_masks_reviewed':False,
+                  'android_gpu_benchmarked':False}
+          pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-quality-regression.json').write_text(json.dumps(result,indent=2)+'\n')
+          print('WALL04 REAL VULKAN QUALITY REGRESSION:',json.dumps(result))
           PY
       - uses: actions/upload-artifact@v4
         if: always()
