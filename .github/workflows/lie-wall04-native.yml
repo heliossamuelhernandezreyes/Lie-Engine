@@ -148,11 +148,10 @@ jobs:
             assert 'source_node<864u' in shader
             assert 'chosen_group=node>=864u ? (96u+node-864u) : node/9u;' in shader
             assert 'source_physical_joint=horizontal || vertical;' in shader
-            # Photo-only horizontal/vertical XY sample placement, same true XYZ.depth.
-            assert 'bool horizontal=course<7u && abs(dy)<=abs(dx);' in shader
-            assert 'if(horizontal) local.y=joint_y+dy*1.45;' in shader
-            assert 'else local.x=joint_x+dx*1.45;' in shader
+            # Keep rejected +4mm Z and 1.45x XY raster variants disabled.
             assert 'local.z+=0.004;' not in shader
+            assert 'local.y=joint_y+dy*1.45;' not in shader
+            assert 'radius*=1.35;' not in shader
             assert 'tolerance=mortar?.004:max(.014,.008*chosen_depth);' in shader
             assert 'if(enclosed && source_physical_joint && sum>0. && zmax-zmin<tolerance)' in shader, 'Do not interpolate across open/physically invalid mortar seams'
           PY
@@ -177,6 +176,7 @@ jobs:
             python tools/lie_wall04_native_smoke.py --directory /tmp/lie-wall04-native
             python tools/lie_wall04_coverage_diagnostic.py --directory /tmp/lie-wall04-native
           '
+          python tools/lie_wall04_gap_audit.py --directory /tmp/lie-wall04-native
           python - <<'PY'
           import json,pathlib
           p=pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-coverage-diagnostic.json')
@@ -204,6 +204,10 @@ jobs:
           assert measured['photographic_mortar_pixels']>=49000, 'Photographic mortar interpolation lost'
           assert measured['subsurface_backing_pixels']>=24000, 'Edge underfill samples lost'
           assert measured['black_opaque_pixels']<=29000, 'Dark mortar/bricks regressed significantly'
+          gap=json.loads(pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-gap-audit.json').read_text())
+          assert gap['alpha_equal_between_lighting_variants']
+          assert gap['neutral']['in_wall_alpha_empty_pixels']<=38564, 'More interior joint alpha gaps than verified baseline'
+          print('WALL04 INTERIOR JOINT GAPS:',gap['neutral']['in_wall_alpha_empty_pixels'])
           result={'experimental':True,'source':'Native Godot Mesa Vulkan 1080x1080',
                   'reference':reference,'measured':measured,
                   'delta':{k:measured[k]-v for k,v in reference.items()},
