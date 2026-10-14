@@ -28,6 +28,13 @@ consumidor: dos vistas más su maestro compartido referencian 558,682,800 bytes
 de esos búferes, sin contar luz, motor y memoria transitoria. Compartir el
 maestro es una mejora real, pero la proyección y acumulación privadas siguen
 siendo un problema de memoria para móvil.
+WALL04 todavía usa un banco de pared precompuesto: estas mejoras comparten
+ese banco entre consumidores, pero no convierten sus 96 ladrillos internos
+en referencias de ejecución al maestro individual de ladrillo. Ese cambio
+requiere mapear muestra fuente, transformación, identidad de nodo y mortero
+sin perder la comparación con los captures actuales ni añadir colliders por
+ladrillo. La siguiente arquitectura debe medir ese mapa de referencias y
+los búferes por tile antes de sustituir los datos publicados.
 
 La matriz original tiene 872 × 872 pesos, 3,041,536 bytes y 2,618 aristas
 distintas de cero. Su CSR ocupa 24,452 bytes: 99.1961% menos almacenamiento
@@ -165,3 +172,12 @@ En ella desaparecieron los RID inválidos, pero el nuevo test de timestamps
 detectó perfiles vacíos en las dos vistas. El recolector ahora identifica
 resoluciones por serial y reintenta capturas aún incompletas, en vez de
 marcar un frame como recogido antes de disponer de sus intervalos.
+La comprobación de vistas solicita medición del viewport y ocho re-renders
+diagnósticos mediante `invalidate_lighting()`. Un resultado estático solo
+despacha una vez y su query inicial puede desaparecer antes del readback;
+se exigen muestras reales durante este calentamiento, con propietario
+correcto, además de igualdad de píxeles y liberación sin fugas. No se crean
+tiempos sintéticos. El código fuente consultado de
+[RenderingDevice 4.7.2](https://github.com/godotengine/godot/blob/4.7.2-stable/servers/rendering/rendering_device.cpp)
+recicla los resultados por slot de frame en `_begin_frame`; los readbacks
+de buffer y textura también sincronizan y avanzan esos slots.

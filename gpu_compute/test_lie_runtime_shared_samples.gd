@@ -20,6 +20,7 @@ func attach() -> Dictionary:
     var viewport:=SubViewport.new();viewport.size=Vector2i(720,720)
     viewport.own_world_3d=true;viewport.render_target_update_mode=SubViewport.UPDATE_ALWAYS
     get_root().add_child(viewport)
+    RenderingServer.viewport_set_measure_render_time(viewport.get_viewport_rid(),true)
     var lab:=WallLab.new();viewport.add_child(lab)
     return {"viewport":viewport,"lab":lab}
 func capture(effect: CompositorEffect) -> Dictionary:
@@ -49,6 +50,10 @@ func run() -> void:
     var a: CompositorEffect=first["lab"].effect;var b: CompositorEffect=second["lab"].effect
     if not a.get("gpu_ready") or not b.get("gpu_ready"):
         check(false,"Real Vulkan and SHA-locked wall required");quit(1);return
+    # A static view dispatches once, so its startup query can be retired before
+    # readback. Explicit diagnostic re-renders provide real warm GPU samples.
+    for i in range(8):
+        a.call("invalidate_lighting");b.call("invalidate_lighting");await settle(2)
     var original: Dictionary=await capture(a);var identical: Dictionary=await capture(b)
     if original.is_empty() or identical.is_empty():quit(1);return
     check(difference(original["color"],identical["color"])==0,"Same state yields exact matching native pixels")
