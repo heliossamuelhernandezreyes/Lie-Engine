@@ -36,7 +36,10 @@ func run() -> void:
     var old=load("res://lie_runtime_android_lab.tscn").instantiate();root.add_child(old);await settle(12)
     check(old.effect.gpu_ready and old.transport.gpu_ready,"Real WALL04 baseline ready")
     if not old.effect.gpu_ready:quit(1);return
+    old.command({"op":"set_values","values":{"light_azimuth":-23.}});await settle()
+    old.command({"op":"set_values","values":{"light_azimuth":-24.}});await settle()
     var baseline: Dictionary=await capture(old.effect);save(baseline,"baseline");old.queue_free();await settle()
+    report["baseline_profile"]=baseline["profile"]
     var lab=load("res://lie_wall05_android_lab.tscn").instantiate();root.add_child(lab);await settle(12)
     check(lab.effect.gpu_ready and lab.transport.gpu_ready,"Shared compositor and sparse optical transport ready")
     if not lab.effect.gpu_ready or not lab.transport.gpu_ready:printerr(lab.effect.failure," / ",lab.transport.failure);quit(1);return
@@ -92,6 +95,6 @@ func run() -> void:
     lab.command({"op":"set_values","values":{"quality_2x":false}});await settle()
     var balanced: Dictionary=await capture(lab.effect);save(balanced,"balanced")
     check(balanced["internal_size"]==1080 and balanced["output_size"]==720 and balanced["asset_uploads"]==1,"Balanced internal resolution preserves output and bank RID")
-    report.merge({"checks":checks,"failed":failed,"device":balanced["device"],"cache":balanced["cache"],"allocation_bytes":balanced["allocation_bytes"],"source_bank_sha256":lab.effect.catalog["sha256"],"physical_android_tested":false,"optical":lab.transport.optical_metrics(),"received_total_rgb":[total.x,total.y,total.z],"profile":balanced["profile"]})
+    report.merge({"checks":checks,"failed":failed,"device":balanced["device"],"cache":balanced["cache"],"allocation_bytes":balanced["allocation_bytes"],"source_bank_sha256":lab.effect.catalog["sha256"],"physical_android_tested":false,"optical":lab.transport.optical_metrics(),"received_total_rgb":[total.x,total.y,total.z],"profile":balanced["profile"],"cache_events":balanced["cache_events"]})
     var file:=FileAccess.open("res://wall05-native.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     lab.queue_free();await settle();print("WALL05 ","FAIL" if failed else "PASS"," ",checks);quit(1 if failed else 0)

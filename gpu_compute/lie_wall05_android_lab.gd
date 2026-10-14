@@ -2,7 +2,6 @@ extends "res://lie_runtime_android_lab.gd"
 const SharedWallEffect=preload("res://lie_wall05_shared_effect.gd")
 const OpticalTransport=preload("res://lie_wall05_optical_transport.gd")
 var _last_quality: int=-1
-var _cache_clock: int=0
 var _last_optical: int=-1
 func _ready() -> void:
     state["quality_2x"]=false
@@ -36,14 +35,18 @@ func _apply() -> void:
             effect.invalidate_lighting();_last_optical=optical
 func _ui() -> void:
     super._ui()
+    for layer in get_children():
+        if layer is CanvasLayer:
+            for item in layer.get_children():
+                if item is Label and item.text.begins_with("LIE ·"):item.text="LIE · Pared escaneada · 0.2.0"
     var box: Node=status.get_parent()
     _check(box,"quality_2x","Supermuestreo 2× (más coste)")
     _check(box,"optical_codes","Códigos ópticos direccionales")
     _check(box,"scan_shadows","Sombras según cara escaneada")
 func _process(delta: float) -> void:
+    var previous_report: int=_report_clock
     super._process(delta)
-    if Time.get_ticks_usec()-_cache_clock<500000:return
-    _cache_clock=Time.get_ticks_usec()
+    if previous_report==_report_clock:return
     if status!=null and effect!=null and effect.gpu_ready:
         var c: Dictionary=effect.cache_metrics()
-        status.text+="\nGeometría: %d · reluces: %d\nMaestro: 1 · instancias: 96\nInterior: %d × %d" % [c["geometry_rebuilds"],c["recovery_reuses"],c["internal_size"],c["internal_size"]]
+        status.text+="\nGeometría: %d · luz reutilizada: %d\nMaestro: 1 · instancias: 96\nInterior: %d × %d" % [c["geometry_rebuilds"],c["recovery_reuses"],c["internal_size"],c["internal_size"]]

@@ -98,7 +98,7 @@ Instance render_instance(Instance inst) {
     inst.origin=vec4(0);inst.tint.rgb=vec3(1);return inst;
 }
 uint projection_node(Projection p) {
-    return uint(round(fetch_sample(uint(p.gradient.w),instances.v[uint(p.gradient.z)]).attributes.y));
+    return uint(round(p.world.w));
 }
 layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
 const float PI=3.141592653589793;
@@ -118,20 +118,14 @@ float footprint_distance(Projection p,vec2 xy) {
 }
 bool covered(Projection p,vec2 xy) {
     if(footprint_distance(p,xy)>1) return false;
-    // Keep coarse samples on their original source face. In particular, a
-    // brick's projected discs cannot cover adjacent mortar or an opening.
-    Instance source_inst=instances.v[uint(p.gradient.z)];
-    Sample s=fetch_sample(uint(p.gradient.w),source_inst);
-    Instance inst=render_instance(source_inst);
     vec2 uv=xy/vec2(parameters.counts.zw);
     vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
-    vec3 local=inverse(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz))*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
-    uint source_node=uint(max(round(s.attributes.y),0.0));
-    if(source_node<864u) local.xy=wall04_unexpanded_xy(local.xy,source_node);
-    vec3 n=abs(s.normal_gray.xyz);
-    vec2 q=n.x>=n.y && n.x>=n.z?local.zy:n.y>=n.z?local.xz:local.xy;
-    return all(greaterThanEqual(q,s.support.xy-vec2(.000002))) && all(lessThanEqual(q,s.support.zw+vec2(.000002)));
+    vec3 local=parameters.eye.xyz+ray*pixel_depth(p,xy);
+    if(p.gradient.z<96.) local.xy=wall04_unexpanded_xy(local.xy,uint(p.gradient.z)*9u);
+    int axis=int(p.ellipse.w);vec2 q=axis==0?local.zy:axis==1?local.xz:local.xy;
+    return all(greaterThanEqual(q,p.geometry.xy-vec2(.000002))) && all(lessThanEqual(q,p.geometry.zw+vec2(.000002)));
 }
+
 float lambda(float cosine,float a2) {
     return .5*(sqrt(1+a2*max(1-cosine*cosine,0)/max(cosine*cosine,1e-8))-1);
 }
@@ -217,7 +211,10 @@ void main() {
             radius*=max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(n,normalize(-delta));
-            p.world=vec4(world,1);p.normal=vec4(n,front);p.screen=vec4(0);p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);
+            p.world=vec4(world,float(source_node));p.normal=vec4(n,front);p.screen=vec4(0);p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=s.support;
+            vec3 support_normal=abs(s.normal_gray.xyz);
+            float support_axis=support_normal.x>=support_normal.y && support_normal.x>=support_normal.z?0.:support_normal.y>=support_normal.z?1.:2.;
+            p.ellipse=vec4(0,0,0,support_axis);
             // Source light energy, blocker visibility and indirect generations
             // are handled by ORIGINAL LIE11 PRE_OPAQUE transport on the GPU.
             // Do not rebuild LIE33's obsolete shadow map a second time.
@@ -227,7 +224,7 @@ void main() {
                 vec2 u=project(world+tangent*radius,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
                 vec2 v=project(world+bitangent*radius,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw))-xy;
                 float xx=dot(vec2(u.x,v.x),vec2(u.x,v.x))+.20,yy=dot(vec2(u.y,v.y),vec2(u.y,v.y))+.20,off=u.x*u.y+v.x*v.y,det=max(xx*yy-off*off,1e-8);
-                p.ellipse=vec4(yy/det,-off/det,xx/det,0);p.screen=vec4(xy,depth,clamp(sqrt(max(xx,yy)),.5,8));
+                p.ellipse=vec4(yy/det,-off/det,xx/det,p.ellipse.w);p.screen=vec4(xy,depth,clamp(sqrt(max(xx,yy)),.5,8));
                 float plane=dot(n,delta);if(abs(plane)>1e-8)p.gradient.xy=vec2(2*parameters.lens.x*dot(n,parameters.right.xyz)/float(parameters.counts.z),-2*parameters.lens.x*dot(n,parameters.up.xyz)/float(parameters.counts.w))/plane;
             }
             projected.v[i]=p;
@@ -465,8 +462,7 @@ void main() {
         // Unlike original LIE33, light intensity/color comes EXCLUSIVELY
         // from the real LIE11 GPU transport code texture.
         uint sid=uint(point.gradient.w);
-        Sample surf=fetch_sample(sid,instances.v[uint(point.gradient.z)]);
-        uint node=uint(max(round(surf.attributes.y),0.0));
+        uint node=projection_node(point);
         if(node>=uint(imageSize(injected_node_irradiance).x)) {
             imageStore(diffuse_image,xy,vec4(0));
             imageStore(specular_image,xy,vec4(0));

@@ -96,6 +96,29 @@ layout(push_constant,std430) uniform Phase''')
             vec4 value=imageLoad(specular_image,ivec2(x,y));linear+=value.rgb*(value.a*weight);coverage+=value.a*weight;
         }''')
     s=replace(s,'coverage/float(scale*scale)','coverage/(ratio*ratio)')
+    # Keep source support, light-node ID and support axis in the existing
+    # 96-byte projection record. Raster/lighting/recovery no longer fetch or
+    # reconstruct a neutral source sample for each covered/neighbor pixel.
+    begin=s.index('bool covered(Projection p,vec2 xy) {')
+    end=s.index('\nfloat lambda(',begin)
+    s=s[:begin]+r'''bool covered(Projection p,vec2 xy) {
+    if(footprint_distance(p,xy)>1) return false;
+    vec2 uv=xy/vec2(parameters.counts.zw);
+    vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
+    vec3 local=parameters.eye.xyz+ray*pixel_depth(p,xy);
+    if(p.gradient.z<96.) local.xy=wall04_unexpanded_xy(local.xy,uint(p.gradient.z)*9u);
+    int axis=int(p.ellipse.w);vec2 q=axis==0?local.zy:axis==1?local.xz:local.xy;
+    return all(greaterThanEqual(q,p.geometry.xy-vec2(.000002))) && all(lessThanEqual(q,p.geometry.zw+vec2(.000002)));
+}
+''' + s[end:]
+    s=replace(s,'return uint(round(fetch_sample(uint(p.gradient.w),instances.v[uint(p.gradient.z)]).attributes.y));','return uint(round(p.world.w));')
+    s=replace(s,'p.world=vec4(world,1);','p.world=vec4(world,float(source_node));')
+    s=replace(s,'p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);',r'''p.geometry=s.support;
+            vec3 support_normal=abs(s.normal_gray.xyz);
+            float support_axis=support_normal.x>=support_normal.y && support_normal.x>=support_normal.z?0.:support_normal.y>=support_normal.z?1.:2.;
+            p.ellipse=vec4(0,0,0,support_axis);''')
+    s=replace(s,'p.ellipse=vec4(yy/det,-off/det,xx/det,0);','p.ellipse=vec4(yy/det,-off/det,xx/det,p.ellipse.w);')
+    s=replace(s,'Sample surf=fetch_sample(sid,instances.v[uint(point.gradient.z)]);\n        uint node=uint(max(round(surf.attributes.y),0.0));','uint node=projection_node(point);')
     return s
 if __name__=='__main__':
     (ROOT/'gpu_compute/shaders/lie_wall05_shared_cached.glsl').write_text(generate())

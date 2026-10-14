@@ -11,6 +11,7 @@ var recovery_builds: int=0
 var recovery_reuses: int=0
 var output_resolves: int=0
 var _requested_internal: int=1080
+var _cache_events: Array=[]
 
 func capture_root() -> String:return "res://captures/liewall05/"
 func shader_resource() -> RDShaderFile:return SHARED_CACHED_SHADER
@@ -117,6 +118,8 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         else:recovery_reuses+=1
     _stage(list,7,output_size*output_size);output_resolves+=1
     _rd.compute_list_end();_rd.capture_timestamp(_profile_marker("end"))
+    _cache_events.append({"serial":frame_count+1,"kind":"geometry" if rebuild else "lighting" if _shade_dirty else "exposure","internal_size":render_size})
+    if _cache_events.size()>120:_cache_events=_cache_events.slice(_cache_events.size()-120)
     _resident=signature;_geometry_resident=geometry;_shade_dirty=false
     sample_invocations=work;instance_count=97;frame_count+=1
 
@@ -127,7 +130,7 @@ func _capture() -> void:
     super._capture()
     if gpu_ready:
         var counters: PackedInt32Array=_rd.buffer_get_data(_buffers[20]).to_int32_array()
-        _mutex.lock();_readback["cache"]=cache_metrics();_readback["recovered_pixels"]=counters[0];_readback["recovery_overflow"]=counters[1];_mutex.unlock()
+        _mutex.lock();_readback["cache"]=cache_metrics();_readback["recovered_pixels"]=counters[0];_readback["recovery_overflow"]=counters[1];_readback["cache_events"]=_cache_events.duplicate(true);_mutex.unlock()
 
 func _release() -> void:
     super._release();_geometry_resident=PackedByteArray();_shade_dirty=true
