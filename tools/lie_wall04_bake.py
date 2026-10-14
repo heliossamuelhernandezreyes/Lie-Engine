@@ -34,6 +34,11 @@ MORTAR_EDGE_RECESS_M = 0.00080  # entire joint behind the nearest measured brick
 MORTAR_EXTRA_MICRO_RELIEF_M = 0.00050  # variation retreats still farther
 SPLAT_RADIUS_SCALE = 0.80
 SUPPORT_SCALE = 0.51
+# Source-backed subsurface shoulders sit under broken brick rims and are
+# depth-tested BEHIND the real exposed scan; they do not widen the nominal
+# front-facing 6mm joint. No colored planar material is introduced.
+MORTAR_SUBSURFACE_SHOULDER_ROWS = 2
+MORTAR_SUBSURFACE_EXTRA_RECESS_M = 0.0010
 SAFETY_M = 0.00075  # lengthwise protection near scanned brick joints
 # EXPLICIT HEURISTIC: photographic displacement units are NOT calibrated mm.
 RELIEF_GAIN_M = 0.0015
@@ -201,6 +206,16 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
     across = np.arange(-half + spacing * .5, half, spacing, dtype=np.float32)
     if len(across) == 0:
         across = np.array([0.], dtype=np.float32)
+    # Two documented real-photo subsurface sample rows on each SIDE of the
+    # structural joint. The brick source front wins the depth test wherever
+    # that surface actually exists; only the previously unrepresented broken
+    # rim can reveal the photographic subsurface.
+    shoulder_offsets=(np.arange(MORTAR_SUBSURFACE_SHOULDER_ROWS,
+                                dtype=np.float32)+.5)*spacing
+    shoulder=np.concatenate((-half-shoulder_offsets,
+                             half+shoulder_offsets)).astype(np.float32)
+    across=np.concatenate((across,shoulder))
+    support_half=half+float(shoulder_offsets.max())+spacing*SUPPORT_SCALE
     if len(along) == 0:
         return np.zeros((0, 20), np.float32)
     aa, bb = np.meshgrid(along, across, indexing="xy")
@@ -208,19 +223,25 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
     seed = deterministic_hash(row, column, 0 if kind == "horizontal" else 1)
     donor = donors[seed % len(donors)]
     phase = seed % min(donor.shape[0 if kind == "vertical" else 1], 128)
-    good, rgb, nrm, dz, rough = donor.extract(a - lo, b, phase)
-    a, b, rgb, nrm, dz, rough = (v[good] for v in (a, b, rgb, nrm, dz, rough))
+    subsurface=np.abs(b)>half+1e-7
+    # All RGB, normal and roughness are still actual donor PBR mortar pixels.
+    # The reconstructed backing physically extends behind the old chipped
+    # stone; it does NOT claim source photography outside the donor joint.
+    source_across=np.clip(b,-half*.95,half*.95)
+    good, rgb, nrm, dz, rough = donor.extract(a - lo, source_across, phase)
+    a, b, subsurface, rgb, nrm, dz, rough = (
+        v[good] for v in (a, b, subsurface, rgb, nrm, dz, rough))
     if not len(a):
         return np.zeros((0, 20), np.float32)
     data = np.zeros((len(a), 20), dtype="<f4")
     if kind == "horizontal":
         data[:, 0] = a
         data[:, 1] = across_center + b
-        extent = (lo, across_center-half, hi, across_center+half)
+        extent = (lo, across_center-support_half, hi, across_center+support_half)
     else:
         data[:, 0] = across_center + b
         data[:, 1] = a
-        extent = (across_center-half, lo, across_center+half, hi)
+        extent = (across_center-support_half, lo, across_center+support_half, hi)
     # Normalize source photographic relief to [-0.8, 0] mm relative to the
     # MEASURED brick face. Unlike a crude clamp, this preserves both peaks
     # and valleys in the donor map without creating a flattened top half.
@@ -242,13 +263,15 @@ def sample_line(kind: str, row: int, column: int, lo: float, hi: float,
         # Isolated legacy unit tests only. The production bake ALWAYS supplies
         # the original-brick edge field.
         data[:, 2] = plane_z + backwards
+    # Backing never competes with the visible scanned brick face.
+    data[:,2]-=subsurface.astype(np.float32)*MORTAR_SUBSURFACE_EXTRA_RECESS_M
     data[:, 3] = spacing * SPLAT_RADIUS_SCALE
     data[:, 4:7] = nrm
     data[:, 7] = 1.
     data[:, 8] = 3.
     data[:, 9] = 864 + row  # Preserve original 8 course irradiance patches.
     data[:, 10] = rough
-    data[:, 11] = 0.
+    data[:, 11] = subsurface.astype(np.float32)  # source-backed rim provenance
     data[:, 12:15] = rgb
     data[:, 15] = 1.
     # Support must stay inside the 6mm visible band and never spill into
@@ -348,6 +371,9 @@ def bake(derived: Path, wall_catalog: Path, dest: Path,
             "edge_protection_m": EDGE_PROTECTION_M,
             "radius_scale": SPLAT_RADIUS_SCALE,
             "support_scale": SUPPORT_SCALE,
+            "subsurface_shoulder_rows_per_side": MORTAR_SUBSURFACE_SHOULDER_ROWS,
+            "subsurface_shoulder_extra_recess_m": MORTAR_SUBSURFACE_EXTRA_RECESS_M,
+            "source_backing_is_real_photographed_PBR_and_depth_tested":True,
             "max_back_relief_m": MORTAR_MAX_BACK_RELIEF_M,
             "min_recess_from_local_brick_edge_m": MORTAR_EDGE_RECESS_M,
             "max_extra_relief_from_local_brick_edge_m": MORTAR_EXTRA_MICRO_RELIEF_M,
