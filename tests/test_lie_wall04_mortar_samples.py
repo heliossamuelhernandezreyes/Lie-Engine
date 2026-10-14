@@ -106,9 +106,14 @@ class Wall04SamplesTest(unittest.TestCase):
         self.assertGreater(len(strip),30)
         # X is the across-joint coordinate of a vertical joint.
         half=VISIBLE_MORTAR_WIDTH_M*.5-EDGE_PROTECTION_M
-        self.assertLessEqual(float(np.max(np.abs(strip[:,0]-.15))),half+.00001)
-        self.assertLessEqual(float(strip[:,2].max()),front+1e-7)
-        self.assertGreaterEqual(float(strip[:,2].min()),front-MORTAR_MAX_BACK_RELIEF_M-1e-7)
+        core=strip[strip[:,11]<.5]
+        shoulders=strip[strip[:,11]>.5]
+        self.assertGreater(len(core),10)
+        self.assertGreater(len(shoulders),10)
+        self.assertLessEqual(float(np.max(np.abs(core[:,0]-.15))),half+.00001)
+        self.assertLessEqual(float(core[:,2].max()),front+1e-7)
+        self.assertGreaterEqual(float(core[:,2].min()),front-MORTAR_MAX_BACK_RELIEF_M-1e-7)
+        self.assertTrue(np.all(shoulders[:,2]<=front-.0006))
         self.assertGreater(float(np.ptp(strip[:,2])),.00001)
         np.testing.assert_array_less(strip[:,16],strip[:,18])
         np.testing.assert_array_less(strip[:,17],strip[:,19])
