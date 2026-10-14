@@ -39,11 +39,11 @@ layout(set=0,binding=16,std430) readonly buffer WallJointLayout {
     vec4 config;     // column count, row count, nominal mortar gap, enabled
 } joint;
 
-// WALL04 only: close the nominal 8.5mm spacing to the 6mm visible joint
+// WALL04 only: close the nominal 8.5mm spacing toward the 3mm visual boundary over the 6mm photographed core
 // by expanding EACH original scanned brick about its original XY center.
 // The GPU source sample buffer remains byte-identical to WALL03; there is
 // no mesh creation and the one invisible box/collider is unchanged.
-const float WALL04_VISIBLE_JOINT_M = 0.006;
+const float WALL04_VISIBLE_JOINT_M = 0.003;
 vec2 wall04_brick_center(uint node) {
     uint brick=node/9u;
     uint row=brick/12u, col=brick%12u;
