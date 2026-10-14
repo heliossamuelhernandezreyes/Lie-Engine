@@ -203,13 +203,13 @@ jobs:
                     'subsurface_backing_pixels':a['photographic_subsurface_backing_blue_pixels']}
           assert n['combined_bank_sha256']=='f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da'
           assert neutral['empty_enclosed_single_pixel_holes']==0, measured
-          assert measured['occupied_pixels']>=359000, 'Reintroduced uncovered source holes'
+          assert measured['occupied_pixels']>=362000, 'Lost previously recovered photographic mortar coverage'
           assert measured['photographic_mortar_pixels']>=49000, 'Photographic mortar interpolation lost'
           assert measured['subsurface_backing_pixels']>=24000, 'Edge underfill samples lost'
-          assert measured['black_opaque_pixels']<=29000, 'Dark mortar/bricks regressed significantly'
+          assert measured['black_opaque_pixels']<=28500, 'Unacceptable new dark photographed mortar/brick regions'
           gap=json.loads(pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-gap-audit.json').read_text())
           assert gap['alpha_equal_between_lighting_variants']
-          assert gap['neutral']['in_wall_alpha_empty_pixels']<38564, 'No measured recovery in native interior joint alpha holes'
+          assert gap['neutral']['in_wall_alpha_empty_pixels']<=36538, 'Regressed 36538-pixel photographed mortar gap reference'
           print('WALL04 INTERIOR JOINT GAPS:',gap['neutral']['in_wall_alpha_empty_pixels'])
           result={'experimental':True,'source':'Native Godot Mesa Vulkan 1080x1080',
                   'reference':reference,'measured':measured,
