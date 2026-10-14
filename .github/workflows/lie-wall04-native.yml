@@ -58,7 +58,7 @@ jobs:
           import zlib,numpy as np
           mortar_raw=zlib.decompress(Path('gpu_compute/assets/lie_mortar01/mortar-bank.zlib').read_bytes())
           photo=np.frombuffer(mortar_raw,dtype='<f4').reshape(-1,20)
-          assert photo.shape[0]==mortar['sample_count']
+          assert photo.shape[0]==r['sample_count']
           assert (photo[:,11]>.5).sum()>10000
           assert (photo[:,11]<.5).sum()>10000
           assert profile['max_extra_relief_from_local_brick_edge_m']==.0005
