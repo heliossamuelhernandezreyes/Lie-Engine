@@ -65,6 +65,16 @@ bool blocked(vec3 a, vec3 b, uint receiver_node) {
         // causing physically impossible 0 irradiance on visible brick faces.
         // Skip only the volume CONTAINING the receiver; keep all other
         // core blockers and all 96 original per-brick occlusion proxies.
+        // The GLOBAL wall-opaque core was designed as a coarse
+        // INDIRECT/FORM-FACTOR occluder. WALL04 already has 96 per-brick
+        // scanned-bounds direct-light occluders; including the giant core
+        // in direct rays redundantly darkened ~43k otherwise-lit pixels.
+        // Disable ONLY that global coarse core for DIRECT visibility, and
+        // only while the 96 genuine per-brick light-only boxes are active.
+        vec3 span=blockers.values[k].hi.xyz-blockers.values[k].lo.xyz;
+        bool covered_by_individual_bricks=brick_visibility.configuration.x==96u
+                                        && span.x>2.2 && span.y>.50;
+        if(covered_by_individual_bricks) continue;
         vec3 self_lo=blockers.values[k].lo.xyz-vec3(0.0002);
         vec3 self_hi=blockers.values[k].hi.xyz+vec3(0.0002);
         if(all(greaterThanEqual(a,self_lo)) && all(lessThanEqual(a,self_hi))) continue;
