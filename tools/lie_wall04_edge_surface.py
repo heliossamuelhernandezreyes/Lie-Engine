@@ -56,6 +56,12 @@ class OriginalBrickEdgeField:
         self.face_floors=[]
         self.rejected_deep_edge_samples=0
         self.trees_sample_counts=[]
+        self.exposed_world_xy=[]
+        self.exposed_world_z=[]
+        self.globally_corrected_samples=0
+        self.global_cap_recess_mm_total=0.
+        self.global_max_cap_recess_mm=0.
+        self.min_actual_sample_clearance_m=float("inf")
         if len(records)<10000:
             raise ValueError("No authentic original visible front face samples")
         for row in range(8):
@@ -93,8 +99,20 @@ class OriginalBrickEdgeField:
                 chosen=chosen[keys]
                 self.trees[owner]=cKDTree(coords)
                 self.heights[owner]=chosen[:,2].astype(np.float64)
+                # Retain ALL actual front-layer source points, not only the
+                # coarse edge subset. These are the relevant nearest *visible
+                # scanned brick surface* even when the two edge trees happen
+                # to be sparse. Avoid hiding real brick surface behind the
+                # smoothed source edge quantile.
+                self.exposed_world_xy.append(visual)
+                self.exposed_world_z.append(exposed[:,2].astype(np.float64))
                 self.trees_sample_counts.append(len(chosen))
                 self.fallbacks[owner]=float(np.quantile(exposed[:,2],.80))
+        self.exposed_world_xy=np.concatenate(self.exposed_world_xy)
+        self.exposed_world_z=np.concatenate(self.exposed_world_z)
+        self.exposed_surface_tree=cKDTree(self.exposed_world_xy)
+        if len(self.exposed_world_z)<10000:
+            raise ValueError("No source-verified exposed brick surface exists")
 
     def center(self,row:int,col:int)->np.ndarray:
         return np.array([self.origin_x+col*self.pitch_x+(row%2)*self.stagger*self.pitch_x,
@@ -147,7 +165,29 @@ class OriginalBrickEdgeField:
                     self.max_near_distance=max(self.max_near_distance,float(np.min([np.max(d_near),NEAR_LIMIT_M])))
                 face[take]=candidate
             nearby.append(face)
-        limit=np.minimum.reduce(nearby)
+        estimated=np.minimum.reduce(nearby)
+        # FINAL PHYSICAL OCCLUSION CAP. The prior code used 80th-percentile
+        # smoothed edge depths (and a global fallback for ~46% of queries).
+        # Source scan statistics proved that ~81% of photo-mortar samples
+        # then sat IN FRONT of the nearest real exposed brick surface!
+        # Resolve nearest point from ALL actual front-layer brick samples,
+        # in exactly the XY expansion the renderer uses. It supplies a
+        # locally observed cap; the 80th percentile is no longer allowed
+        # to float mortar over the original scanned source.
+        nearest_dist, nearest_id=self.exposed_surface_tree.query(xy,k=1)
+        nearest_front=self.exposed_world_z[nearest_id]
+        if not np.isfinite(nearest_front).all():
+            raise ValueError("Missing scanned front for physical mortar cap")
+        limit=np.minimum(estimated,nearest_front)
+        changed=estimated>nearest_front
+        self.globally_corrected_samples+=int(changed.sum())
+        correction=estimated[changed]-nearest_front[changed]
+        self.global_cap_recess_mm_total+=float(correction.sum()*1000.)
+        if correction.size:
+            self.global_max_cap_recess_mm=max(self.global_max_cap_recess_mm,
+                                              float(correction.max()*1000.))
+        self.min_actual_sample_clearance_m=min(self.min_actual_sample_clearance_m,
+                                                 float(np.min(nearest_front-limit)))
         # Provenance and physically coherent FRONT layer are strict: below
         # the lowest exposed-face cutoff means a side/deep pit was wrongly
         # classified as the face. Abort instead of silently excavating mortar.
@@ -173,11 +213,19 @@ class OriginalBrickEdgeField:
             "rejected_deep_scan_samples":self.rejected_deep_edge_samples,
             "minimum_source_samples_per_brick_edge":min(self.trees_sample_counts),
             "nearest_scan_bricks":2,
+            "nearest_observed_front_cap_enabled":True,
+            "nearest_observed_front_samples":int(len(self.exposed_world_z)),
+            "global_nearest_exposed_scan_queries_capped":self.globally_corrected_samples,
+            "global_nearest_exposed_scan_cap_mean_mm":(
+                self.global_cap_recess_mm_total/max(self.globally_corrected_samples,1)),
+            "global_nearest_exposed_scan_cap_max_mm":self.global_max_cap_recess_mm,
+            "min_cap_clearance_against_actual_exposed_scan_m":self.min_actual_sample_clearance_m,
+            "coverage_model":"per-original-scan-front XY nearest sample, not fabricated planar brick face",
             "sample_queries_near_source":self.measured,
             "sample_queries_fallback":self.fallback_uses,
             "observed_face_z_min_m":min(self.local_values) if self.local_values else None,
             "observed_face_z_max_m":max(self.local_values) if self.local_values else None,
             "original_scanned_xyz_rgb_edited":False,
-            "guarantee":"mortar <= estimated local edge-face z - required recess",
+            "guarantee":"mortar <= nearest actual exposed photographed brick face z - specified recess",
             "limitations":"per-brick scanned edge sampling and percentiles cannot prove exact pointwise flush at all rough pores",
         }
