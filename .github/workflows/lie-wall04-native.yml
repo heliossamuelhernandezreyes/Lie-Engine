@@ -147,7 +147,7 @@ jobs:
             assert 'wall04_unexpanded_xy(local.xy,source_node)' in shader
             assert 'source_node<864u' in shader
             assert 'chosen_group=node>=864u ? (96u+node-864u) : node/9u;' in shader
-            assert 'source_physical_joint=horizontal || vertical;' in shader
+            assert 'bool source_physical_joint=true;' in shader
             # Keep rejected +4mm Z and 1.45x XY raster variants disabled.
             assert 'local.z+=0.004;' not in shader
             assert 'local.y=joint_y+dy*1.45;' not in shader
