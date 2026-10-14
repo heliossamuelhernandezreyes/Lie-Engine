@@ -367,6 +367,7 @@ def bake(derived: Path, wall_catalog: Path, dest: Path,
         "source_height_is_metric": False, "relative_relief_gain_m": RELIEF_GAIN_M,
         "flush_mortar_experiment": {
             "visible_mortar_width_m": VISIBLE_MORTAR_WIDTH_M,
+            "source_brick_visual_gap_m":.0030, # 6mm PBR core partly occluded by real brick front where intact
             "structural_mortar_gap_m": float(wall["wall_layout"]["mortar_gap_m"]),
             "edge_protection_m": EDGE_PROTECTION_M,
             "radius_scale": SPLAT_RADIUS_SCALE,
