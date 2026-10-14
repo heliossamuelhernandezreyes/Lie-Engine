@@ -1,8 +1,8 @@
 {
   "scenario": "Native Godot Vulkan: authentic scanned original bricks + photographed unreviewed XYZ mortar samples",
   "source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
-  "mortar_source_sha256": "8ad8d3757503bc683d6a0ea68e30807deba93ac4b6674be8d9b70f1a9a34fb88",
-  "combined_bank_sha256": "e6096309750aefc9cbf07a2b893d6092e2fb8e8270e77b4eac9aa51312ec28ad",
+  "mortar_source_sha256": "a7b7d3c4a66f85fee3ebd8ade2d79d8dfd787538e3caef4097917ce6b9cf284d",
+  "combined_bank_sha256": "27cb24a8583e5e528285333f5000f0171bb460d7166f82f76d0db2461e55259a",
   "source_triangles_drawn": 0,
   "spatial_envelopes": 1,
   "scanned_bricks": 96,
@@ -20,29 +20,29 @@
   "captured_real_vulkan_pngs": {
     "neutral": {
       "file": "LIE-WALL04-CapturedMortar-Neutral.png",
-      "sha256": "abe24100eed87a361c8c619ec2af52be50aa338c318c23e7cb757e19cebfcaa7",
-      "occupied_pixels": 326765,
+      "sha256": "20e0c2c802653055b7428712ad8c75fab76fe1468981fed9ec37270f29cc49e6",
+      "occupied_pixels": 339952,
       "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        99.10131440025707,
-        80.80770278334583,
-        68.64207610974248
+        99.1114304372382,
+        80.83771238292465,
+        68.66514978585212
       ],
-      "mean_luminance": 83.818566367267,
-      "black_opaque_pixels": 64439
+      "mean_luminance": 83.84384582176307,
+      "black_opaque_pixels": 66482
     },
     "raking": {
       "file": "LIE-WALL04-CapturedMortar-Raking.png",
-      "sha256": "f2cf7189d87612169cfb518138d8062f630c161fb4f059799ad2757b20c7060a",
-      "occupied_pixels": 326765,
+      "sha256": "4ddc9f642c2a6cf875a6c7c52f01187b8a330acdd8118eaea7d5cfe494dfd2a1",
+      "occupied_pixels": 339952,
       "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        92.96879714779735,
-        62.05372056370786,
-        40.318029776750876
+        93.05472243140208,
+        62.1333688285405,
+        40.36942862521768
       ],
-      "mean_luminance": 67.056948970667,
-      "black_opaque_pixels": 64504
+      "mean_luminance": 67.13589212182895,
+      "black_opaque_pixels": 66550
     }
   }
 }

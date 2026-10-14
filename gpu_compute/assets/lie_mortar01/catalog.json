@@ -3,7 +3,7 @@
   "stride": 80,
   "sample_count": 101919,
   "bytes": 8153520,
-  "sha256": "8ad8d3757503bc683d6a0ea68e30807deba93ac4b6674be8d9b70f1a9a34fb88",
+  "sha256": "a7b7d3c4a66f85fee3ebd8ade2d79d8dfd787538e3caef4097917ce6b9cf284d",
   "levels": [
     {
       "start": 0,
@@ -43,6 +43,24 @@
     "radius_scale": 0.8,
     "support_scale": 0.51,
     "max_back_relief_m": 0.0008,
+    "min_recess_from_local_brick_edge_m": 0.0008,
+    "max_extra_relief_from_local_brick_edge_m": 0.0005,
+    "local_brick_edge_calibration": {
+      "method": "minimum of both adjacent authentic scanned brick front-edge local z 70th percentiles",
+      "source": "verified WALL03 source XYZ and normals, original 96 bricks",
+      "physical_reference": "per-joint, per-sample nearest front scan neighborhood",
+      "edge_band_m": 0.022,
+      "near_distance_limit_m": 0.028,
+      "front_normal_z_cutoff": 0.65,
+      "nearest_scan_bricks": 2,
+      "sample_queries_near_source": 200813,
+      "sample_queries_fallback": 3025,
+      "observed_face_z_min_m": -0.004671790683642031,
+      "observed_face_z_max_m": 0.04795481264591217,
+      "original_scanned_xyz_rgb_edited": false,
+      "guarantee": "mortar <= estimated local edge-face z - required recess",
+      "limitations": "per-brick scanned edge sampling and percentiles cannot prove exact pointwise flush at all rough pores"
+    },
     "max_forward_relief_m": 0.0,
     "measured_front_plane_z_m": 0.05780136454850435,
     "front_plane_source": {
@@ -56,7 +74,8 @@
       "local_per_brick_flush_verified": false
     },
     "width_6mm_in_8point5mm_leaves_open_unfilled_margin": true,
-    "product_quality_accepted": false
+    "product_quality_accepted": false,
+    "global_plane_no_longer_controls_mortar_z": true
   },
   "workshop_only_not_renderer_accepted": true,
   "lighting_node_range": [

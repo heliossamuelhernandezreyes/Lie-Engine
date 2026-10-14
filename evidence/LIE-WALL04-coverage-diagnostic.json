@@ -4,11 +4,11 @@
   "real_vulkan_capture": true,
   "real_photo_mortar_source": true,
   "debug_color_is_not_real_mortar_albedo": true,
-  "source_samples_drawn_on_screen": 33567,
-  "brick_or_other_pixels": 293198,
-  "screen_alpha_occupied": 326765,
-  "source_sample_coverage_ratio": 0.10272520006732667,
+  "source_samples_drawn_on_screen": 33029,
+  "brick_or_other_pixels": 306923,
+  "screen_alpha_occupied": 339952,
+  "source_sample_coverage_ratio": 0.0971578340471596,
   "source_png": "LIE-WALL04-CapturedMortar-CoverageDEBUG.png",
-  "sha256": "0cb91e323487bddde970a809a2f916b9847cc86678dbe7d585ecd2d31c8a2ad9",
+  "sha256": "774b9f6b43f5f80c388d7862c6ddd9d7156af5f84e580fb1f9b4522bca9ca385",
   "G1_masks_reviewed": false
 }

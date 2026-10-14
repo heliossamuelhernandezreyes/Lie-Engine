@@ -3,7 +3,7 @@
   "stride": 80,
   "sample_count": 633759,
   "bytes": 50700720,
-  "sha256": "e6096309750aefc9cbf07a2b893d6092e2fb8e8270e77b4eac9aa51312ec28ad",
+  "sha256": "27cb24a8583e5e528285333f5000f0171bb460d7166f82f76d0db2461e55259a",
   "masters": {
     "real_scan_wall": {
       "levels": [
@@ -115,7 +115,7 @@
       "f536bdf82f969377d232f3fdd26b7cc6a80677ef7761640b079636da536ad082"
     ],
     "wall03_original_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
-    "mortar01_sha256": "8ad8d3757503bc683d6a0ea68e30807deba93ac4b6674be8d9b70f1a9a34fb88",
+    "mortar01_sha256": "a7b7d3c4a66f85fee3ebd8ade2d79d8dfd787538e3caef4097917ce6b9cf284d",
     "mortar01_cc0_source_maps": {
       "color": "a7b3cfd953d8b71b54dd53e5f0409d1b83e5f10a228f5da2e5be15429a230ac8",
       "normal_gl": "7db17a8452c59f0a46170103f14e7e2e4b04e02357f8e097666f671e52816a4c",
@@ -123,6 +123,49 @@
       "roughness": "ce99dc3a1616cc52b46c62a24fabdae030c0c9dfe72e0194615a5419c9a1005e",
       "ao": "503cea54bb2d7d346e9c8be7d695ed7b78b44d98955dc068f3e40bffb2b9b78e"
     },
+    "local_brick_edge_recess_profile": {
+      "visible_mortar_width_m": 0.006,
+      "structural_mortar_gap_m": 0.0085,
+      "edge_protection_m": 0.0005,
+      "radius_scale": 0.8,
+      "support_scale": 0.51,
+      "max_back_relief_m": 0.0008,
+      "min_recess_from_local_brick_edge_m": 0.0008,
+      "max_extra_relief_from_local_brick_edge_m": 0.0005,
+      "local_brick_edge_calibration": {
+        "method": "minimum of both adjacent authentic scanned brick front-edge local z 70th percentiles",
+        "source": "verified WALL03 source XYZ and normals, original 96 bricks",
+        "physical_reference": "per-joint, per-sample nearest front scan neighborhood",
+        "edge_band_m": 0.022,
+        "near_distance_limit_m": 0.028,
+        "front_normal_z_cutoff": 0.65,
+        "nearest_scan_bricks": 2,
+        "sample_queries_near_source": 200813,
+        "sample_queries_fallback": 3025,
+        "observed_face_z_min_m": -0.004671790683642031,
+        "observed_face_z_max_m": 0.04795481264591217,
+        "original_scanned_xyz_rgb_edited": false,
+        "guarantee": "mortar <= estimated local edge-face z - required recess",
+        "limitations": "per-brick scanned edge sampling and percentiles cannot prove exact pointwise flush at all rough pores"
+      },
+      "max_forward_relief_m": 0.0,
+      "measured_front_plane_z_m": 0.05780136454850435,
+      "front_plane_source": {
+        "method": "97.5th percentile Z of actual +Z-facing scanned brick samples",
+        "source_front_samples": 53719,
+        "source_front_z_p10_m": 0.033151138573884964,
+        "source_front_z_median_m": 0.0438518263399601,
+        "source_front_z_p90_m": 0.053329445421695716,
+        "source_front_z_p975_m": 0.05780136454850435,
+        "legacy_recessed_mortar_plane_z_m": 0.0563086,
+        "local_per_brick_flush_verified": false
+      },
+      "width_6mm_in_8point5mm_leaves_open_unfilled_margin": true,
+      "product_quality_accepted": false,
+      "global_plane_no_longer_controls_mortar_z": true
+    },
+    "mortar_front_calibration": "local two-adjacent-brick scanned XYZ, not global plane",
+    "min_mortar_edge_recess_m": 0.0008,
     "mortar_source_masks_reviewed": false,
     "mortar_source_height_absolute_mm_verified": false,
     "product_quality_accepted": false,
