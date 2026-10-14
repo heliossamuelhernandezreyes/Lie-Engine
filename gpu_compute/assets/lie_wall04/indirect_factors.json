@@ -2,7 +2,7 @@
   "schema": "lie-wall04-scanned-per-brick-indirect-visibility/1",
   "patches": 872,
   "light_only_brick_boxes": 96,
-  "input_wall_sha256": "1b9fb5d1baec3b435c25144d75f154ed617fdee79dee9d3c9fc9cc3207915db2",
+  "input_wall_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
   "input_source_scan_sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b",
   "input_light_sha256": "edfa6ffd959557a2c739f1784326281203486e79073630b23c0ea658b99adacb",
   "source_triangle_geometry_rendered": 0,

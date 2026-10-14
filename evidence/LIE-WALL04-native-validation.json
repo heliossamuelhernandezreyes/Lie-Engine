@@ -1,8 +1,8 @@
 {
   "scenario": "Native Godot Vulkan: authentic scanned original bricks + photographed unreviewed XYZ mortar samples",
   "source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
-  "mortar_source_sha256": "cc1511844593b3e0db1d07c2603cc49a70ff8b0789deccbe3a61a92c0d650374",
-  "combined_bank_sha256": "1b9fb5d1baec3b435c25144d75f154ed617fdee79dee9d3c9fc9cc3207915db2",
+  "mortar_source_sha256": "bc4a52aec3500ec73bc56e4efdee87a66823f41f861ea5dd905bcda1e418736b",
+  "combined_bank_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
   "source_triangles_drawn": 0,
   "spatial_envelopes": 1,
   "scanned_bricks": 96,
@@ -20,64 +20,64 @@
   "captured_real_vulkan_pngs": {
     "neutral": {
       "file": "LIE-WALL04-CapturedMortar-Neutral.png",
-      "sha256": "6a986b62c7a8b2f49fea72c713eaaa468fdae8742e310a6374f81863273f42b5",
-      "occupied_pixels": 347522,
+      "sha256": "a275ae4f112bfb792033b9098a4d69d82806dadf20bf604174a9338804ae09bc",
+      "occupied_pixels": 355380,
       "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        105.93655653455033,
-        86.18793342579751,
-        72.96856026381063
+        105.86153413247791,
+        86.0335893972649,
+        72.82634081827902
       ],
-      "mean_luminance": 89.4320519564229,
-      "black_opaque_pixels": 26381
+      "mean_luminance": 89.2954471005684,
+      "black_opaque_pixels": 27811
     },
     "core_only_diagnostic": {
       "file": "LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png",
-      "sha256": "33a6ed7a32016107222a10efb40ec26695014c6b7eab7a88c413687631cbfd54",
-      "occupied_pixels": 347522,
+      "sha256": "869fd5671f34225e2e87f4633c9626bc4354c433c585833c8119788a57c2135b",
+      "occupied_pixels": 355380,
       "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        112.92600468459551,
-        90.77279136284898,
-        76.28939462825375
+        112.79159209859868,
+        90.5420451347853,
+        76.06337441611795
       ],
-      "mean_luminance": 94.4368632708145,
-      "black_opaque_pixels": 321
+      "mean_luminance": 94.22693879340423,
+      "black_opaque_pixels": 431
     },
     "no_occluders_diagnostic": {
       "file": "LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png",
-      "sha256": "33a6ed7a32016107222a10efb40ec26695014c6b7eab7a88c413687631cbfd54",
-      "occupied_pixels": 347522,
+      "sha256": "869fd5671f34225e2e87f4633c9626bc4354c433c585833c8119788a57c2135b",
+      "occupied_pixels": 355380,
       "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        112.92600468459551,
-        90.77279136284898,
-        76.28939462825375
+        112.79159209859868,
+        90.5420451347853,
+        76.06337441611795
       ],
-      "mean_luminance": 94.4368632708145,
-      "black_opaque_pixels": 321
+      "mean_luminance": 94.22693879340423,
+      "black_opaque_pixels": 431
     },
     "raking": {
       "file": "LIE-WALL04-CapturedMortar-Raking.png",
-      "sha256": "0c858d95848240a8bb70d81c9e5e2852094abe811a37d144052701afbbd6b0d1",
-      "occupied_pixels": 347522,
+      "sha256": "f7754c8272dff8808315cd42d301e2938260d3733bda46c8568b48d6959a8312",
+      "occupied_pixels": 355380,
       "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        94.82296084852182,
-        63.4902394668539,
-        41.15493983114738
+        95.06640778884574,
+        63.61166075749902,
+        41.24400922955709
       ],
-      "mean_luminance": 68.53896739889848,
-      "black_opaque_pixels": 54893
+      "mean_luminance": 68.68399553604593,
+      "black_opaque_pixels": 56591
     }
   },
   "shadow_versus_patch_light_test": {
-    "neutral_black_opaque_pixels": 26381,
-    "core_only_black_opaque_pixels": 321,
-    "no_occluders_black_opaque_pixels": 321,
-    "neutral_luminance": 89.4320519564229,
-    "core_only_luminance": 94.4368632708145,
-    "no_occluders_luminance": 94.4368632708145,
+    "neutral_black_opaque_pixels": 27811,
+    "core_only_black_opaque_pixels": 431,
+    "no_occluders_black_opaque_pixels": 431,
+    "neutral_luminance": 89.2954471005684,
+    "core_only_luminance": 94.22693879340423,
+    "no_occluders_luminance": 94.22693879340423,
     "same_original_light_source_rgb_and_camera": true,
     "occlusion_disabled_result_only_diagnostic": true
   }
