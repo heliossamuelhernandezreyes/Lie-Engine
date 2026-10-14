@@ -74,6 +74,7 @@ func _update_shadow_header(enabled: bool) -> void:
     _rd.buffer_update(_shadow_rid,0,16,
         PackedInt32Array([count,NODES_PER_BRICK,BRICKS*NODES_PER_BRICK,0]).to_byte_array())
     _shadow_updates+=1
+    invalidate_transport()
 
 func shadow_metrics() -> Dictionary:
     return {"direct_shadow_boxes":_shadow_bounds.size(),
@@ -85,7 +86,9 @@ func shadow_metrics() -> Dictionary:
             "base_energy_transport":"original LIE11"}
 
 func _release_gpu() -> void:
+    # Uniform sets depend on this shadow buffer; free the sets BEFORE it.
+    # RenderingDevice otherwise auto-frees the set, leaving a stale RID in base.
+    super._release_gpu()
     if _rd!=null and _shadow_rid.is_valid():
         _rd.free_rid(_shadow_rid)
         _shadow_rid=RID()
-    super._release_gpu()

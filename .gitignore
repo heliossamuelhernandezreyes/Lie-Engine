@@ -136,6 +136,14 @@ gpu_compute/lie14-import.log
 !/assets/material_masters/mortar/hero/real_masonry_joint/capture_bank/.gitkeep
 
 # WALL04 only reconstructed from SHA-locked WALL03+MORTAR01 sources
+/gpu_compute/captures/liebrick01/
+/gpu_compute/captures/liebrick02/
+/gpu_compute/captures/liewall01/
+/gpu_compute/captures/liewall02/
+/gpu_compute/captures/liewall03/
 /gpu_compute/captures/liewall04/
 /gpu_compute/lie-wall04-*.png
 /gpu_compute/lie-wall04-*.json
+/gpu_compute/fixtures/lie-runtime-reference.json
+/gpu_compute/lie-runtime-*.json
+/gpu_compute/lie-runtime-*.png

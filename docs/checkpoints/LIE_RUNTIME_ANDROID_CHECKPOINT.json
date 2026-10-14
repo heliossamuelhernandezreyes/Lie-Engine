@@ -1,0 +1,42 @@
+{
+  "apk": "LIE-Pared-0.1.0.apk",
+  "bytes": 63266297,
+  "sha256": "05f6e15e857fd1f98a3f15c4ed605577e1df5302cc27e87f7f8427dbeacd2996",
+  "package": "org.lieengine.wallruntime",
+  "version": "0.1.0-runtime-lighting",
+  "physical_android_tested": false,
+  "source_commit": "8d9146a8f55d302f3c303e6ee86e48c56a6ce51a",
+  "native_mobile_check_pending": false,
+  "source_bank_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+  "offline": true,
+  "signature_schemes": [
+    "v2",
+    "v3"
+  ],
+  "page_alignment_kib": 16,
+  "output_size": [
+    720,
+    720
+  ],
+  "native_mobile_check": {
+    "run_id": 38608032842,
+    "conclusion": "success",
+    "backend": "Godot Mobile with software Vulkan; not a physical Android run",
+    "checks": 11
+  },
+  "regression_workflows": {
+    "source_commit": "8d9146a8f55d302f3c303e6ee86e48c56a6ce51a",
+    "final_success_count": 18,
+    "lie22_retry": {
+      "run_id": 38608032884,
+      "first_job": 116003859228,
+      "first_conclusion": "failure",
+      "first_failed_check": "Removed brick opens a depth-correct hole",
+      "retry_job": 116008050380,
+      "retry_conclusion": "success",
+      "retry_gpu_checks": 56,
+      "code_changed_for_retry": false,
+      "timing_variability_unresolved": true
+    }
+  }
+}

@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 import numpy as np
-import lie_wall01_bake as legacy
+import lie_wall02_bake as legacy
 
 ROOT=Path(__file__).resolve().parents[1]
 DEST=ROOT/"gpu_compute/captures/liewall03"

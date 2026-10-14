@@ -116,7 +116,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.buffer_update(_buffers[6],0,256,next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])
-    _rd.capture_timestamp("lie22-begin")
+    _rd.capture_timestamp(_profile_marker("begin"))
     var list: int=_rd.compute_list_begin()
     _rd.compute_list_bind_compute_pipeline(list,_pipeline)
     _rd.compute_list_bind_uniform_set(list,_set,0)
@@ -136,7 +136,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         if stage==8:
             hole_dispatches+=1
     _rd.compute_list_end()
-    _rd.capture_timestamp("lie22-end")
+    _rd.capture_timestamp(_profile_marker("end"))
     _resident=signature
     sample_invocations=work
     instance_count=next["instances"].size()/96

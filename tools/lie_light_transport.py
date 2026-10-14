@@ -71,8 +71,11 @@ def validate(model):
         raise ValueError("Expected 1..16 light codes")
     radii = model.get("secondary_radii")
     if radii is not None:
-        if not all(math.isfinite(radii.get(k, float("nan"))) and radii[k] > 0
-                   for k in ("radius_max", "radius_decay", "power_reference")) or radii["radius_decay"] > 1:
+        if not isinstance(radii, dict) or radii.get("mode", "power") not in ("power", "irradiance"):
+            raise ValueError("Invalid secondary radius mode")
+        required = ("radius_max", "radius_decay", "irradiance_cutoff" if radii.get("mode") == "irradiance" else "power_reference")
+        if not all(isinstance(radii.get(k), (int, float)) and not isinstance(radii[k], bool)
+                   and math.isfinite(radii[k]) and radii[k] > 0 for k in required) or radii["radius_decay"] > 1:
             raise ValueError("Invalid secondary radius policy")
     for p in model["patches"]:
         if len(p["position"]) != 3 or len(p["normal"]) != 3:
@@ -203,6 +206,12 @@ def secondary_radius(model, i, parent_radius, outgoing):
         return 0.0
     patch = model["patches"][i]
     scale = model["materials"][patch["material"]].get("radius_scale", 1)
+    if policy.get("mode", "power") == "irradiance":
+        # Lambertian center-source upper bound: E <= P/(pi*d^2).
+        # Units are relative RGB power / m², unless input power is calibrated.
+        # This is a per-emitter bound, NOT an aggregate lighting error bound.
+        bound = math.sqrt(max(outgoing)/(math.pi*policy["irradiance_cutoff"]))
+        return min(parent_radius*policy["radius_decay"], bound, policy["radius_max"])*scale
     survival = math.sqrt(max(reflectance(model, patch)))
     return min(parent_radius * policy["radius_decay"] * survival,
                policy["radius_max"] * math.sqrt(max(outgoing) / policy["power_reference"]),

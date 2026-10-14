@@ -23,9 +23,24 @@ var _serial: int=0
 var _pending: Dictionary={}
 var _readback: Dictionary={}
 var _lock:=Mutex.new()
+var cache_static_transport: bool=false
+var profile_transport: bool=false
+var _resident_transport: Dictionary={}
+var _transport_uniforms: Array[RDUniform]=[]
+var _factor_capacity: int=0
+var _transport_cache_hits: int=0
+var _transport_upload_bytes: int=0
+var _transport_profiles: Array=[]
+var _transport_last_profile_serial: int=0
 
 func _init() -> void:
     effect_callback_type=EFFECT_CALLBACK_TYPE_PRE_OPAQUE
+
+func factor_input_bytes(model: Dictionary) -> PackedByteArray:
+    return Model.factor_bytes(model)
+
+func invalidate_transport() -> void:
+    _lock.lock();_pending["force"]=true;_lock.unlock()
 
 func configure(model: Dictionary) -> bool:
     if not Model.valid(model):
@@ -42,15 +57,20 @@ func configure(model: Dictionary) -> bool:
         failure="Patch count change requires a new effect allocation"
         push_error(failure)
         return false
+    var factors: PackedByteArray=factor_input_bytes(model)
+    if factors.is_empty():
+        failure="Invalid transport factor packet"
+        return false
+    failure=""
     _count=count
     _triangle_count=triangle_count
     var dims:=PackedInt32Array([count,(model["lights"] as Array).size(),int(model.get("bounces",2)),(model.get("blockers",[]) as Array).size()])
     var config: PackedByteArray=dims.to_byte_array()
     var policy: Dictionary=model.get("secondary_radii",{})
-    config.append_array(PackedFloat32Array([0.0025,0.0,float(triangle_count),0.0 if policy.is_empty() else 1.0]).to_byte_array())
-    config.append_array(PackedFloat32Array([float(policy.get("radius_max",1)),float(policy.get("radius_decay",1)),float(policy.get("power_reference",1)),float((model.get("optical_sheets",[]) as Array).size())]).to_byte_array())
+    config.append_array(PackedFloat32Array([0.0025,0.0,float(triangle_count),Model.radius_mode(policy)]).to_byte_array())
+    config.append_array(PackedFloat32Array([float(policy.get("radius_max",1)),float(policy.get("radius_decay",1)),Model.radius_reference(policy),float((model.get("optical_sheets",[]) as Array).size())]).to_byte_array())
     var next: Dictionary={0:Model.patch_bytes(model),1:Model.light_bytes(model),
-        2:Model.factor_bytes(model),8:config,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model),12:Model.radius_bytes(model),13:Optics.bytes(model.get("optical_sheets",[]))}
+        2:factors,8:config,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model),12:Model.radius_bytes(model),13:Optics.bytes(model.get("optical_sheets",[]))}
     _lock.lock()
     _serial+=1
     next["serial"]=_serial
@@ -99,6 +119,7 @@ func _extra_transport_uniforms() -> Array[RDUniform]:
     return []
 
 func _initialize_gpu(data: Dictionary) -> bool:
+    if _shader.is_valid() or not _buffers.is_empty():_release_gpu()
     _rd=RenderingServer.get_rendering_device()
     if _rd==null:
         failure="LIE-11 requires a RenderingDevice renderer"
@@ -122,7 +143,7 @@ func _initialize_gpu(data: Dictionary) -> bool:
     var initial: Array[PackedByteArray]=[
         data[0],data[1],data[2],weights.to_byte_array(),caps.to_byte_array(),
         float_zeros.to_byte_array(),float_zeros.to_byte_array(),float_zeros.to_byte_array(),data[8],data[9],data[11],data[12],data[13]]
-    var uniforms: Array[RDUniform]=[]
+    _transport_uniforms=[]
     for binding in range(initial.size()):
         var bytes: PackedByteArray=initial[binding]
         var rid: RID=_rd.storage_buffer_create(bytes.size(),bytes)
@@ -131,7 +152,8 @@ func _initialize_gpu(data: Dictionary) -> bool:
             return false
         _buffers.append(rid)
         allocation_bytes+=bytes.size()
-        uniforms.append(_uniform(binding+1 if binding>=10 else binding,rid))
+        _transport_uniforms.append(_uniform(binding+1 if binding>=10 else binding,rid))
+    _factor_capacity=data[2].size()
     var format:=RDTextureFormat.new()
     format.width=_count
     format.height=1
@@ -142,9 +164,9 @@ func _initialize_gpu(data: Dictionary) -> bool:
         failure="Unable to allocate LIE-11 irradiance texture"
         return false
     allocation_bytes+=_count*16
-    uniforms.append(_uniform(10,output_rid,true))
-    uniforms.append_array(_extra_transport_uniforms())
-    _set=_rd.uniform_set_create(uniforms,_shader,0)
+    _transport_uniforms.append(_uniform(10,output_rid,true))
+    _transport_uniforms.append_array(_extra_transport_uniforms())
+    _set=_rd.uniform_set_create(_transport_uniforms,_shader,0)
     gpu_ready=_set.is_valid() and _pipeline.is_valid()
     if not gpu_ready:
         failure="Invalid LIE-11 transport uniform set"
@@ -159,20 +181,44 @@ func _dispatch(commands: int, stage: int, threads: int, ping: int=0) -> void:
 func _render_callback(kind: int, _render_data: RenderData) -> void:
     if kind!=EFFECT_CALLBACK_TYPE_PRE_OPAQUE or _count==0:
         return
+    if profile_transport and gpu_ready:_collect_transport_profile()
     _lock.lock()
     var data: Dictionary=_pending
     _pending={}
     _lock.unlock()
+    var initial: bool=not gpu_ready
+    if cache_static_transport and not initial and not bool(data.get("force",false)):
+        var changed: bool=false
+        for key in data:
+            if key is int and data[key]!=_resident_transport.get(key):changed=true;break
+        if not changed:
+            _transport_cache_hits+=1
+            return
     if not gpu_ready:
         if data.is_empty() or not _initialize_gpu(data):
             return
     for key in data:
         if key is int:
             var bytes: PackedByteArray=data[key]
-            _rd.buffer_update(_buffers[key-1 if key>=11 else key],0,bytes.size(),bytes)
+            var index: int=key-1 if key>=11 else key
+            if key==2 and bytes.size()>_factor_capacity:
+                # A geometry edit can grow a sparse graph. Replace only F,
+                # retain every other buffer and the published irradiance RID.
+                _rd.free_rid(_set);_rd.free_rid(_buffers[2])
+                _buffers[2]=_rd.storage_buffer_create(bytes.size(),bytes)
+                allocation_bytes+=bytes.size()-_factor_capacity
+                _factor_capacity=bytes.size()
+                _transport_uniforms[2]=_uniform(2,_buffers[2])
+                _set=_rd.uniform_set_create(_transport_uniforms,_shader,0)
+                if not _set.is_valid():failure="Sparse graph resize failed";gpu_ready=false;return
+            elif not initial and (not cache_static_transport or bytes!=_resident_transport.get(key)):
+                _rd.buffer_update(_buffers[index],0,bytes.size(),bytes)
+            if initial or not cache_static_transport or bytes!=_resident_transport.get(key):_transport_upload_bytes+=bytes.size()
+            _resident_transport[key]=bytes
     if data.has("lights"):
         _light_count=int(data["lights"])
         _bounces=int(data["bounces"])
+    if profile_transport:_rd.capture_timestamp("lie11|%d|%d|begin" % [get_instance_id(),frame_count+1])
     var commands: int=_rd.compute_list_begin()
     _rd.compute_list_bind_compute_pipeline(commands,_pipeline)
     _rd.compute_list_bind_uniform_set(commands,_set,0)
@@ -183,7 +229,33 @@ func _render_callback(kind: int, _render_data: RenderData) -> void:
         _dispatch(commands,3,_count,generation%2)
     _dispatch(commands,4,_count)
     _rd.compute_list_end()
+    if profile_transport:_rd.capture_timestamp("lie11|%d|%d|end" % [get_instance_id(),frame_count+1])
     frame_count+=1
+
+func _collect_transport_profile() -> void:
+    var frame: int=_rd.get_captured_timestamps_frame()
+    var intervals: Dictionary={}
+    for i in range(_rd.get_captured_timestamps_count()):
+        var parts: PackedStringArray=_rd.get_captured_timestamp_name(i).split("|")
+        if parts.size()!=4 or parts[0]!="lie11" or parts[1]!=str(get_instance_id()):continue
+        var serial: int=int(parts[2])
+        if not intervals.has(serial):intervals[serial]={}
+        intervals[serial][parts[3]]=_rd.get_captured_timestamp_gpu_time(i)
+    _lock.lock()
+    for serial in intervals:
+        var row: Dictionary=intervals[serial]
+        if serial>_transport_last_profile_serial and row.has_all(["begin","end"]) and row["end"]>row["begin"]:
+            _transport_profiles.append({"serial":serial,"marker_frame":frame,"gpu_ns":row["end"]-row["begin"]})
+            _transport_last_profile_serial=serial
+    if _transport_profiles.size()>180:_transport_profiles=_transport_profiles.slice(_transport_profiles.size()-180)
+    _lock.unlock()
+
+func transport_metrics() -> Dictionary:
+    _lock.lock()
+    var result: Dictionary={"solves":frame_count,"cache_hits":_transport_cache_hits,
+        "factor_buffer_capacity_bytes":_factor_capacity,"input_upload_bytes":_transport_upload_bytes,
+        "profile":_transport_profiles.duplicate(true),"cache_static_transport":cache_static_transport}
+    _lock.unlock();return result
 
 func request_readback() -> void:
     # Explicit diagnostic readback only; never used by the running renderer.
@@ -234,4 +306,6 @@ func _release_gpu() -> void:
     for rid in [_pipeline,_shader,output_rid]:
         if rid.is_valid(): _rd.free_rid(rid)
     _buffers.clear()
+    _transport_uniforms.clear();_resident_transport.clear();_factor_capacity=0
+    _set=RID();_pipeline=RID();_shader=RID();output_rid=RID();allocation_bytes=0
     gpu_ready=false

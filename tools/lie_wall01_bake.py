@@ -24,7 +24,6 @@ DEST = ROOT / "gpu_compute/captures/liewall01"
 COLS = 12
 ROWS = 8
 BRICKS = COLS * ROWS
-NODES_PER_BRICK = 9  # five full faces + four real-scan front quadrants
 SEED = 2102
 SAMPLES_PER_BRICK = (4000, 1300, 240)
 MORTAR_GRID = ((850, 260), (480, 150), (220, 70))
@@ -50,22 +49,6 @@ def face_indices(normal: np.ndarray) -> np.ndarray:
     return axis * 2 + (sign < 0).astype(np.int32)
 
 
-def micro_patch_indices(original: np.ndarray) -> np.ndarray:
-    """Assign real scanned COLOR_0 samples to 9 stable light patches.
-
-    0..3: X+ X- Y+ Y-; 4: rear Z-; 5..8: Z+ quarter patches,
-    by ORIGINAL scan coordinates (not by box texture or camera view).
-    """
-    ids = face_indices(original[:, 4:7])
-    result = ids.copy()
-    result[ids == 5] = 4
-    front = ids == 4
-    xpositive = (original[front, 0] >= 0).astype(np.int32)
-    ypositive = (original[front, 1] >= 0).astype(np.int32)
-    result[front] = 5 + xpositive + 2 * ypositive
-    return result
-
-
 def hash_unit(seed: int, row: int, col: int, channel: int) -> float:
     x = (seed * 0x9E3779B1 ^ row * 0x85EBCA77 ^
          col * 0xC2B2AE3D ^ channel * 0x27D4EB2F) & 0xFFFFFFFF
@@ -88,7 +71,7 @@ def layout(dims: np.ndarray, mortar: float = .0085) -> tuple[list[dict], np.ndar
             yaw = (hash_unit(SEED, row, col, 1) * 2 - 1) * math.radians(.95)
             tone = .91 + hash_unit(SEED, row, col, 2) * .16
             item = {"row": row, "column": col, "center": center.tolist(),
-                    "yaw_rad": yaw, "tone": tone, "node_start": len(items) * NODES_PER_BRICK}
+                    "yaw_rad": yaw, "tone": tone, "node_start": len(items) * 6}
             items.append(item)
     footprint = np.asarray([(COLS*px + px*.5), (ROWS*py), dz], dtype=np.float64)
     return items, footprint
@@ -117,7 +100,7 @@ def transform_real_samples(original: np.ndarray, center: list[float], yaw: float
     values[:, 4] = c * nx + s * nz
     values[:, 6] = -s * nx + c * nz
     values[:, 3] = np.maximum(values[:, 3], radius)
-    values[:, 9] = micro_patch_indices(original) + patch_start
+    values[:, 9] = face_indices(original[:, 4:7]) + patch_start
     values[:, 12:15] = np.clip(original[:, 12:15] * tone, 0, 1)
     values[:, 11] = 0.  # Shader obtains dynamic absorption from the *GPU patch codes*.
     support_rebuild(values)
@@ -182,82 +165,45 @@ def mortar_samples(bounds: tuple[np.ndarray, np.ndarray], dimensions: tuple[int,
 def make_node_model(original: np.ndarray, data: list[dict],
                     bounds: tuple[np.ndarray, np.ndarray],
                     dims: np.ndarray) -> dict:
-    """Sample-derived front micro-patches + geometric nonfront patches.
-
-    Real scan NORMALS, POSITIONS and LINEAR RGB contribute to every patch.
-    One source mesh is reused but each patch gets its own measured centroid.
-    The 96 opaque proxies are LIGHT-VISIBILITY DATA ONLY, not collision boxes.
-    """
     lx, hy, dz = [float(x) for x in dims]
-    micro_ids = micro_patch_indices(original)
-    areas = (hy*dz, hy*dz, lx*dz, lx*dz, lx*hy,
-             lx*hy*.25, lx*hy*.25, lx*hy*.25, lx*hy*.25)
-    axis_normal = [
-        (1.,0.,0.),(-1.,0.,0.),(0.,1.,0.),(0.,-1.,0.),
-        (0.,0.,-1.),(0.,0.,1.),(0.,0.,1.),(0.,0.,1.),(0.,0.,1.),
-    ]
-    means = []
-    for pid in range(NODES_PER_BRICK):
-        members = original[micro_ids == pid]
-        if len(members) < 50:
-            raise ValueError(f"Original scan lacks micro-patch {pid}: {len(members)} samples")
-        src_xyz = np.asarray(members[:, :3], dtype=np.float64)
-        src_normal = np.asarray(members[:, 4:7], dtype=np.float64)
-        src_rgb = np.asarray(members[:, 12:15], dtype=np.float64)
-        phys = np.asarray(axis_normal[pid], dtype=np.float64)
-        raw = src_normal.mean(axis=0)
-        raw /= max(float(np.linalg.norm(raw)), 1.e-10)
-        direction = raw*.7 + phys*.3
-        direction /= max(float(np.linalg.norm(direction)), 1.e-10)
-        if float(np.dot(direction, phys)) < .1:
-            raise ValueError("Wrong-facing sampled surface micro-patch")
-        # Push outward 1.5 mm: finite patch quadrature point lies above
-        # scanned material; ray occluders ignore the owner brick.
-        means.append((src_xyz.mean(axis=0) + direction*.0015,
-                      direction, src_rgb.mean(axis=0)))
+    face = face_indices(original[:, 4:7])
+    rgb = np.clip(original[:, 12:15], 0, 1)
+    mean = rgb.mean(axis=0)
+    color_filter = (mean / max(float(mean.max()), 1e-6)).tolist()
+    areas = (hy*dz, hy*dz, lx*dz, lx*dz, lx*hy, lx*hy)
     patches = []
-    occluders = []
-    for brick_idx, brick in enumerate(data):
+    for brick in data:
         center = np.asarray(brick["center"], dtype=np.float64)
-        yaw = float(brick["yaw_rad"])
-        co, si = math.cos(yaw), math.sin(yaw)
-        rotate = np.asarray([[co, 0., si],
-                             [0., 1., 0.],
-                             [-si, 0., co]], dtype=np.float64)
-        for pid, (local, normal, rgb) in enumerate(means):
-            world_pos = center + rotate @ local
-            world_n = rotate @ normal
-            world_n /= max(float(np.linalg.norm(world_n)), 1.e-10)
+        yaw = brick["yaw_rad"]
+        c, s = math.cos(yaw), math.sin(yaw)
+        for fid, (axis, sign) in enumerate(FACE_SIGNS):
+            normal = np.zeros(3, dtype=np.float64)
+            normal[axis] = sign
+            local = normal * ([lx, hy, dz][axis] * .5 + .0010)
+            # Match the captured sample's Y-axis yaw transform.
+            local = np.asarray([c*local[0]+s*local[2], local[1],
+                                -s*local[0]+c*local[2]])
+            normal = np.asarray([c*normal[0]+s*normal[2], normal[1],
+                                 -s*normal[0]+c*normal[2]])
+            colors = rgb[face == fid]
+            reflectance = min(float(colors.mean(axis=0).max()) * brick["tone"], 1.)
             patches.append({
-                "position": world_pos.tolist(),
-                "normal": world_n.tolist(),
-                "area": max(float(areas[pid]), 1.e-5),
-                "gray_mean": float(np.clip(rgb.max()*brick["tone"],0.,1.)),
-                "material": "clay",
-                "brick_id": brick_idx,
-                "micro_id": pid,
-                "scan_samples_in_patch": int(np.count_nonzero(micro_ids == pid)),
+                "position": (center + local).tolist(),
+                "normal": normal.tolist(), "area": max(areas[fid], 1e-5),
+                "gray_mean": reflectance, "material": "clay",
+                "brick_id": brick["node_start"] // 6, "face": fid,
             })
-        # Approximating the solid/clay interior with an AABB inset 2-3mm.
-        # This is independent from the ONE parent spatial/collision box.
-        # No 500K-triangle runtime shadows; yaw < 1 degree is approximated.
-        half = np.asarray([lx*.5-.004,hy*.5-.003,dz*.5-.004],dtype=np.float64)
-        if (half<=0.).any():
-            raise ValueError("Brick scan too small for light proxy")
-        occluders.append([(center-half).tolist(),(center+half).tolist()])
     lo, hi = bounds
     patches.append({
         "position": [float((lo[0]+hi[0])*.5),float((lo[1]+hi[1])*.5),float(hi[2]-.020)],
         "normal": [0.,0.,1.],
         "area": float((hi[0]-lo[0])*(hi[1]-lo[1])*.15),
-        "gray_mean": .26, "material": "mortar", "brick_id": -1, "micro_id": 9,
+        "gray_mean": .26, "material": "mortar", "brick_id": -1, "face": 4,
     })
-    # Existing LIE11 CPU symmetric bounce visibility uses a coarse wall
-    # core; DIRECT visibility uses 96 GPU AABBs (new optional LIE11 extension).
+    # Coarse *lighting-only* blocker. The visible appearance/collider does
+    # not depend on this proxy. Surface nodes outside its Z faces.
     core = [[[float(lo[0]+.012),float(lo[1]+.007),-.035],
              [float(hi[0]-.012),float(hi[1]-.007),.035]]]
-    all_rgb = np.asarray(original[:, 12:15], dtype=np.float64).mean(axis=0)
-    color_filter = (all_rgb/max(float(all_rgb.max()),1.e-6)).tolist()
     model = {
         "schema": 1, "factor_normalization": "symmetric_local",
         "patches": patches,
@@ -267,36 +213,13 @@ def make_node_model(original: np.ndarray, data: list[dict],
         },
         "lights": [{
             "position": [0.,float(hi[1]+.75),1.35],
-            "radius": 6.0,"power_rgb":[55.,50.,46.],
+            "radius": 6.0, "power_rgb": [55.,50.,46.],
         }],
-        "bounces": 2,"blockers":core,"triangles":[],
-        "direct_shadow_boxes":occluders,
-        "direct_shadow_nodes_per_brick":NODES_PER_BRICK,
-        "direct_shadow_mortar_node":BRICKS*NODES_PER_BRICK,
-        "direct_shadow_method":"GPU LIE11 direct light ray / brick inset AABBs; owner excluded",
-        "indirect_occlusion_method":"existing LIE11 single wall core + reciprocal conservative bounce cache",
-        "light_provenance":"original LIE11 GPU RGB irradiance transport, with direct visibility extension",
+        "bounces": 2, "blockers": core, "triangles": [],
+        "light_provenance": "LIE-11 original GPU inverse-square/finite-radius RGB light code, 2 conservative bounces",
+        "direct_shadow_model": "coarse authored wall-core AABB; no per-texel scanned-triangle ray cast",
     }
     return model
-
-
-def canonical_light_codes(value):
-    """Stable 1e-7 representation for cross-machine JSON+SHA reproducibility.
-
-    The original FLOAT32 VisualSampleBank stays byte-for-byte authentic. Only
-    the PATCH-AVERAGED precomputed node-code *metadata* is quantized; 0.1 µm
-    XYZ precision is far below the spatial uncertainty of this historical
-    scan. Unit normal validation remains within 1e-5.
-    """
-    if isinstance(value, float):
-        if not math.isfinite(value):
-            raise ValueError("Nonfinite finite-patch light code")
-        return round(value, 7)
-    if isinstance(value, list):
-        return [canonical_light_codes(x) for x in value]
-    if isinstance(value, dict):
-        return {k: canonical_light_codes(x) for k,x in value.items()}
-    return value
 
 
 def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
@@ -322,7 +245,7 @@ def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
             subset = candidates[rng.choice(len(candidates), samples_per_brick, replace=False)]
             records.append(transform_real_samples(subset, brick["center"], brick["yaw_rad"],
                                                   brick["tone"], brick["node_start"], radius))
-        mortar = mortar_samples((bmin,bmax), mortar_shape, BRICKS*NODES_PER_BRICK, SEED + lod, bricks, dims)
+        mortar = mortar_samples((bmin,bmax), mortar_shape, BRICKS*6, SEED + lod, bricks, dims)
         records.append(mortar)
         samples = np.concatenate(records).astype("<f4", copy=False)
         if len(samples)+cursor > 750000 or (len(samples)+cursor)*STRIDE > 64*1024*1024:
@@ -338,9 +261,7 @@ def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
                                 origin["masters"]["brick_full"]["levels"][0]["start"]+
                                 origin["masters"]["brick_full"]["levels"][0]["count"]],
                             bricks, (bmin, bmax), dims)
-    assert len(model["patches"]) == BRICKS*NODES_PER_BRICK+1
-    # Stable across NumPy SIMD/float reduction order and GitHub runners.
-    model = canonical_light_codes(model)
+    assert len(model["patches"]) == BRICKS*6+1
     lighting_bytes = (json.dumps(model,indent=2,ensure_ascii=False)+"\n").encode("utf-8")
     size = (bmax-bmin+np.asarray([.005,.005,.005])).tolist()
     center = (.5*(bmin+bmax)).tolist()
@@ -358,17 +279,14 @@ def build(source: Path = SOURCE, destination: Path = DEST) -> dict:
                        "bond":"running with open staggered ends","seed":SEED,"mortar_gap_m":.0085,
                        "procedural_recessed_mortar":True,"mortar_mask":"joints only, never occlude full scanned XY brick faces"},
         "lighting":{"pipeline":"LIE11 real GPU node RGB light transport -> LIE33 wall samples",
-                    "node_count":len(model["patches"]),"nodes_per_brick":NODES_PER_BRICK,
-                    "front_micro_patches_per_brick":4,
-                    "direct_shadow_occluders":len(model["direct_shadow_boxes"]),
-                    "lighting_visibility":"source-derived micro patches, inset-brick direct shadows and existing core bounce proxy",
+                    "node_count":len(model["patches"]),"nodes_per_brick":6,
                     "file":"light-model.json","sha256":hashlib.sha256(lighting_bytes).hexdigest(),
                     "per_pixel_shadows":False,
                     "absorption_and_color_stored_separately":True},
         "collision":{"spatial_envelope_count":1,"geometry":"one invisible BoxShape3D",
                      "collision_is_coarse":True},
         "hero_quality_accepted":False,
-        "note":"LIE-WALL02: four real scan-derived front patches, per-brick direct shadows; not a 500k triangle ray tracer; photo fidelity and GPU cost unverified."
+        "note":"Real scanned bricks with deterministic variations; PBR scan fidelity and hardware speed require A/B."
     }
     destination.mkdir(parents=True,exist_ok=True)
     (destination/"library.bin").write_bytes(raw)

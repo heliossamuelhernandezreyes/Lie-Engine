@@ -10,7 +10,7 @@ import numpy as np
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"tools"))
-import lie_wall01_bake as base
+import lie_wall02_bake as base
 import lie_wall03_bake as wall
 
 

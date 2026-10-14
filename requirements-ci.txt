@@ -1,0 +1,6 @@
+# Authoring/reference dependencies required BEFORE complete test discovery.
+# Runtime Godot does not import these packages. CI records installed versions.
+numpy>=1.24,<3
+Pillow>=10,<13
+scipy>=1.10,<2
+trimesh>=4,<6

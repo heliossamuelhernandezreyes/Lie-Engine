@@ -4,7 +4,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
-from lie_light_transport import solve, validate, room_fixture, closed_solution
+from lie_light_transport import solve, validate, room_fixture, closed_solution, secondary_radius
 from lie_optics import fresnel, slab, sheet_transmission, validate_sheets, refraction_probe
 
 
@@ -44,6 +44,28 @@ class RadiusTests(unittest.TestCase):
         m = self.model()
         m['lights'][0]['power_rgb'] = [0,0,0]
         self.assertTrue(all(r==0 for row in solve(m, 4)['secondary_radius_by_generation'] for r in row))
+
+    def test_irradiance_radius_matches_lambertian_axis_bound(self):
+        m=self.model();m['secondary_radii']={'mode':'irradiance','radius_max':100,'radius_decay':1,'irradiance_cutoff':.02}
+        radius=secondary_radius(m,0,100,[.8,.4,.2])
+        self.assertAlmostEqual(.8/(math.pi*radius*radius),.02,places=14)
+        self.assertAlmostEqual(secondary_radius(m,0,100,[3.2,1.6,.8]),radius*2,places=14)
+        self.assertLess(.8/(math.pi*(radius*1.01)**2),.02)
+
+    def test_irradiance_radius_budget_and_generations_conserve_energy(self):
+        m=self.model();m['secondary_radii']={'mode':'irradiance','radius_max':6,'radius_decay':.8,'irradiance_cutoff':.001}
+        result=solve(m,5)
+        for a,b in zip(result['energy_by_generation'],result['energy_by_generation'][1:]):
+            self.assertLessEqual(b['radius_max'],a['radius_max']*.8+1e-12)
+            for c in range(3):self.assertLessEqual(b['incoming'][c],a['outgoing'][c]+1e-12)
+
+    def test_invalid_irradiance_mode_and_threshold(self):
+        m=self.model()
+        for policy in ({'mode':'unrecognized'},{'mode':'irradiance','radius_max':6,'radius_decay':.8,'irradiance_cutoff':0},
+                       {'mode':'irradiance','radius_max':6,'radius_decay':.8,'irradiance_cutoff':math.nan},
+                       {'mode':'irradiance','radius_max':6,'radius_decay':.8,'irradiance_cutoff':True},[]):
+            m['secondary_radii']=policy
+            with self.assertRaises(ValueError):validate(m)
 
     def test_invalid_policy_and_nonlinear_closed_oracle_rejected(self):
         m = self.model()
