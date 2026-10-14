@@ -1,0 +1,60 @@
+name: LIE35 directional optical codes
+on:
+  push:
+    branches: ["experiment/lie35-directional-optical-codes"]
+  pull_request:
+    paths:
+      - ".github/workflows/lie35-directional-optics.yml"
+      - "gpu_compute/shaders/lie35_directional.glsl"
+      - "gpu_compute/test_lie35_directional.gd"
+      - "tools/lie35_directional_reference.py"
+      - "tools/lie35_wall04_adapter.py"
+      - "tests/test_lie35_directional.py"
+      - "docs/LIE_35_DIRECTIONAL_OPTICS.md"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  angular-energy-vulkan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      LIBGL_ALWAYS_SOFTWARE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Independent float64 oracle and energy gates
+        run: |
+          python -m unittest discover -s tests -p 'test_lie35*.py' -v
+          python tools/lie35_directional_reference.py
+          python tools/lie35_wall04_adapter.py
+      - name: Install pinned Godot and software Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 3 -o godot.zip \
+            https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Import GLSL and execute real Vulkan compute
+        run: |
+          set -o pipefail
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path gpu_compute --editor --import --quit 2>&1 | tee lie35-import.log
+          python - <<'PY'
+          from pathlib import Path
+          log=Path('lie35-import.log').read_text()
+          assert 'SCRIPT ERROR:' not in log and 'ERROR:' not in log, log[-16000:]
+          PY
+          xvfb-run -a -s '-screen 0 1280x720x24' \
+            godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path gpu_compute \
+            --rendering-driver vulkan --rendering-method forward_plus --audio-driver Dummy \
+            --script res://test_lie35_directional.gd 2>&1 | tee lie35-vulkan.log
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie35-directional-evidence
+          path: |
+            gpu_compute/fixtures/lie35-directional-reference.json
+            lie35-import.log
+            lie35-vulkan.log
+          if-no-files-found: ignore
