@@ -23,7 +23,7 @@ rendering or fabricating pixel coverage.
 - [GPU](../gpu_compute/shaders/lie35_directional.glsl): real Vulkan compute
   with three phases: angular link weights, per-emitter normalization and
   receiver gather. No floating-point atomics, no original mesh rendering.
-- [GPU acceptance](../gpu_compute/test_lie35_directional.gd): compares
+- [Actual WALL04 capture adapter](../tools/lie35_wall04_adapter.py): verifies the\n  locked 61.8 MB sample bank, extracts true hero-LOD brick XYZ, normals,\n  linear RGB and roughness from eight front surface codes, supplies explicitly\n  authored *opaque clay* optics and exercises them in the SAME GPU oracle.\n  It does not infer metallicity, IOR or extinction from a photograph, nor use\n  WALL04's full solved light power in this demo.\n- [GPU acceptance](../gpu_compute/test_lie35_directional.gd): compares
   channels against Python float64 for brick, colored metal, absorbing clay,
   glass, range cutoff and mixed emitters.
 - [Python tests](../tests/test_lie35_directional.py): physical sanity and
@@ -99,7 +99,7 @@ being offscreen.
 ## Reproduce
 
     python -m unittest discover -s tests -p 'test_lie35_directional.py' -v
-    python tools/lie35_directional_reference.py
+    python tools/lie35_directional_reference.py\n    python tools/lie35_wall04_adapter.py
     godot --headless --path gpu_compute --editor --import --quit
     xvfb-run -a godot --path gpu_compute --rendering-driver vulkan \
       --rendering-method forward_plus --script res://test_lie35_directional.gd
