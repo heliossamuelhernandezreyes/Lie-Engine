@@ -153,7 +153,10 @@ jobs:
             assert 'local.y=joint_y+dy*1.45;' not in shader
             assert 'radius*=1.35;' not in shader
             assert 'tolerance=mortar?.004:max(.014,.008*chosen_depth);' in shader
-            assert 'if(enclosed && source_physical_joint && sum>0. && zmax-zmin<tolerance)' in shader, 'Do not interpolate across open/physically invalid mortar seams'
+            assert 'bool photographic_extension=mortar && n>=4 && nearest_source_sq<=36;' in shader
+            assert 'if(witnessed && source_physical_joint && sum>0. && zmax-zmin<tolerance)' in shader
+            assert 'if(node<864u || node>=872u) continue;' in shader
+            assert 'source_physical_joint=(horizontal || vertical || near_horizontal || near_vertical);' in shader
           PY
       - name: Compile GDScript and compute shader
         run: |
@@ -206,7 +209,7 @@ jobs:
           assert measured['black_opaque_pixels']<=29000, 'Dark mortar/bricks regressed significantly'
           gap=json.loads(pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-gap-audit.json').read_text())
           assert gap['alpha_equal_between_lighting_variants']
-          assert gap['neutral']['in_wall_alpha_empty_pixels']<=38564, 'More interior joint alpha gaps than verified baseline'
+          assert gap['neutral']['in_wall_alpha_empty_pixels']<38564, 'No measured recovery in native interior joint alpha holes'
           print('WALL04 INTERIOR JOINT GAPS:',gap['neutral']['in_wall_alpha_empty_pixels'])
           result={'experimental':True,'source':'Native Godot Mesa Vulkan 1080x1080',
                   'reference':reference,'measured':measured,
