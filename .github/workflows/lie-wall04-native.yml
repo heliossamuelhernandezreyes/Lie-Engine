@@ -148,9 +148,11 @@ jobs:
             assert 'source_node<864u' in shader
             assert 'chosen_group=node>=864u ? (96u+node-864u) : node/9u;' in shader
             assert 'source_physical_joint=horizontal || vertical;' in shader
-            # Experimental A/B: isolate photographed mortar depth, NOT brick XYZ.
-            assert 'local.z+=0.004;' in shader
-            assert 'CONTROLLED DIAGNOSTIC ONLY: +4mm visible Z' in shader
+            # Photo-only horizontal/vertical XY sample placement, same true XYZ.depth.
+            assert 'bool horizontal=course<7u && abs(dy)<=abs(dx);' in shader
+            assert 'if(horizontal) local.y=joint_y+dy*1.45;' in shader
+            assert 'else local.x=joint_x+dx*1.45;' in shader
+            assert 'local.z+=0.004;' not in shader
             assert 'tolerance=mortar?.004:max(.014,.008*chosen_depth);' in shader
             assert 'if(enclosed && source_physical_joint && sum>0. && zmax-zmin<tolerance)' in shader, 'Do not interpolate across open/physically invalid mortar seams'
           PY
