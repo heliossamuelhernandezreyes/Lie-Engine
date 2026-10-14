@@ -101,6 +101,8 @@ jobs:
           corrected=Path('gpu_compute/shaders/lie_wall04_transport.glsl').read_text()
           lab=Path('gpu_compute/lie_wall04_mortar_lab.gd').read_text()
           assert 'if(all(greaterThanEqual(a,self_lo)) && all(lessThanEqual(a,self_hi))) continue;' in corrected
+          assert 'if(covered_by_individual_bricks) continue;' in corrected
+          assert 'brick_visibility.configuration.x==96u' in corrected
           assert 'FixedSelfShadowTransport.new()' in lab
           assert 'if (k == owner) continue;' in corrected
           for shader in (base,diagnostic):
@@ -139,7 +141,6 @@ jobs:
           print('MORTAR SRC PIXELS:',a['source_samples_drawn_on_screen'])
           print('EMPTY TRANSPARENT PIXELS:',a['empty_transparent_pixels'])
           PY
-          '
       - uses: actions/upload-artifact@v4
         if: always()
         with:
