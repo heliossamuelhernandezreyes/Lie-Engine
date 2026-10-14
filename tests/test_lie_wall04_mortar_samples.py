@@ -143,6 +143,15 @@ class Wall04SamplesTest(unittest.TestCase):
         self.assertGreaterEqual(float(face.min()),field.report()["exposed_layer_z_min_m"]-.003)
         report=field.report()
         self.assertEqual(report["nearest_scan_bricks"],2)
+        self.assertTrue(report["nearest_observed_front_cap_enabled"])
+        self.assertGreater(report["nearest_observed_front_samples"],10000)
+        # Real photographed front XYZ, after the IDENTICAL XY transform
+        # applied by the GPU, must be no farther back than the mortar surface.
+        # Test the actual local-query operation, not just catalog metadata.
+        _,nearest_id=field.exposed_surface_tree.query(coords,k=1)
+        nearest_z=field.exposed_world_z[nearest_id]
+        self.assertTrue(np.all(face<=nearest_z+1e-7))
+        self.assertGreaterEqual(report["min_cap_clearance_against_actual_exposed_scan_m"],-1e-7)
         self.assertFalse(report["original_scanned_xyz_rgb_edited"])
 
     def test_invalid_source_layout_fails_closed(self):
