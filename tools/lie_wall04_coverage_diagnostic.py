@@ -48,15 +48,18 @@ def audit(directory:Path)->dict:
     r,g,b=(pix[...,i].astype(np.int16) for i in range(3))
     # Diagnostic shader returns bright green, which survives tonemapping.
     green=a & (g>100)&(g>r*1.5)&(g>b*1.5)
+    blue=a & (b>100)&(b>r*1.5)&(b>g*1.5)
     red=a & (r>100)&(r>g*1.5)&(r>b*1.5)
-    bricks=a & ~green & ~red
+    bricks=a & ~green & ~blue & ~red
     report={"experimental_only":True,"device":"Mesa Vulkan in GitHub CI",
             "real_vulkan_capture":True,"real_photo_mortar_source":True,
             "debug_color_is_not_real_mortar_albedo":True,
-            "source_samples_drawn_on_screen":int(green.sum()),
+            "source_samples_drawn_on_screen":int(green.sum()+blue.sum()),
+            "photographic_mortar_core_green_pixels":int(green.sum()),
+            "photographic_subsurface_backing_blue_pixels":int(blue.sum()),
             "brick_or_other_pixels":int(bricks.sum()),
             "screen_alpha_occupied":int(a.sum()),
-            "source_sample_coverage_ratio":float(green.sum())/max(float(a.sum()),1),
+            "source_sample_coverage_ratio":float(green.sum()+blue.sum())/max(float(a.sum()),1),
             "opaque_brick_black_rgb_pixels_diagnostic_red":int(red.sum()),
             "opaque_visible_brick_nonblack_pixels":int(bricks.sum()),
             "empty_transparent_pixels":int((~a).sum()),
@@ -64,7 +67,8 @@ def audit(directory:Path)->dict:
             "source_png":path.name,"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),
             "G1_masks_reviewed":False}
     (directory/"LIE-WALL04-coverage-diagnostic.json").write_text(json.dumps(report,indent=2)+"\n")
-    if green.sum()<2000:raise RuntimeError("Missing captured source mortar coverage")
+    if green.sum()<2000:raise RuntimeError("Missing captured 6mm core source mortar coverage")
+    if blue.sum()<100:raise RuntimeError("Photographic subsurface backing has not contributed to holes")
     print(json.dumps(report,indent=2))
     return report
 
