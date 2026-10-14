@@ -98,6 +98,11 @@ jobs:
           from pathlib import Path
           base=Path('gpu_compute/shaders/lie_wall04_mortar.glsl').read_text()
           diagnostic=Path('gpu_compute/shaders/lie_wall04_mortar_coverage_diagnostic.glsl').read_text()
+          corrected=Path('gpu_compute/shaders/lie_wall04_transport.glsl').read_text()
+          lab=Path('gpu_compute/lie_wall04_mortar_lab.gd').read_text()
+          assert 'if(all(greaterThanEqual(a,self_lo)) && all(lessThanEqual(a,self_hi))) continue;' in corrected
+          assert 'FixedSelfShadowTransport.new()' in lab
+          assert 'if (k == owner) continue;' in corrected
           for shader in (base,diagnostic):
             assert 'const float WALL04_VISIBLE_JOINT_M = 0.006;' in shader
             assert 'wall04_expanded_xy(local.xy,source_node)' in shader
