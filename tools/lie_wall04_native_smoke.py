@@ -73,6 +73,12 @@ def smoke(directory:Path) ->dict:
             "light_azimuth":-22.,"clay_absorption":0.,
             "coverage_enabled":True,"shadows":True,"direct_shadow_proxies":True})
     neutral=capture("CapturedMortar-Neutral")
+    # A/B with identical 1080p wall/camera/PBR/light RGB and WITHOUT optional
+    # occlusion: locate whether 96 direct-shadow proxies or actual intrinsic
+    # LIE11 node irradiance cause opaque dark bricks.
+    update({"shadows":False,"direct_shadow_proxies":False})
+    no_occluders=capture("CapturedMortar-NoOccluders-DIAGNOSTIC")
+    update({"shadows":True,"direct_shadow_proxies":True})
     update({"lighting_preset":"warm_raking","light_azimuth":-72.,"light_power":1.2})
     warm=capture("CapturedMortar-Raking")
     assert neutral["sha256"]!=warm["sha256"],"Dynamic LIE11 source energy failed"
@@ -91,7 +97,15 @@ def smoke(directory:Path) ->dict:
       "physical_android_gpu_tested":False,
       "mesa_vulkan_is_not_mobile_performance":True,
       "sample_counts":[v["count"] for v in cat["masters"]["real_scan_wall"]["levels"]],
-      "captured_real_vulkan_pngs":{"neutral":neutral,"raking":warm},
+      "captured_real_vulkan_pngs":{"neutral":neutral,"no_occluders_diagnostic":no_occluders,"raking":warm},
+      "shadow_versus_patch_light_test":{
+        "neutral_black_opaque_pixels":neutral["black_opaque_pixels"],
+        "no_occluders_black_opaque_pixels":no_occluders["black_opaque_pixels"],
+        "neutral_luminance":neutral["mean_luminance"],
+        "no_occluders_luminance":no_occluders["mean_luminance"],
+        "same_original_light_source_rgb_and_camera":True,
+        "occlusion_disabled_result_only_diagnostic":True
+      },
     }
     (directory/"LIE-WALL04-native-validation.json").write_text(json.dumps(report,indent=2)+"\n")
     print(json.dumps(report,indent=2))
