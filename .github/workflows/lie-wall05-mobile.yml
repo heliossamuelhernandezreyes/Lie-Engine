@@ -1,0 +1,95 @@
+name: LIE WALL05 shared optical Android
+on:
+  push:
+    branches: ["work/lie-wall05-shared-optical"]
+    paths: ["gpu_compute/lie_wall05*", "gpu_compute/test_lie_wall05*", "gpu_compute/shaders/lie_wall05*", "tools/lie_wall05*", "tools/lie_runtime_android_build.py", "tests/test_lie_wall05*", ".github/workflows/lie-wall05-mobile.yml"]
+  pull_request:
+    paths: ["gpu_compute/lie_wall05*", "gpu_compute/test_lie_wall05*", "gpu_compute/shaders/lie_wall05*", "tools/lie_wall05*", "tests/test_lie_wall05*", ".github/workflows/lie-wall05-mobile.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lie-wall05-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  native-and-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare verified shared sources and independent regressions
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m unittest discover -s tests -p 'test_lie_wall05*.py' -v
+          python -m unittest discover -s tests -p 'test_lie35*.py' -v
+          python tools/lie_wall05_shader.py
+          python tools/lie_wall05_optical_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall05*.glsl
+          python tools/lie_wall05_android_build.py --stage /tmp/lie-wall05-ci
+      - name: Install native Godot and actual Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Real Mobile images and geometry-light-cache acceptance
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-wall05-ci --editor --import --quit > wall05-import.log 2>&1
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-wall05-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall05_mobile.gd 2>&1 | tee wall05-mobile.log
+          python - <<'PY'
+          from pathlib import Path
+          for name in ['wall05-import.log','wall05-mobile.log']:
+            text=Path(name).read_text()
+            assert 'ERROR:' not in text and 'were leaked at exit' not in text,text[-15000:]
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Verified official Android template and SDK
+        run: |
+          sdkmanager 'build-tools;36.0.0' 'platform-tools'
+          curl -fL --retry 3 -o godot-templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
+          echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  godot-templates.tpz' | sha256sum -c -
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -j -q godot-templates.tpz templates/android_debug.apk -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+      - name: Export, normalize, align, sign and verify actual APK
+        run: |
+          keytool -genkeypair -keystore /tmp/lie-wall05-debug.keystore -storepass android -keypass android \
+            -alias androiddebugkey -dname 'CN=LIE Experimental Android,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
+          python tools/lie_wall05_android_build.py --stage /tmp/lie-wall05-export \
+            --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" \
+            --keystore /tmp/lie-wall05-debug.keystore --output "$PWD/apk/LIE-Pared-0.2.0.apk"
+          python - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          p=Path('apk/LIE-Pared-0.2.0.apk');z=zipfile.ZipFile(p)
+          assert z.testzip() is None
+          cat=json.loads(z.read('assets/captures/liewall05/catalog.json'))
+          assert hashlib.sha256(z.read('assets/captures/liewall05/library.bin')).hexdigest()==cat['sha256']
+          assert 'assets/captures/liewall04/library.bin' not in z.namelist()
+          for n in ['sample-refs.bin','optics.bin','outgoing-csr.bin','shadow-caps.bin']:
+            data=z.read('assets/captures/liewall05/'+n)
+            proof=cat['wall05'].get(n,{})
+            expected=proof.get('sha256',cat['wall05']['reference_sha256'])
+            assert hashlib.sha256(data).hexdigest()==expected
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-wall05-apk-and-native
+          path: |
+            wall05-import.log
+            wall05-mobile.log
+            /tmp/lie-wall05-ci/wall05-native.json
+            /tmp/lie-wall05-ci/wall05-*.png
+            apk/
+          if-no-files-found: error

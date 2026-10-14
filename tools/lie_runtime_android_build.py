@@ -114,7 +114,7 @@ def export(stage: Path,godot: Path,sdk: Path,keystore: Path,output: Path) -> dic
     settings=Path.home()/'.config/godot/editor_settings-4.7.tres'
     settings.parent.mkdir(parents=True,exist_ok=True)
     text=settings.read_text() if settings.exists() else '[gd_resource type="EditorSettings" format=3]\n[resource]\n'
-    keys={'export/android/android_sdk_path':str(sdk.resolve()),'export/android/java_sdk_path':str(Path('/usr/lib/jvm/java-17-openjdk-amd64'))}
+    keys={'export/android/android_sdk_path':str(sdk.resolve()),'export/android/java_sdk_path':str(Path(os.environ.get('JAVA_HOME','/usr/lib/jvm/java-17-openjdk-amd64')))}
     lines=[line for line in text.splitlines() if not any(line.startswith(key+' ') for key in keys)]
     settings.write_text('\n'.join(lines)+'\n'+''.join(f'{key} = {json.dumps(value)}\n' for key,value in keys.items()))
     private=Path(tempfile.mkdtemp(prefix='lie-wall-android-'))
