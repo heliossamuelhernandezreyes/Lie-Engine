@@ -240,8 +240,8 @@ void main() {
         // Find a genuine nearby source surface. Group is immutable parent
         // brick ID derived from 9 sample lighting patches; mortar gets 96.
         // Sampling never transfers appearance from a neighboring brick.
-        for(int y=-1;y<=1 && chosen_group==EMPTY;y++)
-        for(int x=-1;x<=1 && chosen_group==EMPTY;x++) {
+        for(int y=-2;y<=2 && chosen_group==EMPTY;y++)
+        for(int x=-2;x<=2 && chosen_group==EMPTY;x++) {
             if(x==0 && y==0)continue;
             ivec2 p=q+ivec2(x,y);
             if(!inside(p))continue;
@@ -260,12 +260,48 @@ void main() {
             chosen_normal=normalize(pr.normal.xyz);
         }
         if(chosen_group==EMPTY) {imageStore(specular_image,q,base);return;}
+        // PHOTO SOURCE PRIORITY: the nearest source brick currently wins the
+        // 3x3 seed search even for an empty pixel inside a physical joint.
+        // Find the nearest surviving, depth-tested *genuine photographed*
+        // mortar pixel instead; never create an analytic mortar surface.
+        if(chosen_group<96u) {
+            int nearest_sq=1000000;
+            uint photo_group=EMPTY;
+            float photo_depth=0.;
+            vec3 photo_normal=vec3(0.);
+            for(int yy=-6;yy<=6;yy++) for(int xx=-6;xx<=6;xx++) {
+                int distance_sq=xx*xx+yy*yy;
+                if(distance_sq>36 || distance_sq>=nearest_sq) continue;
+                ivec2 p=q+ivec2(xx,yy);
+                if(!inside(p) || imageLoad(output_image,p).a<.5) continue;
+                uint ix=uint(p.y*parameters.counts.z+p.x);
+                uint owner=winners.v[ix];
+                if(owner==EMPTY) continue;
+                Projection pr=projected.v[owner];
+                uint sid=uint(max(round(pr.gradient.w),0.0));
+                uint node=uint(max(round(samples.v[sid].attributes.y),0.0));
+                if(node<864u || node>=872u) continue;
+                nearest_sq=distance_sq;
+                photo_group=96u+node-864u;
+                photo_depth=uintBitsToFloat(depths.v[ix]);
+                photo_normal=normalize(pr.normal.xyz);
+            }
+            if(photo_group!=EMPTY) {
+                // Actual mortar-depth, actual source-owner and scanned
+                // material codes continue to control the reconstructed RGB.
+                chosen_group=photo_group;
+                chosen_depth=photo_depth;
+                chosen_normal=photo_normal;
+            }
+        }
         vec3 color_sum=vec3(0.);
         float sum=0., zmin=1e20, zmax=0.;
         int n=0;
         bool left=false,right=false,up=false,down=false;
-        for(int y=-2;y<=2;y++)
-        for(int x=-2;x<=2;x++) {
+        int search_radius=chosen_group>=96u ? 7 : 2;
+        int nearest_source_sq=1000000;
+        for(int y=-search_radius;y<=search_radius;y++)
+        for(int x=-search_radius;x<=search_radius;x++) {
             if(x==0 && y==0)continue;
             ivec2 p=q+ivec2(x,y);
             if(!inside(p))continue;
@@ -284,7 +320,10 @@ void main() {
             // 16mm / 1% depth ceiling prevents jumping from front to the
             // far side of a real historical brick across a chipped edge.
             if(abs(depth-chosen_depth)>max(.016,.01*chosen_depth))continue;
-            float weight=1./(float(x*x+y*y)+.25);
+            int distance_sq=x*x+y*y;
+            if(chosen_group>=96u && distance_sq>49) continue;
+            nearest_source_sq=min(nearest_source_sq,distance_sq);
+            float weight=1./(float(distance_sq)+.25);
             color_sum+=v.rgb*weight;sum+=weight;
             zmin=min(zmin,depth);zmax=max(zmax,depth);n++;
             if(x<0)left=true;if(x>0)right=true;
@@ -313,10 +352,19 @@ void main() {
                 <(.5*joint.config.z+.003);
             bool vertical=abs(world.y-cy)<.5*joint.dimensions.y+.003
                 && between<(.5*joint.config.z+.003);
-            source_physical_joint=horizontal || vertical;
+            // 8.5mm true gap plus up to 6mm screen-space recovery under
+            // chipped rims. This only admits existing PHOTO sample RGB;
+            // never generates the wall from the coarse BoxShape3D.
+            bool near_horizontal=row<7u && abs(world.y-(cy+.5*joint.dimensions.w))
+                <(.5*joint.config.z+.006);
+            bool near_vertical=abs(world.y-cy)<.5*joint.dimensions.y+.006
+                && between<(.5*joint.config.z+.006);
+            source_physical_joint=(horizontal || vertical || near_horizontal || near_vertical);
         }
         float tolerance=mortar?.004:max(.014,.008*chosen_depth);
-        if(enclosed && source_physical_joint && sum>0. && zmax-zmin<tolerance) {
+        bool photographic_extension=mortar && n>=4 && nearest_source_sq<=36;
+        bool witnessed=(enclosed || photographic_extension);
+        if(witnessed && source_physical_joint && sum>0. && zmax-zmin<tolerance) {
             imageStore(specular_image,q,vec4(color_sum/sum,1.));
         } else imageStore(specular_image,q,base);
         return;
