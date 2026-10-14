@@ -107,3 +107,24 @@ La solicitud de proporciones se IMPLEMENTÓ y se renderizó en Godot Mesa Vulkan
 6. En una captura 1080² y condiciones idénticas, el nuevo perfil estrecho mostró **33.567 píxeles de mortero fotografiado** y **64.439 píxeles opacos casi negros**. La variante previa de mortero más ancho mostraba **45.737** y **58.995** respectivamente. **La nueva proporción solicitada quedó aplicada, pero la cobertura fotográfica aún es inferior y las juntas negras siguen siendo visibles**. Esta es evidencia negativa importante: no etiquetar el acabado como fotorealista ni anunciar victoria material.
 
 Estado: PR #44 **draft**, mejora de proporciones implementada y reproducible. G1 pendiente porque las máscaras fotográficas detectan algunos defectos del ladrillo donante. Se necesita completar las juntas con información de mortero fuente sin pintar de gris o negro una superficie que no está representada, y calibrar el plano local por ladrillo para una garantía estricta de flush.
+
+## Iteración de profundidad local respecto a ladrillos fotografiados (2026-10-13)
+
+**Implementado y publicado en PR #44**, no es una propuesta.
+
+### Causa y cambio
+
+El plano frontal global de WALL04 (p97.5 = Z 0.057801m), aunque derivado de datos escaneados, **sobresalía sobre muchos bordes reales**. Se creó `tools/lie_wall04_edge_surface.py`: deriva de la fuente WALL03 con SHA verificado, identifica cada uno de los 96 ladrillos por su código original y recopila sus puntos frontales (+Z), tras aplicar exclusivamente a consultas la misma expansión XY visual del shader (junta 6mm). Por cada muestra de junta, identifica los ladrillos adyacentes, consulta localmente una docena de muestras frontales mediante cKDTree y utiliza el **mínimo de los percentiles 70 locales de los dos vecinos** como referencia. No se generan nuevas caras, cajas o colisionadores, y el XYZ/RGB del ladrillo no cambia.
+
+El mortero queda entre **0.8 y 1.3mm detrás de la superficie local ESTIMADA de las aristas vecinas**, conservando su relieve relativo fotográfico. No hay necesidad de alterar el shader LIE-11 ni las 872 regiones de luz. La profundidad varía con cada muestra de mortero; el percentil global quedó para diagnóstico, no como plano visible.
+
+### Evidencia verificable (Godot 4.7.2, Vulkan Mesa)
+
+- Fuente: 96 ladrillos escaneados originales, 1 caja invisible y 0 triángulos fuente dibujados. Se validó identidad binaria de las muestras de ladrillo en los 3 LOD.
+- **200,813** consultas de superficie local con vecino válido, **3,025** consultas que recurrieron al perfil fuente por falta de proximidad. El límite observado de la superficie de referencia varió entre **Z=-0.004672 y Z=0.047955m** (bordes erosionados originales). La garantía es respecto de esa referencia local estimada, no de cada microporo exacto.
+- Banco de mortero **101,919 muestras**; combinado WALL04 **633,759 muestras**. Binarios y catálogos guardados desde la ejecución nativa Vulkan con SHA concordantes en `gpu_compute/assets/lie_mortar01/`, `gpu_compute/assets/lie_wall04/`.
+- Captura comprobable: `evidence/LIE-WALL04-CapturedMortar-Neutral.png`, `...-Raking.png`, `...-CoverageDEBUG.png` y reportes JSON. Se renderizó en Mesa Vulkan, **no en hardware Android**.
+- **Resultado negativo que obliga a continuar**: la captura neutra nueva presenta **66,482 píxeles opacos casi negros**, contra **64,439** del perfil anterior, y solo **33,029** píxeles se adjudican visualmente a muestras fotográficas de mortero, contra **33,567** antes. El contacto profundo local está corregido en el banco, pero siguen bandas oscuras por cobertura y por el escaneo volumétrico. Ninguna de esas áreas se debe rellenar falsificando una superficie gris.
+- **Reproducibilidad pendiente**: dos procesos de autoría independientes habían producido hashes distintos con los mismos archivos de fuente, probablemente por selección/tie de muestras locales; **no se ha aislado aún la causa**. Para no mezclar evidencia, el flujo de publicación ahora almacena el banco EXACTO que se renderizó y comprobó en Vulkan, en lugar de reconstruir otro diferente para el mismo PNG. La identidad catálogo/banco/imagen en cada ejecución validada queda garantizada; la identidad entre ejecuciones sigue como investigación abierta.
+
+El estado continúa **G1 no certificado / hero-quality false**. Próximo trabajo relevante: corregir la cobertura real de contacto sin introducir mortero por delante de los bordes; después evaluar fotos A/B con luz rasante y medir rendimiento en Android.
