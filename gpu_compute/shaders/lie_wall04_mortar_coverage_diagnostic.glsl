@@ -166,11 +166,11 @@ void main() {
                 radius*=max(scale.x,scale.y);
             }
             else {
-                // Photo-only conservative splat footprint A/B: no new XYZ,
-                // no planar mortar, no collision/brick change. Tested in Vulkan.
-                // The genuine photographed donor still supplies RGB, normal,
-                // depth and owner; atomicMin depth must pass as before.
-                radius*=1.35;
+                // CONTROLLED DIAGNOSTIC ONLY: +4mm visible Z on 100% genuine
+                // photographed mortar XYZ. Test if excessively deep mortar
+                // is hiding behind historical brick rims. Never accept the
+                // physical geometry without local per-joint scan checks.
+                local.z+=0.004;
             }
             if(parameters.settings.y<.5) {
                 float r=length(local.xy),inner=.0017,outer=.006;
