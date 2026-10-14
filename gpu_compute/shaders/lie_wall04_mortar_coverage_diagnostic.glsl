@@ -165,22 +165,6 @@ void main() {
                 vec2 scale=wall04_brick_xy_scale();
                 radius*=max(scale.x,scale.y);
             }
-            else if(s.attributes.w<.5) {
-                // EXPERIMENTAL photographed-mortar footprint in the *real*
-                // 8.5mm bed: distribute existing actual PHOTO XYZ samples
-                // across their own joint, never draw a planar fill or move
-                // brick XYZ. Max +/-3.625mm from joint center, still inside
-                // +/-4.25mm structural joint. Depth and LIE11 unchanged.
-                uint course=source_node-864u;
-                float px=joint.dimensions.z,py=joint.dimensions.w;
-                float shifted=joint.origin.x+(course%2u==1u?joint.origin.w*px:0.);
-                float joint_x=shifted+(round((local.x-shifted)/px-.5)+.5)*px;
-                float joint_y=joint.origin.y+(float(course)+.5)*py;
-                float dx=local.x-joint_x,dy=local.y-joint_y;
-                bool horizontal=course<7u && abs(dy)<=abs(dx);
-                if(horizontal) local.y=joint_y+dy*1.45;
-                else local.x=joint_x+dx*1.45;
-            }
             if(parameters.settings.y<.5) {
                 float r=length(local.xy),inner=.0017,outer=.006;
                 if(int(s.attributes.x)==1 && r>1e-8) {
