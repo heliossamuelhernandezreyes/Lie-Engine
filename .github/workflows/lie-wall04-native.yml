@@ -58,6 +58,11 @@ jobs:
           assert profile['local_brick_edge_calibration']['rejected_deep_scan_samples']>3000
           assert profile['local_brick_edge_calibration']['exposed_layer_z_min_m']>.025
           assert profile['local_brick_edge_calibration']['observed_face_z_min_m']>.025
+          assert profile['local_brick_edge_calibration']['nearest_observed_front_cap_enabled']
+          assert profile['local_brick_edge_calibration']['nearest_observed_front_samples']>10000
+          assert profile['local_brick_edge_calibration']['global_nearest_exposed_scan_queries_capped']>10000
+          assert profile['local_brick_edge_calibration']['global_nearest_exposed_scan_cap_mean_mm']>.1
+          assert profile['local_brick_edge_calibration']['min_cap_clearance_against_actual_exposed_scan_m']>=-.0000001
           print('Scanned local edge z range:',profile['local_brick_edge_calibration']['observed_face_z_min_m'],profile['local_brick_edge_calibration']['observed_face_z_max_m'])
           print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
           print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
