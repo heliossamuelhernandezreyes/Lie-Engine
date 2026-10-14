@@ -108,18 +108,27 @@ func _initialize() -> bool:
         var rid: RID=_rd.texture_create(format,RDTextureView.new(),[]);_images[binding]=rid;allocation_bytes+=format.width*format.height*16
     output_rid=_images[12];_make_set();gpu_ready=_set.is_valid() and _pipeline.is_valid();return gpu_ready
 
+func _profile_marker(edge: String) -> String:
+    return "lie22|%d|%d|%s" % [get_instance_id(),frame_count+1,edge]
+
 func _collect_profile() -> void:
     var frame: int=_rd.get_captured_timestamps_frame()
     if frame==_profile_frame:return
     _profile_frame=frame
-    var begin: int=-1;var end: int=-1
+    var intervals: Dictionary={}
     for i in range(_rd.get_captured_timestamps_count()):
-        if _rd.get_captured_timestamp_name(i)=="lie22-begin":begin=_rd.get_captured_timestamp_gpu_time(i)
-        if _rd.get_captured_timestamp_name(i)=="lie22-end":end=_rd.get_captured_timestamp_gpu_time(i)
-    if end>begin and begin>=0:
-        _mutex.lock();_profiles.append({"gpu_ns":end-begin})
-        if _profiles.size()>120:_profiles.pop_front()
-        _mutex.unlock()
+        var parts: PackedStringArray=_rd.get_captured_timestamp_name(i).split("|")
+        if parts.size()!=4 or parts[0]!="lie22" or parts[1]!=str(get_instance_id()):continue
+        var serial: int=int(parts[2])
+        if not intervals.has(serial):intervals[serial]={}
+        intervals[serial][parts[3]]=_rd.get_captured_timestamp_gpu_time(i)
+    _mutex.lock()
+    for serial in intervals:
+        var row: Dictionary=intervals[serial]
+        if row.has_all(["begin","end"]) and row["end"]>=row["begin"]:
+            _profiles.append({"owner_instance_id":get_instance_id(),"serial":serial,"marker_frame":frame,"gpu_ns":row["end"]-row["begin"]})
+    if _profiles.size()>120:_profiles=_profiles.slice(_profiles.size()-120)
+    _mutex.unlock()
 
 func _render_callback(_type: int,_data: RenderData) -> void:
     if not capture_loaded or (not gpu_ready and not _initialize()):return
@@ -136,13 +145,13 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.buffer_update(_buffers[6],0,256,next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])
-    _rd.capture_timestamp("lie22-begin")
+    _rd.capture_timestamp(_profile_marker("begin"))
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     for stage in [1,2,3,4,6,7]:
         var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
         _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
         _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
-    _rd.compute_list_end();_rd.capture_timestamp("lie22-end")
+    _rd.compute_list_end();_rd.capture_timestamp(_profile_marker("end"))
     _resident=signature;sample_invocations=work;instance_count=next["instances"].size()/96;frame_count+=1
 
 func request_readback() -> void:

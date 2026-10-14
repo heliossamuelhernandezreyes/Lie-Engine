@@ -86,7 +86,9 @@ func shadow_metrics() -> Dictionary:
             "base_energy_transport":"original LIE11"}
 
 func _release_gpu() -> void:
+    # Uniform sets depend on this shadow buffer; free the sets BEFORE it.
+    # RenderingDevice otherwise auto-frees the set, leaving a stale RID in base.
+    super._release_gpu()
     if _rd!=null and _shadow_rid.is_valid():
         _rd.free_rid(_shadow_rid)
         _shadow_rid=RID()
-    super._release_gpu()

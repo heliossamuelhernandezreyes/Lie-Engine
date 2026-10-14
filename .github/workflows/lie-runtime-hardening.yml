@@ -107,6 +107,20 @@ jobs:
           assert not native['photorealism_certified'] and not native['physical_android_gpu_tested']
           print('Preserved source-locked full-size WALL04 quality gates:', neutral)
           PY
+      - name: Reject unexpected native errors, including stale RID release
+        run: |
+          python - <<'PY'
+          import re
+          from pathlib import Path
+          allowed={'runtime-transport.log':['Invalid LIE-11 spatial/material/light code']}
+          files=list(Path('.').glob('runtime-*.log'))+[Path('/tmp/lie-runtime-wall/godot.log')]
+          for path in files:
+            text=path.read_text()
+            errors=re.findall(r'^ERROR: (.*)$',text,re.M)
+            assert errors==allowed.get(path.name,[]), (str(path),errors)
+            assert 'SCRIPT ERROR:' not in text and 'were leaked at exit' not in text, str(path)
+          print('Native error gate PASS; one deliberate invalid-policy rejection allowed')
+          PY
       - name: Preserve numerical results and actual compositor evidence
         if: always()
         uses: actions/upload-artifact@v4

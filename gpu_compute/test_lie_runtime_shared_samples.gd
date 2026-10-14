@@ -58,6 +58,10 @@ func run() -> void:
     check(loaded.get("live_banks")==1 and loaded.get("live_references")==2,"Two live leases of one immutable bank")
     check(loaded.get("unique_resident_bytes")==61767760,"Exactly the real photographed/source wall bytes")
     check(a.get("asset_uploads")+b.get("asset_uploads")==1,"Physical upload only once")
+    for pair in [[a,original],[b,identical]]:
+        check(not pair[1]["profile"].is_empty(),"Actual GPU timestamps collected for each view")
+        for row in pair[1]["profile"]:
+            check(row.get("owner_instance_id")==pair[0].get_instance_id() and row.get("gpu_ns",-1)>=0,"Timestamps belong to this consumer only")
     var reply: Dictionary=second["lab"].command({"op":"set_values","values":{"camera_yaw":-22.0,"clay_absorption":.35}})
     check(reply.get("ok",false),"Second instance has independent camera/material control")
     await settle();var unchanged: Dictionary=await capture(a);var edited: Dictionary=await capture(b)
@@ -76,6 +80,7 @@ func run() -> void:
         "source_bank_sha256":"f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
         "source_bytes":61767760,"two_camera_source_uploads":1,"immutable_bank_bytes_avoided":61767760,
         "loaded":loaded,"surviving":surviving,"released":released,"private_render_bytes_per_consumer":original["exclusive_allocation_bytes"],
+        "first_view_profile":original["profile"],"second_view_profile":edited["profile"],
         "physical_gpu_measured":false,"source_meshes_rendered":false}
     var file:=FileAccess.open("res://lie-runtime-shared-samples.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     print("LIE SHARED SAMPLES ","FAIL" if failed else "PASS"," ",checks," real native checks")

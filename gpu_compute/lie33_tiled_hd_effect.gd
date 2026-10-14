@@ -27,7 +27,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.buffer_update(_buffers[6],0,256,next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])
-    _rd.capture_timestamp("lie22-begin")
+    _rd.capture_timestamp(_profile_marker("begin"))
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     for stage in [1,2,3,4,6,7]:
         var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
@@ -42,6 +42,6 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         if group_x<1 or group_y<1 or group_y>65535:
             failure="GPU compute workgroups outside Vulkan limits";_rd.compute_list_end();return
         _rd.compute_list_dispatch(list,group_x,group_y,1);_rd.compute_list_add_barrier(list)
-    _rd.compute_list_end();_rd.capture_timestamp("lie22-end")
+    _rd.compute_list_end();_rd.capture_timestamp(_profile_marker("end"))
     _resident=signature;sample_invocations=work;instance_count=next["instances"].size()/96;frame_count+=1
 

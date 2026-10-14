@@ -143,6 +143,16 @@ los gates publicados de WALL04, sin convertirlos en certificación visual.
 
 Estado local inicial: 122 pruebas Python, una omitida por falta de su fuente
 externa; 247 checks del rig y 20 de sesión de agente; importación y compilación
-GDScript comprobadas. El entorno local
+GDScript comprobadas y ocho shaders compilados a SPIR-V. El entorno local
 impide crear sockets de pantalla; la comprobación Vulkan se ejecuta en CI.
-Los resultados nativos se registrarán antes de considerar validado el cambio.
+
+Primera ejecución nativa: [run 38597229265](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38597229265),
+commit `90053c5`, software Vulkan llvmpipe. Pasaron 623 checks de transporte,
+13 de muestras compartidas, aceptación gráfica LIE11 y WALL04 a 1080.
+La pared neutra conservó 362,647 píxeles ocupados, 28,024 negros opacos y
+36,538 huecos interiores; sus limitaciones visuales siguen presentes.
+Los logs también mostraron liberaciones de RID inválidos al cerrar los
+transportes con sombra: el búfer de sombra se liberaba antes de su uniform
+set y RenderingDevice eliminaba este último automáticamente. Se corrigió
+el orden y se añadió un gate que rechaza errores nativos inesperados.
+La segunda ejecución comprueba ese arreglo y timestamps privados por vista.
