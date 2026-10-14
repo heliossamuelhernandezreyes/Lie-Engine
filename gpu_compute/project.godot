@@ -14,3 +14,6 @@ window/size/viewport_height=256
 
 [editor_plugins]
 enabled=PackedStringArray("res://addons/lie_workshop/plugin.cfg")
+
+[editor]
+import/use_multiple_threads=false

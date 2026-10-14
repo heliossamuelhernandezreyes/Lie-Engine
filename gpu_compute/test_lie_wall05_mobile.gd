@@ -79,6 +79,13 @@ func run() -> void:
         finite=finite and is_finite(flux[i]) and is_finite(flux[i+1]) and is_finite(flux[i+2]) and flux[i]>=0 and flux[i+1]>=0 and flux[i+2]>=0
         total+=Vector3(flux[i],flux[i+1],flux[i+2])
     check(finite and flux.size()==872*4,"All 872 optical fluxes finite and nonnegative")
+    var oracle: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://fixtures/wall05-neutral-reference.json"))
+    var max_error: float=0
+    for i in range(872):
+        for k in range(3):max_error=maxf(max_error,absf(flux[i*4+k]-float(oracle["flux"][i][k])))
+    report["optical_gpu_cpu_max_error"]=max_error
+    report["optical_reference_generations"]=oracle["generation_totals_rgb"]
+    check(max_error<.00001,"Full scene optical transport matches independent float64")
     # Direct plus two received generations <= three times direct lamp power.
     var power: Array=lab.light_model["lights"][0]["power_rgb"]
     check(total.x<=3.*power[0]+.001 and total.y<=3.*power[1]+.001 and total.z<=3.*power[2]+.001,"Three frontier generations respect the lamp energy bound")

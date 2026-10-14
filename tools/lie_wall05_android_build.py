@@ -3,10 +3,12 @@ import argparse,json,re,shutil,hashlib
 from pathlib import Path
 import lie_runtime_android_build as base
 from lie_wall05_shared import build
+from lie_wall05_reference import write as write_reference
 ROOT=Path(__file__).resolve().parents[1]
 
 def stage_project(destination):
     build()
+    write_reference()
     base.PROJECT=base.PROJECT.replace('config/name="LIE Pared"','config/name="LIE Pared 0.2"').replace('config/version="0.1.0"','config/version="0.2.0"').replace('lie_runtime_android_lab.tscn','lie_wall05_android_lab.tscn')
     # Godot 4.7.2's ShaderFile editor preview checks scene visibility from an
     # import worker. Serial import avoids that editor-only thread violation.
@@ -23,6 +25,8 @@ def stage_project(destination):
         out=destination/name;out.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(p,out);copied.add(name)
         if p.suffix in ('.gd','.tscn','.tres'):pending.extend(pattern.findall(p.read_text()))
     shutil.copytree(ROOT/'gpu_compute/captures/liewall05',destination/'captures/liewall05')
+    (destination/'fixtures').mkdir(exist_ok=True)
+    shutil.copy2(ROOT/'gpu_compute/fixtures/wall05-neutral-reference.json',destination/'fixtures/wall05-neutral-reference.json')
     (destination/'ATTRIBUTION.txt').write_text((destination/'ATTRIBUTION.txt').read_text()+'\nWALL05: same original neutral brick records and photographic mortar; source-ID indirection, geometry/light caches and experimental opaque directional transport.\n')
     cat=json.loads((destination/'captures/liewall05/catalog.json').read_text())
     report.update(shared_bank_bytes=cat['bytes'],shared_bank_sha256=cat['sha256'],source_reference_bytes=cat['wall05']['reference_bytes'],brick_master_count=1,brick_instances=96)

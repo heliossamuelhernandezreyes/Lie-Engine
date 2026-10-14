@@ -80,13 +80,13 @@ Sample fetch_sample(uint sid, Instance inst) {
     if(brick<96u) {
         vec3 n=s.normal_gray.xyz,p=s.position_radius.xyz;
         vec3 an=abs(n);
-        uint patch=an.x>=an.y && an.x>=an.z ? (n.x>=0?0u:1u) :
+        uint patch_id=an.x>=an.y && an.x>=an.z ? (n.x>=0?0u:1u) :
                    an.y>=an.z ? (n.y>=0?2u:3u) :
                    n.z<0?4u:5u+uint(p.x>=0)+2u*uint(p.y>=0);
         mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);
         p=basis*p+inst.origin.xyz;n=basis*n;
         s.position_radius=vec4(p,max(s.position_radius.w,inst.meta.z));
-        s.normal_gray.xyz=n;s.attributes.y=float(brick*9u+patch);s.attributes.w=0.;
+        s.normal_gray.xyz=n;s.attributes.y=float(brick*9u+patch_id);s.attributes.w=0.;
         s.albedo.rgb=clamp(s.albedo.rgb*inst.tint.rgb,vec3(0),vec3(1));
         an=abs(n);vec2 q=an.x>=an.y && an.x>=an.z?p.zy:an.y>=an.z?p.xz:p.xy;
         float r=2.*s.position_radius.w;s.support=vec4(q-r,q+r);
