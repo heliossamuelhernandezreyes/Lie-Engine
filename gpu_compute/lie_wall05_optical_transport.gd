@@ -9,9 +9,11 @@ var _optical_header_updates: int=0
 
 func _transport_file() -> RDShaderFile:return ANGULAR_SPARSE
 
+func optical_capture_root() -> String:return "res://captures/liewall05/"
+
 func _extra_transport_uniforms() -> Array[RDUniform]:
     var uniforms: Array[RDUniform]=super._extra_transport_uniforms()
-    var root: String="res://captures/liewall05/"
+    var root: String=optical_capture_root()
     var cat: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"catalog.json"))
     if not cat is Dictionary:failure="WALL05 optical source catalog missing";return uniforms
     for pair in [[19,"optics.bin"],[21,"outgoing-csr.bin"],[22,"shadow-caps.bin"]]:

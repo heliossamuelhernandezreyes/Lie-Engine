@@ -16,8 +16,10 @@ func _init(use_sparse: bool=true) -> void:
 func _transport_file() -> RDShaderFile:
     return SPARSE_TRANSPORT if sparse_transport else WALL04_TRANSPORT
 
+func transport_root() -> String:return "res://captures/liewall04/"
+
 func factor_input_bytes(model: Dictionary) -> PackedByteArray:
-    var root: String="res://captures/liewall04/"
+    var root: String=transport_root()
     if _source_packet.is_empty():
         var catalog: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"catalog.json"))
         var proof: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"indirect_factors.json"))

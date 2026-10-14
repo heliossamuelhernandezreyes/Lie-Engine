@@ -1,0 +1,482 @@
+{
+  "schema": "lie-wall06-android-checkpoint/1",
+  "code_commit": "4fcace6f1b94cfeb94813bfb4f7137e35be62c13",
+  "base_wall05": "ddbb6610943f85886a6796d5924cc2aced7401d2",
+  "native_run": 38654258516,
+  "native_job": 116161839701,
+  "artifact_id": 11936163405,
+  "artifact_sha256": "9d2ffc6b349562efda4080cfc6bba4feac535b8c047024afc0094a77c749cd82",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "source_bank_bytes": 41700560,
+  "reference_bytes": 3088388,
+  "alignment": {
+    "schema": "lie-rigid-scan-alignment/1",
+    "source_wall05_sha256": "0d9a9effac67f5f86d9659c423e786b0f710712297baa7ec20840dc78655bb56",
+    "source_neutral_sha256": "fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb",
+    "rotation": [
+      [
+        0.9965597622290993,
+        0.02600711336576024,
+        0.07869098017092928
+      ],
+      [
+        0.0,
+        0.9494881914319584,
+        -0.31380276342197694
+      ],
+      [
+        -0.08287726048730791,
+        0.31272320730263964,
+        0.9462217262927699
+      ]
+    ],
+    "translation_m": [
+      0.00011786387293537953,
+      0.0009734803784707691,
+      0.0013711364315709372
+    ],
+    "rotation_angle_deg": 18.875863940534046,
+    "original_front_normal": [
+      -0.08287726048730791,
+      0.31272320730263964,
+      0.9462217262927699
+    ],
+    "front_samples": 23102,
+    "aligned_bbox_m": [
+      0.1994715567687056,
+      0.05755052318847004,
+      0.10063374726698743
+    ],
+    "shape_preserved_rigidly": true,
+    "source_rgb_material_bytes_preserved": true,
+    "mortar_rgb_material_bytes_preserved": true,
+    "mortar_xy_pitch_ratio": [
+      0.9823880810992235,
+      0.7687242310418861
+    ],
+    "mortar_setback_method": "nearest 8 dense original front points p80 before/after; minimum 0.8mm setback",
+    "metric_mortar_height_certified": false,
+    "runtime_original_mesh_draws": 0
+  },
+  "front_plane": {
+    "normal": [
+      -0.0004119369839401595,
+      0.03236334626422209,
+      0.9994760848196936
+    ],
+    "offset_m": 0.044953875916717755,
+    "clearance_m": 0.0015,
+    "quantile": 0.05,
+    "samples": 26437,
+    "purpose": "oriented light-only inner plane"
+  },
+  "native": {
+    "allocation_bytes": 228564244,
+    "baseline_profile": [
+      {
+        "gpu_ns": 915556832,
+        "marker_frame": 1,
+        "owner_instance_id": -9223371989190703662,
+        "serial": 1
+      },
+      {
+        "gpu_ns": 33836302,
+        "marker_frame": 12,
+        "owner_instance_id": -9223371989190703662,
+        "serial": 2
+      },
+      {
+        "gpu_ns": 31218993,
+        "marker_frame": 20,
+        "owner_instance_id": -9223371989190703662,
+        "serial": 3
+      },
+      {
+        "gpu_ns": 354067441,
+        "marker_frame": 28,
+        "owner_instance_id": -9223371989190703662,
+        "serial": 4
+      }
+    ],
+    "black_opaque_pixels": {
+      "baseline": 6143,
+      "scan_caps": 1387
+    },
+    "cache": {
+      "brick_instances": 96,
+      "brick_master_count": 1,
+      "geometry_rebuilds": 6,
+      "internal_size": 1080,
+      "lighting_resolves": 11,
+      "output_resolves": 12,
+      "recovery_builds": 6,
+      "recovery_capacity": 65536,
+      "recovery_reuses": 5,
+      "reference_bytes": 3088388,
+      "source_bank_bytes": 41700560
+    },
+    "cache_events": [
+      {
+        "internal_size": 1080,
+        "kind": "geometry",
+        "serial": 1
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 2
+      },
+      {
+        "internal_size": 1440,
+        "kind": "exposure",
+        "serial": 3
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 4
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 5
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 6
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 7
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 8
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 9
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 10
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 11
+      },
+      {
+        "internal_size": 1080,
+        "kind": "geometry",
+        "serial": 12
+      }
+    ],
+    "cached_vs_cold": {
+      "iou": 1.0,
+      "mae": 2.4869232745384302e-11,
+      "max": 1.1920928955078125e-07
+    },
+    "checks": 26,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "matched_optical_darkness": {
+      "after_black": 1396,
+      "after_fraction": 0.017928926447735125,
+      "after_opaque": 77863,
+      "before_black": 6143,
+      "before_fraction": 0.07386964886964886,
+      "before_opaque": 83160,
+      "same_optics_and_resolution": true
+    },
+    "optical": {
+      "directional_codes": true,
+      "graph": "WALL06 rebuilt CSR from rigidly aligned scan and recalibrated photo mortar",
+      "incident_direction": "single power-weighted direction per patch/frontier",
+      "optical_header_updates": 2,
+      "patches": 872,
+      "scan_shadow_caps": true,
+      "scope": "opaque wall; no transmitted or refracted paths"
+    },
+    "optical_gpu_cpu_max_error": 9.887594069890593e-09,
+    "optical_reference_generations": [
+      [
+        1.9789945405590263,
+        1.8404649227198964,
+        1.7019353048807648
+      ],
+      [
+        0.10189549589079493,
+        0.06088552727675676,
+        0.04185835289401996
+      ],
+      [
+        0.03608290493111858,
+        0.01414272352737654,
+        0.00746622080983135
+      ]
+    ],
+    "oriented_vs_wall05": {
+      "iou": 0.7208593891379969,
+      "mae": 0.033315135788581356,
+      "max": 0.6909232139587402
+    },
+    "physical_android_tested": false,
+    "profile": [
+      {
+        "gpu_ns": 217476563,
+        "marker_frame": 45,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 1
+      },
+      {
+        "gpu_ns": 305594752,
+        "marker_frame": 57,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 2
+      },
+      {
+        "gpu_ns": 5637662,
+        "marker_frame": 86,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 3
+      },
+      {
+        "gpu_ns": 48576781,
+        "marker_frame": 94,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 4
+      },
+      {
+        "gpu_ns": 297755945,
+        "marker_frame": 103,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 5
+      },
+      {
+        "gpu_ns": 50593123,
+        "marker_frame": 112,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 6
+      },
+      {
+        "gpu_ns": 295596778,
+        "marker_frame": 120,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 7
+      },
+      {
+        "gpu_ns": 296686334,
+        "marker_frame": 128,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 8
+      },
+      {
+        "gpu_ns": 53352462,
+        "marker_frame": 137,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 9
+      },
+      {
+        "gpu_ns": 53484791,
+        "marker_frame": 154,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 10
+      },
+      {
+        "gpu_ns": 51923623,
+        "marker_frame": 163,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 11
+      },
+      {
+        "gpu_ns": 225787365,
+        "marker_frame": 172,
+        "owner_instance_id": -9223371975399832106,
+        "serial": 12
+      }
+    ],
+    "received_total_rgb": [
+      2.116973400115967,
+      1.9154927730560303,
+      1.7512603998184204
+    ],
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+  },
+  "images": {
+    "baseline": {
+      "opaque_pixels": 83160,
+      "dark_pixels_8bit": 6223,
+      "dark_fraction": 0.07483164983164983,
+      "sha256": "c295e597509df5d9c032ba8e0e74b5d1ef295579dbbf8638a5cff9030e863efc"
+    },
+    "shared-legacy": {
+      "opaque_pixels": 77863,
+      "dark_pixels_8bit": 1389,
+      "dark_fraction": 0.017839024954086024,
+      "sha256": "0d8efcc5d01f057325ed84cd419cc0f8fc1048dfac5709616c5a16b0d4a65da0"
+    },
+    "scan-shadows": {
+      "opaque_pixels": 77863,
+      "dark_pixels_8bit": 1389,
+      "dark_fraction": 0.017839024954086024,
+      "sha256": "0d8efcc5d01f057325ed84cd419cc0f8fc1048dfac5709616c5a16b0d4a65da0"
+    },
+    "optical": {
+      "opaque_pixels": 77863,
+      "dark_pixels_8bit": 1398,
+      "dark_fraction": 0.017954612588777726,
+      "sha256": "ad583bdb1a3912cba49b611e43ad88e402f50b2d1ac15958b4d1a7d00a65445a"
+    },
+    "balanced": {
+      "opaque_pixels": 77892,
+      "dark_pixels_8bit": 999,
+      "dark_fraction": 0.01282545062394084,
+      "sha256": "668f9ddbb1405533565b187e2b16b744f56bdd4398324e3cc6d6b73a10c99ab7"
+    }
+  },
+  "android": {
+    "bytes": 52939190,
+    "sha256": "72f8615ecccb85232b038a6fc51e301708a67404533472e373fcad338adc4fb0",
+    "package": "org.lieengine.wallruntime.v030",
+    "version": "0.3.0-aligned-optical",
+    "physical_android_tested": false
+  },
+  "local_tests": {
+    "alignment": 4,
+    "wall05_regressions": 4,
+    "optical": 11,
+    "rig": 247,
+    "agent": 25,
+    "isolated_import_errors": 0,
+    "root_import_errors": 0
+  },
+  "negative_and_superseded": [
+    {
+      "code": "2cffe0af447427a1eff328071ca67aec5f59b145",
+      "run": 38653731231,
+      "checks": 24,
+      "artifact": 11936007807,
+      "result": "passed but graph label was stale and first absolute dark count mixed optical modes; corrected before delivery"
+    },
+    {
+      "run": 38654254210,
+      "event": "push",
+      "result": "cancelled before steps by shared workflow concurrency; canonical PR run finished successfully"
+    },
+    {
+      "result": "first local agent invocation without imported shaders printed PASS alongside compile errors; rejected; clean imported run passes25"
+    }
+  ],
+  "limits": [
+    "Physical Android FPS and thermals unmeasured",
+    "Small coverage holes remain",
+    "Mortar G1 and absolute displacement scale uncertified",
+    "Mortar depth-transfer gradient normals not reconstructed",
+    "Light-only clipped AABB proxies, not exact scan silhouettes",
+    "Opaque angular transport, no refracted graph, no full GGX/Cycles certification",
+    "Native timings use software Vulkan and different internal resolutions; no version-speedup claim"
+  ],
+  "green_workflows": [
+    {
+      "id": 38654258421,
+      "name": "LIE-26 anatomical rig",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258585,
+      "name": "LIE-27 spherical regions and face",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258415,
+      "name": "LIE WALL05 shared optical Android",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258574,
+      "name": "LIE-14 rigid masters and perception boxes",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258590,
+      "name": "LIE-13 finite secondary radii and dielectric sprites",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258619,
+      "name": "LIE-22 shared eyes and modular destruction",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258472,
+      "name": "LIE-15 Arcont robot and compact camera reconstruction",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258465,
+      "name": "LIE-12 captured grayscale material and node lighting",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258628,
+      "name": "LIE-20 captured human, invisible deformation and skin",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258466,
+      "name": "LIE runtime lighting and shared samples",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258497,
+      "name": "LIE-18 workshop, shared agent API and GPU transport",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258592,
+      "name": "LIE-16 stable capture quality and measured consumer cost",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258571,
+      "name": "LIE-23 integrated eyes and continuous captured eyelids",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258385,
+      "name": "LIE-11 coded sprite light transport",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258384,
+      "name": "LIE-17 contrast-guided edges and measured filter cost",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258622,
+      "name": "LIE-01 native acceptance",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258487,
+      "name": "LIE-21 human quality versus Cycles and LIE-20",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258516,
+      "name": "LIE WALL06 aligned optical Android",
+      "conclusion": "success"
+    },
+    {
+      "id": 38654258654,
+      "name": "LIE-24 captured facial construction and compatible modules",
+      "conclusion": "success"
+    }
+  ]
+}
