@@ -344,10 +344,15 @@ void main() {
         uint sid=uint(hit.gradient.w);
         uint node=uint(max(round(samples.v[sid].attributes.y),0.0));
         if(node>=864u && node<=871u) {
-            // DIAGNOSTIC ONLY: displayed green = a real photographed mortar
-            // sample survived projection, Z test, source support and LIE composite.
-            // This is deliberately NOT a physical material or final renderer.
-            imageStore(output_image,xy,vec4(0.02,2.0,0.02,1.0));return;
+            // DIAGNOSTIC ONLY: green=6mm original photographed joint core;
+            // blue=photographic subsurface UNDER a chipped source brick rim.
+            // Both came from the same authentic CC0 photographic donor PBR.
+            // They remain ordinary 3D depth-tested samples in the REAL render.
+            if(samples.v[sid].attributes.w>.5)
+                imageStore(output_image,xy,vec4(.02,.02,2.,1.));
+            else
+                imageStore(output_image,xy,vec4(.02,2.,.02,1.));
+            return;
         }
         Accumulator acc=accumulated.v[i];vec3 base=vec3(acc.color_weight.xyz)/max(float(acc.color_weight.w),1);
         vec3 shaded=max(base*imageLoad(diffuse_image,xy).rgb+imageLoad(specular_image,xy).rgb,vec3(0));
