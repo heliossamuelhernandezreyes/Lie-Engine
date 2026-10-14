@@ -79,10 +79,11 @@ jobs:
           print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
           print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
           PY
-      - name: Align 8 mortar LIE11 receiver nodes to actual photographed XYZ, rebuild indirect visibility
+      - name: Restore SHA-locked 872-node LIE11 lighting (photographic receiver relight remains opt-in research)
         run: |
-          python tools/lie_wall04_relight.py
-          python tools/lie_wall04_factors.py
+          # A/B run 38514888909 proved re-centering mortar receivers alone
+          # worsens native black pixels 27705 -> 65322. Preserve tested bank
+          # and lighting until geometry/source shadow calibration is fixed.
           python tools/lie_wall04_compose.py --restore
           python - <<'PY'
           import hashlib,json,numpy as np,pathlib,zlib
@@ -92,15 +93,7 @@ jobs:
           mortar=json.loads((R/'lie_mortar01/catalog.json').read_text())
           old=np.frombuffer(zlib.decompress((R/'lie_wall03/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
           new=np.frombuffer(zlib.decompress((R/'lie_wall04/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
-          calibration=json.loads((R/'lie_wall04/light-node-calibration.json').read_text())
-          assert calibration['original_872_patch_model_sha256']==base['lighting']['sha256']
-          assert calibration['measured_source_872_patch_model_sha256']==updated['lighting']['sha256']
-          assert calibration['source_historical_864_brick_patches_unchanged']
-          assert calibration['source_original_point_light_unchanged']
-          assert calibration['source_original_96_brick_visibility_boxes_unchanged']
-          assert calibration['zero_new_light_sources']
-          assert len(calibration['patches'])==8
-          assert 10<sum(p['original_z_to_measured_z_mm'] for p in calibration['patches'])/8<30
+          assert updated['lighting']['sha256']==base['lighting']['sha256'], "Opt-in measured mortar receiver relight gave worse image: do not enable"
           assert updated['sha256']=="f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da", "Changing the sample bank would invalidate shader-only A/B"
           assert updated['collision']['spatial_envelope_count']==1
           assert updated['source_scan_sha256']==base['source_scan_sha256']
