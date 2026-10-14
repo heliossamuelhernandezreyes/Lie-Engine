@@ -8,6 +8,7 @@ on:
       - "gpu_compute/shaders/lie35_directional.glsl"
       - "gpu_compute/test_lie35_directional.gd"
       - "tools/lie35_directional_reference.py"
+      - "tools/lie35_wall04_adapter.py"
       - "tests/test_lie35_directional.py"
       - "docs/LIE_35_DIRECTIONAL_OPTICS.md"
   workflow_dispatch:
@@ -23,8 +24,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: Independent float64 oracle and energy gates
         run: |
-          python -m unittest discover -s tests -p 'test_lie35_directional.py' -v
+          python -m unittest discover -s tests -p 'test_lie35*.py' -v
           python tools/lie35_directional_reference.py
+          python tools/lie35_wall04_adapter.py
       - name: Install pinned Godot and software Vulkan
         run: |
           sudo apt-get update -qq
