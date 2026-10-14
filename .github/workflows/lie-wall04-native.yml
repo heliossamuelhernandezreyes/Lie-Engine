@@ -124,6 +124,15 @@ jobs:
               --lab liewall04 --directory /tmp/lie-wall04-native --audio-driver Dummy
             python tools/lie_wall04_native_smoke.py --directory /tmp/lie-wall04-native
             python tools/lie_wall04_coverage_diagnostic.py --directory /tmp/lie-wall04-native
+            python - <<'PY'
+            import json,pathlib
+            p=pathlib.Path('/tmp/lie-wall04-native/LIE-WALL04-coverage-diagnostic.json')
+            a=json.loads(p.read_text())
+            assert a['red_is_debug_unlit_source_brick_not_material']
+            print('UNLIT BRICK PIXELS:',a['opaque_brick_black_rgb_pixels_diagnostic_red'])
+            print('MORTAR SRC PIXELS:',a['source_samples_drawn_on_screen'])
+            print('EMPTY TRANSPARENT PIXELS:',a['empty_transparent_pixels'])
+            PY
           '
       - uses: actions/upload-artifact@v4
         if: always()
