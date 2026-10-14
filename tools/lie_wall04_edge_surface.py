@@ -16,7 +16,9 @@ from scipy.spatial import cKDTree
 
 EDGE_BAND_M = 0.022
 NEAR_LIMIT_M = 0.028
-FRONT_NORMAL_Z = 0.65
+FRONT_NORMAL_Z = 0.75
+FRONT_SURFACE_PERCENTILE = 25.0
+LOCAL_FACE_PERCENTILE = 80.0
 MIN_BRICK_POINTS = 55
 JOINT_VISUAL_WIDTH_M = 0.0060
 
@@ -51,6 +53,9 @@ class OriginalBrickEdgeField:
         self.fallback_uses=0
         self.max_near_distance=0.
         self.local_values=[]
+        self.face_floors=[]
+        self.rejected_deep_edge_samples=0
+        self.trees_sample_counts=[]
         if len(records)<10000:
             raise ValueError("No authentic original visible front face samples")
         for row in range(8):
@@ -59,20 +64,37 @@ class OriginalBrickEdgeField:
                 part=records[(records[:,9]//9).astype(np.int32)==owner]
                 if len(part)<MIN_BRICK_POINTS:
                     raise ValueError(f"Insufficient front scan samples on brick {owner}")
+                # +Z normals alone also select corners, cracks, broken SIDE
+                # slopes and occasional *back* relief from the full 3D scan.
+                # These were erroneously taken as the main face, with actual
+                # edge references down at Z=-4.67mm vs front Z=+57.8mm.
+                # Use the measured FRONT LAYER of each original brick.
+                floor=float(np.quantile(part[:,2],FRONT_SURFACE_PERCENTILE/100.))
+                exposed=part[part[:,2]>=floor]
+                self.rejected_deep_edge_samples+=len(part)-len(exposed)
+                self.face_floors.append(floor)
                 center=self.center(row,col)
-                visual=center+(part[:,0:2].astype(np.float64)-center)*self.scale
+                visual=center+(exposed[:,0:2].astype(np.float64)-center)*self.scale
                 offsets=np.abs(visual-center)
                 edge=((offsets[:,0]>=self.width*self.scale[0]*.5-EDGE_BAND_M) |
                       (offsets[:,1]>=self.height*self.scale[1]*.5-EDGE_BAND_M))
-                chosen=part[edge]
+                chosen=exposed[edge]
                 coords=visual[edge]
                 if len(chosen)<16:
-                    # Never invent a planar generic face if edge samples scarce.
-                    chosen=part
+                    # Still use authentic front layer, never the deep scan.
+                    chosen=exposed
                     coords=visual
+                if len(chosen)<MIN_BRICK_POINTS//2:
+                    raise ValueError(f"Too few authentic exposed front samples for {owner}")
+                # Stable source order makes duplicate/near-equal KD queries
+                # reproducible across independent Python runs.
+                keys=np.lexsort((chosen[:,2],coords[:,1],coords[:,0]))
+                coords=coords[keys]
+                chosen=chosen[keys]
                 self.trees[owner]=cKDTree(coords)
                 self.heights[owner]=chosen[:,2].astype(np.float64)
-                self.fallbacks[owner]=float(np.quantile(part[:,2],.70))
+                self.trees_sample_counts.append(len(chosen))
+                self.fallbacks[owner]=float(np.quantile(exposed[:,2],.80))
 
     def center(self,row:int,col:int)->np.ndarray:
         return np.array([self.origin_x+col*self.pitch_x+(row%2)*self.stagger*self.pitch_x,
@@ -112,10 +134,10 @@ class OriginalBrickEdgeField:
                 if k==1:
                     dist=dist[:,None];which=which[:,None]
                 original=self.heights[int(owner)][which]
-                # 70th local quantile is robust against pits; min of both
-                # neighboring faces wins so mortar never dominates the
-                # *estimated* local edge surface.
-                candidate=np.quantile(original,.70,axis=1)
+                # Exposed face, not the lowest chipped side wall: the old
+                # 70th percentile of unfiltered points produced deep black
+                # trenches and made the joint's edge look raised.
+                candidate=np.quantile(original,LOCAL_FACE_PERCENTILE/100.,axis=1)
                 d_near=np.min(dist,axis=1)
                 distant=d_near>NEAR_LIMIT_M
                 candidate[distant]=self.fallbacks[int(owner)]
@@ -126,24 +148,30 @@ class OriginalBrickEdgeField:
                 face[take]=candidate
             nearby.append(face)
         limit=np.minimum.reduce(nearby)
-        # Genuine worn brick edges may be recessed MUCH farther than the
-        # global face median. A guessed 5mm front-Z floor incorrectly rejected
-        # observed surfaces and could force mortar to float over them. Use
-        # the real source spatial envelope instead, with a small tolerance.
+        # Provenance and physically coherent FRONT layer are strict: below
+        # the lowest exposed-face cutoff means a side/deep pit was wrongly
+        # classified as the face. Abort instead of silently excavating mortar.
         if (not np.isfinite(limit).all() or
-                np.min(limit) < -0.09 or np.max(limit) > .09):
-            raise ValueError("Photographed edge outside original brick spatial envelope")
+                np.min(limit) < min(self.face_floors)-.003 or
+                np.max(limit) > .09):
+            raise ValueError("Mortar edge profile fell into the scanned brick side/back layer")
         self.local_values.extend((float(np.min(limit)),float(np.max(limit))))
         return limit.astype(np.float32)
 
     def report(self)->dict:
         return {
-            "method":"minimum of both adjacent authentic scanned brick front-edge local z 70th percentiles",
+            "method":"minimum of both adjacent authentic BRICK FRONT LAYERS' local z 80th percentiles",
             "source":"verified WALL03 source XYZ and normals, original 96 bricks",
             "physical_reference":"per-joint, per-sample nearest front scan neighborhood",
             "edge_band_m":EDGE_BAND_M,
             "near_distance_limit_m":NEAR_LIMIT_M,
             "front_normal_z_cutoff":FRONT_NORMAL_Z,
+            "brick_front_layer_percentile":FRONT_SURFACE_PERCENTILE,
+            "local_edge_face_percentile":LOCAL_FACE_PERCENTILE,
+            "exposed_layer_z_min_m":min(self.face_floors),
+            "exposed_layer_z_max_m":max(self.face_floors),
+            "rejected_deep_scan_samples":self.rejected_deep_edge_samples,
+            "minimum_source_samples_per_brick_edge":min(self.trees_sample_counts),
             "nearest_scan_bricks":2,
             "sample_queries_near_source":self.measured,
             "sample_queries_fallback":self.fallback_uses,
