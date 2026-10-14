@@ -22,7 +22,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/lie-wall04-vulkan
-          gh run download 38500975230 --repo "${{ github.repository }}" \
+          gh run download 38515155581 --repo "${{ github.repository }}" \
              --name lie-wall04-photographed-mortar-real-vulkan-experimental \
              --dir /tmp/lie-wall04-vulkan
       - name: Restore EXACT SHA locked samples that produced this Godot Vulkan PNG
@@ -108,6 +108,8 @@ jobs:
           assert ab['core_only_black_opaque_pixels']<500
           assert ab['no_occluders_black_opaque_pixels']<500
           assert ab['neutral_black_opaque_pixels']<64415
+          assert ab['neutral_black_opaque_pixels']<=27705, "Do not publish worse visual coverage than source-photo A/B"
+          assert c['sha256']=='f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da', "Require exact published 3D source bank SHA"
           assert d['opaque_brick_black_rgb_pixels_diagnostic_red']<50000
           assert d['photographic_subsurface_backing_blue_pixels']>20000
           assert d['photographic_mortar_core_green_pixels']>20000
