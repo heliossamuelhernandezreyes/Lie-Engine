@@ -18,7 +18,7 @@ func _lab_heading() -> String:
 
 func _lab_geometry_text() -> String:
     return "96 ladrillos fuente byte-inmutables · 1 caja invisible\n"+\
-           "Huella visual XY del ladrillo extendida hasta junta de 6 mm\n"+\
+           "Huella visual del ladrillo extendida a 3 mm sobre junta PBR de 6 mm\n"+\
            "Mortero XYZ CC0 8K · nivel frontal escaneado · 3 LOD"
 
 func _lab_source_text() -> String:
