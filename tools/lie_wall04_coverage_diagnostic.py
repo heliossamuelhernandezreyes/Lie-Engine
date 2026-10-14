@@ -48,7 +48,8 @@ def audit(directory:Path)->dict:
     r,g,b=(pix[...,i].astype(np.int16) for i in range(3))
     # Diagnostic shader returns bright green, which survives tonemapping.
     green=a & (g>100)&(g>r*1.5)&(g>b*1.5)
-    bricks=a & ~green
+    red=a & (r>100)&(r>g*1.5)&(r>b*1.5)
+    bricks=a & ~green & ~red
     report={"experimental_only":True,"device":"Mesa Vulkan in GitHub CI",
             "real_vulkan_capture":True,"real_photo_mortar_source":True,
             "debug_color_is_not_real_mortar_albedo":True,
@@ -56,6 +57,10 @@ def audit(directory:Path)->dict:
             "brick_or_other_pixels":int(bricks.sum()),
             "screen_alpha_occupied":int(a.sum()),
             "source_sample_coverage_ratio":float(green.sum())/max(float(a.sum()),1),
+            "opaque_brick_black_rgb_pixels_diagnostic_red":int(red.sum()),
+            "opaque_visible_brick_nonblack_pixels":int(bricks.sum()),
+            "empty_transparent_pixels":int((~a).sum()),
+            "red_is_debug_unlit_source_brick_not_material":True,
             "source_png":path.name,"sha256":hashlib.sha256(path.read_bytes()).hexdigest(),
             "G1_masks_reviewed":False}
     (directory/"LIE-WALL04-coverage-diagnostic.json").write_text(json.dumps(report,indent=2)+"\n")
