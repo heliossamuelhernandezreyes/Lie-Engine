@@ -22,7 +22,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p /tmp/lie-wall04-vulkan
-          gh run download 38491223048 --repo "${{ github.repository }}" \
+          gh run download 38500574039 --repo "${{ github.repository }}" \
              --name lie-wall04-photographed-mortar-real-vulkan-experimental \
              --dir /tmp/lie-wall04-vulkan
       - name: Restore EXACT SHA locked samples that produced this Godot Vulkan PNG
@@ -43,7 +43,7 @@ jobs:
               if not path.is_file() or path.stat().st_size==0:
                 raise RuntimeError('Missing exact source file from native Vulkan run: '+str(path))
               shutil.copy2(path,dest/name)
-          print('Restored identical bank bytes from verified 38491223048 native Vulkan run')
+          print('Restored identical bank bytes from verified 38500574039 native Vulkan run')
           PY
       - name: Verify SHA integrity, 96 original brick bytes, one box and photographed capture
         run: |
@@ -107,6 +107,11 @@ jobs:
           assert ab['no_occluders_black_opaque_pixels']<400
           assert ab['neutral_black_opaque_pixels']<64415
           assert d['opaque_brick_black_rgb_pixels_diagnostic_red']<50000
+          assert d['photographic_subsurface_backing_blue_pixels']>20000
+          assert d['photographic_mortar_core_green_pixels']>20000
+          assert m['flush_mortar_experiment']['subsurface_shoulder_rows_per_side']==2
+          assert m['flush_mortar_experiment']['nearest_observed_front_cap_enabled'] if 'nearest_observed_front_cap_enabled' in m['flush_mortar_experiment'] else m['flush_mortar_experiment']['local_brick_edge_calibration']['nearest_observed_front_cap_enabled']
+          assert c['sample_count']<850000
           evidence=P('evidence');evidence.mkdir(exist_ok=True)
           for name in ('LIE-WALL04-CapturedMortar-Neutral.png',
                        'LIE-WALL04-CapturedMortar-Raking.png',
