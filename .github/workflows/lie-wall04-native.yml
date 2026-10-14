@@ -27,9 +27,9 @@ jobs:
         run: |
           python -m unittest discover -s tests -p 'test_lie_wall04_mortar_samples.py' -v
           python -m unittest discover -s tests -p 'test_lie_mortar01.py' -v
-      - name: Rebuild photographed mortar 0.8-1.3mm behind both LOCAL scanned brick edges
+      - name: Validate EXACT published photographed mortar bank for same-source A/B
         run: |
-          python tools/lie_wall04_bake.py --allow-unreviewed
+          # No rebake: compare shaders against the SAME 772097 true source samples.
           python - <<'PY'
           import json,pathlib
           p=pathlib.Path('gpu_compute/assets/lie_mortar01/catalog.json')
@@ -79,13 +79,8 @@ jobs:
           print('Measured scanned front plane z=',profile['measured_front_plane_z_m'])
           print('Rebuilt mortar splats from the same CC0 PBR source:',r['sample_count'])
           PY
-      - name: Produce measured composite WALL04 and verify 96 original bricks byte-identical
+      - name: Restore EXACT published WALL04 samples and existing SHA-matched light factors
         run: |
-          python tools/lie_wall04_compose.py
-          # The newly registered mortar bank has a new SHA. Recalculate the
-          # original-light indirect matrix BEFORE validating/restoring it.
-          # Reusing the prior mortar bank's factor manifest is unsafe.
-          python tools/lie_wall04_factors.py
           python tools/lie_wall04_compose.py --restore
           python - <<'PY'
           import hashlib,json,numpy as np,pathlib,zlib
@@ -96,6 +91,7 @@ jobs:
           old=np.frombuffer(zlib.decompress((R/'lie_wall03/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
           new=np.frombuffer(zlib.decompress((R/'lie_wall04/wall_bank.zlib').read_bytes()),'<f4').reshape(-1,20)
           assert updated['lighting']['sha256']==base['lighting']['sha256']
+          assert updated['sha256']=="f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da", "Changing the sample bank would invalidate shader-only A/B"
           assert updated['collision']['spatial_envelope_count']==1
           assert updated['source_scan_sha256']==base['source_scan_sha256']
           assert updated['sample_count']<850000, updated['sample_count'] # 3-LOD source-backed rim reconstruction adds samples, never a second mesh
@@ -113,9 +109,8 @@ jobs:
           print('WALL04: 96 exact brick records, 1 invisible box, true 3D photo-mortar source sample bank',updated['sha256'])
           print('EXACT native Vulkan WALL04/mortar bank will be uploaded alongside screenshot evidence')
           PY
-      - name: Recalculate LIE11 indirect flux visibility from 96 authentic brick bounds
+      - name: Verify previously published identical 96-brick original light factors
         run: |
-          python tools/lie_wall04_factors.py
           python tools/lie_wall04_factors.py --verify
           python - <<'PY'
           import json,pathlib
@@ -148,6 +143,9 @@ jobs:
             assert 'wall04_expanded_xy(local.xy,source_node)' in shader
             assert 'wall04_unexpanded_xy(local.xy,source_node)' in shader
             assert 'source_node<864u' in shader
+            assert 'chosen_group=node>=864u ? (96u+node-864u) : node/9u;' in shader
+            assert 'source_physical_joint=horizontal || vertical;' in shader
+            assert 'tolerance=mortar?.004:max(.014,.008*chosen_depth);' in shader
           PY
       - name: Compile GDScript and compute shader
         run: |
