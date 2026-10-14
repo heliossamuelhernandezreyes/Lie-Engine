@@ -84,9 +84,15 @@ histórico mantiene `power_reference`. Futuras políticas deberían asignar un
 presupuesto de error agregado por receptor, medir los emisores descartados y
 comparar con más generaciones, especialmente cerca de superficies grandes.
 
-También quedan pendientes la calibración física de potencia, la iluminación
-directa normalizada entre receptores, factores recíprocos entre áreas y una
-BRDF especular/anisótropa. El transporte actual es una aproximación RGB
+La matriz WALL04 ya conserva la reciprocidad entre áreas AᵢFᵢⱼ = AⱼFⱼᵢ:
+el chequeo independiente del banco float32 mide un error relativo L1 de
+6.068 × 10⁻⁹ y máximo absoluto de 1.981 × 10⁻¹⁰. Su normalización es
+`symmetric_local`; la suma de fila máxima es 1.00000003, dentro del redondeo
+float32. CSR conserva también esa propiedad al mantener los bits originales.
+
+Quedan pendientes la calibración física de potencia, revisar la iluminación
+directa normalizada entre receptores y una BRDF especular/anisótropa para
+los rebotes. El transporte actual es una aproximación RGB
 difusa; las láminas ópticas son transmisión en segmento recto, no trazado
 completo de refracción. Los emisores fuera de cámara deben continuar en el
 transporte: ocultar un visual no demuestra que su luz sea irrelevante.
@@ -181,3 +187,11 @@ tiempos sintéticos. El código fuente consultado de
 [RenderingDevice 4.7.2](https://github.com/godotengine/godot/blob/4.7.2-stable/servers/rendering/rendering_device.cpp)
 recicla los resultados por slot de frame en `_begin_frame`; los readbacks
 de buffer y textura también sincronizan y avanzan esos slots.
+
+El run `38600679224` pasó las pruebas gráficas, incluidos 30 checks de las
+vistas y sus perfiles. Su gate de errores detectó que el runner dejaba
+Godot vivo al cerrar Xvfb, generando errores de teardown de strings y
+navegación. Se añadió cierre ordenado por `shutdown`, ligado a la identidad
+exacta de sesión, y el helper Linux `lie_agent_stop.py` espera la salida
+antes de apagar el display. La suite de agente comprueba los rechazos de
+identidad ausente/vieja y un cierre único; el smoke valida la salida real.

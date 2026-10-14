@@ -1,5 +1,8 @@
 extends SceneTree
 const Session=preload("res://workshop/lie_agent_session.gd")
+class TestSession extends "res://workshop/lie_agent_session.gd":
+    var shutdown_seen: bool=false
+    func _shutdown_session() -> void:shutdown_seen=true
 const Lab=preload("res://lie27_regions_lab.gd")
 var checks: int=0
 var failed: bool=false
@@ -8,7 +11,7 @@ func check(ok: bool,message: String) -> void:
     if not ok:failed=true;push_error(message)
 func _initialize() -> void:call_deferred("run")
 func run() -> void:
-    var lab:=Lab.new();var agent:=Session.new();root.add_child(agent)
+    var lab:=Lab.new();var agent:=TestSession.new();root.add_child(agent)
     agent.target_override=lab;agent.lab_override="lie27"
     var directory: String=OS.get_user_data_dir()+"/agent-test-"+str(OS.get_process_id())
     check(agent.initialize(directory)["ok"],"Live protocol initializes without a GPU")
@@ -41,5 +44,11 @@ func run() -> void:
     var response: Variant=agent._read_json(directory+"/outbox.json")
     check(response is Dictionary and response["request_id"]=="external-test" and response["result"]["ok"] and lab.state["pose"]["right_index"]==25,"File inbox reaches actual digit command and correlates response")
     check(not FileAccess.file_exists(directory+"/inbox.json") and response["snapshot"]["revision"]==lab.revision,"Consumed request publishes current state")
+    check(agent.capabilities()["operations"].has("shutdown"),"Session lifetime operation discoverable")
+    check(not (await agent.dispatch({"op":"shutdown"}))["ok"] and not agent._shutdown_pending,"Missing identity cannot close a process")
+    check(not (await agent.dispatch({"op":"shutdown","expected_session":"old"}))["ok"] and not agent._shutdown_pending,"Stale identity cannot close this process")
+    check((await agent.dispatch({"op":"shutdown","expected_session":agent.session_id}))["ok"],"Exact session accepts orderly close")
+    await process_frame
+    check(agent.shutdown_seen and not (await agent.dispatch({"op":"shutdown","expected_session":agent.session_id}))["ok"],"Close callback runs once; duplicate close rejected")
     lab.free();agent.queue_free();await process_frame
     print("LIE AGENT SESSION ","FAIL" if failed else "PASS"," ",checks," checks");quit(1 if failed else 0)

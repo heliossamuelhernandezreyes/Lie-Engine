@@ -8,6 +8,7 @@ var lab_override: String=""
 var busy: bool=false
 var elapsed: float=0
 var last_lab: String=""
+var _shutdown_pending: bool=false
 
 func _ready() -> void:
     var args: PackedStringArray=OS.get_cmdline_user_args();var requested: String=""
@@ -58,7 +59,7 @@ func snapshot() -> Dictionary:
     return data
 
 func capabilities() -> Dictionary:
-    var lab: Node=target();var result: Dictionary={"operations":["snapshot","describe","open_lab","capture"],"laboratories":LABS.duplicate(),"shared_command_validation":lab!=null and lab.has_method("command"),"captures":["compositor","window"]}
+    var lab: Node=target();var result: Dictionary={"operations":["snapshot","describe","open_lab","capture","shutdown"],"laboratories":LABS.duplicate(),"shared_command_validation":lab!=null and lab.has_method("command"),"captures":["compositor","window"]}
     if lab!=null:
         var constants: Dictionary=lab.get_script().get_script_constant_map()
         result["limits"]=constants.get("LIMITS",{})
@@ -101,6 +102,12 @@ func dispatch(request: Variant) -> Dictionary:
     if request.has("expected_revision") and request["expected_revision"]!=current_revision():return {"ok":false,"error":"revision_conflict","revision":current_revision()}
     var lab: Node=target();var op: String=str(request.get("op",""))
     if op in ["snapshot","describe"]:return {"ok":true,"revision":current_revision(),"snapshot":snapshot()}
+    if op=="shutdown":
+        # Closing a different/stale process must never be an implicit default.
+        if directory.is_empty() or request.get("expected_session","")!=session_id:return {"ok":false,"error":"session_required"}
+        if _shutdown_pending:return {"ok":false,"error":"shutdown_pending"}
+        _shutdown_pending=true;call_deferred("_shutdown_session")
+        return {"ok":true,"shutdown_requested":true,"session_id":session_id}
     if op=="open_lab":
         var id: Variant=request.get("lab")
         if not id is String or not LABS.has(id):return {"ok":false,"error":"unknown_lab"}
@@ -153,8 +160,15 @@ func dispatch(request: Variant) -> Dictionary:
     # Runtime and native document commands use the same path as desktop UI.
     return lab.call("command",request)
 
+func _shutdown_session() -> void:
+    var tree: SceneTree=get_tree()
+    if tree.current_scene!=null:tree.current_scene.queue_free()
+    # Allow _exit_tree GPU leases and queued render-thread releases to finish.
+    for i in range(6):await tree.process_frame
+    tree.quit()
+
 func _process(delta: float) -> void:
-    if directory.is_empty() or busy:return
+    if directory.is_empty() or busy or _shutdown_pending:return
     elapsed+=delta
     if elapsed<.2:return
     elapsed=0

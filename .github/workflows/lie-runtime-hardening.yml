@@ -86,6 +86,7 @@ jobs:
               --lab liewall04 --directory /tmp/lie-runtime-wall --audio-driver Dummy
             python tools/lie_wall04_native_smoke.py --directory /tmp/lie-runtime-wall
             python tools/lie_wall04_coverage_diagnostic.py --directory /tmp/lie-runtime-wall
+            python tools/lie_agent_stop.py --directory /tmp/lie-runtime-wall
           '
           python tools/lie_wall04_gap_audit.py --directory /tmp/lie-runtime-wall
           python - <<'PY'

@@ -36,6 +36,14 @@ solely because a process started. Check `snapshot.runtime.capture_loaded`,
 `gpu_ready` and `failure` before requesting images. A timeout can leave the
 application running: inspect it before launching a duplicate.
 
+For a disposable Linux runner, close it before
+tearing down its display with `python tools/lie_agent_stop.py --directory DIR`.
+The `shutdown` protocol operation requires the exact `expected_session` and
+allows scene/render-thread resources to release before quitting; it never
+defaults to closing an unspecified session. The helper waits for that PID to
+stop and does not send process signals. Other platforms can use the same
+protocol and wait for their process through platform-specific supervision.
+
 Without launcher arguments the desktop publishes a separate session under
 Godot's user-data directory at `agent/sessions/<pid>/session.json`. The editor
 Lie dock provides direct buttons for both the piece workshop and LIE-27.
