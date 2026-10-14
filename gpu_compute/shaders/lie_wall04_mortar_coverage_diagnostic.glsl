@@ -165,6 +165,13 @@ void main() {
                 vec2 scale=wall04_brick_xy_scale();
                 radius*=max(scale.x,scale.y);
             }
+            else {
+                // Photo-only conservative splat footprint A/B: no new XYZ,
+                // no planar mortar, no collision/brick change. Tested in Vulkan.
+                // The genuine photographed donor still supplies RGB, normal,
+                // depth and owner; atomicMin depth must pass as before.
+                radius*=1.35;
+            }
             if(parameters.settings.y<.5) {
                 float r=length(local.xy),inner=.0017,outer=.006;
                 if(int(s.attributes.x)==1 && r>1e-8) {
