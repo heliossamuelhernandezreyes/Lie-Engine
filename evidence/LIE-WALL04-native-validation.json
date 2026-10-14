@@ -1,8 +1,8 @@
 {
   "scenario": "Native Godot Vulkan: authentic scanned original bricks + photographed unreviewed XYZ mortar samples",
   "source_wall03_sha256": "fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba",
-  "mortar_source_sha256": "9a7ee5d97861f7b61b20b67303d328bec7dc29e2a40c02f731ee07bf6b7d096d",
-  "combined_bank_sha256": "cf74fa702442e957586341fb556238ae0e9fcfdf6bff530c6ced9f92ea3fc148",
+  "mortar_source_sha256": "cc1511844593b3e0db1d07c2603cc49a70ff8b0789deccbe3a61a92c0d650374",
+  "combined_bank_sha256": "1b9fb5d1baec3b435c25144d75f154ed617fdee79dee9d3c9fc9cc3207915db2",
   "source_triangles_drawn": 0,
   "spatial_envelopes": 1,
   "scanned_bricks": 96,
@@ -13,71 +13,71 @@
   "physical_android_gpu_tested": false,
   "mesa_vulkan_is_not_mobile_performance": true,
   "sample_counts": [
-    460286,
-    144038,
-    29435
+    535670,
+    181896,
+    54531
   ],
   "captured_real_vulkan_pngs": {
     "neutral": {
       "file": "LIE-WALL04-CapturedMortar-Neutral.png",
-      "sha256": "07ddf69d5bf9d40964466873402019ab6532d41de2731f1fa1c96c149f386717",
-      "occupied_pixels": 332210,
-      "empty_enclosed_single_pixel_holes": 0,
+      "sha256": "6a986b62c7a8b2f49fea72c713eaaa468fdae8742e310a6374f81863273f42b5",
+      "occupied_pixels": 347522,
+      "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        105.04479997591885,
-        84.65723488155082,
-        71.52728996718943
+        105.93655653455033,
+        86.18793342579751,
+        72.96856026381063
       ],
-      "mean_luminance": 88.04364919779657,
-      "black_opaque_pixels": 28774
+      "mean_luminance": 89.4320519564229,
+      "black_opaque_pixels": 26381
     },
     "core_only_diagnostic": {
       "file": "LIE-WALL04-CapturedMortar-CoreOnly-DIAGNOSTIC.png",
-      "sha256": "17517a6fa26187905542c985b2a515ac68da015bb90d7af8e95ceb42bb0297d3",
-      "occupied_pixels": 332210,
-      "empty_enclosed_single_pixel_holes": 0,
+      "sha256": "33a6ed7a32016107222a10efb40ec26695014c6b7eab7a88c413687631cbfd54",
+      "occupied_pixels": 347522,
+      "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        113.180990939466,
-        90.03253965864965,
-        75.44864091990006
+        112.92600468459551,
+        90.77279136284898,
+        76.28939462825375
       ],
-      "mean_luminance": 93.90094291201349,
-      "black_opaque_pixels": 326
+      "mean_luminance": 94.4368632708145,
+      "black_opaque_pixels": 321
     },
     "no_occluders_diagnostic": {
       "file": "LIE-WALL04-CapturedMortar-NoOccluders-DIAGNOSTIC.png",
-      "sha256": "17517a6fa26187905542c985b2a515ac68da015bb90d7af8e95ceb42bb0297d3",
-      "occupied_pixels": 332210,
-      "empty_enclosed_single_pixel_holes": 0,
+      "sha256": "33a6ed7a32016107222a10efb40ec26695014c6b7eab7a88c413687631cbfd54",
+      "occupied_pixels": 347522,
+      "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        113.180990939466,
-        90.03253965864965,
-        75.44864091990006
+        112.92600468459551,
+        90.77279136284898,
+        76.28939462825375
       ],
-      "mean_luminance": 93.90094291201349,
-      "black_opaque_pixels": 326
+      "mean_luminance": 94.4368632708145,
+      "black_opaque_pixels": 321
     },
     "raking": {
       "file": "LIE-WALL04-CapturedMortar-Raking.png",
-      "sha256": "d6e7324e9c732d7bf7e11c553851307fc153eef1b3530da166ac6b591e45855c",
-      "occupied_pixels": 332210,
-      "empty_enclosed_single_pixel_holes": 0,
+      "sha256": "0c858d95848240a8bb70d81c9e5e2852094abe811a37d144052701afbbd6b0d1",
+      "occupied_pixels": 347522,
+      "empty_enclosed_single_pixel_holes": 1,
       "mean_rgb": [
-        94.15383642876493,
-        62.78442250383793,
-        40.767800487643356
+        94.82296084852182,
+        63.4902394668539,
+        41.15493983114738
       ],
-      "mean_luminance": 67.86395979470815,
-      "black_opaque_pixels": 61352
+      "mean_luminance": 68.53896739889848,
+      "black_opaque_pixels": 54893
     }
   },
   "shadow_versus_patch_light_test": {
-    "neutral_black_opaque_pixels": 28774,
-    "core_only_black_opaque_pixels": 326,
-    "no_occluders_black_opaque_pixels": 326,
-    "neutral_luminance": 88.04364919779657,
-    "core_only_luminance": 93.90094291201349,
-    "no_occluders_luminance": 93.90094291201349,
+    "neutral_black_opaque_pixels": 26381,
+    "core_only_black_opaque_pixels": 321,
+    "no_occluders_black_opaque_pixels": 321,
+    "neutral_luminance": 89.4320519564229,
+    "core_only_luminance": 94.4368632708145,
+    "no_occluders_luminance": 94.4368632708145,
     "same_original_light_source_rgb_and_camera": true,
     "occlusion_disabled_result_only_diagnostic": true
   }
