@@ -1,0 +1,418 @@
+{
+  "allocation_bytes": 228564244,
+  "baseline_profile": [
+    {
+      "gpu_ns": 1207130082,
+      "marker_frame": 1,
+      "owner_instance_id": -9223371990801316398,
+      "serial": 1
+    },
+    {
+      "gpu_ns": 483198526,
+      "marker_frame": 12,
+      "owner_instance_id": -9223371990801316398,
+      "serial": 2
+    },
+    {
+      "gpu_ns": 496424719,
+      "marker_frame": 20,
+      "owner_instance_id": -9223371990801316398,
+      "serial": 3
+    }
+  ],
+  "black_opaque_pixels": {
+    "baseline": 5538,
+    "scan_caps": 5159
+  },
+  "cache": {
+    "brick_instances": 96,
+    "brick_master_count": 1,
+    "geometry_rebuilds": 6,
+    "internal_size": 1080,
+    "lighting_resolves": 11,
+    "output_resolves": 12,
+    "recovery_builds": 6,
+    "recovery_capacity": 65536,
+    "recovery_reuses": 5,
+    "reference_bytes": 3088388,
+    "source_bank_bytes": 41700560
+  },
+  "cache_events": [
+    {
+      "internal_size": 1080,
+      "kind": "geometry",
+      "serial": 1
+    },
+    {
+      "internal_size": 1440,
+      "kind": "geometry",
+      "serial": 2
+    },
+    {
+      "internal_size": 1440,
+      "kind": "exposure",
+      "serial": 3
+    },
+    {
+      "internal_size": 1440,
+      "kind": "lighting",
+      "serial": 4
+    },
+    {
+      "internal_size": 1440,
+      "kind": "geometry",
+      "serial": 5
+    },
+    {
+      "internal_size": 1440,
+      "kind": "lighting",
+      "serial": 6
+    },
+    {
+      "internal_size": 1440,
+      "kind": "geometry",
+      "serial": 7
+    },
+    {
+      "internal_size": 1440,
+      "kind": "geometry",
+      "serial": 8
+    },
+    {
+      "internal_size": 1440,
+      "kind": "lighting",
+      "serial": 9
+    },
+    {
+      "internal_size": 1440,
+      "kind": "lighting",
+      "serial": 10
+    },
+    {
+      "internal_size": 1440,
+      "kind": "lighting",
+      "serial": 11
+    },
+    {
+      "internal_size": 1080,
+      "kind": "geometry",
+      "serial": 12
+    }
+  ],
+  "cached_vs_cold": {
+    "iou": 1.0,
+    "mae": 2.6931347220902508e-11,
+    "max": 1.7881393432617188e-07
+  },
+  "checks": 24,
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "failed": false,
+  "optical": {
+    "directional_codes": true,
+    "graph": "original WALL04 CSR; outgoing transpose for passive lobe caps",
+    "incident_direction": "single power-weighted direction per patch/frontier",
+    "optical_header_updates": 3,
+    "patches": 872,
+    "scan_shadow_caps": true,
+    "scope": "opaque wall; no transmitted or refracted paths"
+  },
+  "optical_gpu_cpu_max_error": 7.578097475924306e-09,
+  "optical_reference_generations": [
+    [
+      2.511520187138704,
+      2.3357137740389944,
+      2.159907360939285
+    ],
+    [
+      0.10111659982290028,
+      0.06135592639548454,
+      0.04335999659592086
+    ],
+    [
+      0.03425108838853664,
+      0.01339604138660969,
+      0.00708117977798344
+    ]
+  ],
+  "physical_android_tested": false,
+  "profile": [
+    {
+      "gpu_ns": 936457809,
+      "marker_frame": 37,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 1
+    },
+    {
+      "gpu_ns": 358973916,
+      "marker_frame": 49,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 2
+    },
+    {
+      "gpu_ns": 5620985,
+      "marker_frame": 78,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 3
+    },
+    {
+      "gpu_ns": 52670905,
+      "marker_frame": 86,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 4
+    },
+    {
+      "gpu_ns": 355379042,
+      "marker_frame": 95,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 5
+    },
+    {
+      "gpu_ns": 57775201,
+      "marker_frame": 104,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 6
+    },
+    {
+      "gpu_ns": 370840435,
+      "marker_frame": 112,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 7
+    },
+    {
+      "gpu_ns": 346566193,
+      "marker_frame": 120,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 8
+    },
+    {
+      "gpu_ns": 54521182,
+      "marker_frame": 129,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 9
+    },
+    {
+      "gpu_ns": 53739763,
+      "marker_frame": 146,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 10
+    },
+    {
+      "gpu_ns": 51575216,
+      "marker_frame": 155,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 11
+    },
+    {
+      "gpu_ns": 251945652,
+      "marker_frame": 164,
+      "owner_instance_id": -9223371978872715818,
+      "serial": 12
+    }
+  ],
+  "received_total_rgb": [
+    2.646888256072998,
+    2.4104666709899902,
+    2.2103490829467773
+  ],
+  "shared_vs_precomposed": {
+    "iou": 1.0,
+    "mae": 6.77776710731993e-10,
+    "max": 0.0005091428756713867
+  },
+  "source_bank_sha256": "0d9a9effac67f5f86d9659c423e786b0f710712297baa7ec20840dc78655bb56",
+  "negative_runs": [
+    {
+      "commit": "3c31b09c5da6fb4df44619feb45de0a3a22f68f2",
+      "run": 38632753720,
+      "result": "failure",
+      "reason": "reserved GLSL patch variable; editor visibility check on import worker"
+    },
+    {
+      "commit": "56f3c4a64242d1ab7527b695112499498bdfee5a",
+      "run": 38633557339,
+      "native_checks": 20,
+      "native_success": true,
+      "result": "failure",
+      "reason": "Android SDK setup requested discontinued tools package"
+    },
+    {
+      "commit": "d75b77003bf492f3a6f5b3e9b3d7a97ff5f29cfd",
+      "run": 38634984646,
+      "native_checks": 20,
+      "native_success": true,
+      "result": "failure",
+      "reason": "SDK discovery used ripgrep unavailable on runner"
+    }
+  ],
+  "pending": [
+    "physical Poco performance of new APK",
+    "source-front geometric alignment with mortar recalibration",
+    "G1 mortar masks and metric relief",
+    "Cycles comparison/full BSDF/transmitted paths"
+  ],
+  "local_checks": {
+    "python_source_shared": 4,
+    "python_optics": 11,
+    "cpu_rig": 247,
+    "cpu_agent_session": 25,
+    "changed_shader_compilation": "passed"
+  },
+  "baseline_apk_physical_report": {
+    "device": "Poco X7 Pro",
+    "fps_min": 36,
+    "fps_max": 60,
+    "source": "author report, not a measurement of WALL05"
+  },
+  "source_code_commit": "5faff78002aad1d7b6bbb4409423749b593d38f6",
+  "build_commit": "5faff78002aad1d7b6bbb4409423749b593d38f6",
+  "native_run_id": 38637732477,
+  "native_job_id": 116105696656,
+  "native_conclusion": "success",
+  "artifact_id": 11929571699,
+  "artifact_sha256": "54d7992f960d9c4b6f5939577961427f6f17df89ed574bf9a240291c7b071d88",
+  "source_bank_bytes": 41700560,
+  "source_reference_bytes": 3088388,
+  "old_precomposed_bank_bytes": 61767760,
+  "workflows": [
+    {
+      "id": 38637732431,
+      "name": "LIE WALL04 Android mobile renderer",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732472,
+      "name": "LIE-27 spherical regions and face",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732449,
+      "name": "LIE-26 anatomical rig",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732498,
+      "name": "LIE-14 rigid masters and perception boxes",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732508,
+      "name": "LIE runtime lighting and shared samples",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732537,
+      "name": "LIE-11 coded sprite light transport",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732477,
+      "name": "LIE WALL05 shared optical Android",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732838,
+      "name": "LIE-12 captured grayscale material and node lighting",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732755,
+      "name": "LIE-20 captured human, invisible deformation and skin",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732358,
+      "name": "LIE-22 shared eyes and modular destruction",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732721,
+      "name": "LIE-15 Arcont robot and compact camera reconstruction",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732344,
+      "name": "LIE-16 stable capture quality and measured consumer cost",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732641,
+      "name": "LIE-13 finite secondary radii and dielectric sprites",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732540,
+      "name": "LIE-18 workshop, shared agent API and GPU transport",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732690,
+      "name": "LIE-01 native acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732651,
+      "name": "LIE-21 human quality versus Cycles and LIE-20",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732418,
+      "name": "LIE-17 contrast-guided edges and measured filter cost",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732738,
+      "name": "LIE-23 integrated eyes and continuous captured eyelids",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38637732530,
+      "name": "LIE-24 captured facial construction and compatible modules",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "apk": {
+    "filename": "LIE-Pared-0.2.0.apk",
+    "bytes": 52171962,
+    "sha256": "ded4ce266076c3a63817ad53e46de7681b92651880e3153ff195135a7b39a2e9",
+    "package": "org.lieengine.wallruntime.v020",
+    "version": "0.2.0-shared-optical",
+    "offline": true,
+    "architectures": [
+      "arm64-v8a"
+    ],
+    "signature_schemes": [
+      "v2",
+      "v3"
+    ],
+    "alignment_kib": 16,
+    "embedded_bank_sha_verified": true,
+    "old_precomposed_bank_excluded": true,
+    "physical_android_tested": false
+  },
+  "native_captures": {
+    "wall05-balanced.png": "9a2000d647d6494166bbe38687ef222a4a8b494c1455d3853b110e21a941517a",
+    "wall05-baseline.png": "13d60b61070764ca05db517752981bfa10f1ee00294c738f6b1070449d4dc9c3",
+    "wall05-optical.png": "c295e597509df5d9c032ba8e0e74b5d1ef295579dbbf8638a5cff9030e863efc",
+    "wall05-scan-shadows.png": "3208a6f8028f0ec487ad9589be956a1f4a0e494057c5fbdd8b59d1955e1ec0b1",
+    "wall05-shared-legacy.png": "13d60b61070764ca05db517752981bfa10f1ee00294c738f6b1070449d4dc9c3"
+  }
+}

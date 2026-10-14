@@ -57,7 +57,7 @@ emisor/lóbulo. Los códigos ópticos agrupan normales, RGB lineal y rugosidad
 IOR 1.5, espesor 0 y extinción 0 son datos de autoría explícitos para arcilla
 y mortero opacos; no se deducen de las fotografías.
 
-La rugosidad del ladrillo es el valor de autoría 0.6 del importador del
+La rugosidad del ladrillo es el valor de material 0.6 almacenado por el importador del
 escaneo; el mortero usa su mapa PBR. Leer el atributo guardado no constituye
 una medición física de rugosidad ni una inferencia automática de materiales.
 
@@ -99,6 +99,24 @@ del relieve del mortero. La prueba registra el cambio en píxeles negros y
 conserva las capturas para comprobar cuánto mejora y qué queda.
 
 ## Evidencia y construcción
+
+El [run 38637732477](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38637732477)
+pasó **24 comprobaciones Mobile** y exportó el APK verificado desde
+`5faff78002aad1d7b6bbb4409423749b593d38f6`. Los 19 workflows de ese commit
+terminaron aprobados. Banco compartido frente al precompuesto: IoU 1 y MAE
+RGB 6.78e-10. Caché frente a reconstrucción completa: error máximo 1.79e-7.
+Óptica integrada frente a float64: error máximo 7.58e-9 en 872 nodos.
+La política de radio se activa sin rehacer geometría y al quitarla vuelve
+la misma imagen. La API anuncia la pared y rechaza maestros internos de
+instanciación como selección pública, sin modificar el resto del estado.
+
+En la captura de control los píxeles negros opacos bajan de 5538 a 5159:
+**mejora parcial, no eliminación de las franjas**. El modo equilibrado pide
+228,564,244 bytes de búferes al RD, incluyendo el banco y las referencias.
+Como medida de trabajo, el run previo del mismo compositor observó cambios
+de luz de 54–56 ms frente a 743–758 ms del WALL04 previo, sobre llvmpipe.
+Estos tiempos de compositor no incluyen todo el proceso ni son FPS del Poco.
+
 
 El checkpoint JSON adjunto identifica el commit de código, el run nativo,
 las comparaciones de imagen, el error CPU/GPU, los contadores, la memoria,
