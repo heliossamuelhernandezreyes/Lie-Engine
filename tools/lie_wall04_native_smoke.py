@@ -76,6 +76,8 @@ def smoke(directory:Path) ->dict:
     # A/B with identical 1080p wall/camera/PBR/light RGB and WITHOUT optional
     # occlusion: locate whether 96 direct-shadow proxies or actual intrinsic
     # LIE11 node irradiance cause opaque dark bricks.
+    update({"shadows":True,"direct_shadow_proxies":False})
+    core_only=capture("CapturedMortar-CoreOnly-DIAGNOSTIC")
     update({"shadows":False,"direct_shadow_proxies":False})
     no_occluders=capture("CapturedMortar-NoOccluders-DIAGNOSTIC")
     update({"shadows":True,"direct_shadow_proxies":True})
@@ -97,11 +99,13 @@ def smoke(directory:Path) ->dict:
       "physical_android_gpu_tested":False,
       "mesa_vulkan_is_not_mobile_performance":True,
       "sample_counts":[v["count"] for v in cat["masters"]["real_scan_wall"]["levels"]],
-      "captured_real_vulkan_pngs":{"neutral":neutral,"no_occluders_diagnostic":no_occluders,"raking":warm},
+      "captured_real_vulkan_pngs":{"neutral":neutral,"core_only_diagnostic":core_only,"no_occluders_diagnostic":no_occluders,"raking":warm},
       "shadow_versus_patch_light_test":{
         "neutral_black_opaque_pixels":neutral["black_opaque_pixels"],
+        "core_only_black_opaque_pixels":core_only["black_opaque_pixels"],
         "no_occluders_black_opaque_pixels":no_occluders["black_opaque_pixels"],
         "neutral_luminance":neutral["mean_luminance"],
+        "core_only_luminance":core_only["mean_luminance"],
         "no_occluders_luminance":no_occluders["mean_luminance"],
         "same_original_light_source_rgb_and_camera":True,
         "occlusion_disabled_result_only_diagnostic":True
