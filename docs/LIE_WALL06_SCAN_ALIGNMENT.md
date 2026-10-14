@@ -59,3 +59,12 @@ El primer arranque de pruebas de agente sin importar recursos imprimió
 hay que importar shaders y repetir sin errores. Una copia inicial del
 constructor tenía imports WALL06 inexistentes por renombrado; se corrigieron
 a los módulos compartidos WALL05 antes de publicar/compilar el APK.
+
+La primera construcción `2cffe0a` pasó 24 comprobaciones y generó APK firmado.
+Se comprobó después que la etiqueta diagnóstica de transporte aún decía
+"original WALL04 CSR" aunque los datos eran el CSR nuevo; se corrige antes
+ de la entrega final. Se añade una aceptación normalizada por píxeles opacos
+con los mismos modos ópticos, luz, cámara y 2×. La primera medida absoluta
+(6143 → 1387) mezclaba modos ópticos; no se usa para una afirmación comparativa.
+Las imágenes de modo óptico igual sí mostraron mejora (7.48% → 1.80% a 8 bits).
+La cifra final se medirá de nuevo directamente en float32.

@@ -32,6 +32,11 @@ func dark(data: Dictionary) -> int:
     for i in range(0,rgb.size(),4):
         if rgb[i+3]>.95 and maxf(rgb[i],maxf(rgb[i+1],rgb[i+2]))<.025:n+=1
     return n
+func opaque(data: Dictionary) -> int:
+    var rgb: PackedFloat32Array=data["color"];var count: int=0
+    for i in range(3,rgb.size(),4):
+        if rgb[i]>.95:count+=1
+    return count
 func run() -> void:
     var old=load("res://lie_wall05_android_lab.tscn").instantiate();root.add_child(old);await settle(12)
     check(old.effect.gpu_ready and old.transport.gpu_ready,"Real WALL04 baseline ready")
@@ -78,6 +83,11 @@ func run() -> void:
     lab.command({"op":"set_values","values":{"optical_codes":true}});await settle()
     var angular: Dictionary=await capture(lab.effect);save(angular,"optical")
     check(lab.effect.geometry_rebuilds==gc and lab.transport.optical_metrics()["directional_codes"],"Directional sparse codes reach the actual wall without geometry rebuild")
+    var before_fraction: float=float(dark(baseline))/maxf(opaque(baseline),1)
+    var after_fraction: float=float(dark(angular))/maxf(opaque(angular),1)
+    report["matched_optical_darkness"]={"before_black":dark(baseline),"after_black":dark(angular),"before_opaque":opaque(baseline),"after_opaque":opaque(angular),"before_fraction":before_fraction,"after_fraction":after_fraction,"same_optics_and_resolution":true}
+    check(after_fraction<before_fraction*.5,"Dark fraction improves with identical optics, light and 2x resolution")
+    check(lab.transport.optical_metrics()["graph"].begins_with("WALL06 rebuilt"),"Diagnostics identify the actual rebuilt source graph")
     lab.transport.request_readback();await settle();var codes: Dictionary=lab.transport.readback()
     var total:=Vector3.ZERO;var flux: PackedFloat32Array=codes["flux"]
     var finite: bool=true
