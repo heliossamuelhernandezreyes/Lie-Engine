@@ -96,7 +96,7 @@ jobs:
           assert updated['lighting']['sha256']==base['lighting']['sha256']
           assert updated['collision']['spatial_envelope_count']==1
           assert updated['source_scan_sha256']==base['source_scan_sha256']
-          assert updated['sample_count']<750000
+          assert updated['sample_count']<850000, updated['sample_count'] # 3-LOD source-backed rim reconstruction adds samples, never a second mesh
           assert sum(x['count'] for x in updated['masters']['real_scan_wall']['levels'])==len(new)
           for o,n,expected in zip(base['masters']['real_scan_wall']['levels'],
                                   updated['masters']['real_scan_wall']['levels'],
