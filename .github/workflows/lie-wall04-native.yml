@@ -70,6 +70,10 @@ jobs:
       - name: Produce measured composite WALL04 and verify 96 original bricks byte-identical
         run: |
           python tools/lie_wall04_compose.py
+          # The newly registered mortar bank has a new SHA. Recalculate the
+          # original-light indirect matrix BEFORE validating/restoring it.
+          # Reusing the prior mortar bank's factor manifest is unsafe.
+          python tools/lie_wall04_factors.py
           python tools/lie_wall04_compose.py --restore
           python - <<'PY'
           import hashlib,json,numpy as np,pathlib,zlib
