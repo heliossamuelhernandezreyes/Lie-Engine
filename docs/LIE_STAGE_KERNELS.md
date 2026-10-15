@@ -51,5 +51,7 @@ they do not claim to run the split variant.
 
 Local: three Python regressions, 16 command checks, CPU rig 247 and agent 25
 passed. Native Vulkan image/depth tests and signed Android export are required
-before delivery. Physical Mali speed is unknown until the user runs the paired
+before delivery. The native acceptance exercises the full 81-event shipping path,
+collecting rows after each mode block so the bounded live history cannot evict
+earlier measured events. Physical Mali speed is unknown until the user runs the paired
 comparison. Native software-Vulkan timings must not be extrapolated to Mali.

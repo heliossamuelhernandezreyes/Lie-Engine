@@ -20,14 +20,14 @@ func run() -> void:
         same(reference,candidate,"area/filter/continuity/LOD/resize preserve appearance");check(reference["depth"]==candidate["depth"],"option exact depth")
     lab.command({"op":"set_values","values":{"quality_2x":false,"distance_factor":.6,"camera_yaw":-105.747891,"camera_elevation":3.54137,"kernel_mode":"split"}});await settle()
     var backup: Dictionary=lab.state.duplicate(true)
-    check(lab.command({"op":"compare_kernels","quick":true})["ok"],"paired diagnostic accepted")
-    for i in range(10000):
+    check(lab.command({"op":"compare_kernels"})["ok"],"paired diagnostic accepted")
+    for i in range(20000):
         await process_frame
         if not lab.benchmark_busy:break
     var diagnostic: Dictionary=lab._comparison_report
     check(not lab.benchmark_busy and diagnostic.get("error","missing")=="" and diagnostic.get("restored",false) and lab.state==backup,"paired comparison completed and restored")
-    check(diagnostic.get("events",[]).size()==27 and diagnostic.get("summary",[]).size()==9,"all three modes and event types measured")
-    for entry in diagnostic.get("summary",[]):check(entry["gpu"]["samples"]==3 and entry["cpu"]["samples"]==3,"three complete matched events per group")
+    check(diagnostic.get("events",[]).size()==81 and diagnostic.get("summary",[]).size()==9,"all three modes and event types measured")
+    for entry in diagnostic.get("summary",[]):check(entry["gpu"]["samples"]==9 and entry["cpu"]["samples"]==9,"nine complete matched events per group")
     var entries: Dictionary={}
     for event in diagnostic.get("events",[]):
         var key: String=str(event["cycle"])+"|"+event["kind"]

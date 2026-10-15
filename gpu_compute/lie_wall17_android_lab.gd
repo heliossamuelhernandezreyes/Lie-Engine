@@ -19,6 +19,7 @@ func command(request: Variant) -> Dictionary:
                 if key not in ["op","quick"]:return {"ok":false,"error":"comparison_fields","revision":revision}
             if request.has("quick") and not request["quick"] is bool:return {"ok":false,"error":"quick_type","revision":revision}
             if benchmark_busy:return {"ok":false,"error":"benchmark_busy","revision":revision}
+            if effect.gpu_ready and not effect.query_supported:return {"ok":false,"error":"comparison_unsupported","revision":revision}
             benchmark_busy=true;_benchmark_cancelled=false;_clear_gesture();_run_comparison.call_deferred(bool(request.get("quick",false)))
             return {"ok":true,"revision":revision}
         if request.get("values",{}) is Dictionary:
@@ -33,8 +34,15 @@ func _comparison_wait(before: int) -> bool:
             return true
         await get_tree().process_frame
     return false
+func _comparison_collect(events: Array,rows: Array,seen: Dictionary) -> void:
+    var selected: Dictionary={}
+    for event in events:selected[int(event["serial"])]=true
+    for row in effect.pass_profile.snapshot().get("rows",[]):
+        var key: String=str(row["serial"])+"|"+row["pass"]
+        if selected.has(int(row["serial"])) and not seen.has(key):rows.append(row);seen[key]=true
 func _run_comparison(quick: bool) -> void:
     var backup: Dictionary=state.duplicate(true);var events: Array=[];var error: String=""
+    var rows: Array=[];var seen: Dictionary={}
     var profile_start: int=effect.frame_count+1
     var rounds: int=1 if quick else 3
     # Rotate order to distribute warm-up and drift; this is not temperature control.
@@ -62,12 +70,11 @@ func _run_comparison(quick: bool) -> void:
                     if not _benchmark_cancelled:error="render_timeout"
                     break
                 events.append({"mode":mode,"cycle":cycle,"kind":trial["kind"],"values":trial["values"].duplicate(true),"serial":effect.frame_count,"cpu_command_ms":cpu_ms})
+            _comparison_collect(events,rows,seen)
     for drain in range(8):await get_tree().process_frame
     var selected: Dictionary={};var kinds: Dictionary={}
     for event in events:selected[int(event["serial"])]=true;kinds[int(event["serial"])]=event["kind"]
-    var profile: Dictionary=effect.pass_profile.snapshot();var rows: Array=[]
-    for row in profile.get("rows",[]):
-        if selected.has(int(row["serial"])):rows.append(row)
+    _comparison_collect(events,rows,seen)
     var analysis: Dictionary=Diagnostics.summarize({"rows":rows},profile_start,kinds)
     var summary: Array=[]
     for group in analysis["groups"]:
