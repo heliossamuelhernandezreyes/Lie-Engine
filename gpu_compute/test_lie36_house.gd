@@ -83,6 +83,67 @@ func _run() -> void:
         return
     check(a["color"]!=b["color"] and b["color"]!=c["color"],
         "Three true camera views show differing scanned surfaces")
+    # WALL05 cache adaptation. Every transition must be proved by
+    # actual RD pass lists and by captured GPU output (never guessed FPS).
+    var camera_cache: Dictionary=c.get("cache",{})
+    check(camera_cache.get("geometry_rebuilds",0)>=3 and
+        camera_cache.get("graph_rebuilds",999)==1,
+        "Rotating camera preserves cross-panel graph across three views")
+    check(house.command({"op":"set_values","values":{"light_power":1.25}}).get("ok",false),
+        "Update RGB light power only")
+    await _wait_frames(7)
+    var light_only: Dictionary=await _read()
+    check(not light_only.is_empty() and
+        light_only.get("cache",{}).get("last_stages",[])==[8,10,4,6,11,12,7],
+        "Power-only update skips camera projection, shadow and panel graph")
+    check(light_only.get("cache",{}).get("geometry_rebuilds",-1)==camera_cache["geometry_rebuilds"] and
+        light_only.get("cache",{}).get("graph_rebuilds",-1)==1,
+        "Power change retains resident geometry and graph")
+    check(house.command({"op":"set_values","values":{"light_azimuth":93.}}).get("ok",false),
+        "Turn light with fixed viewpoint")
+    await _wait_frames(7)
+    var light_moved: Dictionary=await _read()
+    var light_stages: Array=light_moved.get("cache",{}).get("last_stages",[])
+    check(light_stages==[14,13,8,10,4,6,11,12,7],
+        "Light direction regenerates ONLY the shadow atlas and shading")
+    check(light_moved.get("cache",{}).get("graph_rebuilds",-1)==1,
+        "Moving light preserves camera-independent panel graph")
+    check(house.command({"op":"set_values","values":{"exposure":3.}}).get("ok",false),
+        "Change final exposure")
+    await _wait_frames(7)
+    var exposure_only: Dictionary=await _read()
+    check(exposure_only.get("cache",{}).get("last_stages",[])==[7],
+        "Exposure-only executes final output without geometry or relighting")
+    check(exposure_only.get("color",PackedFloat32Array())!=light_moved.get("color",PackedFloat32Array()),
+        "Exposure-only changes displayed GPU pixels")
+    check(house.command({"op":"set_values",
+        "values":{"light_power":1.,"light_azimuth":110.,"exposure":2.65}}).get("ok",false),
+        "Restore identical camera and light for resident A/B")
+    await _wait_frames(7)
+    var resident: Dictionary=await _read()
+    var before_force: Dictionary=resident.get("cache",{})
+    house.effect.force_geometry_rebuild()
+    await _wait_frames(8)
+    var cold: Dictionary=await _read()
+    check(not cold.is_empty() and
+        cold.get("cache",{}).get("geometry_rebuilds",0)>before_force.get("geometry_rebuilds",0) and
+        cold.get("cache",{}).get("graph_rebuilds",0)>before_force.get("graph_rebuilds",0),
+        "Full cold rebuild truly reprojects source and recomputes links")
+    var max_cached_error: float=0.
+    if not resident.is_empty() and not cold.is_empty():
+        var cached_pixels: PackedFloat32Array=resident["color"]
+        var fresh_pixels: PackedFloat32Array=cold["color"]
+        if cached_pixels.size()==fresh_pixels.size():
+            for k in range(cached_pixels.size()):
+                max_cached_error=maxf(max_cached_error,absf(cached_pixels[k]-fresh_pixels[k]))
+    check(max_cached_error<.002,
+        "Cached relighting matches fully rebuilt Vulkan pixels within 0.002")
+    output["reuse"]={"power_only":light_only.get("cache",{}).get("last_stages",[]),
+        "moving_light":light_stages,
+        "exposure_only":exposure_only.get("cache",{}).get("last_stages",[]),
+        "cold_rebuild":cold.get("cache",{}).get("last_stages",[]),
+        "max_absolute_pixel_error":max_cached_error,
+        "graph_rebuilds_three_camera_views":camera_cache.get("graph_rebuilds",0)}
     var transport: Dictionary=c.get("multiwall_transport",{})
     check(transport.get("panels",0)==113 and transport.get("panels_with_bounce",0)>0,
         "Oriented cross-wall GPU transport actually receives positive bounced RGB")
