@@ -63,6 +63,32 @@ def generate_field():
     s=field();s=replace(s,'void main() {',common('lie_area_emission.glslinc')+'''layout(set=0,binding=26,std430) readonly buffer EmissionDescriptors {vec4 values[];} emission_descriptors;
 void main() {''')
     return replace(s,'weights.values[i]=value;','weights.values[i]=value*lie_emitter_gain(emission_descriptors.values[l],patches.values[p].center_area.xyz-lights.values[l].position_radius.xyz);')
+def generate_filter_test():
+    return '''#[compute]
+#version 450
+layout(local_size_x=64) in;
+struct Projection {vec4 world;vec4 normal;vec4 screen;vec4 gradient;vec4 geometry;vec4 ellipse;};
+struct Accumulator {uvec4 color_weight;uvec4 normal_roughness;};
+layout(set=0,binding=0,std430) readonly buffer Accumulated {Accumulator v[];} accumulated;
+layout(set=0,binding=1,std430) readonly buffer Winners {uint v[];} winners;
+layout(set=0,binding=2,std430) readonly buffer Projected {Projection v[];} projected;
+layout(set=0,binding=3,std430) readonly buffer Parameters {ivec4 counts;vec4 lens;} parameters;
+layout(set=0,binding=4,std430) buffer Results {float v[];} results;
+const uint EMPTY=0xffffffffu;
+bool inside(ivec2 p){return p.x>=0 && p.y>=0 && p.x<parameters.counts.z && p.y<parameters.counts.w;}
+uint projection_node(Projection p){return uint(p.world.w);}
+uvec2 lie_group(uint node){return uvec2(node,1);}
+float pixel_depth(Projection p,vec2 xy){return 1./(1./p.screen.z+dot(p.gradient.xy,xy-p.screen.xy));}
+'''+common('lie_surface_filter.glslinc')+'''
+void main(){
+ uint i=gl_GlobalInvocationID.x;if(i>=uint(parameters.counts.z*parameters.counts.w))return;
+ if(winners.v[i]==EMPTY){for(uint k=0u;k<8u;k++)results.v[i*8u+k]=0.;return;}
+ LiePixelMaterial m=lie_unpack_material(lie_pack_material(lie_filter_material(i)));
+ for(uint k=0u;k<3u;k++){results.v[i*8u+k]=m.albedo[k];results.v[i*8u+4u+k]=m.mean_normal[k];}
+ results.v[i*8u+3u]=m.roughness;results.v[i*8u+7u]=m.mean_length;
+}
+'''
 if __name__=='__main__':
     (ROOT/'gpu_compute/shaders/lie_wall13_area.glsl').write_text(generate())
     (ROOT/'gpu_compute/shaders/lie_area_field.glsl').write_text(generate_field())
+    (ROOT/'gpu_compute/shaders/lie_filter_test.glsl').write_text(generate_filter_test())

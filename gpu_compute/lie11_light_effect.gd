@@ -80,6 +80,7 @@ func configure(model: Dictionary) -> bool:
     next["serial"]=_serial
     next["lights"]=(model["lights"] as Array).size()
     next["bounces"]=int(model.get("bounces",2))
+    next["force"]=bool(next.get("force",false)) or bool(_pending.get("force",false))
     _pending=next
     _lock.unlock()
     return true
@@ -92,7 +93,9 @@ func set_light_codes(model: Dictionary) -> void:
     _lock.lock()
     if model["lights"].size()!=int(_pending.get("lights",_light_count)):_lock.unlock();return
     _pending[1]=data
-    _pending.merge(_additional_transport_data(model),true)
+    var extra: Dictionary=_additional_transport_data(model)
+    extra["force"]=bool(extra.get("force",false)) or bool(_pending.get("force",false))
+    _pending.merge(extra,true)
     _lock.unlock()
 
 ## LIE-WALL-01 bridge: share the existing GPU-resident material code buffer

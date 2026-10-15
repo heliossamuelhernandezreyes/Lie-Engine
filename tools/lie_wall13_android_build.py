@@ -4,10 +4,11 @@ from pathlib import Path
 import lie_wall12_android_build as previous
 from lie_opaque_reference import prepare
 from lie_area_reference import prepare as prepare_area
+from lie_filter_reference import prepare as prepare_filter
 ROOT=Path(__file__).resolve().parents[1]
 def stage_project(destination):
-    prepare();prepare_area();report=previous.stage_project(destination)
-    source=ROOT/'gpu_compute';pending=['lie_wall13_android_lab.tscn','test_lie_wall13_mobile.gd','test_lie_wall13_commands.gd','test_lie_area_emitters.gd','test_lie_area_field_gpu.gd'];copied=set()
+    prepare();prepare_area();prepare_filter();report=previous.stage_project(destination)
+    source=ROOT/'gpu_compute';pending=['lie_wall13_android_lab.tscn','test_lie_wall13_mobile.gd','test_lie_wall13_commands.gd','test_lie_area_emitters.gd','test_lie_area_field_gpu.gd','test_lie_filter_gpu.gd'];copied=set()
     pattern=re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
     while pending:
         name=pending.pop()
@@ -15,6 +16,7 @@ def stage_project(destination):
         path=source/name;out=destination/name;out.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,out);copied.add(name)
         if path.suffix in ('.gd','.tscn','.tres'):pending.extend(pattern.findall(path.read_text()))
     shutil.copy2(source/'fixtures/area-field-reference.json',destination/'fixtures/area-field-reference.json')
+    shutil.copy2(source/'fixtures/filter-reference.json',destination/'fixtures/filter-reference.json')
     project=destination/'project.godot';project.write_text(project.read_text().replace('LIE Material 0.9','LIE Área 1.0').replace('0.9.0','1.0.0').replace('lie_wall12_android_lab.tscn','lie_wall13_android_lab.tscn'))
     preset=destination/'export_presets.cfg';preset.write_text(preset.read_text().replace('version/code=9','version/code=10').replace('0.9.0-material-light','1.0.0-area-continuity').replace('v090','v100').replace('LIE Material 0.9','LIE Área 1.0'))
     return report

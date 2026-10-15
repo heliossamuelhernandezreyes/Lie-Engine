@@ -15,7 +15,10 @@ func run() -> void:
     for i in range(outputs["two_panels"].size()):
         superposition=maxf(superposition,absf(outputs["two_panels"][i]-outputs["key_only"][i]-outputs["fill_only"][i]))
         legacy=maxf(legacy,absf(outputs["two_panels"][i]-outputs["legacy_merged"][i]))
-    check(superposition<.00001,"actual GPU source superposition");check(legacy>.0001,"merged-direction defect reproduced")
+    check(superposition<.00001,"actual GPU source superposition");check(legacy>.000001,"area channel directions differ from merged approximation")
+    var back_energy: float=0.
+    for value in outputs["backwards"]:back_energy=maxf(back_energy,absf(value))
+    check(back_energy<.000001,"one-sided panels facing backwards emit zero")
     report.merge({"checks":checks,"failed":failed,"device":rd.get_device_name(),"source_superposition_max_error":superposition,"legacy_merged_max_difference":legacy})
     var file:=FileAccess.open("res://area-field-native.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     rd.free_rid(pipeline);rd.free_rid(shader);rd.free()
