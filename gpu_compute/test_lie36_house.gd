@@ -146,6 +146,31 @@ func _run() -> void:
         "cold_rebuild":cold.get("cache",{}).get("last_stages",[]),
         "max_absolute_pixel_error":max_cached_error,
         "graph_rebuilds_three_camera_views":camera_cache.get("graph_rebuilds",0)}
+    var contact_before: Dictionary=cold.get("cache",{})
+    check(house.command({"op":"set_values","values":{"microcontact":true}}).get("ok",false),
+        "Activate WALL09 true-scan micro-contact model")
+    await _wait_frames(7)
+    var contact_on: Dictionary=await _read()
+    check(not contact_on.is_empty() and contact_on.get("color",PackedFloat32Array())!=cold.get("color",PackedFloat32Array()),
+        "Observed captured relief changes actual GPU shading when contact enabled")
+    check(contact_on.get("cache",{}).get("last_stages",[])==[8,10,4,6,11,12,7],
+        "Contact-only changes reuse all projected geometry and visibility graph")
+    check(contact_on.get("cache",{}).get("geometry_rebuilds",-1)==contact_before.get("geometry_rebuilds",-2),
+        "Contact shadows do not reproject source bank")
+    if not contact_on.is_empty():
+        var relief_img:=Image.create_from_data(contact_on["output_size"],contact_on["output_size"],
+            false,Image.FORMAT_RGBAF,contact_on["color"].to_byte_array())
+        relief_img.convert(Image.FORMAT_RGBA8)
+        check(relief_img.save_png("res://captures_out/lie38-contact-on.png")==OK,
+            "Native opt-in genuine source-relief screenshot")
+    house.command({"op":"set_values","values":{"microcontact":false}})
+    await _wait_frames(7)
+    var contact_reset: Dictionary=await _read()
+    check(contact_reset.get("color",PackedFloat32Array())==cold.get("color",PackedFloat32Array()),
+        "Disabled source contact restores unmodified original capture exactly")
+    output["microcontact"]={"enabled_differs":contact_on.get("color",PackedFloat32Array())!=cold.get("color",PackedFloat32Array()),
+        "disabled_bit_exact":contact_reset.get("color",PackedFloat32Array())==cold.get("color",PackedFloat32Array()),
+        "stages":contact_on.get("cache",{}).get("last_stages",[])}
     var transport: Dictionary=c.get("multiwall_transport",{})
     check(transport.get("panels",0)==113 and transport.get("panels_with_bounce",0)>0,
         "Oriented cross-wall GPU transport actually receives positive bounced RGB")
