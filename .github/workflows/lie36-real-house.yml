@@ -1,0 +1,94 @@
+name: LIE36 real scanned house — native screenshots
+on:
+  pull_request:
+    paths:
+      - "tools/lie36_*"
+      - "gpu_compute/lie36_*"
+      - "gpu_compute/test_lie36_house.gd"
+      - "tests/test_lie36_real_house.py"
+      - ".github/workflows/lie36-real-house.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: lie36-real-house-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  native-real-house:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install compilation and source validation dependencies
+        run: |
+          python -m pip install numpy pillow
+          python -m unittest discover -s tests -p 'test_lie36_real_house.py' -v
+          python tools/lie36_house_stage.py --stage /tmp/lie36-house-native
+      - name: Install Godot 4.7.2 and software Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Import real captured-masonry lab
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie36-house-native --editor --import --quit 2>&1 | tee house-import.log
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource' house-import.log; then exit 1; fi
+      - name: Render the real house from 3 camera angles on Vulkan
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie36-house-native --rendering-driver vulkan \
+            --rendering-method mobile --audio-driver Dummy \
+            --script res://test_lie36_house.gd 2>&1 | tee house-vulkan.log
+          test -s /tmp/lie36-house-native/captures_out/lie36-front.png
+          test -s /tmp/lie36-house-native/captures_out/lie36-corner.png
+          test -s /tmp/lie36-house-native/captures_out/lie36-courtyard.png
+          test -s /tmp/lie36-house-native/captures_out/lie36-native.json
+          if grep -Ei 'SCRIPT ERROR|Parse Error|Failed to load script|Failed loading resource|LIE36 REAL HOUSE FAIL' house-vulkan.log; then exit 1; fi
+      - name: Keep original engine captures and compact view previews
+        if: success()
+        run: |
+          mkdir -p docs/captures/lie36
+          cp /tmp/lie36-house-native/captures_out/* docs/captures/lie36/
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          import base64
+          for image in Path('docs/captures/lie36').glob('*.png'):
+              im=Image.open(image).convert('RGB')
+              im.thumbnail((420,420))
+              import io
+              b=io.BytesIO()
+              im.save(b,format='JPEG',quality=63,optimize=True)
+              (image.with_suffix('.b64')).write_text(base64.b64encode(b.getvalue()).decode()+'\n')
+              print(image.name, 'bytes',image.stat().st_size,'preview',b.tell())
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie36-native-real-captures
+          path: |
+            /tmp/lie36-house-native/captures_out/
+            house-import.log
+            house-vulkan.log
+          if-no-files-found: warn
+      - name: Publish actual Godot screenshots in the experimental branch
+        if: success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        continue-on-error: true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/captures/lie36
+          if ! git diff --cached --quiet; then
+            git commit -m 'Evidence: actual LIE36 scanned-house Vulkan renders [skip ci]'
+            # Actions checks out a detached PR SHA. Fetch the current head
+            # before publishing evidence; never force-push over user changes.
+            git fetch origin '${{ github.head_ref }}'
+            git rebase FETCH_HEAD
+            git push origin HEAD:'${{ github.head_ref }}'
+          fi

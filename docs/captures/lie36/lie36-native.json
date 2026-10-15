@@ -1,0 +1,190 @@
+{
+  "checks": 50,
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
+  "renderer": "LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
+  "result": "pass",
+  "samples": 110800.0,
+  "source": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+  "views": {
+    "bounce_on_off_different": true,
+    "corner": {
+      "allocation_bytes": 178465792,
+      "covered_pixels": 100582,
+      "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "instances": 113,
+      "lit_pixels": 100582,
+      "lod_distribution": [
+        15,
+        60,
+        38
+      ],
+      "sample_invocations": 724600
+    },
+    "courtyard": {
+      "allocation_bytes": 178465792,
+      "covered_pixels": 94839,
+      "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "instances": 113,
+      "lit_pixels": 94839,
+      "lod_distribution": [
+        15,
+        60,
+        38
+      ],
+      "sample_invocations": 724600
+    },
+    "front": {
+      "allocation_bytes": 178465792,
+      "covered_pixels": 90137,
+      "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "instances": 113,
+      "lit_pixels": 90137,
+      "lod_distribution": [
+        15,
+        60,
+        38
+      ],
+      "sample_invocations": 724600
+    },
+    "gpu_passes": {
+      "available": true,
+      "scope": "Software Vulkan llvmpipe only; NOT physical phone frame time",
+      "stages": {
+        "bounce": {
+          "p50_ms": 0.208283,
+          "p95_ms": 0.231759,
+          "samples": 4
+        },
+        "clear": {
+          "p50_ms": 4.043007,
+          "p95_ms": 1973.702197,
+          "samples": 4
+        },
+        "compose": {
+          "p50_ms": 6.781955,
+          "p95_ms": 9.809997,
+          "samples": 4
+        },
+        "direct": {
+          "p50_ms": 0.254164,
+          "p95_ms": 0.268988,
+          "samples": 4
+        },
+        "exposure": {
+          "p50_ms": 4.009875,
+          "p95_ms": 4.199848,
+          "samples": 4
+        },
+        "material": {
+          "p50_ms": 23.718068,
+          "p95_ms": 26.877889,
+          "samples": 4
+        },
+        "panel_graph": {
+          "p50_ms": 9.081014,
+          "p95_ms": 10.800814,
+          "samples": 2
+        },
+        "project_and_shadow": {
+          "p50_ms": 191.569953,
+          "p95_ms": 209.413339,
+          "samples": 4
+        },
+        "raster": {
+          "p50_ms": 211.910942,
+          "p95_ms": 229.353714,
+          "samples": 4
+        },
+        "seam_commit": {
+          "p50_ms": 5.484997,
+          "p95_ms": 8.056892,
+          "samples": 4
+        },
+        "seam_recovery": {
+          "p50_ms": 10.083545,
+          "p95_ms": 10.539183,
+          "samples": 4
+        }
+      },
+      "units": "GPU milliseconds"
+    },
+    "microcontact": {
+      "coverage_unchanged": true,
+      "disabled_bit_exact": true,
+      "enabled_differs": true,
+      "stages": [
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ]
+    },
+    "multiwall_transport": {
+      "active_links": 6787,
+      "bounce_irradiance_sum": [
+        65.5219955444336,
+        38.0057411193848,
+        25.5035877227783
+      ],
+      "direct_irradiance_sum": [
+        263.932159423828,
+        245.457015991211,
+        224.342376708984
+      ],
+      "dispatches": 3,
+      "energy_violations": 0,
+      "graph": "GPU panel-centre, oriented and aperture-aware, one diffuse bounce",
+      "limitations": "finite source/receiver panels; not full WALL12 micro-patch global illumination",
+      "max_row_sum": 1.00000036950223,
+      "mobile_fps_measured": false,
+      "panels": 113,
+      "panels_with_bounce": 112
+    },
+    "reuse": {
+      "cold_rebuild": [
+        1,
+        2,
+        3,
+        9,
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ],
+      "exposure_only": [
+        7
+      ],
+      "graph_rebuilds_three_camera_views": 1,
+      "max_absolute_pixel_error": 0.0,
+      "moving_light": [
+        14,
+        13,
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ],
+      "power_only": [
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ]
+    },
+    "roof_off_instances": 92,
+    "seam_on_off_different": true
+  }
+}
