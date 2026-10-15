@@ -5,6 +5,7 @@ import json
 import shutil
 from pathlib import Path
 from lie36_real_house import build
+from lie_asset_contract import inspect_bank
 ROOT=Path(__file__).resolve().parents[1]
 SRC=ROOT/"gpu_compute"
 FILES=[
@@ -28,7 +29,11 @@ def stage(dest:Path):
         out=dest/name
         out.parent.mkdir(parents=True,exist_ok=True)
         shutil.copy2(SRC/name,out)
-    meta,layout=build(dest/"captures/liehouse36")
+    root=dest/"captures/liehouse36"
+    meta,layout=build(root)
+    # Reuse the common LIE0.9 asset preflight, NOT a house-specific hash.
+    contract=inspect_bank((root/"library.bin").read_bytes(),meta)
+    (root/"asset-contract.json").write_text(json.dumps(contract,indent=2)+"\\n")
     (dest/"project.godot").write_text(
         'config_version=5\n[application]\nconfig/name="LIE36 Real Scan House"\n'
         'run/main_scene="res://lie36_house_lab.tscn"\n'
