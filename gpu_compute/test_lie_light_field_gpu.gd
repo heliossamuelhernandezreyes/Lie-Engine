@@ -9,6 +9,8 @@ var rd: RenderingDevice
 var shader: RID
 var pipeline: RID
 var report: Dictionary={"cases":{},"max_error":0.,"physical_android_tested":false}
+func shader_resource() -> RDShaderFile:return ShaderFile
+func surface_bridge() -> bool:return false
 func _initialize() -> void:call_deferred("run")
 func check(value: bool,label: String) -> void:
     checks+=1
@@ -40,6 +42,8 @@ func execute(case: Dictionary,name: String) -> PackedFloat32Array:
     var data: Dictionary={0:Model.patch_bytes(model),1:Model.light_bytes(model),2:packets["factors"],8:dims,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model),12:Model.radius_bytes(model),13:Optics.bytes([]),17:packets["boxes"],19:optic,21:packets["outgoing"],22:packets["planes"],24:packets["owners"]}
     for pair in [[3,n*16*4],[4,16*4],[5,n*8*16],[6,n*8*16],[7,n*16],[18,n*8*32],[20,n*8*16],[23,n*8*16]]:
         var zero:=PackedByteArray();zero.resize(pair[1]);data[pair[0]]=zero
+    if surface_bridge():
+        var zero:=PackedByteArray();zero.resize(272+n*8*16);data[25]=zero
     var rids: Dictionary={};var uniforms: Array[RDUniform]=[]
     for binding in data:
         rids[binding]=rd.storage_buffer_create(data[binding].size(),data[binding]);uniforms.append(uniform(binding,rids[binding]))
@@ -51,6 +55,7 @@ func execute(case: Dictionary,name: String) -> PackedFloat32Array:
     if not set_rid.is_valid():return PackedFloat32Array()
     var channels: int=lights if sep else 1
     submit([[0,n*lights,0],[1,lights,0],[2,n*channels,0]],set_rid)
+    if surface_bridge():submit([[6,n*lights,0]],set_rid)
     var previous: Array=totals(rd.buffer_get_data(rids[5]).to_float32_array(),n,channels)
     var generations: Array=[previous]
     for gen in range(model["bounces"]):
@@ -66,6 +71,27 @@ func execute(case: Dictionary,name: String) -> PackedFloat32Array:
             var actual: float=output[i*4+k];check(is_finite(actual) and actual>=0,name+" finite RGB")
             maximum=maxf(maximum,absf(actual-float(case["output"]["flux"][i][k])))
     check(maximum<.00003,name+" independent float64 error "+str(maximum))
+    if surface_bridge():
+        var packet: PackedByteArray=rd.buffer_get_data(rids[25])
+        check(packet.decode_u32(0)==n and packet.decode_u32(4)==lights and packet.decode_u32(12)==1,name+" surface packet ABI")
+        var direct: PackedFloat32Array=packet.slice(272).to_float32_array();var split_ok: bool=true
+        var direct_initial: Array=generations[0];var packet_totals: Array=totals(direct,n,lights)
+        for i in range(n):
+            for k in range(3):
+                var value: float=0.
+                for l in range(lights):value+=direct[(l*n+i)*4+k]*float(model["patches"][i]["area"])
+                split_ok=split_ok and value>=0. and value<=output[i*4+k]+.00003
+        var packet_error: float=0.
+        for k in range(3):
+            var a: float=0.;var b: float=0.
+            for l in range(lights):a+=packet_totals[l][k]
+            for l in range(channels):b+=direct_initial[l][k]
+            # packet_totals are irradiance; convert each receiver area above.
+            var flux_sum: float=0.
+            for i in range(n):
+                for l in range(lights):flux_sum+=direct[(l*n+i)*4+k]*float(model["patches"][i]["area"])
+            packet_error=maxf(packet_error,absf(flux_sum-b))
+        check(split_ok and packet_error<.00003,name+" exact direct/indirect decomposition")
     report["cases"][name]={"max_error":maximum,"source_generations":generations};report["max_error"]=maxf(report["max_error"],maximum)
     rd.free_rid(set_rid);rd.free_rid(image_rid)
     for rid in rids.values():rd.free_rid(rid)
@@ -74,7 +100,7 @@ func run() -> void:
     var fixture: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://fixtures/light-field-reference.json"))
     rd=RenderingServer.create_local_rendering_device()
     if rd==null:printerr("Actual Vulkan required");quit(1);return
-    var spirv: RDShaderSPIRV=ShaderFile.get_spirv();shader=rd.shader_create_from_spirv(spirv);pipeline=rd.compute_pipeline_create(shader)
+    var spirv: RDShaderSPIRV=shader_resource().get_spirv();shader=rd.shader_create_from_spirv(spirv);pipeline=rd.compute_pipeline_create(shader)
     if not pipeline.is_valid():printerr(spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE));quit(1);return
     var outputs: Dictionary={}
     for name in fixture["cases"]:outputs[name]=execute(fixture["cases"][name],name)

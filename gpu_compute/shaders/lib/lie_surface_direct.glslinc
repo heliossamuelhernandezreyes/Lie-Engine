@@ -1,0 +1,20 @@
+// Same point-source units, distance floor, range window and normalized power
+// as the finite-patch field. No second emitter budget and no invented relief.
+vec3 lie_surface_unoccluded(uint l,vec3 world,vec3 normal) {
+    vec4 source=surface_lights.values[l*2u],power=surface_lights.values[l*2u+1u];
+    vec3 delta=source.xyz-world;float d2=dot(delta,delta);
+    if(d2<=1e-10 || source.w<=0.)return vec3(0);
+    float cosine=max(dot(normal,delta*inversesqrt(d2)),0.);
+    float fade=pow(max(0.,1.-pow(sqrt(d2)/source.w,4.)),2.);
+    return power.rgb*(cosine*fade/(4.*PI*max(d2,power.w)));
+}
+// Finite-patch visibility/transmittance gates the local direct response.
+// Contact-only mode cannot brighten. Detail mode redistributes direct light
+// locally; its image-space integral is not a certified finite-area quadrature.
+vec3 lie_surface_refined(vec3 old_direct,vec3 unoccluded,
+                        vec3 coefficient,vec3 local_direct,float visibility,bool detail) {
+    vec3 gate=vec3(0);
+    for(int c=0;c<3;c++)if(unoccluded[c]>1e-20)gate[c]=clamp(old_direct[c]/unoccluded[c],0.,1.);
+    vec3 direct=detail?coefficient*local_direct*gate:old_direct;
+    return direct*visibility;
+}

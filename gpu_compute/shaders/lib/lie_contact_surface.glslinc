@@ -1,0 +1,30 @@
+// Bounded screen-space contact test. The host supplies projection and a REAL
+// observed tangent plane per pixel; recovered holes never become occluders.
+// The plane is bounded by its observed pixel cell, not an infinite surface or
+// a guessed solid thickness. Missing/off-screen geometry contributes no shadow.
+float lie_contact_visibility(vec3 world,vec3 normal,vec3 light,float reach,float bias,int steps) {
+    vec3 delta=light-world;float distance_to_light=length(delta);
+    if(distance_to_light<=bias || dot(normal,delta)<=0.)return 1.;
+    vec3 direction=delta/distance_to_light;
+    vec3 origin=world+normal*bias;
+    float limit=min(reach,distance_to_light-bias);
+    if(limit<=bias)return 1.;
+    float visibility=1.;
+    for(int k=0;k<32;k++) {
+        if(k>=steps)break;
+        float t=limit*(float(k)+.5)/float(steps);
+        vec2 screen=lie_surface_project(origin+direction*t);
+        ivec2 q=ivec2(floor(screen));vec3 point,plane_normal;
+        if(!lie_surface_observed(q,point,plane_normal))continue;
+        float denominator=dot(plane_normal,direction);
+        if(abs(denominator)<1e-6)continue;
+        float hit=dot(plane_normal,point-origin)/denominator;
+        if(hit<=bias || hit>=limit)continue;
+        vec2 hit_screen=lie_surface_project(origin+direction*hit);
+        if(any(lessThan(hit_screen,vec2(q))) || any(greaterThanEqual(hit_screen,vec2(q)+1.)))continue;
+        // Fade only near the metric traversal limit; direct-only attenuation.
+        visibility=min(visibility,smoothstep(.75*limit,limit,hit));
+        if(visibility<=0.)break;
+    }
+    return clamp(visibility,0.,1.);
+}
