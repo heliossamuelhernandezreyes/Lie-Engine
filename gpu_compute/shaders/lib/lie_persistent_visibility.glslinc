@@ -1,0 +1,76 @@
+// Header: 64 uints. Each source-reference slot: two packed visibility words
+// and one validity mask. The domain binds bank, reference SHA and scene SHA.
+// Geometry/normal/radius are immutable in this domain; camera is not a key.
+layout(set=0,binding=29,std430) readonly buffer SourceBlocks {uvec2 values[];} source_blocks;
+layout(set=0,binding=30,std430) buffer PersistentVisibility {uint words[];} persistent_visibility;
+layout(set=0,binding=31,std430) buffer VisibilityControl {uint words[];} visibility_control;
+uint lie_visibility_slot(uint projection) {return uint(projected.v[projection].normal.w);}
+bool lie_visibility_persistent() {return visibility_control.words[0]!=0u && surface_options.flags.x!=0u && surface_options.flags.w!=0u;}
+uint lie_pack_visibility(uvec2 bits,uint light) {
+    uint shift=(light%4u)*8u,mask=light==7u?127u:255u;
+    return ((light<4u?bits.x:bits.y)>>shift)&mask;
+}
+uvec2 lie_write_visibility(uvec2 bits,uint light,uint value) {
+    uint shift=(light%4u)*8u,mask=light==7u?127u:255u;
+    if(light<4u)bits.x=(bits.x&~(mask<<shift))|(value<<shift);
+    else bits.y=(bits.y&~(mask<<shift))|(value<<shift);
+    return bits;
+}
+void lie_prepare_persistent(uint i) {
+    if(i<24u)visibility_control.words[4u+i]=0u;
+    if(i!=0u || !lie_visibility_persistent())return;
+    uint count=surface_lights.header.y,old_count=persistent_visibility.words[2],dirty=0u;
+    bool reset=persistent_visibility.words[1]==0u ||
+        persistent_visibility.words[36]!=floatBitsToUint(surface_options.metric.x) ||
+        persistent_visibility.words[37]!=floatBitsToUint(surface_options.metric.y);
+    for(uint light=0u;light<8u;light++) {
+        uint at=4u+light*4u;
+        uvec3 position=light<count?floatBitsToUint(surface_lights.values[light*2u].xyz):uvec3(0);
+        if(reset || (light<count)!=(light<old_count) ||
+           (light<count && any(notEqual(position,uvec3(persistent_visibility.words[at],persistent_visibility.words[at+1u],persistent_visibility.words[at+2u]))))) {
+            dirty|=1u<<light;
+            persistent_visibility.words[41u+light]++;
+        }
+        persistent_visibility.words[at]=position.x;persistent_visibility.words[at+1u]=position.y;persistent_visibility.words[at+2u]=position.z;
+    }
+    persistent_visibility.words[0]=dirty;persistent_visibility.words[1]=1u;
+    persistent_visibility.words[2]=count;persistent_visibility.words[3]++;
+    persistent_visibility.words[36]=floatBitsToUint(surface_options.metric.x);
+    persistent_visibility.words[37]=floatBitsToUint(surface_options.metric.y);
+    if(dirty!=0u)persistent_visibility.words[40]++;
+}
+void lie_invalidate_persistent(uint i) {
+    if(!lie_visibility_persistent() || i>=visibility_control.words[2])return;
+    uint dirty=persistent_visibility.words[0];
+    if(dirty!=0u)persistent_visibility.words[64u+i*3u+2u]&=~dirty;
+}
+void lie_build_persistent_visibility(uint i) {
+    if(i>=uint(parameters.counts.x))return;
+    uvec2 winner_flags=source_visibility.values[i];if((winner_flags.y&0x80000000u)==0u)return;
+    uvec2 result=uvec2(0xffffffffu),resident=uvec2(0);
+    uint slot=lie_visibility_slot(i),at=64u+slot*3u,valid=0u;
+    bool use_cache=lie_visibility_persistent() && slot<visibility_control.words[2];
+    if(use_cache){resident=uvec2(persistent_visibility.words[at],persistent_visibility.words[at+1u]);valid=persistent_visibility.words[at+2u];}
+    Projection p=projected.v[i];
+    if(surface_options.flags.x!=0u && surface_options.flags.w!=0u) {
+        for(uint light=0u;light<surface_lights.header.y;light++) {
+            uint mask=light==7u?127u:255u,value=mask;
+            vec3 power=surface_lights.values[light*2u+1u].rgb;
+            if(max(power.r,max(power.g,power.b))>0.) {
+                if(use_cache && (valid&(1u<<light))!=0u) {
+                    value=lie_pack_visibility(resident,light);
+                    if(visibility_control.words[1]!=0u)atomicAdd(visibility_control.words[4u+light],1u);
+                } else {
+                    float visibility=lie_source_world_visibility(p.world.xyz,normalize(p.normal.xyz),surface_lights.values[light*2u].xyz,
+                        surface_options.metric.x,surface_options.metric.y,uint(p.gradient.z),uint(round(p.gradient.w)));
+                    value=uint(round(clamp(visibility,0.,1.)*float(mask)));
+                    if(use_cache){resident=lie_write_visibility(resident,light,value);valid|=1u<<light;}
+                    if(visibility_control.words[1]!=0u)atomicAdd(visibility_control.words[12u+light],1u);
+                }
+            } else if(visibility_control.words[1]!=0u)atomicAdd(visibility_control.words[20u+light],1u);
+            result=lie_write_visibility(result,light,value);
+        }
+    }
+    if(use_cache){persistent_visibility.words[at]=resident.x;persistent_visibility.words[at+1u]=resident.y;persistent_visibility.words[at+2u]=valid;}
+    source_visibility.values[i]=result;
+}

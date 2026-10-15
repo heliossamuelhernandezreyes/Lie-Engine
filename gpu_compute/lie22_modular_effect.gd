@@ -34,6 +34,7 @@ var _readback: Dictionary={}
 var _profiles: Array=[]
 var _last_profile_serial: int=0
 var _sample_lease: String=""
+var _sample_handle: Dictionary={}
 var sample_bank_bindings: int=0
 
 func capture_root() -> String:return ROOT
@@ -102,6 +103,7 @@ func _initialize() -> bool:
     var lease: Dictionary=SharedSamples.acquire(_rd,_samples,str(catalog["sha256"]),sample_stride())
     if not lease.get("ok",false):failure="Shared immutable capture buffer: "+str(lease.get("error"));_release();return false
     _sample_lease=lease["key"];_buffers[0]=lease["rid"];_lengths[0]=lease["bytes"]
+    _sample_handle={"key":lease["key"],"generation":lease["generation"]}
     _samples=lease["cpu_data"] # PackedByteArray COW shares immutable CPU bytes too.
     allocation_bytes+=lease["bytes"] # Referenced bytes; not additive across consumers.
     asset_uploads+=1 if lease["uploaded"] else 0;sample_bank_bindings+=1
@@ -186,7 +188,8 @@ func _release() -> void:
         if rid.is_valid():_rd.free_rid(rid)
     for binding in _buffers:
         if binding!=0 and _buffers[binding].is_valid():_rd.free_rid(_buffers[binding])
-    if not _sample_lease.is_empty():SharedSamples.release(_rd,_sample_lease);_sample_lease=""
+    if not _sample_lease.is_empty():SharedSamples.release_handle(_rd,_sample_handle);_sample_lease=""
+    _sample_handle={}
     _buffers.clear();_images.clear();gpu_ready=false
     _lengths.clear();allocation_bytes=0;projection_capacity=0;_resident=PackedByteArray()
     _set=RID();_pipeline=RID();_shader=RID();output_rid=RID()
