@@ -6,7 +6,7 @@ from lie_light_field import fixture_cases,solve,sources
 ROOT=Path(__file__).resolve().parents[1]
 def quadrature(center,size,order=2):
     x,w=np.polynomial.legendre.leggauss(order)
-    return [(np.asarray(center)+[a*size[0]/2,b*size[1]/2,0],wa*wb/4) for a,wa in zip(x,w) for b,wb in zip(x,w)]
+    return [(np.asarray(center)+[a*size[0]/2,b*size[1]/2,0],wa*wb/4) for b,wb in zip(x,w) for a,wa in zip(x,w)]
 def integral(center,size,receiver,normal,order=64):
     value=0.
     for p,w in quadrature(center,size,order):
@@ -28,7 +28,7 @@ def cases():
                 if n is not None:desc[i]=[*n,1.]
         model['lights']=lights;packets=copy.deepcopy(pack)
         if name=='edge_occlusion':
-            model['blockers']=[[[.25,-1.,.8],[.4,1.,1.5]]]
+            model['blockers']=[[[.35,-1.,1.2],[.6,1.,1.3]]]
         separate=name!='merged_legacy'
         result[name]={'model':model,'sources_hex':{k:v.hex() for k,v in packets.items()},'separate':separate,'emission_hex':desc.tobytes().hex(),'output':solve(model,packets,separate,emission_normals=normals)}
     return result

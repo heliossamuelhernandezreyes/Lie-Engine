@@ -19,6 +19,14 @@ func run() -> void:
     var back_energy: float=0.
     for value in outputs["backwards"]:back_energy=maxf(back_energy,absf(value))
     check(back_energy<.000001,"one-sided panels facing backwards emit zero")
+    var open: Array=report["cases"]["two_panels"]["source_generations"][0]
+    var blocked: Array=report["cases"]["edge_occlusion"]["source_generations"][0]
+    var partial: bool=true
+    for channel in [4,6]:
+        for k in range(3):partial=partial and absf(open[channel][k]-blocked[channel][k])<.000001
+    for channel in [5,7]:
+        for k in range(3):partial=partial and open[channel][k]>blocked[channel][k]+.0001
+    check(partial,"occluder blocks half the panel samples while preserving the other half")
     report.merge({"checks":checks,"failed":failed,"device":rd.get_device_name(),"source_superposition_max_error":superposition,"legacy_merged_max_difference":legacy})
     var file:=FileAccess.open("res://area-field-native.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     rd.free_rid(pipeline);rd.free_rid(shader);rd.free()

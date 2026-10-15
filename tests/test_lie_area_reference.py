@@ -18,3 +18,7 @@ class AreaReference(unittest.TestCase):
         c=cases();a=lambda name:np.array(c[name]['output']['flux'])
         np.testing.assert_allclose(a('two_panels'),a('key_only')+a('fill_only'),atol=1e-10)
         self.assertEqual(a('backwards').max(),0.);self.assertEqual(a('all_off').max(),0.)
+        unoccluded=np.array(c['two_panels']['output']['channel_totals_by_generation'][0])
+        occluded=np.array(c['edge_occlusion']['output']['channel_totals_by_generation'][0])
+        np.testing.assert_array_equal(unoccluded[[4,6]],occluded[[4,6]])
+        self.assertTrue((unoccluded[[5,7]]>occluded[[5,7]]).all())

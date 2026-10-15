@@ -29,4 +29,6 @@ func run() -> void:
     var zeros:=PackedByteArray();zeros.resize(128)
     check(snapshot["lights"]==world.registry.snapshot()["lights"] and snapshot["emission_descriptors"]==zeros,"legacy point codes exact")
     key.enabled=false;world.refresh();check(world.render_snapshot()["lights"][0]["power_rgb"]==[0.,0.,0.],"disabled logical source has no energy")
+    for child in world.get_children():world.remove_child(child);child.free()
+    check(world.refresh() and world.render_snapshot()["lights"].size()==1 and world.render_snapshot()["lights"][0]["power_rgb"]==[0.,0.,0.],"removing every emitter leaves one dark dummy channel")
     world.queue_free();await process_frame;print("AREA EMITTER ",checks," ","FAIL" if failed else "PASS");quit(1 if failed else 0)

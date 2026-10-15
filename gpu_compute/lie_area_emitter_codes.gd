@@ -9,7 +9,8 @@ static func valid_shape(shape: Dictionary) -> bool:
         if not shape[key] is Vector3 or not shape[key].is_finite() or absf(shape[key].length_squared()-1.)>.0001:return false
     return absf(shape["u"].dot(shape["v"]))<.0001 and absf(shape["u"].dot(shape["n"]))<.0001 and absf(shape["v"].dot(shape["n"]))<.0001
 static func compile(snapshot: Dictionary,shapes: Dictionary) -> Dictionary:
-    if not Model.valid_light_codes(snapshot.get("lights",[])) or not snapshot.get("ids") is Array:return {}
+    if not snapshot.get("ids") is Array or not snapshot.get("lights") is Array:return {}
+    if not (snapshot["ids"].is_empty() and snapshot["lights"].is_empty()) and not Model.valid_light_codes(snapshot["lights"]):return {}
     var ids: Array=snapshot["ids"];var source: Array=snapshot["lights"]
     if ids.size()>source.size():return {}
     var lights: Array=[];var channels: Array=[];var parents: Array=[];var descriptors:=PackedByteArray();descriptors.resize(128)
