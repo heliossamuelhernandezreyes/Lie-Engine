@@ -45,11 +45,14 @@ Ejemplo de perfil para una fuente que ya esté en metros con ejes LIE:
 Este backend captura geometría, base color y rugosidad de fuentes opacas no
 metálicas. Mantiene normales geométricas para la profundidad. No incorpora
 normal maps de sombreado, transparencia ni refracción en el banco de 80 bytes.
-En GLB, `preserve_source` rechaza esos atributos si no están soportados;
+Emisión, AO separado, extensiones de material y transformaciones/UV alternativos
+también requieren otro backend o una reinterpretación explícita.
+En GLB/GLTF, `preserve_source` rechaza esos atributos si no están soportados;
 `declared_opaque_override` registra una reinterpretación de autoría explícita.
-El perfil no certifica que una propiedad esté físicamente medida. Los límites
-de GLTF externo/OBJ y materiales complejos necesitan backend y aceptación
-específicos antes de declarar soporte completo. Preflight tampoco demuestra
+OBJ requiere esa declaración explícita porque este backend no certifica toda
+la semántica MTL. El perfil no certifica que una propiedad esté físicamente
+medida; bancos de dependencias externas y materiales complejos necesitan
+proveniencia y aceptación específicos. Preflight tampoco demuestra
 cobertura fotográfica de todas las vistas.
 
 La residencia sigue usando el pool existente: un banco SHA por RenderingDevice,
@@ -60,7 +63,7 @@ fotografías, lectura de almacenamiento por píxel o copia por ladrillo.
 
 `shaders/lib/lie_irradiance_stencil.glslinc` reconstruye la irradiancia ya
 resuelta por LIE11. El host suministra posición/normal/área y grupos compatibles
- de nodos. Los pesos son convexos, según distancia tangencial y coherencia
+de nodos. Los pesos son convexos, según distancia tangencial y coherencia
 normal; el piso depende del área del nodo. No agrega una luz ni difumina RGB
 fotográfico. Normales opuestas y propietarios distintos quedan fuera.
 
@@ -89,7 +92,7 @@ convexidad, luz constante, continuidad, aislamiento y modo anterior.
 
 La aceptación de la pared compara modo OFF con WALL06, caché con reconstrucción
 fría en modo ON, fuente/material/una envolvente, transporte float64 y cambio
- de resolución. El APK LIE Pared 0.4 se construye offline ARM64, mantiene el
+de resolución. El APK LIE Pared 0.4 se construye offline ARM64, mantiene el
 2× apagado y permite activar/desactivar “Luz continua entre regiones”.
 Las mediciones Vulkan son llvmpipe; FPS y temperatura Android requieren el Poco.
 
@@ -101,3 +104,13 @@ No se declara “bien a la primera” solo por haber importado un modelo.
 Fuentes primarias:
 [Khronos glTF 2.0](https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html)
 y [PBRT Surface Reflection](https://pbr-book.org/4ed/Radiometry%2C_Spectra%2C_and_Color/Surface_Reflection).
+
+## Resultados negativos conservados
+
+El primer commit remoto `829022d` incluía solo cuatro de siete grupos de
+archivos; faltaban generadores y shaders. Se completó en `05b770e` antes de
+la aceptación válida. La primera ejecución local de captura no encontró
+`trimesh`; se instalaron dependencias en un directorio temporal separado y
+las regresiones se repitieron. No se interpretan esos casos como aceptación.
+La guardia de atributos se extendió a GLTF externo y OBJ para evitar un
+fallback silencioso de materiales fuera del backend soportado.

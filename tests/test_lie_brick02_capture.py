@@ -65,6 +65,15 @@ class RealGeometryPipelineTest(unittest.TestCase):
         self.assertGreater(result['source_bbox_m'][2],.4)
         self.assertTrue((self.root/'generic/asset-contract.json').is_file())
 
+    def test_external_gltf_normal_map_and_obj_do_not_silently_fall_back(self):
+        profile={'master':'piece','source_to_lie':np.eye(3).tolist(),'meters_per_source_unit':1,'source_pivot':[0,0,0],'material_zone':5,'optical_material':{'metallic':0.,'transmission':0.,'ior':1.5,'roughness_origin':'source_factor'}}
+        unsupported=self.root/'unsupported.gltf';unsupported.write_text(json.dumps({'asset':{'version':'2.0'},'materials':[{'pbrMetallicRoughness':{'metallicFactor':0},'normalTexture':{'index':0}}]}))
+        identity=json.loads(self.provenance.read_text());identity['expected_sha256']=hashlib.sha256(unsupported.read_bytes()).hexdigest();self.provenance.write_text(json.dumps(identity))
+        with self.assertRaisesRegex(ValueError,'requires_another_capture_backend'):capture.capture(unsupported,self.provenance,self.root/'refused',counts=(200,100,100),asset_profile=profile)
+        unsupported=self.root/'unsupported.obj';unsupported.write_text('# unsupported material fixture')
+        identity['expected_sha256']=hashlib.sha256(unsupported.read_bytes()).hexdigest();self.provenance.write_text(json.dumps(identity))
+        with self.assertRaisesRegex(ValueError,'requires_declared_material_override'):capture.capture(unsupported,self.provenance,self.root/'refused',counts=(200,100,100),asset_profile=profile)
+
     def test_source_fixture_has_texture_and_real_triangles(self):
         meshes=capture.load_source(self.source)
         self.assertGreater(len(meshes[0].faces),500)

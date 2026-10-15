@@ -211,13 +211,18 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     expected = identity.get("expected_sha256")
     if expected and expected.lower() != source_sha:
         raise ValueError("Source SHA-256 does not match provenance lock")
-    if asset_profile is not None and source.suffix.lower()=='.glb':
-        doc,_=read_glb(source)
+    if asset_profile is not None:
         policy=asset_profile.get('source_material_policy','preserve_source')
+        if source.suffix.lower()=='.obj' and policy!='declared_opaque_override':raise ValueError('asset_obj_requires_declared_material_override')
+        doc=read_glb(source)[0] if source.suffix.lower()=='.glb' else json.loads(source.read_text()) if source.suffix.lower()=='.gltf' else {}
         if policy not in ('preserve_source','declared_opaque_override'):raise ValueError('asset_source_material_policy')
         for material in doc.get('materials',[]):
             pbr=material.get('pbrMetallicRoughness',{})
             unsupported=(float(pbr.get('metallicFactor',1))!=0 or material.get('alphaMode','OPAQUE')!='OPAQUE' or material.get('normalTexture') is not None or float(material.get('extensions',{}).get('KHR_materials_transmission',{}).get('transmissionFactor',0))>0)
+            unsupported |= bool(material.get('extensions')) or any(float(x)!=0 for x in material.get('emissiveFactor',[0,0,0])) or material.get('occlusionTexture') is not None
+            for texture in ('baseColorTexture','metallicRoughnessTexture'):
+                info=pbr.get(texture,{})
+                unsupported |= bool(info.get('extensions')) or info.get('texCoord',0)!=0
             if unsupported and policy=='preserve_source':raise ValueError('asset_source_material_requires_another_capture_backend')
     meshes = load_source(source)
     basis=None;name="brick_full";zone=3;material_info={"metallic":0.,"transmission":0.,"ior":1.5,"roughness_origin":"source_factor"}
@@ -306,6 +311,7 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     }
     metadata['asset_frame']=frame_info
     metadata['optical_material']=material_info
+    metadata['source_material_policy']='legacy_declared_clay' if asset_profile is None else asset_profile.get('source_material_policy','preserve_source')
     contract=inspect_bank(raw,metadata)
     output.mkdir(parents=True, exist_ok=True)
     (output/"asset-contract.json").write_text(json.dumps(contract,indent=2)+"\n")
