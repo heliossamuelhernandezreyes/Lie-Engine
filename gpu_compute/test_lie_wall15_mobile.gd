@@ -54,6 +54,8 @@ func run() -> void:
         await process_frame
         if not lab.benchmark_busy:break
     check(not lab.benchmark_busy and lab._diagnostic_report.get("events",[]).size()==9 and lab._diagnostic_report.get("restored",false) and lab.state==backup,"diagnostic restores optimization controls and scene")
+    var portable: Dictionary=lab._portable_report(lab._build_report())
+    check(portable["gpu_analysis"]["groups"].size()==3 and portable["current_mode_diagnostic"]["events"].size()==9 and JSON.stringify(portable).to_utf8_buffer().size()<16384,"copied diagnostic retains all three measured groups in less than 16 KiB")
     await settle();var final: Dictionary=await take(lab,"final")
     check(lab.effect.allocation_bytes==memory and lab.effect.asset_uploads==1 and lab.agent_snapshot()["collider_count"]==1,"fixed additional queue allocation, one bank and one collider")
     var frames: int=lab.effect.frame_count;await settle(12);check(lab.effect.frame_count==frames,"idle remains cached")

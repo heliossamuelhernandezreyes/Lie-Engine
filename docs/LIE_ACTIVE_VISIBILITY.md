@@ -42,6 +42,12 @@ El informe añade CPU por revisión para `instance_packets`,
 Son subconjuntos del tiempo total, no tiempos para volver a sumar al comando.
 Los contadores de construcción/reutilización permiten verificar el mecanismo.
 
+El informe copiable 1.2 prioriza los tres grupos del diagnóstico y sus comandos
+CPU, con resúmenes de etapas y contadores. El historial de timestamps/frames
+permanece en `lie-performance-last.json`; no se duplica delante del resumen.
+Una prueba con 1,000 filas comprueba que la copia omite ese historial y queda
+por debajo de 16 KiB. La selección y el fallback de portapapeles 1.1 continúan.
+
 ## Cola GPU de ganadores
 
 Después de rasterizar, una etapa recorre los píxeles y deduplica sus ganadores

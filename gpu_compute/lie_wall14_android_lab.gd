@@ -144,21 +144,20 @@ func _report_header(report: Dictionary) -> String:
     var analysis: Dictionary=report["current_mode_diagnostic"].get("gpu_analysis",report["gpu_analysis"])
     text+=Diagnostics.brief(analysis)+"\n\nLos porcentajes identifican trabajo GPU; CPU, esperas y transporte se informan aparte.\n\n"
     return text
-func _show_report() -> void:
-    _clear_gesture();var report: Dictionary=_build_report();var saved: bool=_persist_report("user://lie-performance-last.json",report)
-    # Android clipboard transfers have a finite IPC budget. Do not duplicate
-    # hundreds of raw rows from all three retained reports in that transfer.
-    # Full raw evidence stays in the saved JSON; copied text keeps reductions,
-    # device/options, trial serials and the latest timestamp rows.
+func _portable_report(report: Dictionary) -> Dictionary:
     var portable: Dictionary=report.duplicate(true)
     portable.erase("cpu_apply_rows");portable.erase("frame_rows")
     portable["appearance_passes"]["rows"]=portable["appearance_passes"].get("rows",[]).slice(-32)
     for key in ["benchmark","current_mode_diagnostic"]:
         if portable[key].has("passes"):portable[key].erase("passes")
     portable["copy_scope"]="Compact report; full timestamp/frame history saved in lie-performance-last.json"
+    return portable
+func _show_report() -> void:
+    _clear_gesture();var report: Dictionary=_build_report();var saved: bool=_persist_report("user://lie-performance-last.json",report)
+    var portable: Dictionary=_portable_report(report)
     _report_content=_report_header(report)+JSON.stringify(portable,"",true,true)
     if _report_content.to_utf8_buffer().size()>196608:
-        portable["appearance_passes"].erase("rows")
+        if portable.has("appearance_passes"):portable["appearance_passes"].erase("rows")
         _report_content=_report_header(report)+JSON.stringify(portable,"",true,true)
     _report_text.text=_report_content;_report_text.scroll_vertical=0
     _report_feedback.text="Informe guardado. Pulsa Copiar y pega en el chat." if saved else "No se pudo guardar. El informe sigue disponible aquí para seleccionarlo."

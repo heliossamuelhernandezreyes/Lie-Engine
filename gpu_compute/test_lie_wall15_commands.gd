@@ -25,5 +25,9 @@ func run() -> void:
     check(not lab.effect.configure(pending["parameters"],inputs["source_instances"],bad_jobs,pending["work"]),"changed malformed jobs cannot use the validated cache")
     var report: Dictionary=lab.command({"op":"diagnostic_report"})["report"]
     check(report["app_version"]=="1.2.0-active-visibility" and report["cpu_stages"]["by_revision"].size()>0,"CPU subdivisions and app version exported")
+    report["appearance_passes"]["rows"]=[]
+    for i in range(1000):report["appearance_passes"]["rows"].append({"unused_raw_row":i})
+    var portable: Dictionary=lab._portable_report(report)
+    check(not portable.has("appearance_passes") and not portable["cpu_stages"].has("rows") and JSON.stringify(portable).to_utf8_buffer().size()<16384,"phone copy keeps all summaries without large duplicate histories")
     check(lab.agent_snapshot()["control_contract"]["booleans"].has("active_visibility"),"comparison controls discoverable")
     lab.queue_free();await process_frame;print("ACTIVE COMMAND ",checks," ","FAIL" if failed else "PASS");quit(1 if failed else 0)
