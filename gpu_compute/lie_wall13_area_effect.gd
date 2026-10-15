@@ -32,6 +32,7 @@ func set_pipeline_options(fused: bool,filtered: bool) -> void:
         _reset_coded_signature())
 func _stage(list: int,stage: int,count: int) -> void:
     _measured_options["fused_shading"]=_gpu_fused;_measured_options["surface_filter"]=_gpu_filter
+    _measured_options["physical_lights"]=transport.desired_light_count
     if stage==1:_material_dirty=true;_filter_recovery_dirty=false
     if stage==6 and _gpu_fused:return
     if stage==4 and _filter_recovery_dirty:_extra_stage(list,15,count,"filter_recovery_clear")
