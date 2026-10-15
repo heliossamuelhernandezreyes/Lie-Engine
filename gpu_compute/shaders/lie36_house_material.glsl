@@ -55,9 +55,12 @@ bool lie_neighbor_match(ivec2 a,ivec2 b) {
     if(dot(na,nb)<.94)return false;
     float za=uintBitsToFloat(depths.v[ia]),zb=uintBitsToFloat(depths.v[ib]);
     if(abs(za-zb)>.075+max(za,zb)*.003)return false;
-    vec3 ca=imageLoad(output_image,a).rgb;
-    vec3 cb=imageLoad(output_image,b).rgb;
-    return length(ca-cb)<.29;
+    // Stable source/material witness: incoming radiance must never change
+    // the geometry of a seam repair. Color-dependent gating previously made
+    // lighting/contact switches open and close a handful of covered pixels.
+    Projection pa=projected.v[wa],pb=projected.v[wb];
+    if(abs(pa.geometry.w-pb.geometry.w)>.01)return false;
+    return true;
 }
 
 vec3 panel_normal(int idx) {
