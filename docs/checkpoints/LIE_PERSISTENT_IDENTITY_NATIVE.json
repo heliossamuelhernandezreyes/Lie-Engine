@@ -1,0 +1,6249 @@
+{
+  "schema": "lie-persistent-identity-native/1",
+  "wall": {
+    "alternating light worlds keep correct images": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "angled cache equals full projection rebuild": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "appearance_requested_bytes": 251994824,
+    "both new switches OFF preserve WALL10": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "cache": {
+      "asset_contract": {
+        "assets": 3,
+        "ok": true,
+        "source_identity": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+      },
+      "brick_instances": 96,
+      "brick_master_count": 1,
+      "continuous_light": true,
+      "geometry_rebuilds": 12,
+      "internal_size": 1080,
+      "lighting_resolves": 20,
+      "output_resolves": 21,
+      "persistent_visibility": {
+        "active_groups": 8418,
+        "allocation_count": 2,
+        "block_access": true,
+        "block_table_bytes": 97632,
+        "diagnostics": false,
+        "enabled": true,
+        "padding": 3082,
+        "reference_entries": 772097,
+        "scope": "stable source-reference/instance identity; camera independent; per-light position and metric invalidation",
+        "shared": {
+          "allocations_total": 2,
+          "domains": 1,
+          "references": 1,
+          "resident_bytes": 9265420,
+          "scope": "source-reference/instance identity and scene; light positions validated on GPU"
+        }
+      },
+      "recovery_builds": 12,
+      "recovery_capacity": 65536,
+      "recovery_reuses": 8,
+      "reference_bytes": 3088388,
+      "source_bank_bytes": 41700560,
+      "source_surface": {
+        "cache_bytes": 6000000,
+        "camera_independent_occluders": true,
+        "continuity": true,
+        "receiver_queries": "once per winning source patch/light; recovered pixels reuse witnessed source",
+        "scene_bytes": 13184,
+        "shared_visibility": {
+          "groups": 1,
+          "references": 1,
+          "scope": "immutable source visibility; scene hierarchy and writable caches excluded",
+          "shared_blas_bytes": 5943064,
+          "uploads_total": 2
+        },
+        "source_geometry": "captured tangent disks, shared master IDs",
+        "visibility_precision": "8 bits per light; eighth light 7 bits",
+        "visibility_uploads": 1,
+        "world_contacts": true
+      },
+      "surface_light": {
+        "bias_m": 0.0003,
+        "contacts": true,
+        "detail": true,
+        "reach_m": 0.025,
+        "recovery_surface_bytes": 2097152,
+        "steps": 12
+      }
+    },
+    "camera roundtrip preserves the source image": {
+      "iou": 1.0,
+      "mae": 6.450497202796404e-11,
+      "max": 1.5397090464830399e-06
+    },
+    "checks": 59,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "direct source blocks preserve exact reconstruction": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "disable/enable preserves the physical result": {
+      "iou": 1.0,
+      "mae": 6.450497202796404e-11,
+      "max": 1.5397090464830399e-06
+    },
+    "events": {
+      "angle": {
+        "frame": 9,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            40800,
+            40800,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 4,
+          "per_light_invalidations": [
+            4,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "prepare_count": 7,
+          "queries": [
+            17105,
+            17105,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "angle_warm": {
+        "frame": 10,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            57905,
+            57905,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 4,
+          "per_light_invalidations": [
+            4,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "prepare_count": 8,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "before_twin": {
+        "frame": 15,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 5,
+          "per_light_invalidations": [
+            5,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 13,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "blocks": {
+        "frame": 3,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 1,
+          "per_light_invalidations": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "prepare_count": 1,
+          "queries": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "camera_return": {
+        "frame": 11,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 4,
+          "per_light_invalidations": [
+            4,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "prepare_count": 9,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "cold": {
+        "frame": 4,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 2,
+          "per_light_invalidations": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "prepare_count": 2,
+          "queries": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "diagnostics_off": {
+        "frame": 21,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": false,
+          "invalidation_count": 7,
+          "per_light_invalidations": [
+            7,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 18,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "domain_return": {
+        "frame": 19,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 7,
+          "per_light_invalidations": [
+            7,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 17,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "fill_off": {
+        "frame": 12,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 5,
+          "per_light_invalidations": [
+            5,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 10,
+          "queries": [
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "fill_on": {
+        "frame": 13,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 5,
+          "per_light_invalidations": [
+            5,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 11,
+          "queries": [
+            0,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "legacy_off": {
+        "frame": 17,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 0,
+          "per_light_invalidations": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "prepare_count": 0,
+          "queries": [
+            79914,
+            79914,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "legacy_on": {
+        "frame": 18,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 1,
+          "per_light_invalidations": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "prepare_count": 1,
+          "queries": [
+            79914,
+            79914,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "moved_cold": {
+        "frame": 8,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 4,
+          "per_light_invalidations": [
+            4,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3,
+            3
+          ],
+          "prepare_count": 6,
+          "queries": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "moved_key": {
+        "frame": 7,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 1,
+          "hits": [
+            0,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 3,
+          "per_light_invalidations": [
+            3,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "prepare_count": 5,
+          "queries": [
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "off": {
+        "frame": 2,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 1,
+          "per_light_invalidations": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "prepare_count": 1,
+          "queries": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "other_light_world": {
+        "frame": 2,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 1,
+          "hits": [
+            0,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 6,
+          "per_light_invalidations": [
+            6,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 15,
+          "queries": [
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "radiometry": {
+        "frame": 6,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 2,
+          "per_light_invalidations": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "prepare_count": 4,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "resized": {
+        "frame": 14,
+        "internal_size": 1440,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            65400,
+            65400,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 5,
+          "per_light_invalidations": [
+            5,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 12,
+          "queries": [
+            37223,
+            37223,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "restored_light_world": {
+        "frame": 16,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 1,
+          "hits": [
+            0,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 7,
+          "per_light_invalidations": [
+            7,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 16,
+          "queries": [
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "retained": {
+        "frame": 19,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 7,
+          "per_light_invalidations": [
+            7,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 17,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "second_view": {
+        "frame": 1,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 5,
+          "per_light_invalidations": [
+            5,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "prepare_count": 14,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      },
+      "warm": {
+        "frame": 5,
+        "internal_size": 1080,
+        "visibility": {
+          "dirty_lights": 0,
+          "hits": [
+            80577,
+            80577,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "instrumented": true,
+          "invalidation_count": 2,
+          "per_light_invalidations": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ],
+          "prepare_count": 3,
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "zero_power_skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "work": 535670
+      }
+    },
+    "failed": false,
+    "passes": {
+      "available": true,
+      "context": {
+        "block_access": true,
+        "contacts": true,
+        "detail": true,
+        "internal_size": 1080,
+        "persistent_visibility": true,
+        "steps": 12,
+        "surface_continuity": true,
+        "visibility_diagnostics": false,
+        "world_contacts": true
+      },
+      "passes": {
+        "clear": {
+          "p50_ms": 7249.766901,
+          "p95_ms": 7249.766901,
+          "samples": 1
+        },
+        "coarse_light": {
+          "p50_ms": 30.037683,
+          "p95_ms": 33.408567,
+          "samples": 2
+        },
+        "compose": {
+          "p50_ms": 7.868825,
+          "p95_ms": 9.682322,
+          "samples": 2
+        },
+        "output": {
+          "p50_ms": 6.61463,
+          "p95_ms": 9.291577,
+          "samples": 2
+        },
+        "project": {
+          "p50_ms": 76.782517,
+          "p95_ms": 76.782517,
+          "samples": 1
+        },
+        "raster": {
+          "p50_ms": 90.275471,
+          "p95_ms": 90.275471,
+          "samples": 1
+        },
+        "recovery_build": {
+          "p50_ms": 65.79666,
+          "p95_ms": 65.79666,
+          "samples": 1
+        },
+        "recovery_reuse": {
+          "p50_ms": 8.960193,
+          "p95_ms": 8.960193,
+          "samples": 1
+        },
+        "surface_light": {
+          "p50_ms": 51.657243,
+          "p95_ms": 57.028311,
+          "samples": 2
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.574157,
+          "p95_ms": 2.745629,
+          "samples": 2
+        },
+        "visibility_keys": {
+          "p50_ms": 0.159906,
+          "p95_ms": 0.226698,
+          "samples": 2
+        },
+        "world_visibility": {
+          "p50_ms": 6.499621,
+          "p95_ms": 404.882634,
+          "samples": 2
+        }
+      },
+      "rows": [
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 7249766901,
+          "pass": "clear",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 76782517,
+          "pass": "project",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 90275471,
+          "pass": "raster",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 33408567,
+          "pass": "coarse_light",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 9682322,
+          "pass": "compose",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 65796660,
+          "pass": "recovery_build",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 226698,
+          "pass": "visibility_keys",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 2745629,
+          "pass": "visibility_invalidate",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 404882634,
+          "pass": "world_visibility",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 57028311,
+          "pass": "surface_light",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 9291577,
+          "pass": "output",
+          "serial": 1
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6304177,
+          "pass": "clear",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 82051495,
+          "pass": "project",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 93817728,
+          "pass": "raster",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28952968,
+          "pass": "coarse_light",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 11699262,
+          "pass": "compose",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 65427546,
+          "pass": "recovery_build",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 153344,
+          "pass": "visibility_keys",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1580427,
+          "pass": "visibility_invalidate",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 412662947,
+          "pass": "world_visibility",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 57751843,
+          "pass": "surface_light",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": false,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6621036,
+          "pass": "output",
+          "serial": 2
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7045991,
+          "pass": "clear",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 79456959,
+          "pass": "project",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 91423806,
+          "pass": "raster",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28965325,
+          "pass": "coarse_light",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8127704,
+          "pass": "compose",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 65113910,
+          "pass": "recovery_build",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 161098,
+          "pass": "visibility_keys",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1869827,
+          "pass": "visibility_invalidate",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 405888884,
+          "pass": "world_visibility",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52295392,
+          "pass": "surface_light",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6745116,
+          "pass": "output",
+          "serial": 3
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 29660837,
+          "pass": "coarse_light",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9506160,
+          "pass": "compose",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9928739,
+          "pass": "recovery_reuse",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 171427,
+          "pass": "visibility_keys",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 2096194,
+          "pass": "visibility_invalidate",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 407149597,
+          "pass": "world_visibility",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52197860,
+          "pass": "surface_light",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6985765,
+          "pass": "output",
+          "serial": 4
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6235862,
+          "pass": "clear",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 78418335,
+          "pass": "project",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 92553768,
+          "pass": "raster",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 29574422,
+          "pass": "coarse_light",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7758803,
+          "pass": "compose",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 65231153,
+          "pass": "recovery_build",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 190039,
+          "pass": "visibility_keys",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1932997,
+          "pass": "visibility_invalidate",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7871925,
+          "pass": "world_visibility",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 58302060,
+          "pass": "surface_light",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6638761,
+          "pass": "output",
+          "serial": 5
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 29232640,
+          "pass": "coarse_light",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8880287,
+          "pass": "compose",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8831034,
+          "pass": "recovery_reuse",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 187317,
+          "pass": "visibility_keys",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1676599,
+          "pass": "visibility_invalidate",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8824549,
+          "pass": "world_visibility",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52442403,
+          "pass": "surface_light",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6905115,
+          "pass": "output",
+          "serial": 6
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28968230,
+          "pass": "coarse_light",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7839780,
+          "pass": "compose",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9160491,
+          "pass": "recovery_reuse",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 172721,
+          "pass": "visibility_keys",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 2111608,
+          "pass": "visibility_invalidate",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 225643014,
+          "pass": "world_visibility",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 51440378,
+          "pass": "surface_light",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6556737,
+          "pass": "output",
+          "serial": 7
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 31734281,
+          "pass": "coarse_light",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8113163,
+          "pass": "compose",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 10844845,
+          "pass": "recovery_reuse",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 154144,
+          "pass": "visibility_keys",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 2574741,
+          "pass": "visibility_invalidate",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 419590759,
+          "pass": "world_visibility",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 51874529,
+          "pass": "surface_light",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6644297,
+          "pass": "output",
+          "serial": 8
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6225387,
+          "pass": "clear",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 68023774,
+          "pass": "project",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 77166131,
+          "pass": "raster",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 24354243,
+          "pass": "coarse_light",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7565327,
+          "pass": "compose",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 50749675,
+          "pass": "recovery_build",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 153289,
+          "pass": "visibility_keys",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1623392,
+          "pass": "visibility_invalidate",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 160781197,
+          "pass": "world_visibility",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 46688853,
+          "pass": "surface_light",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7071860,
+          "pass": "output",
+          "serial": 9
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6044612,
+          "pass": "clear",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 69265433,
+          "pass": "project",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 76439080,
+          "pass": "raster",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 24313690,
+          "pass": "coarse_light",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7757999,
+          "pass": "compose",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 51734665,
+          "pass": "recovery_build",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 195612,
+          "pass": "visibility_keys",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1678522,
+          "pass": "visibility_invalidate",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 5639065,
+          "pass": "world_visibility",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 47185618,
+          "pass": "surface_light",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6932370,
+          "pass": "output",
+          "serial": 10
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 5990096,
+          "pass": "clear",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 77300490,
+          "pass": "project",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 90853323,
+          "pass": "raster",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 29001247,
+          "pass": "coarse_light",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7744538,
+          "pass": "compose",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 66021902,
+          "pass": "recovery_build",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 205204,
+          "pass": "visibility_keys",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1666238,
+          "pass": "visibility_invalidate",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7382798,
+          "pass": "world_visibility",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 51830758,
+          "pass": "surface_light",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6600356,
+          "pass": "output",
+          "serial": 11
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 33887826,
+          "pass": "coarse_light",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8157316,
+          "pass": "compose",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 10509619,
+          "pass": "recovery_reuse",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 148606,
+          "pass": "visibility_keys",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 2207679,
+          "pass": "visibility_invalidate",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 225812870,
+          "pass": "world_visibility",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 43770366,
+          "pass": "surface_light",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6633147,
+          "pass": "output",
+          "serial": 12
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28884470,
+          "pass": "coarse_light",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7733002,
+          "pass": "compose",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9039940,
+          "pass": "recovery_reuse",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 140962,
+          "pass": "visibility_keys",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1565123,
+          "pass": "visibility_invalidate",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 216962394,
+          "pass": "world_visibility",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 53116067,
+          "pass": "surface_light",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8234829,
+          "pass": "output",
+          "serial": 13
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 10685264,
+          "pass": "clear",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 91764049,
+          "pass": "project",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 116320331,
+          "pass": "raster",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 64618899,
+          "pass": "coarse_light",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 21536127,
+          "pass": "compose",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 115009272,
+          "pass": "recovery_build",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 208270,
+          "pass": "visibility_keys",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1744737,
+          "pass": "visibility_invalidate",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 403047974,
+          "pass": "world_visibility",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 92306987,
+          "pass": "surface_light",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6745255,
+          "pass": "output",
+          "serial": 14
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6098767,
+          "pass": "clear",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 78150788,
+          "pass": "project",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 90188954,
+          "pass": "raster",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 37835018,
+          "pass": "coarse_light",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 11900517,
+          "pass": "compose",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 64606288,
+          "pass": "recovery_build",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 144967,
+          "pass": "visibility_keys",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1619407,
+          "pass": "visibility_invalidate",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7639461,
+          "pass": "world_visibility",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 51415619,
+          "pass": "surface_light",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6614333,
+          "pass": "output",
+          "serial": 15
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6314079,
+          "pass": "clear",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 76980624,
+          "pass": "project",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 90100846,
+          "pass": "raster",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28776146,
+          "pass": "coarse_light",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8637903,
+          "pass": "compose",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 64279863,
+          "pass": "recovery_build",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 144928,
+          "pass": "visibility_keys",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 2121278,
+          "pass": "visibility_invalidate",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 227766610,
+          "pass": "world_visibility",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 51143809,
+          "pass": "surface_light",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6932965,
+          "pass": "output",
+          "serial": 16
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7374957,
+          "pass": "clear",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 103993458,
+          "pass": "project",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 129269830,
+          "pass": "raster",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 29938088,
+          "pass": "coarse_light",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7760428,
+          "pass": "compose",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 79702098,
+          "pass": "recovery_build",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 134620,
+          "pass": "visibility_keys",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1878678,
+          "pass": "visibility_invalidate",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 642265881,
+          "pass": "world_visibility",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 53970072,
+          "pass": "surface_light",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": false,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6704618,
+          "pass": "output",
+          "serial": 17
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28995146,
+          "pass": "coarse_light",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7927179,
+          "pass": "compose",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8833166,
+          "pass": "recovery_reuse",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 183560,
+          "pass": "visibility_keys",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 2108921,
+          "pass": "visibility_invalidate",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 629253414,
+          "pass": "world_visibility",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 53304970,
+          "pass": "surface_light",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": false,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6808689,
+          "pass": "output",
+          "serial": 18
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6259902,
+          "pass": "clear",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 78176266,
+          "pass": "project",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 93374370,
+          "pass": "raster",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 29604092,
+          "pass": "coarse_light",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7847339,
+          "pass": "compose",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 64565731,
+          "pass": "recovery_build",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 160907,
+          "pass": "visibility_keys",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 1932097,
+          "pass": "visibility_invalidate",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9271530,
+          "pass": "world_visibility",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 51433135,
+          "pass": "surface_light",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6572102,
+          "pass": "output",
+          "serial": 19
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6873220,
+          "pass": "output",
+          "serial": 20
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 30037683,
+          "pass": "coarse_light",
+          "serial": 21
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 7868825,
+          "pass": "compose",
+          "serial": 21
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 8960193,
+          "pass": "recovery_reuse",
+          "serial": 21
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 159906,
+          "pass": "visibility_keys",
+          "serial": 21
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 1574157,
+          "pass": "visibility_invalidate",
+          "serial": 21
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 6499621,
+          "pass": "world_visibility",
+          "serial": 21
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 51657243,
+          "pass": "surface_light",
+          "serial": 21
+        },
+        {
+          "context": {
+            "block_access": true,
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "persistent_visibility": true,
+            "steps": 12,
+            "surface_continuity": true,
+            "visibility_diagnostics": false,
+            "world_contacts": true
+          },
+          "gpu_ns": 6614630,
+          "pass": "output",
+          "serial": 21
+        }
+      ],
+      "scope": "same resolution/options; changed-image solves including cold work; cached idle has no new samples",
+      "units": "GPU milliseconds"
+    },
+    "per-source invalidation matches full cold query": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "persistent cache preserves uncached visibility": {
+      "iou": 1.0,
+      "mae": 4.097683939420076e-11,
+      "max": 7.699709385633469e-07
+    },
+    "physical_android_tested": false,
+    "reference-selection domain prevents identity aliasing": {
+      "iou": 1.0,
+      "mae": 7.017727250850641e-11,
+      "max": 1.5390105545520782e-06
+    },
+    "reprojecting known source IDs reuses exact shadows": {
+      "iou": 1.0,
+      "mae": 4.097683939420076e-11,
+      "max": 7.699709385633469e-07
+    },
+    "returning to shared identity domain preserves source lighting": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "shared camera matches independently lit output": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "transport_requested_bytes": 1544056
+  },
+  "cache_kernel": {
+    "cases": {
+      "flat": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "reference": 1.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "hidden_step": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "reference": 0.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "metric_fade": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5590551181102362
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            1.0,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5590551181102362
+          ]
+        },
+        "reference": 0.5562282501266961,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5568627450980392,
+            0.5590551181102362
+          ]
+        }
+      },
+      "nonuniform_scale": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "reference": 0.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "opening": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "reference": 1.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "range": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "reference": 1.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "reverse": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "reference": 1.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      },
+      "rotation": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "reference": 0.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "same_master_other_instance": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "reference": 0.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      "slope": {
+        "cold": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "metric": {
+          "dirty": 255,
+          "hits": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "queries": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "moved": {
+          "dirty": 8,
+          "hits": [
+            1,
+            1,
+            1,
+            0,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "reference": 1.0,
+        "warm": {
+          "dirty": 0,
+          "hits": [
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          "queries": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "skips": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "visibility": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        }
+      }
+    },
+    "checks": 126,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "physical_android_tested": false
+  }
+}

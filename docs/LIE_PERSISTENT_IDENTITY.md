@@ -101,7 +101,62 @@ metric invalidation, uncached equivalence and real bank reload generations.
 Full-wall acceptance compares to WALL10, direct-block equivalence, camera and
 size reuse, two independent viewports, incompatible lights, source-domain
 isolation, exposure, idle and lease lifetime. Native results and signed APK
-identity will be appended after acceptance.
+identity are recorded below and in
+`checkpoints/LIE_PERSISTENT_IDENTITY_CHECKPOINT.json` and
+`checkpoints/LIE_PERSISTENT_IDENTITY_NATIVE.json`.
+
+## Accepted results and APK
+
+Runtime `cd70e6bca6079785f736ea5aa169b0a8b55fcf2f`,
+[run 38700372874](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372874):
+126 common GPU cache checks across ten disk-reference scenes, 59 full-wall
+checks, 33 source-identity checks and 13 command checks pass. The inherited
+field, contact, source-visibility, dense-piece and WALL07–10 suites also pass.
+Native import and runtime logs contain no engine errors or leaked resources.
+The earlier run `38699658069` also passed; the final commit adds complete BLAS
+domain identity, stale-release rejection and allocation-failure cleanup.
+
+| Changed-image event | New visibility queries | Reused visibility results |
+| --- | ---: | ---: |
+| Explicit cold solve | 161,154 | 0 |
+| Same camera, full reprojection | 0 | 161,154 |
+| Change source power | 0 | 161,154 |
+| Move only key light | 80,577 | 80,577 |
+| First 60° camera view | 34,210 | 81,600 |
+| Return to known camera | 0 | 161,154 |
+| Second independent view, same physical configuration | 0 | 161,154 |
+
+OFF versus WALL10 and direct blocks versus the original search both have
+exact RGB error 0 and coverage IoU 1. Across all other image comparisons, the
+maximum RGB difference is `1.5397090464830399e-6`, and every coverage IoU is 1.
+The saved 8-bit OFF/cold images match exactly. Separate light configurations
+invalidate their incompatible channel on the GPU, and returning to the first
+configuration restores its image. Zero power, fractional visibility, all eight
+slots, metric changes and bank reload/release generations are exercised in the
+actual common GPU code against the exhaustive float64 oracle.
+
+For this wall, the additional shared cache is 9,265,420 bytes (772,097 entries).
+All three source schedules total 97,632 bytes; the active LOD has 8,418 groups,
+535,670 genuine source invocations and 3,082 padding lanes. Control/counters
+request another 128 bytes per view. Appearance requests 251,994,824 bytes;
+transport requests 1,544,056 bytes. These are RD requested/referenced bytes,
+not process PSS or a physical VRAM measurement; shared bytes must not be added
+again for each consumer.
+
+On software Vulkan llvmpipe, the recorded visibility pass takes 407.15 ms cold
+and 7.87 ms on a known reprojected view, plus 2.12 ms for key/invalidation
+passes in that warm event. These are single-event diagnostics with counters
+enabled, not a benchmark distribution or Poco FPS. Projection, raster and
+appearance work still execute when the camera changes. The cache does not
+make a newly visible source free or remove the cost of moving a light.
+
+`LIE-Identidad-0.8.0.apk`: 57,854,901 bytes; SHA-256
+`569e33df259787ee09b0d3b493efc1335bf38bdff73ff40bdacb6be0930c7226`.
+Package `org.lieengine.wallruntime.v080`, version code 8, minimum SDK 24,
+target 36, ARM64 offline. V2/V3 signatures, 16 KiB alignment, actual WALL11
+main scene, unchanged bank and all source packets are verified. It installs
+beside 0.7. Both new performance switches default ON; diagnostic atomics
+default OFF. Godot core remains the official 4.7.2 build.
 
 The inherited scene is static. Geometry edits require rebuilt scene/field
 packets and a new cache domain. Fine occluders remain approximate captured

@@ -1,0 +1,720 @@
+{
+  "schema": "lie-persistent-identity-checkpoint/1",
+  "date_utc": "2026-10-15T07:47:26.052703+00:00",
+  "pr": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/pull/53",
+  "branch": "work/lie-persistent-identity",
+  "base_code": "b86087524d0abefb0fba535b6dd887f8202a2348",
+  "runtime_commit": "cd70e6bca6079785f736ea5aa169b0a8b55fcf2f",
+  "runtime_tree": "2e51a5b847e0d8e8b58d37d2b0f46a269769cd3c",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "source_packets_unchanged": {
+    "references": {
+      "file": "surface-refs.bin",
+      "bytes": 3088388,
+      "sha256": "f7aa45d72c635ecda77fb599e5fd778ab9b8b4d45b3f96ccef7ef268913d3cca"
+    },
+    "nodes": {
+      "file": "surface-bvh.bin",
+      "bytes": 4194240,
+      "sha256": "5b5295d22f6e1a7d4d063fe1d4d473b34b58046940f3a439a82e1deeec1a3775"
+    },
+    "leaves": {
+      "file": "surface-leaves.bin",
+      "bytes": 1748824,
+      "sha256": "9382bc31da50053b439dcb164cece4aea5b1ddfdd0ac0905004b8d4669e592ea"
+    },
+    "scene": {
+      "file": "surface-scene.bin",
+      "bytes": 13184,
+      "sha256": "f361b3507989fc829e44248bdbe4e983b3897c780b493974563d70fc8918b50c"
+    }
+  },
+  "scope": [
+    "validated semantic master/LOD/source identity",
+    "generation-guarded RD resolve and release",
+    "direct 64-thread job ownership, no source count change",
+    "shared mutable per-reference/instance visibility with per-light GPU position keys",
+    "one invisible collider and zero original source mesh draws"
+  ],
+  "local_tests": {
+    "reference_python": 2,
+    "source_python": 5,
+    "asset_python": 10,
+    "rig": 247,
+    "agent": 25,
+    "sample_identity": 33,
+    "commands": 13,
+    "fixed_staged_import_errors": 0,
+    "shader_compile_errors_after_fix": 0
+  },
+  "local_negative_cases": [
+    {
+      "case": "GLSL reserved word active",
+      "result": "compilation failed",
+      "fix": "renamed winner_flags; actual SPIR-V checked clean",
+      "log": {
+        "bytes": 64527,
+        "sha256": "62bed437a58232520ab8cfc1f4438fbcf248798520a6c1511d71c7b1fecf9f82"
+      }
+    },
+    {
+      "case": "numpy float32 JSON serialization",
+      "result": "fixture preparation failed before native submission",
+      "fix": "explicit scalar list conversion, unchanged exhaustive oracle"
+    },
+    {
+      "case": "staging while test file not yet authored",
+      "result": "missing test_lie_wall11_mobile.gd rejected stage",
+      "fix": "new clean stage after all files existed",
+      "log": {
+        "bytes": 1830,
+        "sha256": "e91a18564f7d752429ac12f58ec1775a3135cb7cd8a57d4abc59967ae70730c3"
+      }
+    }
+  ],
+  "prior_positive_runs": [
+    {
+      "runtime_commit": "ba6587959fec3037ecc87ae96093f0759ae72ba1",
+      "run_id": 38699658069,
+      "job_id": 116304478635,
+      "result": "success",
+      "artifact_id": 11955946747,
+      "artifact_zip_bytes": 59849182,
+      "artifact_zip_sha256": "01a7a47dbcccb88d53e73da7e975de9855d8185fa6b3f95d4845c9515c676a3d",
+      "kernel_checks": 125,
+      "wall_checks": 59,
+      "followup": "bind full BLAS identity, guard stale bank release, handle failed cache allocation"
+    }
+  ],
+  "native": {
+    "run_id": 38700372874,
+    "job_id": 116306829284,
+    "result": "success",
+    "artifact_id": 11955902950,
+    "artifact_zip_bytes": 59849663,
+    "artifact_zip_sha256": "7b79771d60b08add18b1cfbd82fe21d1be81c01a3204a6549c28826ec36b9220",
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "cache_kernel_checks": 126,
+    "cache_kernel_cases": 10,
+    "wall_checks": 59,
+    "identity_checks": 33,
+    "command_checks": 13,
+    "previous_source_visibility_checks": 68,
+    "previous_dense_piece_checks": 15,
+    "previous_wall10_checks": 18,
+    "previous_field_checks": 374,
+    "previous_surface_field_checks": 404,
+    "previous_surface_checks": 88,
+    "off_vs_wall10": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "blocks_vs_search": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "max_compared_rgb_error": 1.5397090464830399e-06,
+    "all_compared_coverage_iou_one": true,
+    "events": {
+      "cold": {
+        "queries": 161154,
+        "hits": 0,
+        "per_light_queries": [
+          80577,
+          80577,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 255,
+        "software_vulkan_ms": {
+          "coarse_light": 29.660837,
+          "compose": 9.50616,
+          "recovery_reuse": 9.928739,
+          "visibility_keys": 0.171427,
+          "visibility_invalidate": 2.096194,
+          "world_visibility": 407.149597,
+          "surface_light": 52.19786,
+          "output": 6.985765
+        }
+      },
+      "warm": {
+        "queries": 0,
+        "hits": 161154,
+        "per_light_queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          80577,
+          80577,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 0,
+        "software_vulkan_ms": {
+          "clear": 6.235862,
+          "project": 78.418335,
+          "raster": 92.553768,
+          "coarse_light": 29.574422,
+          "compose": 7.758803,
+          "recovery_build": 65.231153,
+          "visibility_keys": 0.190039,
+          "visibility_invalidate": 1.932997,
+          "world_visibility": 7.871925,
+          "surface_light": 58.30206,
+          "output": 6.638761
+        }
+      },
+      "radiometry": {
+        "queries": 0,
+        "hits": 161154,
+        "per_light_queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          80577,
+          80577,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 0,
+        "software_vulkan_ms": {
+          "coarse_light": 29.23264,
+          "compose": 8.880287,
+          "recovery_reuse": 8.831034,
+          "visibility_keys": 0.187317,
+          "visibility_invalidate": 1.676599,
+          "world_visibility": 8.824549,
+          "surface_light": 52.442403,
+          "output": 6.905115
+        }
+      },
+      "moved_key": {
+        "queries": 80577,
+        "hits": 80577,
+        "per_light_queries": [
+          80577,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          0,
+          80577,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 1,
+        "software_vulkan_ms": {
+          "coarse_light": 28.96823,
+          "compose": 7.83978,
+          "recovery_reuse": 9.160491,
+          "visibility_keys": 0.172721,
+          "visibility_invalidate": 2.111608,
+          "world_visibility": 225.643014,
+          "surface_light": 51.440378,
+          "output": 6.556737
+        }
+      },
+      "angle": {
+        "queries": 34210,
+        "hits": 81600,
+        "per_light_queries": [
+          17105,
+          17105,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          40800,
+          40800,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 0,
+        "software_vulkan_ms": {
+          "clear": 6.225387,
+          "project": 68.023774,
+          "raster": 77.166131,
+          "coarse_light": 24.354243,
+          "compose": 7.565327,
+          "recovery_build": 50.749675,
+          "visibility_keys": 0.153289,
+          "visibility_invalidate": 1.623392,
+          "world_visibility": 160.781197,
+          "surface_light": 46.688853,
+          "output": 7.07186
+        }
+      },
+      "angle_warm": {
+        "queries": 0,
+        "hits": 115810,
+        "per_light_queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          57905,
+          57905,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 0,
+        "software_vulkan_ms": {
+          "clear": 6.044612,
+          "project": 69.265433,
+          "raster": 76.43908,
+          "coarse_light": 24.31369,
+          "compose": 7.757999,
+          "recovery_build": 51.734665,
+          "visibility_keys": 0.195612,
+          "visibility_invalidate": 1.678522,
+          "world_visibility": 5.639065,
+          "surface_light": 47.185618,
+          "output": 6.93237
+        }
+      },
+      "camera_return": {
+        "queries": 0,
+        "hits": 161154,
+        "per_light_queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          80577,
+          80577,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 0,
+        "software_vulkan_ms": {
+          "clear": 5.990096,
+          "project": 77.30049,
+          "raster": 90.853323,
+          "coarse_light": 29.001247,
+          "compose": 7.744538,
+          "recovery_build": 66.021902,
+          "visibility_keys": 0.205204,
+          "visibility_invalidate": 1.666238,
+          "world_visibility": 7.382798,
+          "surface_light": 51.830758,
+          "output": 6.600356
+        }
+      },
+      "second_view": {
+        "queries": 0,
+        "hits": 161154,
+        "per_light_queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "per_light_hits": [
+          80577,
+          80577,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "dirty_mask": 0,
+        "software_vulkan_ms": {}
+      }
+    },
+    "appearance_requested_bytes": 251994824,
+    "transport_requested_bytes": 1544056,
+    "shared_cache": {
+      "active_groups": 8418,
+      "allocation_count": 2,
+      "block_access": true,
+      "block_table_bytes": 97632,
+      "diagnostics": false,
+      "enabled": true,
+      "padding": 3082,
+      "reference_entries": 772097,
+      "scope": "stable source-reference/instance identity; camera independent; per-light position and metric invalidation",
+      "shared": {
+        "allocations_total": 2,
+        "domains": 1,
+        "references": 1,
+        "resident_bytes": 9265420,
+        "scope": "source-reference/instance identity and scene; light positions validated on GPU"
+      }
+    },
+    "timing_scope": "single event diagnostics, software Vulkan; not mobile benchmark or FPS",
+    "physical_android_tested": false
+  },
+  "apk": {
+    "filename": "LIE-Identidad-0.8.0.apk",
+    "bytes": 57854901,
+    "sha256": "569e33df259787ee09b0d3b493efc1335bf38bdff73ff40bdacb6be0930c7226",
+    "package": "org.lieengine.wallruntime.v080",
+    "version": "0.8.0-persistent-light",
+    "version_code": 8,
+    "abi": "arm64-v8a",
+    "sdk_min": 24,
+    "sdk_target": 36,
+    "signatures_v2_v3_verified": true,
+    "zipalign_16kib_verified": true,
+    "offline": true,
+    "main_scene_verified": "lie_wall11_android_lab.tscn",
+    "side_by_side_with_070": true
+  },
+  "evidence_files": {
+    "wall11-native.json": {
+      "bytes": 107343,
+      "sha256": "1b1db61169c79af79c9ca12ed363dd6d6775abf753b4ab863bece57768d6b9d6"
+    },
+    "persistent-visibility-native.json": {
+      "bytes": 24989,
+      "sha256": "915a4ff0dace397d89a19e33583b142f38e20f2f27f1cfe6f944c782dd4f1945"
+    },
+    "wall11-off.png": {
+      "bytes": 205428,
+      "sha256": "596b04bb8efc0355783f08540e8b796a944698acf404bb4e913f18d6055c9fe8"
+    },
+    "wall11-cold.png": {
+      "bytes": 205428,
+      "sha256": "596b04bb8efc0355783f08540e8b796a944698acf404bb4e913f18d6055c9fe8"
+    },
+    "wall11-angle.png": {
+      "bytes": 135768,
+      "sha256": "d0f352f2ed3f29403d448f0a40638ee8881b36869d15eaf97dd11ea5313a22e7"
+    },
+    "android-build.json": {
+      "bytes": 1930,
+      "sha256": "15b4bb180939057f1423c8c85c6e9ef3c05936124a5028750a483beb08261e69"
+    },
+    "android-build.log": {
+      "bytes": 23650,
+      "sha256": "36da21c25ad5b5faa3941ba9e3caedbcde3a114183d8e60eed8f95772379fe58"
+    },
+    "ci-job.log": {
+      "bytes": 86388,
+      "sha256": "aab1d71c6e6b324ba0015aa1cb80ace03741e23336852ffc795319b3976d8363"
+    },
+    "sample-identity.log": {
+      "bytes": 97,
+      "sha256": "0c2a59017b8136e7ea126ec4ea6099aabdec8d47b30de1599eb778e6738c372f"
+    },
+    "persistent-command.log": {
+      "bytes": 100,
+      "sha256": "7f0b027aa22c8128e0f80ef6c497ef7ce8b92cb581881db7d4a9c2e75280ae19"
+    },
+    "persistent-gpu.log": {
+      "bytes": 191,
+      "sha256": "ec912e8e31ff8297160bbd081617434216b754ecbd9e75d9b2ff0f9564dab2a1"
+    },
+    "wall11-mobile.log": {
+      "bytes": 3853,
+      "sha256": "7a4957963294094ded1b1c9b20d2bf79da49fcca0deb3d052100e949d1cc6379"
+    }
+  },
+  "source_files": {
+    ".github/workflows/lie-persistent-identity-mobile.yml": "7752e99d09818440d4e297a2865b27fd6f0ef88da33fe274e499b1522cf3f511",
+    "gpu_compute/lie22_modular_effect.gd": "36bf54ec2092bf370a14e7f772db349e7c7597809005cdc83bef7539991c8972",
+    "gpu_compute/lie_sample_identity.gd": "9ae062a4f8aa8966e2d433de515db45a20f89c08d94e12febd217698990bb33c",
+    "gpu_compute/lie_shared_sample_buffers.gd": "547546981779f2bab3bcf05ec2e1ec064d910b020ed67296577bd1c627dd271f",
+    "gpu_compute/lie_shared_shadow_cache.gd": "a161eda3b42c546723ef81450a1239c1fe278fe8a85ce05d5d34c4d32a5ed155",
+    "gpu_compute/lie_wall11_android_lab.gd": "12088de7a9ce42f3be57cae40a2a76d7e6b2b0be94dc57534dc1b853cb17c495",
+    "gpu_compute/lie_wall11_android_lab.tscn": "63b6b193419b73f9609b8a9c414e44168ce3e1b87599cd17e222cddee9dd6686",
+    "gpu_compute/lie_wall11_persistent_effect.gd": "50a475949c439b65ae15fc2003001c63b2a41fb5b67d85bd47d50bde1d464b94",
+    "gpu_compute/shaders/lib/lie_persistent_visibility.glslinc": "ea464976c26cd8813e1f32c094e70198d39d7800616df97f1622efec37181ff2",
+    "gpu_compute/shaders/lie_persistent_visibility_test.glsl": "acc37d25634bd5187c69301729d0d7acf76b987054b616bba978e4b53b505e59",
+    "gpu_compute/shaders/lie_wall11_persistent.glsl": "c1919bb19cc1d950245b2b57be57a903b8f98667ac00c12b564c318c10c5928a",
+    "gpu_compute/test_lie_persistent_gpu.gd": "7bf5dcf9f55b4c183df9ad194d75aacde663d5260b0c9ecafa24fe8d6da296a4",
+    "gpu_compute/test_lie_sample_identity.gd": "d6f627386b5d9865f47130de8c1950b4857f354fca744dbd24790efea6c30180",
+    "gpu_compute/test_lie_wall11_commands.gd": "1c98d9b5f524ed179287cd6e56709beb35966749949ac69c3d826dcff9ab915f",
+    "gpu_compute/test_lie_wall11_mobile.gd": "fd183829024284ba3e62ec913ae15b72847697501ac9101f0edf4ddc5e7fa8ae",
+    "tests/test_lie_persistent_reference.py": "1612269f7ffb0c158585b3e14337e32eff7118611d982e88b38dd572fcaff8b4",
+    "tools/lie_persistent_reference.py": "886fcc7024a3de37974b20af105b8dda956329572fea1952b46d40c354d5577a",
+    "tools/lie_wall11_android_build.py": "6b8ac28aa5b80df2a2f4a319654f98cf7f033bb9e6197a2c8f60c15622b3d28f",
+    "tools/lie_wall11_shader.py": "90ebc75af43619eacda5b69c01789bff4c69174a4f7f5e6b8e495a0e6f0ebf37"
+  },
+  "limits": [
+    "immutable authored scene; geometry edits require new scene/field packets",
+    "no streaming/prefetch or zero-latency claim for disk misses",
+    "fine geometry is approximate captured tangent disks",
+    "point-light movement invalidates that entire light channel",
+    "incompatible light configurations between views may thrash cache",
+    "no new BSDF or area emitter; source grain remains",
+    "software Vulkan diagnostic timings do not establish physical Poco FPS"
+  ],
+  "ci_snapshot": {
+    "workflow_runs": [
+      {
+        "id": 38700372906,
+        "name": "LIE-26 anatomical rig",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 225,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372906/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372906/logs",
+        "workflow_id": 381351026
+      },
+      {
+        "id": 38700373024,
+        "name": "LIE-27 spherical regions and face",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 219,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700373024/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700373024/logs",
+        "workflow_id": 381499134
+      },
+      {
+        "id": 38700372866,
+        "name": "LIE runtime lighting and shared samples",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 38,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372866/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372866/logs",
+        "workflow_id": 384540140
+      },
+      {
+        "id": 38700372888,
+        "name": "LIE-11 coded sprite light transport",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 339,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372888/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372888/logs",
+        "workflow_id": 380031393
+      },
+      {
+        "id": 38700372998,
+        "name": "LIE-22 shared eyes and modular destruction",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 256,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372998/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372998/logs",
+        "workflow_id": 380619138
+      },
+      {
+        "id": 38700372995,
+        "name": "LIE-14 rigid masters and perception boxes",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 316,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372995/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372995/logs",
+        "workflow_id": 380269909
+      },
+      {
+        "id": 38700372992,
+        "name": "LIE-20 captured human, invisible deformation and skin",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 267,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372992/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372992/logs",
+        "workflow_id": 380515192
+      },
+      {
+        "id": 38700372922,
+        "name": "LIE common asset contract and continuous light",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 14,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372922/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372922/logs",
+        "workflow_id": 384946975
+      },
+      {
+        "id": 38700372949,
+        "name": "LIE-12 captured grayscale material and node lighting",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 336,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372949/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372949/logs",
+        "workflow_id": 380084815
+      },
+      {
+        "id": 38700373126,
+        "name": "LIE-13 finite secondary radii and dielectric sprites",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 325,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700373126/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700373126/logs",
+        "workflow_id": 380110265
+      },
+      {
+        "id": 38700372931,
+        "name": "LIE-15 Arcont robot and compact camera reconstruction",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 305,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372931/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372931/logs",
+        "workflow_id": 380305820
+      },
+      {
+        "id": 38700372923,
+        "name": "LIE-21 human quality versus Cycles and LIE-20",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 260,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372923/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372923/logs",
+        "workflow_id": 380544768
+      },
+      {
+        "id": 38700372898,
+        "name": "LIE-17 contrast-guided edges and measured filter cost",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 288,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372898/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372898/logs",
+        "workflow_id": 380358730
+      },
+      {
+        "id": 38700372853,
+        "name": "LIE-16 stable capture quality and measured consumer cost",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 298,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372853/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372853/logs",
+        "workflow_id": 380332911
+      },
+      {
+        "id": 38700372874,
+        "name": "LIE stable identity and persistent light",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 2,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372874/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372874/logs",
+        "workflow_id": 385248793
+      },
+      {
+        "id": 38700372984,
+        "name": "LIE-01 native acceptance",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 440,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372984/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372984/logs",
+        "workflow_id": 379478425
+      },
+      {
+        "id": 38700372836,
+        "name": "LIE-23 integrated eyes and continuous captured eyelids",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 251,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372836/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372836/logs",
+        "workflow_id": 380663205
+      },
+      {
+        "id": 38700372824,
+        "name": "LIE-18 workshop, shared agent API and GPU transport",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 284,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372824/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372824/logs",
+        "workflow_id": 380402547
+      },
+      {
+        "id": 38700372881,
+        "name": "LIE-24 captured facial construction and compatible modules",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 233,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372881/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38700372881/logs",
+        "workflow_id": 381080040
+      }
+    ],
+    "checked_at_utc": "2026-10-15T07:48:34.107132+00:00"
+  }
+}
