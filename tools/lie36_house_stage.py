@@ -14,6 +14,7 @@ FILES=[
     "lie28_building_lab.gd",
     "lie_shared_sample_buffers.gd",
     "lie_asset_catalog.gd",
+    "lie_gpu_pass_profile.gd",
     "lie36_house_effect.gd",
     "lie36_house_lab.gd",
     "lie36_house_lab.tscn",
