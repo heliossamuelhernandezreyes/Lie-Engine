@@ -4,11 +4,11 @@ const HouseEffect=preload("res://lie36_house_effect.gd")
 var house_plan: Dictionary={}
 func _ready() -> void:
     get_window().size=Vector2i(1280,800)
-    state["camera_yaw"]=35.
-    state["camera_elevation"]=19.
+    state["camera_yaw"]=-165.
+    state["camera_elevation"]=24.
     state["distance_factor"]=1.85
-    state["light_azimuth"]=-52.
-    state["exposure"]=2.0
+    state["light_azimuth"]=-135.
+    state["exposure"]=2.65
     state["variation"]=0.
     state["roof"]=true
     effect=HouseEffect.new(512)
@@ -68,6 +68,8 @@ func _instances() -> Array:
         var pitch: float=float(item["pitch"])
         var yaw: float=float(item["yaw"])
         var basis: Basis=Basis(Vector3.RIGHT,pitch) if absf(pitch)>.0001 else Basis(Vector3.UP,yaw)
+        var scale: Array=item.get("scale",[1,1,1])
+        basis=basis.scaled_local(Vector3(scale[0],scale[1],scale[2]))
         result.append({"master":item["master"],"pose":Transform3D(basis,Vector3(p[0],p[1],p[2]))})
     return result
 
