@@ -1,0 +1,14 @@
+// Conservative row intervals for the SAME projected ellipse and pixel grid.
+// Final covered() and all depth/ownership rules remain authoritative.
+ivec2 lie_splat_row(Projection p,ivec2 center,int y,int bound) {
+    float dy=float(y)+.5-p.screen.y;
+    float A=p.ellipse.x,B=p.ellipse.y,C=p.ellipse.z;
+    float cross_section=1.-(C-B*B/A)*dy*dy;
+    if(A<=0. || isnan(cross_section) || isinf(cross_section))return ivec2(center.x-bound,center.x+bound);
+    // A one-pixel guard on both ends preserves floating-point boundary cases.
+    // Even a slightly negative section receives a conservative candidate.
+    float span=sqrt(max(cross_section,0.)/A);
+    float middle=p.screen.x-B*dy/A-.5;
+    return ivec2(max(center.x-bound,int(floor(middle-span))-1),
+                 min(center.x+bound,int(ceil(middle+span))+1));
+}

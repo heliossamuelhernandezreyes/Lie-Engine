@@ -1,0 +1,219 @@
+name: LIE material response and bounded raster
+on:
+  pull_request:
+    paths: ["tools/lie_wall12*", "tools/lie_opaque_reference.py", "gpu_compute/lie_wall12*", "gpu_compute/test_lie_wall12*", "gpu_compute/test_lie_opaque_gpu.gd", "gpu_compute/shaders/lie_wall12_material.glsl", "gpu_compute/shaders/lie_opaque_test.glsl", "gpu_compute/shaders/lib/lie_opaque_brdf.glslinc", "gpu_compute/shaders/lib/lie_splat_work.glslinc", "tests/test_lie_opaque_reference.py", ".github/workflows/lie-material-light-mobile.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lie-material-light-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  native-and-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare verified shared sources and independent regressions
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m unittest discover -s tests -p 'test_lie_light_field.py' -v
+          python -m unittest discover -s tests -p 'test_lie_surface_light.py' -v
+          python -m unittest discover -s tests -p 'test_lie_asset_surface.py' -v
+          python -m unittest discover -s tests -p 'test_lie_persistent_reference.py' -v
+          python -m unittest discover -s tests -p 'test_lie_opaque_reference.py' -v
+          python -m unittest discover -s tests -p 'test_lie_asset*.py' -v
+          python -m unittest discover -s tests -p 'test_lie_brick02_capture.py' -v
+          python -m unittest discover -s tests -p 'test_lie_wall06*.py' -v
+          python -m unittest discover -s tests -p 'test_lie35*.py' -v
+          python -m unittest discover -s tests -p 'test_lie_wall05*.py' -v
+          python tools/lie_wall05_shader.py
+          python tools/lie_wall05_optical_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall05*.glsl
+          python tools/lie_wall07_shader.py
+          python tools/lie_light_field_shader.py
+          python tools/lie_surface_light_shader.py
+          python tools/lie_wall09_shader.py
+          python tools/lie_wall10_shader.py
+          python tools/lie_wall11_shader.py
+          python tools/lie_wall12_shader.py
+          python tools/lie_opaque_reference.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall12_material.glsl gpu_compute/shaders/lie_opaque_test.glsl
+          python tools/lie_persistent_reference.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall11_persistent.glsl gpu_compute/shaders/lie_persistent_visibility_test.glsl
+          python tools/lie_source_visibility_fixture.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall10_source.glsl gpu_compute/shaders/lie_source_visibility_test.glsl
+          python tools/lie_surface_reference.py
+          git diff --exit-code -- gpu_compute/shaders/lie_surface_light.glsl gpu_compute/shaders/lie_wall09_surface.glsl gpu_compute/shaders/lie_surface_test.glsl
+          git diff --exit-code -- gpu_compute/shaders/lie_light_field.glsl
+          python tools/lie_wall12_android_build.py --stage /tmp/lie-assets-ci
+          git diff --exit-code -- gpu_compute/shaders/lie_wall07_continuous.glsl gpu_compute/shaders/lie_asset_stencil_test.glsl
+      - name: Install native Godot and actual Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Real Mobile images and geometry-light-cache acceptance
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --editor --import --quit > assets-import.log 2>&1
+          set -o pipefail
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall07_mobile.gd 2>&1 | tee assets-mobile.log
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_asset_stencil_gpu.gd 2>&1 | tee asset-stencil.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_light_registry.gd 2>&1 | tee light-contract.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall08_commands.gd 2>&1 | tee light-command.log
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_light_field_gpu.gd 2>&1 | tee light-field.log
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall08_mobile.gd 2>&1 | tee wall08-mobile.log
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_surface_gpu.gd 2>&1 | tee surface.log
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_surface_field_gpu.gd 2>&1 | tee surface-field.log
+          xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall09_mobile.gd 2>&1 | tee wall09-mobile.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall09_commands.gd 2>&1 | tee surface-command.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_source_visibility_gpu.gd 2>&1 | tee source-visibility.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_source_reference_gpu.gd 2>&1 | tee source-piece.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall10_mobile.gd 2>&1 | tee wall10-mobile.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall10_commands.gd 2>&1 | tee source-command.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_sample_identity.gd 2>&1 | tee sample-identity.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall11_commands.gd 2>&1 | tee persistent-command.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_persistent_gpu.gd 2>&1 | tee persistent-gpu.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall11_mobile.gd 2>&1 | tee wall11-mobile.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall12_commands.gd 2>&1 | tee material-command.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_opaque_gpu.gd 2>&1 | tee opaque-gpu.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall12_mobile.gd 2>&1 | tee wall12-mobile.log
+          python - <<'PY'
+          from pathlib import Path
+          for name in ['assets-import.log','assets-mobile.log','asset-stencil.log','light-contract.log','light-command.log','light-field.log','wall08-mobile.log','surface.log','surface-field.log','wall09-mobile.log','surface-command.log','source-visibility.log','source-piece.log','wall10-mobile.log','source-command.log','sample-identity.log','persistent-command.log','persistent-gpu.log','wall11-mobile.log','material-command.log','opaque-gpu.log','wall12-mobile.log']:
+            text=Path(name).read_text()
+            assert 'ERROR:' not in text and 'were leaked at exit' not in text,text[-15000:]
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: '12266719'
+          packages: 'platform-tools build-tools;36.0.0'
+          log-accepted-android-sdk-licenses: false
+      - name: Verified official Android template and SDK
+        run: |
+          test -x "$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          curl -fL --retry 3 -o godot-templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
+          echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  godot-templates.tpz' | sha256sum -c -
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -j -q godot-templates.tpz templates/android_debug.apk -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+      - name: Export, normalize, align, sign and verify actual APK
+        run: |
+          keytool -genkeypair -keystore /tmp/lie-wall06-debug.keystore -storepass android -keypass android \
+            -alias androiddebugkey -dname 'CN=LIE Experimental Android,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
+          python tools/lie_wall12_android_build.py --stage /tmp/lie-assets-export \
+            --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" \
+            --keystore /tmp/lie-wall06-debug.keystore --output "$PWD/apk/LIE-Material-0.9.0.apk"
+          python - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          p=Path('apk/LIE-Material-0.9.0.apk');z=zipfile.ZipFile(p)
+          assert z.testzip() is None
+          cat=json.loads(z.read('assets/captures/liewall06/catalog.json'))
+          assert hashlib.sha256(z.read('assets/captures/liewall06/library.bin')).hexdigest()==cat['sha256']
+          assert 'assets/captures/liewall04/library.bin' not in z.namelist()
+          assert 'assets/captures/liewall05/library.bin' not in z.namelist()
+          manifest=json.loads(z.read('assets/captures/liewall06/asset-contract.json'))
+          assert manifest['bank_sha256']==cat['sha256']
+          group=json.loads(z.read('assets/captures/liewall06/light-groups.json'))
+          assert hashlib.sha256(z.read('assets/captures/liewall06/light-groups.bin')).hexdigest()==group['sha256']
+          proof=json.loads(z.read('assets/captures/liewall06/light-field.json'))
+          for meta in proof['sources'].values():
+            raw=z.read('assets/captures/liewall06/'+meta['file'])
+            assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
+          surface=json.loads(z.read('assets/captures/liewall06/surface-source.json'))
+          assert surface['source_bank_sha256']==cat['sha256']
+          for meta in surface['packets'].values():
+            raw=z.read('assets/captures/liewall06/'+meta['file'])
+            assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
+          for n in ['sample-refs.bin','optics.bin','outgoing-csr.bin','shadow-caps.bin']:
+            data=z.read('assets/captures/liewall06/'+n)
+            proof=cat['wall05'].get(n,{})
+            expected=proof.get('sha256',cat['wall05']['reference_sha256'])
+            assert hashlib.sha256(data).hexdigest()==expected
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-material-light-apk-and-native
+          path: |
+            assets-import.log
+            assets-mobile.log
+            /tmp/lie-assets-ci/wall07-native.json
+            /tmp/lie-assets-ci/wall07-*.png
+            asset-stencil.log
+            /tmp/lie-assets-ci/asset-stencil-native.json
+            light-contract.log
+            light-command.log
+            light-field.log
+            wall08-mobile.log
+            /tmp/lie-assets-ci/light-field-native.json
+            /tmp/lie-assets-ci/wall08-native.json
+            /tmp/lie-assets-ci/wall08-*.png
+            surface.log
+            surface-field.log
+            surface-command.log
+            wall09-mobile.log
+            /tmp/lie-assets-ci/surface-native.json
+            /tmp/lie-assets-ci/wall09-native.json
+            /tmp/lie-assets-ci/wall09-*.png
+            source-visibility.log
+            source-piece.log
+            source-command.log
+            wall10-mobile.log
+            /tmp/lie-assets-ci/source-visibility-native.json
+            /tmp/lie-assets-ci/source-piece-native.json
+            /tmp/lie-assets-ci/source-piece-*.png
+            /tmp/lie-assets-ci/wall10-native.json
+            /tmp/lie-assets-ci/wall10-*.png
+            sample-identity.log
+            persistent-command.log
+            persistent-gpu.log
+            wall11-mobile.log
+            /tmp/lie-assets-ci/persistent-visibility-native.json
+            /tmp/lie-assets-ci/wall11-native.json
+            /tmp/lie-assets-ci/wall11-*.png
+            material-command.log
+            opaque-gpu.log
+            wall12-mobile.log
+            /tmp/lie-assets-ci/opaque-native.json
+            /tmp/lie-assets-ci/wall12-native.json
+            /tmp/lie-assets-ci/wall12-*.png
+            apk/
+          if-no-files-found: error
