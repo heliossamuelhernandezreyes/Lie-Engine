@@ -1,0 +1,330 @@
+{
+  "schema": "lie-surface-light-checkpoint/1",
+  "pr": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/pull/51",
+  "branch": "work/lie-contact-relief",
+  "base_code": "f59bfaada32a571e7b89973634239e1c957a265e",
+  "runtime_commit": "a6ad06dd86053eaea4b65fce0a7f0cb6adde08e8",
+  "runtime_tree": "af54fcb3418ea675e636645c9f9767cc22838579",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "physical_android_tested": false,
+  "scope": [
+    "GPU-only exact direct irradiance packet",
+    "captured position/normal direct response",
+    "bounded observed-surface contact shadows",
+    "asynchronous per-pass GPU timestamps grouped by actual options"
+  ],
+  "limits": [
+    "screen-space hidden/offscreen occluders may be missed",
+    "local direct quadrature not image-integrated flux certified",
+    "source coverage pinholes persist",
+    "software Vulkan timing is not Poco performance"
+  ],
+  "local_tests": {
+    "surface_python": 5,
+    "field_python": 6,
+    "rig": 247,
+    "agent_session": 25,
+    "surface_commands": 10,
+    "headless_import_errors": 0
+  },
+  "prior_positive_runs": [
+    {
+      "commit": "ea48dee17e1c246c6ab371de14330ee61825f2a7",
+      "run_id": 38670109660,
+      "job_id": 116210993032,
+      "result": "success",
+      "artifact_id": 11943936212,
+      "artifact_zip_sha256": "17d9fd39e1ff83877a3b45aa451bd9f1d7ee9516c064401c982c6ec9699c5ee3",
+      "surface_checks": 88,
+      "field_checks": 404,
+      "wall_checks": 14,
+      "commands": 9
+    },
+    {
+      "commit": "c11f2de1a1d075b242891de6d6aba59010d100d2",
+      "run_id": 38670391087,
+      "job_id": 116211909277,
+      "result": "success",
+      "artifact_id": 11944031715,
+      "artifact_zip_sha256": "09ce2f2eafec5b702911c0a8c364e25decc1eb8cbc5add2c7eec3dd6d86315d8",
+      "change": "Accept integral JSON agent numbers"
+    },
+    {
+      "commit": "de5852ed9646cd4867c836aa306c6c2c60c8dd00",
+      "run_id": 38670691377,
+      "job_id": 116212863061,
+      "artifact_id": 11943522581,
+      "artifact_zip_sha256": "4dfd545f1e7c84a15b75aed6ec0964481d03f95dd65c24c8368984f5e688884b",
+      "result": "success",
+      "contact_checks": 88,
+      "field_checks": 404,
+      "wall_checks": 16,
+      "commands": 10,
+      "apk_sha256": "1271aebe57ca53e0bdd482398596c730aeef83122d301f53ed696ff1f9c90e1e",
+      "change": "Group timestamp percentiles by actual GPU options and resolution"
+    }
+  ],
+  "local_failures": [
+    {
+      "case": "rotated fixture exact pixel corner",
+      "result": "failed rigid invariance before a declared subpixel query offset; real-camera corner continuity is not established"
+    },
+    {
+      "case": "historical WALL04 staging source truncated",
+      "rejected_bytes": 44040192,
+      "rejected_sha256": "25ddcaf3f14ebe193f2dfba505db9d4cf99a858b9f2d42d87f0a456ca08e8a25",
+      "restored_bytes": 61767760,
+      "restored_sha256": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da"
+    }
+  ],
+  "native": {
+    "run_id": 38671285731,
+    "job_id": 116214766888,
+    "result": "success",
+    "artifact_id": 11944472295,
+    "artifact_zip_bytes": 54422754,
+    "artifact_zip_sha256": "878d0b2d916478f10ea9a7fd9492bc7d34479e27519670a308b66d58005c972d",
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "contact_checks": 88,
+    "surface_field_checks": 404,
+    "surface_field_scenarios": 15,
+    "wall_checks": 16,
+    "commands": 10,
+    "previous_common_field_checks": 374,
+    "previous_wall07_checks": 27,
+    "previous_wall08_checks": 26,
+    "asset_stencil_gpu_queries": 80,
+    "registry_checks": 27,
+    "previous_commands": 13,
+    "headless_import_errors": 0,
+    "gpu_cpu_field_max_error": 3.34194344520089e-06,
+    "source_superposition_max_error": 1.6577541828155518e-07,
+    "off_vs_wall08": {
+      "iou": 1.0,
+      "mae": 3.636214979781624e-11,
+      "max": 1.1920928955078125e-07
+    },
+    "contact_only": {
+      "alpha_error": 0.0,
+      "darkened_channels": 80982,
+      "max_brightening": 1.1920928955078125e-07
+    },
+    "cached_vs_cold": {
+      "iou": 1.0,
+      "mae": 4.623345525353081e-11,
+      "max": 7.636845111846924e-07
+    },
+    "appearance_requested_bytes": 230675396,
+    "transport_requested_bytes": 1544056,
+    "timestamp_context": {
+      "contacts": true,
+      "detail": true,
+      "internal_size": 1080,
+      "steps": 12
+    },
+    "physical_android_tested": false
+  },
+  "apk": {
+    "filename": "LIE-Relieve-0.6.0.apk",
+    "bytes": 53354134,
+    "sha256": "7e431082ce29597b5c55424ef8ea083d97220db5a0c0beed8793b203bce7945b",
+    "package": "org.lieengine.wallruntime.v060",
+    "version": "0.6.0-surface-light",
+    "version_code": 6,
+    "abi": "arm64-v8a",
+    "sdk_min": 24,
+    "sdk_target": 36,
+    "signature_v2_verified": true,
+    "signature_v3_verified": true,
+    "zipalign_16kib_verified": true,
+    "offline": true,
+    "side_by_side_with_050": true
+  },
+  "evidence_files": {
+    "wall09-native.json": {
+      "bytes": 16494,
+      "sha256": "342e59d1b4be77f53209a622d3cebe648b80437f1b8612fed510ab97e80ef211"
+    },
+    "surface-native.json": {
+      "bytes": 887,
+      "sha256": "fb2ec7bf7380fa7fc8e495b951bfcc10d403c031321fa1dc06ef2ff14056022e"
+    },
+    "light-field-native.json": {
+      "bytes": 14472,
+      "sha256": "b98dd78c0a19b160efa4ac8f161482434a36cc98b9caa4fb139413084d936367"
+    },
+    "wall09-warm.png": {
+      "bytes": 218033,
+      "sha256": "ed65ada00b0f866dd16e8d06809c3a8f9567db7d1184e17350ed7483fc7f8962"
+    },
+    "wall09-warm-before.png": {
+      "bytes": 186689,
+      "sha256": "7ba48daadb75902ab4e469c35a457772023fb2c977e3c31ad2637ab8d53a9f38"
+    },
+    "wall09-neutral-before.png": {
+      "bytes": 195779,
+      "sha256": "6286e0ba56ad6b5c872ea32e07e57a69a8b3d4ead646a3ef0b07ea70fec80b16"
+    },
+    "wall09-neutral-contact-only.png": {
+      "bytes": 205197,
+      "sha256": "fa6eea61dbc6f30d7d21721367712293e45ec06bbfaee31be91c7297700bd397"
+    },
+    "wall09-neutral-detail-contact.png": {
+      "bytes": 209616,
+      "sha256": "f2eee6ed2ec05d151213916697c442b26479338c388a7bd4b79e2de6e7d0d2e3"
+    },
+    "android-build.log": {
+      "bytes": 21615,
+      "sha256": "1045945212fb530ef76621dda1dd72139167daa1b31fe90c24d454b97b47c8e4"
+    },
+    "ci-job.log": {
+      "bytes": 68352,
+      "sha256": "b866f9b02cb682a9f8bea7e2ad6dcf5f72c6b438eb63ee236ddd9c37854c554d"
+    }
+  },
+  "source_files": {
+    "gpu_compute/lie_surface_light_transport.gd": "e637c8fb486f2e573b0f184a1db6098a466d05c7710bf3f061715dd671925816",
+    "gpu_compute/lie_wall09_shared_effect.gd": "edac1ee310e0d5594d029487785a46869f3afd620e06087176df7fce615cb708",
+    "gpu_compute/lie_wall09_android_lab.gd": "f76100934864181b3c5dbae3d91c2933d636e928527b7e74e0fd30f2262d6f04",
+    "gpu_compute/lie_wall09_surface_transport.gd": "d478b85cd119d7cb12a817e5a75e9136e15406ee672de29e9bc1ec1230dac7c9",
+    "gpu_compute/lie_wall09_android_lab.tscn": "2133f79fcfdc564d78d35d03589ae52dcb3dae1a7d2c31b6fec3d280ca02b349",
+    "gpu_compute/lie_gpu_pass_profile.gd": "1571b729df69e97b307eb4b1f65bfd33e0296501ea67fc7c4cbe7950757b55b3",
+    "gpu_compute/shaders/lie_surface_test.glsl": "68ee41977cff53979bcbd87dcdac4e9fea5bd6620e56646101aa74c2ca721617",
+    "gpu_compute/shaders/lie_surface_light.glsl": "b0ab1ca7a3f75daca1faf073c5749f490a5ce6a2dfa61f5e3e74a744fbc267af",
+    "gpu_compute/shaders/lie_wall09_surface.glsl": "f7e0f30b999e3087db2e80c98e6b62bbf38747fabe41878ce4641a7f6d928b8c",
+    "gpu_compute/shaders/lib/lie_contact_surface.glslinc": "d4b57f84a93acec76f0905d2322b7f08b9bd89096d49885a97ff554d9e838a34",
+    "gpu_compute/shaders/lib/lie_surface_direct.glslinc": "7bf4e92f884dbe37d6a0a981e881860215cf1571c55f049bb6db265394e7b902",
+    "tools/lie_surface_light_shader.py": "01217ae9e0f1145704b787eb027c0806f3d8ddb1bdfd2ba747423c804a663a7f",
+    "tools/lie_surface_reference.py": "cb0c5a1d93ca3c345e1ad8c9203f58e9df3f4af3682a9423eadb17b1c4a04ce0",
+    "tools/lie_wall09_android_build.py": "f84a5c2be99e71216f149bfbef9203f5b3a0de677f6eb9395fc0d416a924b5c0",
+    "tools/lie_wall09_shader.py": "1a466c766a40de6365f89bef982e754793bfa3f4d3131bad6910a1c1e7466665"
+  },
+  "final_cleanup": "Removed unused appended surface-packet diagnostic readback; inherit the common atomic field snapshot and keep the new bridge GPU-only.",
+  "ci_snapshot": {
+    "runtime_commit": "a6ad06dd86053eaea4b65fce0a7f0cb6adde08e8",
+    "checked_at_utc": "2026-10-15T02:35:06.994734+00:00",
+    "workflows": [
+      {
+        "id": 38671286501,
+        "name": "LIE-20 captured human, invisible deformation and skin",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285737,
+        "name": "LIE-24 captured facial construction and compatible modules",
+        "status": "in_progress",
+        "conclusion": null
+      },
+      {
+        "id": 38671285639,
+        "name": "LIE-23 integrated eyes and continuous captured eyelids",
+        "status": "in_progress",
+        "conclusion": null
+      },
+      {
+        "id": 38671285716,
+        "name": "LIE common asset contract and continuous light",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285705,
+        "name": "LIE-15 Arcont robot and compact camera reconstruction",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285711,
+        "name": "LIE-21 human quality versus Cycles and LIE-20",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285731,
+        "name": "LIE surface contact light and Android",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285774,
+        "name": "LIE-18 workshop, shared agent API and GPU transport",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285696,
+        "name": "LIE-16 stable capture quality and measured consumer cost",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285715,
+        "name": "LIE-26 anatomical rig",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285728,
+        "name": "LIE-27 spherical regions and face",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285665,
+        "name": "LIE-11 coded sprite light transport",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285717,
+        "name": "LIE-22 shared eyes and modular destruction",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285714,
+        "name": "LIE-14 rigid masters and perception boxes",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285680,
+        "name": "LIE runtime lighting and shared samples",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285663,
+        "name": "LIE source-separated light field and Android",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285626,
+        "name": "LIE-17 contrast-guided edges and measured filter cost",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285632,
+        "name": "LIE-12 captured grayscale material and node lighting",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285692,
+        "name": "LIE-13 finite secondary radii and dielectric sprites",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 38671285760,
+        "name": "LIE-01 native acceptance",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  }
+}
