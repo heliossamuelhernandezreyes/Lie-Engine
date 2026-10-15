@@ -93,10 +93,75 @@ de contacto en pantalla. Se restringe a una única secuencia de visibilidad
 del mundo y se añade comparación de la función de pantalla con 1.2. El primer
 artifact 11998615322 conserva el resultado aislado y el error; no produjo APK.
 
-La CI dedicada debe comprobar contra float64 los testigos originales/movidos,+huecos, otro ejemplar del maestro, escala/rotación, metric fade, IDs inválidos y
+La CI dedicada comprobó contra float64 los testigos originales/movidos,+huecos, otro ejemplar del maestro, escala/rotación, metric fade, IDs inválidos y
 ocho canales; comparar la imagen real con 1.2 y con ambos interruptores OFF,
 vistas oblicuas y reversas, LOD, continuidad, área, resize y diagnóstico.
 Los benchmarks de cámara fuerzan igual geometría por modo con luz restablecida;
 los de posición usan el mismo punto de partida por modo. Cada etapa conserva
 su serial GPU. No se mezclan CPU y GPU ni se presentan tiempos de software
-Vulkan como rendimiento de Android. Los resultados se añadirán tras ejecutar.
+Vulkan como rendimiento de Android. Los resultados íntegros se conservan en los checkpoints de esta etapa.
+
+
+## Resultado aceptado y APK
+
+Runtime: `2b5c9afb30959bfe35d0086eea0db07580634536`. Sus 20 workflows
+terminaron aprobados. Dedicada: run 38785996662/job 116598021518,
+14 contratos de comandos, 281 comprobaciones GPU de testigos y 56 de Mobile,
+además de las regresiones anteriores. Rig CPU: 247 PASS. Sesión de agente:
+25 PASS con trazas de avance del mismo test en una copia temporal; el intento
+inicial usó una ruta equivocada y no se cuenta como ejecución válida.
+
+En el workflow histórico LIE-17 hubo un WorkshopTimeout en la prueba de
+respuesta anterior malformada (deadline de un segundo). La suite aislada pasó
+8 casos sin modificar código y el mismo workflow pasó al repetir. El primer
+fallo de integración y este resultado intermitente quedan registrados en
+`LIE_SURFACE_QUERY_NEGATIVE.json`, sin cambiar la semántica del cliente.
+
+Cobertura IoU 1.0, profundidad idéntica en las comparaciones que la comprueban.
+Los cinco ángulos de jerarquía y cinco desplazamientos de luz dieron diferencia
+RGB cero frente al modo OFF. Diferencia máxima de todas las comparaciones:
+3.077e-6, en área. El diagnóstico conserva tres grupos y nueve eventos en
+menos de 16 KiB; las opciones y la escena se restauran al terminar.
+
+Bloques activos: 7,554/8,418 a 12° (10.3% descartados), 5,222/8,418 a 150°
+(38.0%). Los cinco cambios de cámara conservaron una única construcción de
+límites. Hubo tres construcciones en todo el ensayo incluyendo LOD/continuidad.
+Con desplazamiento de luz de 0.01°, 9,438 testigos se confirmaron y quedaron
+64,675 recorridos completos para los fallos de caché de ese evento. La
+referencia fría invalida ambas fuentes: no debe compararse su total de
+recorridos con un evento que conserva la otra fuente en caché.
+
+Medianas GPU, tres eventos por modo, **llvmpipe**, milisegundos:
+
+| Trabajo | OFF | ON |
+| --- | ---: | ---: |
+| Cámara: suma de etapas | 481.489 | 465.407 |
+| Proyección | 53.368 | 47.877 |
+| Raster | 64.171 | 59.195 |
+| Selección jerárquica por cámara | 0 | 0.304 |
+| Posición de luz: suma de etapas | 374.773 | 360.842 |
+| Visibilidad al mover la luz | 176.178 | 162.214 |
+
+Es una ganancia total modesta en ese dispositivo de software; no una prueba
+estadística ni una proyección de FPS del Mali. El coste de construir límites
+por primera vez queda en `surface_bounds` y `surface_parents`; no está incluido
+como si fuera trabajo cálido. La reconstrucción y el sombreado restantes siguen
+siendo relevantes. El LOD y las muestras conservan su detalle anterior.
+
+Memoria RID solicitada: 280,581,000 bytes. Incremento frente a 1.2: 25,586,080,
+de los cuales 24,707,360 corresponden a testigos y encabezado. Es un intercambio
+de memoria por reutilización, no una reducción de RAM demostrada en Android.
+Los controles permiten comparar cada mecanismo por separado.
+
+APK `LIE-Superficies-1.3.0.apk`, ARM64, 58,233,788 bytes, package
+`org.lieengine.wallruntime.v130`, versionCode 13; firmas APK v2/v3 verificadas.
+SHA-256 `8079a34b973cf958686df9f7f9f40faa521b7d06c07181b651011d4a901a6f76`.
+Artifact 11997093941; ZIP SHA-256
+`45904d2508b772cc973bc503217e52d24980a732c2dba958dc576aac05f08d82`.
+Descarga comprobada contra el metadata, ZIP íntegro y banco SHA verificado.
+La prueba física en el Poco permanece pendiente y se declara en los JSON.
+
+Evidencia completa: `LIE_SURFACE_QUERY_NATIVE.json`,
+`LIE_OCCLUSION_WITNESS_NATIVE.json`, `LIE_1_3_ANDROID_BUILD.json` y
+`LIE_1_3_ACCEPTANCE.json`, en docs/checkpoints. El commit posterior solo añade
+esta documentación/evidencia; la APK corresponde al runtime indicado arriba.
