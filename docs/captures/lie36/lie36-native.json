@@ -1,5 +1,5 @@
 {
-  "checks": 24,
+  "checks": 29,
   "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
   "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
   "renderer": "LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
@@ -10,10 +10,10 @@
     "bounce_on_off_different": true,
     "corner": {
       "allocation_bytes": 178465792,
-      "covered_pixels": 99318,
+      "covered_pixels": 100467,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
-      "lit_pixels": 99318,
+      "lit_pixels": 100467,
       "lod_distribution": [
         15,
         60,
@@ -23,10 +23,10 @@
     },
     "courtyard": {
       "allocation_bytes": 178465792,
-      "covered_pixels": 93661,
+      "covered_pixels": 94654,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
-      "lit_pixels": 93661,
+      "lit_pixels": 94654,
       "lod_distribution": [
         15,
         60,
@@ -36,10 +36,10 @@
     },
     "front": {
       "allocation_bytes": 178465792,
-      "covered_pixels": 88839,
+      "covered_pixels": 89969,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
-      "lit_pixels": 88839,
+      "lit_pixels": 89969,
       "lod_distribution": [
         15,
         60,
@@ -68,6 +68,7 @@
       "panels": 113,
       "panels_with_bounce": 112
     },
-    "roof_off_instances": 92
+    "roof_off_instances": 92,
+    "seam_on_off_different": true
   }
 }
