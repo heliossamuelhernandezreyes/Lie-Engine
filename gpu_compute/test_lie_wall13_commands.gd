@@ -16,4 +16,9 @@ func run() -> void:
     for request in [{"op":"benchmark","quick":1},{"op":"benchmark","extra":true},{"op":"benchmark_result","extra":true}]:check(not lab.command(request)["ok"],"benchmark protocol rejects unknown fields")
     check(lab.command({"op":"benchmark_result"})["result"].is_empty(),"result inspection is read only")
     check(lab.agent_snapshot()["control_contract"]["benchmark"]["restores_state"],"benchmark discoverable")
+    var backup: Dictionary=lab.state.duplicate(true)
+    check(lab.command({"op":"benchmark","quick":true})["ok"] and not lab.command({"op":"set_values","values":{"area_size":.4}})["ok"],"benchmark locks its comparison settings")
+    lab.command({"op":"benchmark_cancel"});await process_frame;await process_frame
+    var result: Dictionary=lab.command({"op":"benchmark_result"})["result"]
+    check(not lab.benchmark_busy and result.get("cancelled",false) and result.get("restored",false) and lab.state==backup,"cancel restores exact validated state")
     lab.queue_free();await process_frame;print("AREA COMMAND ",checks," ","FAIL" if failed else "PASS");quit(1 if failed else 0)

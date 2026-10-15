@@ -35,8 +35,12 @@ El resultado incluye dispositivo, adaptador, resolución, modos, seriales, filas
 
 ## Verificación local previa a Vulkan
 
-Reconstrucción actual: 4 pruebas Python de emisor/integral, 3 de filtro, 6 del campo anterior; 9 contratos GDScript de emisor y 15 de comandos; rig 247, agente 25. Los shaders de área, campo y filtro compilan con el importador oficial Godot 4.7.2. Los scripts de pruebas GPU e integrada pasan compilación GDScript. Esto no sustituye su ejecución Vulkan.
+Reconstrucción actual: 4 pruebas Python de emisor/integral, 3 de filtro, 6 del campo anterior; 9 contratos GDScript de emisor y 17 de comandos; rig 247, agente 25. Los shaders de área, campo y filtro compilan con el importador oficial Godot 4.7.2. Los scripts de pruebas GPU e integrada pasan compilación GDScript. Esto no sustituye su ejecución Vulkan.
 
 Negativo local conservado: una ejecución comenzó antes de que terminara la importación del proyecto aislado y no encontró los loaders de `.glsl`; produjo errores derivados de dependencias y se interrumpió. Tras completar la importación, los tres shaders y los mismos scripts compilaron sin errores y los comandos aprobaron. No se atribuye ese intento a un defecto visual o de rendimiento de la GPU.
 
 En la revisión de ciclo de vida se detectó que un mundo sin hijos emitentes se rechazaba antes de actualizar el registro: `valid_light_codes([])` no acepta un paquete vacío. El compilador ahora permite el snapshot lógico vacío y produce el canal oscuro previsto por el transporte. La prueba elimina todos los nodos y comprueba aceptación y potencia cero; no se permite conservar energía de una fuente retirada.
+
+Primer CI nativo (5995e0cc5ea3bc9f37cf13d4412f56f62ee31bb0), run 38728076405 / job 116398759035: regresiones anteriores completas y filtro Vulkan 15/15 aprobados. El comparador de área intentó acceder a `legacy_merged`, mientras la fixture llama al caso `merged_legacy`; el error de clave detuvo el script y produjo timeout 124. No llegó a ejecutarse WALL13 ni a exportarse una APK. Se conserva el artefacto 11969668117, 4,584,503 bytes, SHA256 6d4ed62c50e4a091ad260f7be92be6be0fe7397d2c5d739e909ed0c029c9758e, con logs e imágenes previas. Se corrige el nombre y se priorizan las pruebas nuevas en el siguiente CI.
+
+La comprobación headless de timeout del benchmark detectó también una diferencia de tipo al restaurar los valores iniciales heredados (`seed` int 29 frente a float 29.0). Se normalizan los defaults usando el validador público al iniciar, conservando una sola ruta de controles. El contrato de cancelación/restauración añade dos comprobaciones de comandos.

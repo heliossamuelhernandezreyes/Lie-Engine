@@ -66,6 +66,17 @@ jobs:
         run: |
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --editor --import --quit > assets-import.log 2>&1
           set -o pipefail
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_area_emitters.gd 2>&1 | tee area-emitter.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall13_commands.gd 2>&1 | tee area-command.log
+          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_filter_gpu.gd 2>&1 | tee filter-gpu.log
+          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_area_field_gpu.gd 2>&1 | tee area-field.log
+          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_wall13_mobile.gd 2>&1 | tee wall13-mobile.log
           xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
             --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
             --audio-driver Dummy --script res://test_lie_wall07_mobile.gd 2>&1 | tee assets-mobile.log
@@ -115,17 +126,6 @@ jobs:
           timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
             --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
             --audio-driver Dummy --script res://test_lie_wall12_mobile.gd 2>&1 | tee wall12-mobile.log
-          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_area_emitters.gd 2>&1 | tee area-emitter.log
-          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall13_commands.gd 2>&1 | tee area-command.log
-          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
-            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
-            --audio-driver Dummy --script res://test_lie_filter_gpu.gd 2>&1 | tee filter-gpu.log
-          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
-            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
-            --audio-driver Dummy --script res://test_lie_area_field_gpu.gd 2>&1 | tee area-field.log
-          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
-            --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
-            --audio-driver Dummy --script res://test_lie_wall13_mobile.gd 2>&1 | tee wall13-mobile.log
           python - <<'PY'
           from pathlib import Path
           for name in ['area-emitter.log','area-command.log','filter-gpu.log','area-field.log','wall13-mobile.log','assets-import.log','assets-mobile.log','asset-stencil.log','light-contract.log','light-command.log','light-field.log','wall08-mobile.log','surface.log','surface-field.log','wall09-mobile.log','surface-command.log','source-visibility.log','source-piece.log','wall10-mobile.log','source-command.log','sample-identity.log','persistent-command.log','persistent-gpu.log','wall11-mobile.log','material-command.log','opaque-gpu.log','wall12-mobile.log']:

@@ -14,7 +14,7 @@ func run() -> void:
     var superposition: float=0.;var legacy: float=0.
     for i in range(outputs["two_panels"].size()):
         superposition=maxf(superposition,absf(outputs["two_panels"][i]-outputs["key_only"][i]-outputs["fill_only"][i]))
-        legacy=maxf(legacy,absf(outputs["two_panels"][i]-outputs["legacy_merged"][i]))
+        legacy=maxf(legacy,absf(outputs["two_panels"][i]-outputs["merged_legacy"][i]))
     check(superposition<.00001,"actual GPU source superposition");check(legacy>.000001,"area channel directions differ from merged approximation")
     var back_energy: float=0.
     for value in outputs["backwards"]:back_energy=maxf(back_energy,absf(value))

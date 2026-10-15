@@ -11,6 +11,10 @@ var _benchmark_status: Label
 func _ready() -> void:
     state["fused_shading"]=true;state["surface_filter"]=true;state["area_lights"]=false;state["area_size"]=.30
     super._ready()
+    # Normalize the inherited numeric defaults through the public validator.
+    # Otherwise the first command converts seed int -> float and an exact
+    # benchmark restoration would report a type-only mismatch.
+    super.command({"op":"set_values","values":{"seed":state["seed"]}})
 func _coded_effect_factory() -> CompositorEffect:return AreaEffect.new(720)
 func _transport_factory() -> CompositorEffect:return AreaTransport.new()
 func _light_world_factory() -> Node3D:return AreaWorld.new()
