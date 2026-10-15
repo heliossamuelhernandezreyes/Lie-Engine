@@ -204,7 +204,7 @@ void main() {
         int bound=int(ceil(p.screen.w));
         ivec2 center=ivec2(floor(p.screen.xy));
         for(int y=-bound;y<=bound;y++) {
-          ivec2 interval=lie_splat_row(p,center,y,bound);
+          ivec2 interval=lie_splat_row(p,center,center.y+y,bound);
           for(int qx=interval.x;qx<=interval.y;qx++) {
             ivec2 q=ivec2(qx,center.y+y);if(!inside(q)||!covered(p,vec2(q)+.5))continue;
             float z=pixel_depth(p,vec2(q)+.5);if(z<=parameters.lens.z||isnan(z)||isinf(z))continue;
