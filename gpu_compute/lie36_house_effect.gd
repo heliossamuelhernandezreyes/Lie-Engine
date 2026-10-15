@@ -47,7 +47,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     # Phase 8: direct lighting of arbitrary panel surfaces.
     # Phase 9: aperture-aware visibility, reciprocal oriented transfer,
     # normalized per-source before phase 10 collects bounced irradiance.
-    for stage in [1,2,3,8,9,10,4,6,7]:
+    for stage in [1,2,3,8,9,10,4,6,11,12,7]:
         var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else n if stage in [8,9,10] else render_size*render_size
         _rd.compute_list_set_push_constant(cmds,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
         _rd.compute_list_dispatch(cmds,int(ceil(float(count)/64)),1,1)
