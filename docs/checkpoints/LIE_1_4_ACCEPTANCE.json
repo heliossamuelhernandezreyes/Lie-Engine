@@ -1,0 +1,162 @@
+{
+  "schema": "lie-stage-kernel-acceptance/1",
+  "runtime_commit": "e8152924e6b02a48510903c41a57b8acdb5b9084",
+  "runtime_tree": "9f27b13da26cbb45cc222615ef279b456814e1ad",
+  "tested_pr_merge": "8b5dd7fa0dec674629de8236e5fc9dbf8ed92e94",
+  "ci_runs": [
+    {
+      "id": 38791156158,
+      "name": "LIE-11 coded sprite light transport",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156244,
+      "name": "LIE-14 rigid masters and perception boxes",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156232,
+      "name": "LIE runtime lighting and shared samples",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156281,
+      "name": "LIE-20 captured human, invisible deformation and skin",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156231,
+      "name": "LIE-22 shared eyes and modular destruction",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156071,
+      "name": "LIE-12 captured grayscale material and node lighting",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156108,
+      "name": "LIE-15 Arcont robot and compact camera reconstruction",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156271,
+      "name": "LIE-13 finite secondary radii and dielectric sprites",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156133,
+      "name": "LIE-17 contrast-guided edges and measured filter cost",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156256,
+      "name": "LIE-26 anatomical rig",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156109,
+      "name": "LIE-27 spherical regions and face",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156220,
+      "name": "LIE-16 stable capture quality and measured consumer cost",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156221,
+      "name": "LIE-23 integrated eyes and continuous captured eyelids",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156247,
+      "name": "LIE-01 native acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156234,
+      "name": "LIE-24 captured facial construction and compatible modules",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156262,
+      "name": "LIE-18 workshop, shared agent API and GPU transport",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156111,
+      "name": "LIE-21 human quality versus Cycles and LIE-20",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38791156409,
+      "name": "LIE dedicated kernels and paired GPU comparison",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "dedicated_run": 38791156409,
+  "dedicated_job": 116615867301,
+  "artifact_id": 11999349483,
+  "archive_sha256": "e6127dbf4843f5b549d3155c53eef6bb3440f0d63858643e06e67b041272749c",
+  "apk": {
+    "name": "LIE-Kernels-1.4.0.apk",
+    "bytes": 58410530,
+    "sha256": "dc4fbda1487ca7dd3fd2164d2febb71996b1bf3b1a0a0bf2a021eda590fa5f03",
+    "package": "org.lieengine.wallruntime.v140",
+    "version_code": 14,
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+  },
+  "local": {
+    "python_regressions": 3,
+    "command_checks": 16,
+    "rig_checks": 247,
+    "agent_checks": 25,
+    "compiled_spirv_entry_points": 18
+  },
+  "native": {
+    "checks": 73,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "comparison_events": 81,
+    "samples_per_mode_kind": 9,
+    "stage_rows": 720,
+    "depth_exact_in_tested_comparisons": true,
+    "coverage_iou": 1,
+    "max_rgb_error": 0,
+    "restored": true,
+    "copied_report_below_bytes": 16384,
+    "requested_appearance_bytes": 280581000
+  },
+  "negative_evidence": {
+    "split_power_event": {
+      "cycle": 0,
+      "serial": 50,
+      "total_ms": 317.79103,
+      "recovery_reuse_ms": 246.105151
+    },
+    "cause": "not established; first lighting entry-point use is retained, not discarded",
+    "initial_commit": "8bcb78bca67e9f6d46668dadd438389cf3977fa5",
+    "initial_ci": "canceled when source advanced; full shipping-path timestamp retention added before native acceptance",
+    "local_staging": "second stage attempt rejected occupied directory; final verification used fresh directory"
+  },
+  "physical_android_performance_tested": false,
+  "scope": "Software Vulkan validation and official-template ARM64 APK; no Mali speedup, FPS, occupancy or driver program-memory claim."
+}
