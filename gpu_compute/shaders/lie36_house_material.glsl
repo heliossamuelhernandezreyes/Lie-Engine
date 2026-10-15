@@ -29,6 +29,57 @@ layout(rgba32f,set=0,binding=12) uniform image2D final_image;
 layout(set=0,binding=13,std430) buffer Shadow { uint v[]; } shadow;
 layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
 const float PI=3.141592653589793;
+
+// LIE37: generic per-INSTANCE diffuse light transport over assembled
+// photographed-sample panels. Unlike WALL12's fixed 872-node wall graph,
+// this uses transformed panel geometry and arbitrary camera/light movement.
+layout(set=0,binding=14,std430) buffer PanelDirect { vec4 energy[]; } panel_direct;
+layout(set=0,binding=15,std430) buffer PairLinks { float weights[]; } pair_links;
+layout(set=0,binding=16,std430) buffer PanelBounce { vec4 energy[]; } panel_bounce;
+const int LIE_HOUSE_CAP=128;
+const float PANEL_W=2.64675009727478;
+const float PANEL_H=.6878780770301819;
+vec3 panel_normal(int idx) {
+    Instance inst=instances.v[idx];
+    return normalize(cross(inst.x.xyz,inst.y.xyz));
+}
+float panel_area(int idx) {
+    Instance inst=instances.v[idx];
+    return PANEL_W*PANEL_H*length(cross(inst.x.xyz,inst.y.xyz));
+}
+bool panel_blocks_ray(vec3 a,vec3 b,int skip0,int skip1) {
+    vec3 direction=b-a;
+    int n=parameters.counts.y;
+    for(int k=0;k<n;k++) {
+        if(k==skip0 || k==skip1)continue;
+        Instance inst=instances.v[k];
+        vec3 ex=inst.x.xyz,ey=inst.y.xyz;
+        vec3 nrm=normalize(cross(ex,ey));
+        float denom=dot(nrm,direction);
+        if(abs(denom)<1e-7)continue;
+        float t=dot(nrm,inst.origin.xyz-a)/denom;
+        if(t<=.001 || t>=.999)continue;
+        vec3 hit=a+t*direction-inst.origin.xyz;
+        float u=dot(hit,ex)/max(dot(ex,ex),1e-9);
+        float v=dot(hit,ey)/max(dot(ey,ey),1e-9);
+        if(abs(u)>PANEL_W*.5 || abs(v)>PANEL_H*.5)continue;
+        int kind=int(inst.meta.y+.5);
+        if(kind==1 && abs(u)<.56 && abs(v)<.275)continue;
+        if(kind==2 && abs(u)<.52)continue;
+        if(kind==3 && abs(u)<.15)continue;
+        return true;
+    }
+    return false;
+}
+vec3 panel_captured_albedo(int idx) {
+    uvec4 job=jobs.v[idx];
+    uint q=max(job.y,1u);
+    Sample a=samples.v[job.x];
+    Sample b=samples.v[job.x+q/2u];
+    Sample c=samples.v[job.x+q-1u];
+    return clamp((a.albedo.rgb+b.albedo.rgb+c.albedo.rgb)/3.,vec3(0),vec3(.95));
+}
+
 const uint EMPTY=0xffffffffu;
 // LIE0.9 canonical shared GGX/Smith/Schlick microfacet implementation:
 // Opaque nonmetal appearance, in linear relative radiometric units.
@@ -223,6 +274,67 @@ void main() {
           }
         }return;
     }
+    if(stage==8) {
+        if(i>=uint(parameters.counts.y))return;
+        int idx=int(i);
+        vec3 p=instances.v[idx].origin.xyz;
+        vec3 d=parameters.light.xyz-p;
+        float dist2=max(dot(d,d),.01);
+        vec3 dir=normalize(d);
+        float cosine=abs(dot(panel_normal(idx),dir));
+        bool blocked=panel_blocks_ray(p+dir*.008,parameters.light.xyz,idx,-1);
+        float irradiance=parameters.light.w*cosine/(4.*PI*dist2);
+        panel_direct.energy[idx]=vec4(blocked?vec3(0):parameters.light_color.rgb*irradiance,1.);
+        return;
+    }
+    if(stage==9) {
+        if(i>=uint(parameters.counts.y))return;
+        int emitter=int(i), n=parameters.counts.y;
+        vec3 a=instances.v[emitter].origin.xyz;
+        vec3 na=panel_normal(emitter);
+        float sum_w=0.;
+        for(int dst=0;dst<n;dst++) {
+            float w=0.;
+            if(dst!=emitter) {
+                vec3 b=instances.v[dst].origin.xyz;
+                vec3 delta=b-a;
+                float d2=dot(delta,delta);
+                if(d2>.09) {
+                    vec3 dir=delta*inversesqrt(d2);
+                    float source_cos=abs(dot(na,dir));
+                    float target_cos=abs(dot(panel_normal(dst),dir));
+                    if(source_cos>.001 && target_cos>.001 &&
+                        !panel_blocks_ray(a,b,emitter,dst)) {
+                        w=clamp(panel_area(dst)*source_cos*target_cos/(PI*d2),0.,1.);
+                    }
+                }
+            }
+            pair_links.weights[emitter*LIE_HOUSE_CAP+dst]=w;
+            sum_w+=w;
+        }
+        // Per-source passive energy normalization. For every RGB channel,
+        // total emitted diffuse power cannot exceed the intercepted source
+        // power; no invented light appears at seams or inside sealed rooms.
+        float normalization=max(1.,sum_w);
+        for(int dst=0;dst<n;dst++)
+            pair_links.weights[emitter*LIE_HOUSE_CAP+dst]/=normalization;
+        return;
+    }
+    if(stage==10) {
+        if(i>=uint(parameters.counts.y))return;
+        int target=int(i), n=parameters.counts.y;
+        float receiver_area=max(panel_area(target),.001);
+        vec3 indirect=vec3(0);
+        for(int src=0;src<n;src++) {
+            float w=pair_links.weights[src*LIE_HOUSE_CAP+target];
+            if(w<=0.)continue;
+            indirect+=panel_direct.energy[src].rgb*
+                panel_captured_albedo(src)*.68*
+                (panel_area(src)/receiver_area)*w;
+        }
+        panel_bounce.energy[target]=vec4(max(indirect,vec3(0)),1);
+        return;
+    }
     if(stage==7) {
         ivec2 size=imageSize(final_image);if(i>=uint(size.x*size.y)) return;
         ivec2 xy=ivec2(int(i)%size.x,int(i)/size.x);int scale=phase.value.y;
@@ -265,7 +377,12 @@ void main() {
         vec3 reflected=radiance*nl*lie_opaque_brdf(
             base,roughness,.04,1.,n,view,light);
         vec3 authored_fill=base*parameters.ambient.rgb*.12;
-        imageStore(diffuse_image,xy,vec4(max(reflected+authored_fill,vec3(0)),1));
+        int panel=int(point.gradient.z);
+        vec3 incoming=parameters.settings.z>.5?panel_bounce.energy[panel].rgb:vec3(0);
+        // The transport result is irradiance: one Lambert conversion and
+        // diffuse Fresnel attenuation; the direct GGX term remains separate.
+        vec3 interreflection=base*incoming*((1.-.04)*(1.-.04)/PI);
+        imageStore(diffuse_image,xy,vec4(max(reflected+authored_fill+interreflection,vec3(0)),1));
         imageStore(specular_image,xy,vec4(0));return;
     }
         if(stage==6) {
