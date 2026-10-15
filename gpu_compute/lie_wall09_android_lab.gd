@@ -13,8 +13,9 @@ func command(request: Variant) -> Dictionary:
             if values.has(key) and not values[key] is bool:return {"ok":false,"error":key+"_type","revision":revision}
         if values.has("contact_steps"):
             var value: Variant=values["contact_steps"]
-            if not value is int:return {"ok":false,"error":"contact_steps_type","revision":revision}
-            if value<4 or value>32:return {"ok":false,"error":"contact_steps_range","revision":revision}
+            if not (value is int or value is float):return {"ok":false,"error":"contact_steps_type","revision":revision}
+            # Godot's JSON parser represents integral JSON numbers as floats.
+            if not is_finite(float(value)) or value<4 or value>32 or floorf(float(value))!=float(value):return {"ok":false,"error":"contact_steps_range","revision":revision}
     return super.command(request)
 func _apply() -> void:
     if effect!=null:effect.set_surface_options(bool(state["contact_shadows"]),bool(state["surface_detail"]),int(state["contact_steps"]))
