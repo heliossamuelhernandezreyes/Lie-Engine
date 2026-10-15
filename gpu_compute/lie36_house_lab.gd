@@ -73,6 +73,100 @@ func _instances() -> Array:
         result.append({"master":item["master"],"pose":Transform3D(basis,Vector3(p[0],p[1],p[2]))})
     return result
 
+# Exact source-scan LOD per architectural INSTANCE (not 6K for every wall).
+# Keep occluding backside surfaces at coarse density; closest visible faces
+# receive substantially more records from the preassembled 96-brick panel.
+func _apply() -> void:
+    if camera==null or not effect.capture_loaded or house_plan.is_empty():return
+    var target:=Vector3(0,2.65,0)
+    var distance: float=8.6*float(state["distance_factor"])
+    var yaw: float=deg_to_rad(float(state["camera_yaw"]))
+    var elevation: float=deg_to_rad(float(state["camera_elevation"]))
+    camera.fov=42.
+    camera.position=target+Vector3(sin(yaw)*cos(elevation),sin(elevation),cos(yaw)*cos(elevation))*distance
+    camera.look_at(target)
+    var entries: Array=_instances()
+    if entries.is_empty():return
+    var limits: Array=effect.catalog["masters"]["brick"]["levels"]
+    var cheapest: int=int(limits[2]["count"])
+    var available: int=Effect.MAX_WORK-entries.size()*cheapest
+    if entries.size()>Effect.MAX_INSTANCES or available<0:
+        _metrics={"error":"work_budget","instances":entries.size()};return
+    var score: Array=[]
+    var forward: Vector3=-camera.basis.z
+    for i in range(entries.size()):
+        var pose: Transform3D=entries[i]["pose"]
+        var direction: Vector3=pose.origin-camera.position
+        var facing: float=direction.normalized().dot(forward)
+        var priority: float=(maxf(facing,.02)+.08)/maxf(direction.length_squared(),.1)
+        score.append({"index":i,"priority":priority})
+    score.sort_custom(func(a,b):return a["priority"]>b["priority"])
+    var levels: Array=[]
+    levels.resize(entries.size())
+    levels.fill(2)
+    var medium_target: int=mini(75,entries.size())
+    var medium_count: int=0
+    for item in score:
+        if medium_count>=medium_target:break
+        var index: int=int(item["index"])
+        var med: int=int(effect.catalog["masters"][entries[index]["master"]]["levels"][1]["count"])
+        var delta: int=med-cheapest
+        if delta>available:continue
+        levels[index]=1
+        available-=delta
+        medium_count+=1
+    var hero_count: int=0
+    for item in score:
+        if hero_count>=15:break
+        var index: int=int(item["index"])
+        if levels[index]!=1:continue
+        var master: Dictionary=effect.catalog["masters"][entries[index]["master"]]
+        var delta: int=int(master["levels"][0]["count"])-int(master["levels"][1]["count"])
+        if delta>available:continue
+        available-=delta
+        levels[index]=0
+        hero_count+=1
+    var instances:=PackedFloat32Array()
+    var jobs:=PackedInt32Array()
+    var work: int=0
+    var lod_counts: Array=[0,0,0]
+    for i in range(entries.size()):
+        var entry: Dictionary=entries[i]
+        var pose: Transform3D=entry["pose"]
+        var master: Dictionary=effect.catalog["masters"][entry["master"]]
+        var lod: int=int(levels[i])
+        var slice: Dictionary=master["levels"][lod]
+        for vec in [pose.basis.x,pose.basis.y,pose.basis.z,pose.origin]:
+            instances.append_array(PackedFloat32Array([vec.x,vec.y,vec.z,0]))
+        instances.append_array(PackedFloat32Array([i*128.,0,0,0,1,1,1,1]))
+        jobs.append_array(PackedInt32Array([slice["start"],slice["count"],i,work]))
+        work+=int(slice["count"])
+        lod_counts[lod]+=1
+    var packet:=PackedFloat32Array()
+    for vec in [camera.position,camera.basis.x,camera.basis.y,-camera.basis.z]:
+        packet.append_array(PackedFloat32Array([vec.x,vec.y,vec.z,0]))
+    packet.append_array(PackedFloat32Array([tan(deg_to_rad(camera.fov)*.5),1,.001,65]))
+    var bytes: PackedByteArray=packet.to_byte_array()
+    bytes.append_array(PackedInt32Array([work,entries.size(),effect.render_size,effect.render_size]).to_byte_array())
+    var angle: float=deg_to_rad(float(state["light_azimuth"]))
+    var radius: float=distance*.8
+    var light: Vector3=target+Vector3(sin(angle)*radius,radius*.9,cos(angle)*radius)
+    var light_pose:=Transform3D(Basis.IDENTITY,light).looking_at(target,Vector3.UP)
+    var spacing: float=.003
+    var v:=PackedFloat32Array([light.x,light.y,light.z,160*radius*radius*float(state["light_power"]),
+        1,.93,.85,0,.40,.45,.55,float(state["exposure"]),
+        1 if state["shadows"] else 0,1,spacing,spacing*.3])
+    for vec in [light_pose.basis.x,light_pose.basis.y,-light_pose.basis.z]:
+        v.append_array(PackedFloat32Array([vec.x,vec.y,vec.z,0]))
+    v.append_array(PackedFloat32Array([1,1,1,0,1,1,1,0,1203,1,0,0]))
+    bytes.append_array(v.to_byte_array())
+    var accepted: bool=effect.configure(bytes,instances.to_byte_array(),jobs.to_byte_array(),work)
+    _metrics={"instances":entries.size(),"sample_invocations":work,
+        "lod_distribution":lod_counts,"lod":0,
+        "masters":effect.catalog["masters"].size(),"visible_source_meshes":0,
+        "configured":accepted,"material":"LIE0.9 GGX/Smith/Fresnel",
+        "raster":"LIE0.9 conservative bounds","illumination":"direct + authored fill, NOT LIE11 global transport"}
+
 func agent_snapshot() -> Dictionary:
     var data: Dictionary=super.agent_snapshot()
     data["house"]={"layout":"L-shaped 2-storey","scan_source":"WALL04 CC BY 4.0 brick and CC0 photographic mortar",
