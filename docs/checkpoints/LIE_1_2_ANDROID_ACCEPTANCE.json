@@ -1,0 +1,139 @@
+{
+  "runtime_sha": "fbe2e0e6fd4b21980acf52205f30d8359436ad4e",
+  "base_runtime_1_1_sha": "604da39237307d410f07d1f9f758e4ed80fa1b05",
+  "run_id": 38773049005,
+  "job_id": 116553552122,
+  "artifact_id": 11993045866,
+  "artifact_zip_sha256": "fbcac45923dd6bdb71b44069a8766acb2eec08807f66f8e0a190ac64a4c12e2d",
+  "apk": {
+    "bytes": 58146618,
+    "sha256": "72663242951722d92ac7cf7a34027890d50159641a86420b0ea967ff4d1e8ebd",
+    "package": "org.lieengine.wallruntime.v120",
+    "version": "1.2.0-active-visibility"
+  },
+  "signatures": [
+    "APK v2",
+    "APK v3"
+  ],
+  "native_architecture": "arm64-v8a",
+  "ci_workflows_passed": 23,
+  "checks": {
+    "packets_and_batches": 16,
+    "commands": 18,
+    "trace_float64_gpu": 126,
+    "wall15_mobile": 59,
+    "local_cpu_rig": 247,
+    "local_agent": 25,
+    "random_float32_broadphase_cases": 30000
+  },
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "physical_android_tested": false,
+  "appearance_requested_bytes": 254994920,
+  "additional_queue_bytes": 3000016,
+  "maximum_compared_color_error": 7.700291462242603e-07,
+  "coverage_iou": 1.0,
+  "compact_report_under_bytes": 16384,
+  "cpu_command_medians_ms": {
+    "comparison": {
+      "camera": 4.311,
+      "light_power": 6.982,
+      "light_position": 7.092
+    },
+    "optimized": {
+      "camera": 0.564,
+      "light_power": 0.644,
+      "light_position": 0.647
+    }
+  },
+  "lighting_gpu_medians_ms": {
+    "comparison": {
+      "light_power": {
+        "records": [
+          {
+            "serial": 22,
+            "total_ms": 132.376225,
+            "visibility_ms": 5.146238
+          },
+          {
+            "serial": 36,
+            "total_ms": 134.154475,
+            "visibility_ms": 5.745525
+          },
+          {
+            "serial": 50,
+            "total_ms": 127.962814,
+            "visibility_ms": 5.343553
+          }
+        ],
+        "total_p50_ms": 132.376225,
+        "visibility_p50_ms": 5.343553
+      },
+      "light_position": {
+        "records": [
+          {
+            "serial": 24,
+            "total_ms": 364.444591,
+            "visibility_ms": 236.29771
+          },
+          {
+            "serial": 38,
+            "total_ms": 352.73089,
+            "visibility_ms": 227.19595
+          },
+          {
+            "serial": 52,
+            "total_ms": 347.051774,
+            "visibility_ms": 214.95935
+          }
+        ],
+        "total_p50_ms": 352.73089,
+        "visibility_p50_ms": 227.19595
+      }
+    },
+    "optimized": {
+      "light_power": {
+        "records": [
+          {
+            "serial": 29,
+            "total_ms": 133.894336,
+            "visibility_ms": 2.56177
+          },
+          {
+            "serial": 43,
+            "total_ms": 136.594885,
+            "visibility_ms": 4.24603
+          },
+          {
+            "serial": 57,
+            "total_ms": 127.15577900000001,
+            "visibility_ms": 3.483182
+          }
+        ],
+        "total_p50_ms": 133.894336,
+        "visibility_p50_ms": 3.483182
+      },
+      "light_position": {
+        "records": [
+          {
+            "serial": 31,
+            "total_ms": 319.817209,
+            "visibility_ms": 193.69957
+          },
+          {
+            "serial": 45,
+            "total_ms": 313.66150600000003,
+            "visibility_ms": 189.534557
+          },
+          {
+            "serial": 59,
+            "total_ms": 303.408624,
+            "visibility_ms": 174.890212
+          }
+        ],
+        "total_p50_ms": 313.66150600000003,
+        "visibility_p50_ms": 189.534557
+      }
+    }
+  },
+  "scope": "Three interleaved events per mode and operation on software Vulkan. No Mali/sustained-FPS claim. Camera GPU samples have evolving visibility-cache history and are not used as a controlled speed comparison. CPU and GPU times are separate; GPU sums include only instrumented stages."
+}
