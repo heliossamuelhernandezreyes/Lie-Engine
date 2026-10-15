@@ -1,6 +1,6 @@
 extends RefCounted
 ## Pure reduction of real timestamp rows. Never estimates GPU work from FPS.
-const TITLES={"clear":"Preparación", "project":"Proyección", "raster":"Profundidad y cobertura", "material_filter":"Filtro de material", "coarse_light":"Iluminación base", "fused_base":"Iluminación y composición", "compose":"Composición", "recovery_build":"Reconstrucción de huecos", "recovery_reuse":"Recuperación reutilizada", "surface_light":"Material, relieve y sombras", "visibility_keys":"Claves de sombras", "visibility_invalidate":"Invalidación de sombras", "source_visibility":"Visibilidad 3D", "world_visibility":"Visibilidad 3D", "filter_recovery_clear":"Preparación del filtro", "output":"Salida"}
+const TITLES={"clear":"Preparación", "project":"Proyección", "raster":"Profundidad y cobertura", "material_filter":"Filtro de material", "coarse_light":"Iluminación base", "fused_base":"Iluminación y composición", "compose":"Composición", "recovery_build":"Reconstrucción de huecos", "recovery_reuse":"Recuperación reutilizada", "surface_light":"Material, relieve y sombras", "visibility_keys":"Claves de sombras", "visibility_invalidate":"Invalidación de sombras", "source_visibility":"Visibilidad 3D", "world_visibility":"Visibilidad 3D", "visibility_compact":"Superficies visibles", "filter_recovery_clear":"Preparación del filtro", "output":"Salida"}
 static func percentiles(values: Array) -> Dictionary:
     if values.is_empty():return {"samples":0}
     var ordered: Array=values.duplicate();ordered.sort();var n: int=ordered.size()

@@ -1,0 +1,45 @@
+{
+  "source": "User-supplied partial reports, 2026-10-15; not a reconstructed full report",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "internal_size": 1080,
+  "physical_lights": 2,
+  "manual": {
+    "geometry_events": 64,
+    "total_gpu_p50_ms": 33.07,
+    "total_gpu_p95_ms": 45.18,
+    "recovery_build_p50_ms": 5.806154,
+    "raster_p50_ms": 5.176,
+    "project_p50_ms": 4.789231,
+    "cpu_control_apply_p50_ms": 11.189
+  },
+  "diagnostic": {
+    "events_per_kind": 3,
+    "camera_cpu_command_ms": [
+      13.701,
+      11.363,
+      12.95
+    ],
+    "light_power_cpu_command_ms": [
+      25.357,
+      13.536,
+      28.457
+    ],
+    "light_position_cpu_command_ms": [
+      17.773,
+      27.756,
+      31.014
+    ],
+    "light_position_gpu_total_p50_ms": 42.657618,
+    "light_position_gpu_total_p95_ms": 47.550923,
+    "light_position_world_visibility_ms": [
+      26.230155,
+      31.659693,
+      27.986232
+    ],
+    "camera_project_p50_ms": 12.772385,
+    "camera_world_visibility_p50_ms": 10.015154,
+    "camera_raster_p50_ms": 7.951001
+  },
+  "scope": "No sustained frame-rate or thermal inference; display FPS includes cached images."
+}

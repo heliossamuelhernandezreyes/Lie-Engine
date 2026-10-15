@@ -4,11 +4,18 @@ signal codes_changed(snapshot: Dictionary)
 const Registry=preload("res://lie_light_registry.gd")
 const Emitter=preload("res://lie_point_emitter_3d.gd")
 var registry=Registry.new()
+var _update_depth: int=0
+func begin_update() -> void:_update_depth+=1
+func end_update() -> bool:
+    if _update_depth<=0:return false
+    _update_depth-=1
+    return refresh() if _update_depth==0 else true
 func _validate_emitter_set(incoming: Dictionary) -> bool:return incoming.size()<=Registry.CAPACITY
 func _extra_codes_changed() -> bool:return false
 func render_snapshot() -> Dictionary:return registry.snapshot()
 func _process(_delta: float) -> void:refresh()
 func refresh() -> bool:
+    if _update_depth>0:return true
     # Preserve meter units. A world transform may translate/rotate, not scale.
     var basis: Basis=global_basis
     if not basis.is_finite() or not basis.is_equal_approx(basis.orthonormalized()) or basis.determinant()<0.:return false

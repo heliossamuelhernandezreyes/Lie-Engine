@@ -1,0 +1,104 @@
+{
+  "runtime_sha": "a85bed12a06f16240e2b1f3596b874c84f67a3bb",
+  "run_id": 38771953460,
+  "job_id": 116549772782,
+  "artifact_id": 11991503545,
+  "artifact_zip_sha256": "6d26a48a9291ac87b39432d928cdd00a901cbaa0f4b19e33615e967b0156b667",
+  "checks": 58,
+  "failed": false,
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "physical_android_tested": false,
+  "appearance_requested_bytes": 254994920,
+  "additional_queue_bytes": 3000016,
+  "comparisons": {
+    "all eight finite-source channels preserve image and coverage": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "default active runtime preserves 1.1": {
+      "iou": 1.0,
+      "mae": 4.7116149748302687e-11,
+      "max": 7.700291462242603e-07
+    },
+    "final-winner compaction exact at 12.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "final-winner compaction exact at 60.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "final-winner compaction exact at 80.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "precomputed broadphase preserves captured visibility 12.0": {
+      "iou": 1.0,
+      "mae": 4.5877357403992155e-11,
+      "max": 7.698545232415199e-07
+    },
+    "precomputed broadphase preserves captured visibility 60.0": {
+      "iou": 1.0,
+      "mae": 2.149743372569477e-11,
+      "max": 3.850436769425869e-07
+    },
+    "precomputed broadphase preserves captured visibility 80.0": {
+      "iou": 1.0,
+      "mae": 7.547052486842557e-12,
+      "max": 1.925230037613801e-07
+    }
+  },
+  "cpu_command_medians_ms": {
+    "comparison": {
+      "camera": 4.503,
+      "light_power": 8.026,
+      "light_position": 9.053
+    },
+    "optimized": {
+      "camera": 0.736,
+      "light_power": 0.846,
+      "light_position": 0.757
+    }
+  },
+  "moved_light_gpu_ms": {
+    "comparison": [
+      {
+        "serial": 24,
+        "total_ms": 384.37833900000004,
+        "visibility_ms": 271.361393
+      },
+      {
+        "serial": 38,
+        "total_ms": 379.60130100000003,
+        "visibility_ms": 268.849172
+      },
+      {
+        "serial": 52,
+        "total_ms": 377.316019,
+        "visibility_ms": 267.776295
+      }
+    ],
+    "optimized": [
+      {
+        "serial": 31,
+        "total_ms": 314.266322,
+        "visibility_ms": 208.470025
+      },
+      {
+        "serial": 45,
+        "total_ms": 320.35436899999996,
+        "visibility_ms": 207.329817
+      },
+      {
+        "serial": 59,
+        "total_ms": 317.96047,
+        "visibility_ms": 206.559801
+      }
+    ]
+  },
+  "scope": "Three events per mode on software Vulkan; not Mali performance. Camera GPU sequence has evolving visibility-cache history and is not used as a controlled speed comparison."
+}

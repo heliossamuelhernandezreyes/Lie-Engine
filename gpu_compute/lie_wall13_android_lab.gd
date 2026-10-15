@@ -4,6 +4,9 @@ const AreaTransport=preload("res://lie_wall13_area_transport.gd")
 const AreaWorld=preload("res://lie_area_light_world.gd")
 const RectEmitter=preload("res://lie_rect_emitter_3d.gd")
 var _physical_signature:=PackedByteArray()
+var reuse_light_preparation: bool=true
+var light_model_copies: int=0
+var light_packet_updates: int=0
 var benchmark_busy: bool=false
 var _benchmark_cancelled: bool=false
 var _benchmark_report: Dictionary={}
@@ -23,16 +26,28 @@ func _accept_light_snapshot(snapshot: Dictionary) -> void:
     if transport==null or light_model.is_empty() or snapshot.is_empty():return
     # The inherited scene controls operate on the two logical sources. Only
     # their immutable render snapshot expands to eight physical channels.
+    var begin: int=Time.get_ticks_usec()
     light_model["lights"]=snapshot.get("logical_lights",snapshot["lights"])
-    var physical: Dictionary=light_model.duplicate(true);physical["lights"]=snapshot["lights"]
-    physical["emission_descriptors"]=snapshot["emission_descriptors"]
+    var physical: Dictionary
+    if reuse_light_preparation:
+        physical={"lights":snapshot["lights"],"emission_descriptors":snapshot["emission_descriptors"]}
+    else:
+        physical=light_model.duplicate(true);physical["lights"]=snapshot["lights"];physical["emission_descriptors"]=snapshot["emission_descriptors"];light_model_copies+=1
     var signature: PackedByteArray=LightRegistry.Model.light_bytes(physical);signature.append_array(snapshot["emission_descriptors"])
-    if signature==_physical_signature and transport.desired_light_count==physical["lights"].size():return
+    if signature==_physical_signature and transport.desired_light_count==physical["lights"].size():
+        _cpu_stage("light_preparation",begin);return
     _physical_signature=signature
-    if not transport.gpu_ready or transport.desired_light_count!=physical["lights"].size():transport.configure(physical)
+    if not transport.gpu_ready or transport.desired_light_count!=physical["lights"].size():
+        if reuse_light_preparation:
+            physical=light_model.duplicate();physical["lights"]=snapshot["lights"];physical["emission_descriptors"]=snapshot["emission_descriptors"]
+        transport.configure(physical)
     else:transport.set_light_codes(physical)
+    light_packet_updates+=1
     if effect!=null:effect.invalidate_lighting()
+    _cpu_stage("light_preparation",begin)
 func _apply() -> void:
+    var batched: bool=reuse_light_preparation and light_world!=null
+    if batched:light_world.begin_update()
     if effect!=null:effect.set_pipeline_options(bool(state["fused_shading"]),bool(state["surface_filter"]))
     for emitter in [key_emitter,fill_emitter]:
         if emitter!=null:emitter.area_enabled=bool(state["area_lights"]);emitter.size_m=Vector2(float(state["area_size"]),float(state["area_size"])*.75)
@@ -42,7 +57,9 @@ func _apply() -> void:
         var target: Vector3=light_world.global_transform*Vector3(c[0],c[1],c[2])
         for emitter in [key_emitter,fill_emitter]:
             if emitter.global_position.distance_squared_to(target)>.00001:emitter.look_at(target,Vector3.UP)
-        light_world.refresh();_accept_light_snapshot(light_world.render_snapshot())
+        if batched:light_world.end_update()
+        else:light_world.refresh()
+        if not reuse_light_preparation or _physical_signature.is_empty():_accept_light_snapshot(light_world.render_snapshot())
 func command(request: Variant) -> Dictionary:
     if request is Dictionary:
         var op: String=str(request.get("op",""))

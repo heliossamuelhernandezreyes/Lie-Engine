@@ -13,6 +13,10 @@ var output_resolves: int=0
 var _requested_internal: int=1080
 var _cache_events: Array=[]
 var _profile_event_kind: String="unknown"
+var cache_configure_packets: bool=true
+var configure_builds: int=0
+var configure_reuses: int=0
+var _configured_inputs: Dictionary={}
 
 func capture_root() -> String:return "res://captures/liewall05/"
 func shader_resource() -> RDShaderFile:return SHARED_CACHED_SHADER
@@ -28,6 +32,9 @@ func _init(size: int=720) -> void:
 
 func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
     if parameters.size()!=256 or instances.size()!=97*96 or jobs.size()!=97*16:return false
+    if parameters.decode_s32(80)!=work or parameters.decode_s32(84)!=97 or parameters.decode_s32(88)!=render_size or parameters.decode_s32(92)!=render_size:return false
+    if cache_configure_packets and not _configured_inputs.is_empty() and work==_configured_inputs["work"] and instances==_configured_inputs["source_instances"] and jobs==_configured_inputs["source_jobs"]:
+        _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":_configured_inputs["coded"],"jobs":_configured_inputs["ranges"],"work":work};_mutex.unlock();configure_reuses+=1;return true
     var original: PackedInt32Array=jobs.to_int32_array()
     var lod: int=0 if original[1]==4000 else 1 if original[1]==1300 else 2 if original[1]==240 else -1
     if lod<0:return false
@@ -42,7 +49,9 @@ func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: Pack
         coded.encode_float(i*96+72,float(catalog["wall05"]["brick_radius_by_lod"][lod]) if i<96 else 0.)
         for value in entries[i]:ranges.append(int(value))
     if work<1 or work>MAX_WORK:return false
-    _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":coded,"jobs":ranges.to_byte_array(),"work":work};_mutex.unlock();return true
+    var range_bytes: PackedByteArray=ranges.to_byte_array()
+    _configured_inputs={"source_instances":instances.duplicate(),"source_jobs":jobs.duplicate(),"coded":coded,"ranges":range_bytes,"work":work};configure_builds+=1
+    _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":coded,"jobs":range_bytes,"work":work};_mutex.unlock();return true
 
 func _make_set() -> void:
     if not _buffers.has(17):_buffer(17,_references.size(),_references)
@@ -126,7 +135,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     sample_invocations=work;instance_count=97;frame_count+=1
 
 func cache_metrics() -> Dictionary:
-    return {"geometry_rebuilds":geometry_rebuilds,"lighting_resolves":lighting_resolves,"recovery_builds":recovery_builds,"recovery_reuses":recovery_reuses,"output_resolves":output_resolves,"internal_size":render_size,"source_bank_bytes":_samples.size(),"reference_bytes":_references.size(),"brick_master_count":1,"brick_instances":96,"recovery_capacity":RECOVERY_CAPACITY}
+    return {"configuration_packets":{"builds":configure_builds,"reuses":configure_reuses},"geometry_rebuilds":geometry_rebuilds,"lighting_resolves":lighting_resolves,"recovery_builds":recovery_builds,"recovery_reuses":recovery_reuses,"output_resolves":output_resolves,"internal_size":render_size,"source_bank_bytes":_samples.size(),"reference_bytes":_references.size(),"brick_master_count":1,"brick_instances":96,"recovery_capacity":RECOVERY_CAPACITY}
 
 func _capture() -> void:
     super._capture()
