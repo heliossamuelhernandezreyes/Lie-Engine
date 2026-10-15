@@ -1,0 +1,51 @@
+{
+  "checks": 19,
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
+  "renderer": "LIE28 GLSL actual captured-source Vulkan compute",
+  "result": "pass",
+  "samples": 110800.0,
+  "source": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
+  "views": {
+    "corner": {
+      "allocation_bytes": 178396160,
+      "covered_pixels": 99318,
+      "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "instances": 113,
+      "lit_pixels": 99318,
+      "lod_distribution": [
+        15,
+        60,
+        38
+      ],
+      "sample_invocations": 724600
+    },
+    "courtyard": {
+      "allocation_bytes": 178396160,
+      "covered_pixels": 93661,
+      "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "instances": 113,
+      "lit_pixels": 93661,
+      "lod_distribution": [
+        15,
+        60,
+        38
+      ],
+      "sample_invocations": 724600
+    },
+    "front": {
+      "allocation_bytes": 178396160,
+      "covered_pixels": 88839,
+      "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
+      "instances": 113,
+      "lit_pixels": 88839,
+      "lod_distribution": [
+        15,
+        60,
+        38
+      ],
+      "sample_invocations": 724600
+    },
+    "roof_off_instances": 92
+  }
+}
