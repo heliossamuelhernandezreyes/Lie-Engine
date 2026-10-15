@@ -3,6 +3,7 @@ extends RefCounted
 ## Every camera/pose owns its writable buffers; only source data are shared.
 static var _entries: Dictionary={}
 static var _uploads: int=0
+static var _generation: int=0
 
 static func acquire(rd: RenderingDevice,data: PackedByteArray,sha256: String,stride: int) -> Dictionary:
     if rd==null or data.is_empty() or stride<1 or data.size()%stride!=0 or sha256.length()!=64:
@@ -14,12 +15,21 @@ static func acquire(rd: RenderingDevice,data: PackedByteArray,sha256: String,str
         var entry: Dictionary=_entries[key]
         if entry["bytes"]!=data.size() or not entry["rid"].is_valid():return {"ok":false,"error":"sample_buffer_identity"}
         entry["references"]+=1
-        return {"ok":true,"key":key,"rid":entry["rid"],"bytes":entry["bytes"],"uploaded":false,"cpu_data":entry["data"]}
+        return {"ok":true,"key":key,"generation":entry["generation"],"rid":entry["rid"],"bytes":entry["bytes"],"uploaded":false,"cpu_data":entry["data"]}
     var rid: RID=rd.storage_buffer_create(data.size(),data)
     if not rid.is_valid():return {"ok":false,"error":"sample_buffer_allocation"}
-    _entries[key]={"rid":rid,"bytes":data.size(),"references":1,"device":rd.get_instance_id(),"sha256":sha256,"data":data}
+    _generation+=1
+    _entries[key]={"rid":rid,"bytes":data.size(),"references":1,"device":rd.get_instance_id(),"sha256":sha256,"data":data,"generation":_generation,"stride":stride}
     _uploads+=1
-    return {"ok":true,"key":key,"rid":rid,"bytes":data.size(),"uploaded":true,"cpu_data":data}
+    return {"ok":true,"key":key,"generation":_generation,"rid":rid,"bytes":data.size(),"uploaded":true,"cpu_data":data}
+
+static func resolve(rd: RenderingDevice,handle: Dictionary,source_id: int) -> Dictionary:
+    # O(1) resident lookup; no file access, hashing, scanning or GPU readback.
+    var key: String=handle.get("key","")
+    if rd==null or source_id<0 or not _entries.has(key):return {}
+    var entry: Dictionary=_entries[key]
+    if entry["device"]!=rd.get_instance_id() or entry["generation"]!=handle.get("generation") or source_id>=entry["bytes"]/entry["stride"]:return {}
+    return {"rid":entry["rid"],"byte_offset":source_id*entry["stride"],"stride":entry["stride"],"bank_sha256":entry["sha256"],"generation":entry["generation"]}
 
 static func release(rd: RenderingDevice,key: String) -> bool:
     if rd==null or not _entries.has(key) or _entries[key]["device"]!=rd.get_instance_id():return false
