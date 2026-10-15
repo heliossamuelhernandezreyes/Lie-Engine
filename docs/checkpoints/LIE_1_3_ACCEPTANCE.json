@@ -1,0 +1,349 @@
+{
+  "runtime_sha": "2b5c9afb30959bfe35d0086eea0db07580634536",
+  "base_sha": "5fee70ee0f35f5f20199000993b113897e37c3dc",
+  "run_id": 38785996662,
+  "job_id": 116598021518,
+  "artifact_id": 11997093941,
+  "artifact_zip_sha256": "45904d2508b772cc973bc503217e52d24980a732c2dba958dc576aac05f08d82",
+  "apk": {
+    "bytes": 58233788,
+    "sha256": "8079a34b973cf958686df9f7f9f40faa521b7d06c07181b651011d4a901a6f76",
+    "package": "org.lieengine.wallruntime.v130",
+    "version": "1.3.0-surface-queries"
+  },
+  "apk_signatures": [
+    "v2",
+    "v3"
+  ],
+  "architecture": "arm64-v8a",
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "physical_android_tested": false,
+  "checks": {
+    "query_commands": 14,
+    "isolated_witness_gpu": 281,
+    "wall16_mobile": 56,
+    "python_regions": 3000,
+    "python_blocker_scenes": 2000,
+    "cpu_rig": 247,
+    "cpu_agent": 25
+  },
+  "appearance_requested_bytes": 280581000,
+  "additional_requested_bytes_vs_1_2": 25586080,
+  "cache": {
+    "bounds_builds": 3,
+    "enabled": true,
+    "occlusion_witnesses": true,
+    "required_storage_buffers": 32,
+    "scope": "resident world centers/normal intervals; 16-block parents; exact captured-disk blocking witnesses; below 32 storage descriptors use the accepted 1.2 shader",
+    "selections": 19,
+    "storage_buffer_limit": 1000000,
+    "supported": true,
+    "witness_bytes": 24707360,
+    "world_plan": {
+      "builds": 3,
+      "reuses": 365,
+      "scope": "source domain + instance assembly + geometry recipe + schedule; camera/light independent"
+    }
+  },
+  "comparisons": {
+    "LOD and reference-mode invalidation preserve image": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "default 1.3 matches 1.2": {
+      "iou": 1.0,
+      "mae": 4.7116149748302687e-11,
+      "max": 7.700291462242603e-07
+    },
+    "eight area channels preserve lighting": {
+      "iou": 1.0,
+      "mae": 7.880256122079082e-11,
+      "max": 3.0766241252422333e-06
+    },
+    "hierarchy preserves all pixels -80.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "hierarchy preserves all pixels 12.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "hierarchy preserves all pixels 150.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "hierarchy preserves all pixels 60.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "hierarchy preserves all pixels 80.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "retested moving-light witnesses exact 0.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "retested moving-light witnesses exact 0.01": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "retested moving-light witnesses exact 0.1": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "retested moving-light witnesses exact 1.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "retested moving-light witnesses exact 8.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    }
+  },
+  "benchmark": {
+    "comparison": {
+      "camera": {
+        "records": [
+          {
+            "serial": 15,
+            "passes_ms": {
+              "clear": 24.163128,
+              "project": 52.643797,
+              "raster": 64.159745,
+              "visibility_compact": 22.767509,
+              "material_filter": 49.530911,
+              "fused_base": 55.340483,
+              "recovery_build": 94.035684,
+              "visibility_keys": 0.185132,
+              "visibility_invalidate": 14.27804,
+              "world_visibility": 3.544234,
+              "surface_light": 76.551257,
+              "output": 17.975115
+            },
+            "total_ms": 475.17503500000004
+          },
+          {
+            "serial": 21,
+            "passes_ms": {
+              "clear": 23.873922,
+              "project": 53.367662,
+              "raster": 64.171412,
+              "visibility_compact": 23.197479,
+              "material_filter": 49.753345,
+              "fused_base": 58.643439,
+              "recovery_build": 94.024641,
+              "visibility_keys": 0.162368,
+              "visibility_invalidate": 14.278145,
+              "world_visibility": 3.646944,
+              "surface_light": 78.375841,
+              "output": 17.993464
+            },
+            "total_ms": 481.48866200000003
+          },
+          {
+            "serial": 27,
+            "passes_ms": {
+              "clear": 23.908922,
+              "project": 53.725032,
+              "raster": 64.279019,
+              "visibility_compact": 22.79977,
+              "material_filter": 49.722757,
+              "fused_base": 56.569261,
+              "recovery_build": 97.430681,
+              "visibility_keys": 0.16545,
+              "visibility_invalidate": 14.353871,
+              "world_visibility": 5.559501,
+              "surface_light": 81.976078,
+              "output": 16.762588
+            },
+            "total_ms": 487.25293
+          }
+        ],
+        "total_p50_ms": 481.48866200000003,
+        "project_p50_ms": 53.367662,
+        "raster_p50_ms": 64.171412,
+        "surface_select_p50_ms": 0,
+        "world_visibility_p50_ms": 3.646944
+      },
+      "light_position": {
+        "records": [
+          {
+            "serial": 16,
+            "passes_ms": {
+              "fused_base": 57.242155,
+              "recovery_reuse": 33.835689,
+              "visibility_keys": 0.169965,
+              "visibility_invalidate": 15.157285,
+              "world_visibility": 175.916166,
+              "surface_light": 76.716304,
+              "output": 17.041113
+            },
+            "total_ms": 376.07867699999997
+          },
+          {
+            "serial": 22,
+            "passes_ms": {
+              "fused_base": 55.578422,
+              "recovery_reuse": 31.793739,
+              "visibility_keys": 0.118016,
+              "visibility_invalidate": 14.817092,
+              "world_visibility": 176.177906,
+              "surface_light": 76.419725,
+              "output": 17.07233
+            },
+            "total_ms": 371.97723
+          },
+          {
+            "serial": 28,
+            "passes_ms": {
+              "fused_base": 55.449197,
+              "recovery_reuse": 31.822067,
+              "visibility_keys": 0.168034,
+              "visibility_invalidate": 14.896431,
+              "world_visibility": 178.42622,
+              "surface_light": 76.864644,
+              "output": 17.145998
+            },
+            "total_ms": 374.772591
+          }
+        ],
+        "total_p50_ms": 374.772591,
+        "project_p50_ms": 0,
+        "raster_p50_ms": 0,
+        "surface_select_p50_ms": 0,
+        "world_visibility_p50_ms": 176.177906
+      }
+    },
+    "optimized": {
+      "camera": {
+        "records": [
+          {
+            "serial": 18,
+            "passes_ms": {
+              "clear": 24.56815,
+              "surface_select": 0.329074,
+              "project": 48.16162,
+              "raster": 59.194999,
+              "visibility_compact": 23.097309,
+              "material_filter": 49.545223,
+              "fused_base": 55.349874,
+              "recovery_build": 93.445771,
+              "visibility_keys": 0.167236,
+              "visibility_invalidate": 14.273116,
+              "world_visibility": 3.567922,
+              "surface_light": 76.115793,
+              "output": 17.590442
+            },
+            "total_ms": 465.406529
+          },
+          {
+            "serial": 24,
+            "passes_ms": {
+              "clear": 23.995726,
+              "surface_select": 0.304099,
+              "project": 47.570132,
+              "raster": 57.472955,
+              "visibility_compact": 23.037474,
+              "material_filter": 49.715589,
+              "fused_base": 56.887256,
+              "recovery_build": 94.660406,
+              "visibility_keys": 0.176303,
+              "visibility_invalidate": 14.51151,
+              "world_visibility": 3.611069,
+              "surface_light": 76.017447,
+              "output": 16.80972
+            },
+            "total_ms": 464.769686
+          },
+          {
+            "serial": 30,
+            "passes_ms": {
+              "clear": 23.806395,
+              "surface_select": 0.303498,
+              "project": 47.876464,
+              "raster": 59.453584,
+              "visibility_compact": 23.329576,
+              "material_filter": 50.314863,
+              "fused_base": 59.600847,
+              "recovery_build": 97.07193,
+              "visibility_keys": 0.182014,
+              "visibility_invalidate": 17.793612,
+              "world_visibility": 5.084588,
+              "surface_light": 75.988558,
+              "output": 16.975636
+            },
+            "total_ms": 477.781565
+          }
+        ],
+        "total_p50_ms": 465.406529,
+        "project_p50_ms": 47.876464,
+        "raster_p50_ms": 59.194999,
+        "surface_select_p50_ms": 0.304099,
+        "world_visibility_p50_ms": 3.611069
+      },
+      "light_position": {
+        "records": [
+          {
+            "serial": 19,
+            "passes_ms": {
+              "fused_base": 59.554012,
+              "recovery_reuse": 31.545217,
+              "visibility_keys": 0.181699,
+              "visibility_invalidate": 18.035295,
+              "world_visibility": 162.213844,
+              "surface_light": 79.892277,
+              "output": 17.007238
+            },
+            "total_ms": 368.429582
+          },
+          {
+            "serial": 25,
+            "passes_ms": {
+              "fused_base": 55.281365,
+              "recovery_reuse": 31.573128,
+              "visibility_keys": 0.120855,
+              "visibility_invalidate": 14.931902,
+              "world_visibility": 165.290064,
+              "surface_light": 76.622322,
+              "output": 17.018144
+            },
+            "total_ms": 360.83778
+          },
+          {
+            "serial": 31,
+            "passes_ms": {
+              "fused_base": 55.312008,
+              "recovery_reuse": 32.895603,
+              "visibility_keys": 0.158301,
+              "visibility_invalidate": 14.957146,
+              "world_visibility": 162.181524,
+              "surface_light": 78.376269,
+              "output": 16.961608
+            },
+            "total_ms": 360.84245899999996
+          }
+        ],
+        "total_p50_ms": 360.84245899999996,
+        "project_p50_ms": 0,
+        "raster_p50_ms": 0,
+        "surface_select_p50_ms": 0,
+        "world_visibility_p50_ms": 162.213844
+      }
+    }
+  },
+  "scope": "Software Vulkan only; three events per mode/type. Camera benchmark restores the same light and forces the same warm-camera geometry solve. Moved-light events start from -72 degrees in each mode. Total is sum of instrumented GPU stages, not display FPS or CPU time. Full-reference witness captures clear BOTH light caches, whereas moving-light captures may reuse the untouched source: do not compare those raw traversal totals as a two-mode speedup.",
+  "ci_workflows_passed": 20,
+  "legacy_retry_run_id": 38785996757
+}

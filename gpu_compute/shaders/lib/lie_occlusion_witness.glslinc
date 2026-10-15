@@ -1,0 +1,24 @@
+// A hint is evidence only after retesting the ORIGINAL disk against this ray.
+// Encoding: 10-bit scene instance and 22-bit (source ID + 1), zero = absent.
+// Out-of-capacity IDs simply use the full traversal. No clear-ray certificate.
+layout(set=0,binding=39,std430) buffer QueryMemory {uint words[];} query_memory;
+void lie_query_stat(uint at) {if(query_memory.words[2]!=0u)atomicAdd(query_memory.words[16u+at],1u);}
+uint lie_witness_code(uint instance,uint sid) {
+    return instance<1024u && sid<0x3fffffu?(instance<<22u)|(sid+1u):0u;
+}
+bool lie_witness_blocks(uint code,vec3 o,vec3 d,float minimum,float early,uint owner,uint source_id) {
+    if((code&0x3fffffu)==0u)return false;
+    uint instance=code>>22u,sid=(code&0x3fffffu)-1u;
+    if(instance>=lie_visibility_scene.values[3] || (instance==owner && sid==source_id))return false;
+    uint at=lie_visibility_scene.values[2]+instance*16u;
+    uint start=lie_visibility_scene.values[at+13u],count=lie_visibility_scene.values[at+14u];
+    if(sid<start || sid-start>=count)return false;
+    vec4 x=lie_scene_vec(at),y=lie_scene_vec(at+4u),z=lie_scene_vec(at+8u);
+    vec3 local_o=vec3(dot(x,vec4(o,1)),dot(y,vec4(o,1)),dot(z,vec4(o,1)));
+    vec3 local_d=vec3(dot(x.xyz,d),dot(y.xyz,d),dot(z.xyz,d));
+    vec4 source=lie_visibility_position_radius(sid);vec3 normal=lie_visibility_normal(sid);
+    float denominator=dot(normal,local_d);if(abs(denominator)<1e-8)return false;
+    float t=dot(normal,source.xyz-local_o)/denominator;if(t<=minimum || t>early)return false;
+    vec3 delta=local_o+t*local_d-source.xyz;
+    return dot(delta,delta)<=source.w*source.w;
+}
