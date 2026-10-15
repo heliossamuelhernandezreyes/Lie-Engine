@@ -118,6 +118,11 @@ func _transport_file() -> RDShaderFile:
 func _extra_transport_uniforms() -> Array[RDUniform]:
     return []
 
+func _initial_transport_buffer(binding: int, bytes: PackedByteArray) -> PackedByteArray:
+    # Specializations may reserve more frontier channels without copying the
+    # renderer's allocation, cache, timestamp or RID-lifetime implementation.
+    return bytes
+
 func _initialize_gpu(data: Dictionary) -> bool:
     if _shader.is_valid() or not _buffers.is_empty():_release_gpu()
     _rd=RenderingServer.get_rendering_device()
@@ -145,7 +150,7 @@ func _initialize_gpu(data: Dictionary) -> bool:
         float_zeros.to_byte_array(),float_zeros.to_byte_array(),float_zeros.to_byte_array(),data[8],data[9],data[11],data[12],data[13]]
     _transport_uniforms=[]
     for binding in range(initial.size()):
-        var bytes: PackedByteArray=initial[binding]
+        var bytes: PackedByteArray=_initial_transport_buffer(binding,initial[binding])
         var rid: RID=_rd.storage_buffer_create(bytes.size(),bytes)
         if not rid.is_valid():
             failure="Unable to allocate LIE-11 code buffer"

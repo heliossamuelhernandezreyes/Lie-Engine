@@ -1,0 +1,230 @@
+{
+  "schema": "lie-light-field-checkpoint/1",
+  "base_commit": "ff6a548624559cccdfc98a8ea8b0c55a4300748f",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "source_light_sha256": "3801b721d33738d6fe0ab8c6cb5606aaf35928567a72d21622e8aa15d72748df",
+  "implementation": "common opaque finite-patch field; separate per-source directional frontiers; scene emitter registry",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "godot_core_modified": false,
+  "local": {
+    "python_field_tests": 6,
+    "python_asset_tests": 10,
+    "python_lie35_tests": 11,
+    "field_contract_checks": 27,
+    "rig_checks": 247,
+    "agent_checks": 25,
+    "headless_import_errors": 0,
+    "field_command_checks": 13,
+    "python_wall06_tests": 4,
+    "python_wall05_tests": 4
+  },
+  "native_vulkan": {
+    "status": "passed",
+    "run_id": 38667463039,
+    "job_id": 116202567799,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "field_cases": 15,
+    "field_gpu_checks": 374,
+    "wall_checks": 26,
+    "wall07_regression_checks": 27,
+    "asset_queries": 80,
+    "field_contract_checks": 27,
+    "field_command_checks": 13,
+    "field_float64_max_error": 3.34194344520089e-06,
+    "field_superposition_max_error": 1.6577541828155518e-07,
+    "wall_float64_max_error": 9.996962278824295e-09,
+    "wall_superposition_max_error": 1.862645149230957e-09,
+    "single_light_image_vs_wall07": {
+      "iou": 1.0,
+      "mae": 3.7902432883538646e-11,
+      "max": 1.1920928955078125e-07
+    },
+    "cached_vs_cold_image": {
+      "iou": 1.0,
+      "mae": 3.810094831313879e-11,
+      "max": 1.7881393432617188e-07
+    },
+    "transport_allocation_bytes": 1432168,
+    "appearance_allocation_bytes": 228578212,
+    "evidence_file": "docs/checkpoints/LIE_LIGHT_FIELD_NATIVE.json",
+    "physical_gpu_measured": false
+  },
+  "android": {
+    "status": "exported_and_verified",
+    "code_commit": "657e077a5a3a7479fe7229907afdf19f4caf3df7",
+    "filename": "LIE-Luz-0.5.0.apk",
+    "package": "org.lieengine.wallruntime.v050",
+    "version": "0.5.0-source-light-field",
+    "bytes": 53122952,
+    "sha256": "033cac4e1ea278babcd1b0bcabd9114cce01c8bb71ea3515d87a5e7c575c2571",
+    "architecture": "arm64-v8a",
+    "alignment_bytes": 16384,
+    "physical_device_measured": false,
+    "artifact": {
+      "id": 11943206238,
+      "zip_bytes": 53265348,
+      "zip_sha256": "bc1c4d074fef8c508b0f88369f48c0fc2c9913d7368361ebd8290783023a7e49"
+    },
+    "signature_v2": true,
+    "signature_v3": true,
+    "version_code": 5,
+    "min_sdk": 24,
+    "target_sdk": 36
+  },
+  "negative_results": [
+    {
+      "stage": "initial CPU roughness fixture",
+      "result": "failed meaningful-response assertion",
+      "cause": "receivers exactly on reflected axes produced lobe values 0/1 for both roughness choices",
+      "fix": "off-axis receivers with geometric inward normals; roughness response and all six regressions passed"
+    },
+    {
+      "stage": "local staging retry",
+      "result": "existing destination rejected",
+      "cause": "builder requires an empty directory",
+      "fix": "new isolated staging path; successful import and 25 contract checks"
+    },
+    {
+      "stage": "workflow inspection",
+      "result": "ad hoc step-count assertion expected 10 but workflow has 9",
+      "fix": "validated YAML content without an unrelated step-count requirement"
+    },
+    {
+      "stage": "first actual Vulkan wall acceptance",
+      "commit": "2389d0bd5ccd9a5339e8ce0d720553b47af4baef",
+      "run_id": 38666965106,
+      "job_id": 116201013527,
+      "artifact_id": 11942950228,
+      "artifact_zip_sha256": "a65c771adf540b4a5334c115cf83aabea905d9e8bd7b4716ef775e29ca2e4416",
+      "passed": {
+        "wall07_checks": 27,
+        "asset_stencil_queries": 80,
+        "field_contract_checks": 25,
+        "field_gpu_checks": 374,
+        "field_gpu_cases": 15,
+        "field_gpu_float64_max_error": 3.34194344520089e-06,
+        "field_gpu_superposition_max_error": 1.6577541828155518e-07
+      },
+      "failed": [
+        "wall source-superposition comparison",
+        "wall two-light float64 comparison"
+      ],
+      "cause": "test attempted light_power=0, outside inherited control limits; atomic range_light_power rejection also kept fill disabled. The test did not assert that setup command succeeded. Headless reproduction confirmed unchanged primary-only codes.",
+      "fix": "independent key_enabled switch; assert isolation commands succeed; 13 headless command checks including switch restoration and rejected-transaction atomicity. No acceptance tolerance was relaxed.",
+      "apk_produced": false
+    }
+  ],
+  "limits": [
+    "one directional moment per source/surface/bounce",
+    "relative RGB units, not calibrated lumens",
+    "eight point sources per field",
+    "full-field light invalidation, no subregion updates",
+    "opaque approximate diffuse/gloss response",
+    "fixed captured indirect visibility",
+    "no refracted paths or view-dependent appearance specular",
+    "software Vulkan cannot certify physical Android FPS"
+  ],
+  "validated_code_commit": "657e077a5a3a7479fe7229907afdf19f4caf3df7",
+  "pr_url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/pull/50",
+  "regression_workflows": {
+    "commit": "657e077a5a3a7479fe7229907afdf19f4caf3df7",
+    "passed": 19,
+    "runs": [
+      {
+        "id": 38667463175,
+        "name": "LIE-11 coded sprite light transport",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667463136,
+        "name": "LIE-15 Arcont robot and compact camera reconstruction",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462961,
+        "name": "LIE-26 anatomical rig",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462868,
+        "name": "LIE-27 spherical regions and face",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462843,
+        "name": "LIE-22 shared eyes and modular destruction",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667463037,
+        "name": "LIE common asset contract and continuous light",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667463039,
+        "name": "LIE source-separated light field and Android",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462939,
+        "name": "LIE-14 rigid masters and perception boxes",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462941,
+        "name": "LIE-20 captured human, invisible deformation and skin",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462944,
+        "name": "LIE runtime lighting and shared samples",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462950,
+        "name": "LIE-12 captured grayscale material and node lighting",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667463003,
+        "name": "LIE-13 finite secondary radii and dielectric sprites",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667463043,
+        "name": "LIE-17 contrast-guided edges and measured filter cost",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462916,
+        "name": "LIE-16 stable capture quality and measured consumer cost",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462867,
+        "name": "LIE-21 human quality versus Cycles and LIE-20",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462997,
+        "name": "LIE-18 workshop, shared agent API and GPU transport",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462912,
+        "name": "LIE-01 native acceptance",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462951,
+        "name": "LIE-23 integrated eyes and continuous captured eyelids",
+        "conclusion": "success"
+      },
+      {
+        "id": 38667462847,
+        "name": "LIE-24 captured facial construction and compatible modules",
+        "conclusion": "success"
+      }
+    ]
+  }
+}

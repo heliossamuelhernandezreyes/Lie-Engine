@@ -52,3 +52,14 @@ acceptance is still required. Preflight alone does not establish photo fidelity.
 Use source-authored owner/material groups for shared irradiance interpolation;
 never interpolate appearance across an unrelated master or real opening.
 Read `docs/LIE_ASSET_PIPELINE.md` for the compiler, common kernel and limits.
+
+## Shared lighting
+
+Use `lie_light_world.gd` / `lie_point_emitter_3d.gd` for scene emitter IDs and
+main-thread snapshots. The shared field accepts explicit immutable surface
+ownership and matching gather/outgoing CSR packets; brick layout belongs in
+its adapter. Preserve per-source directional frontiers and passive generation
+budgets. Run the float64/GPU source-superposition and source-lifetime checks.
+Do not claim refraction, measured photometry or native Godot shadow/depth
+participation from this opaque field. Read `docs/LIE_LIGHT_FIELD.md` before
+adding material types, native renderer bridges or frame-borrowed RIDs.

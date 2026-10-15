@@ -1,0 +1,26 @@
+// Opaque finite-patch response. Positions in meters; relative linear RGB power.
+// A passive approximation, not a calibrated GGX BSDF or a transmission solver.
+void lie_passive_parts(vec3 albedo, float metal, float ior, float absorption,
+                       vec3 normal, vec3 travel, out vec3 D, out vec3 R) {
+    float ci=clamp(-dot(normal,travel),0.,1.);
+    if(ci<=1e-8) {D=vec3(0);R=vec3(0);return;}
+    float f_dielectric=pow((ior-1.)/(ior+1.),2.);
+    vec3 f0=mix(vec3(f_dielectric),albedo,metal);
+    vec3 f=f0+(vec3(1)-f0)*pow(1.-ci,5.);
+    D=(1.-metal)*(vec3(1)-f)*albedo*(1.-absorption);
+    R=f*(1.-absorption);
+    vec3 cap=max(vec3(1),D+R);D/=cap;R/=cap;
+}
+vec2 lie_passive_weights(vec3 delta, vec3 geometric_normal, vec3 shading_normal,
+                         float roughness, vec3 travel, float F,
+                         bool bounded, float radius) {
+    float d=length(delta);if(d<=1e-8)return vec2(0);
+    vec3 out_dir=delta/d;
+    float baseline=max(dot(geometric_normal,out_dir),1e-6);
+    float diffuse=max(dot(shading_normal,out_dir),0.);
+    float rough=max(roughness,.025);
+    float expo=clamp(2./(rough*rough)-2.,1.,2048.);
+    float gloss=diffuse>0.?pow(max(dot(reflect(travel,shading_normal),out_dir),0.),expo):0.;
+    float fade=bounded?(radius>0.?pow(max(0.,1.-pow(d/radius,4.)),2.):0.):1.;
+    return F*fade*vec2(diffuse,gloss)/baseline;
+}
