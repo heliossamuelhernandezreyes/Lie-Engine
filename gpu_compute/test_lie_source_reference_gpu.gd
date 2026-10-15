@@ -11,15 +11,17 @@ func u(binding: int,rid: RID,image: bool=false) -> RDUniform:
     var out:=RDUniform.new();out.binding=binding;out.uniform_type=RenderingDevice.UNIFORM_TYPE_IMAGE if image else RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER;out.add_id(rid);return out
 func draw(lab,source_ids: PackedByteArray,radius: float,angle: float,irradiance: PackedFloat32Array) -> Dictionary:
     var count: int=source_ids.size()/4;var params: PackedByteArray=lab.effect._pending["parameters"].duplicate()
-    var instance: PackedByteArray=lab.effect._pending["instances"].slice(42*96,43*96);instance.encode_float(72,radius)
-    var center:=Vector3(instance.decode_float(48),instance.decode_float(52),instance.decode_float(56))
+    # Keep the original owner index: support reconstruction uses it as well as
+    # the instance transform. There is one job, referencing resident instance 42.
+    var instance: PackedByteArray=lab.effect._pending["instances"].duplicate();instance.encode_float(42*96+72,radius)
+    var center:=Vector3(instance.decode_float(42*96+48),instance.decode_float(42*96+52),instance.decode_float(42*96+56))
     var eye: Vector3=center+Vector3(sin(deg_to_rad(angle))*.30,.02,cos(deg_to_rad(angle))*.30);var forward: Vector3=(center-eye).normalized();var right: Vector3=forward.cross(Vector3.UP).normalized();var up: Vector3=right.cross(forward)
     var basis: Array=[eye,right,up,forward]
     for i in range(4):
         for k in range(3):params.encode_float(i*16+k*4,basis[i][k])
     params.encode_float(64,.65);params.encode_float(72,.005);params.encode_float(76,10.)
     for pair in [[80,count],[84,1],[88,SIZE],[92,SIZE]]:params.encode_s32(pair[0],pair[1])
-    var data: Dictionary={1:instance,2:PackedInt32Array([0,count,0,0]).to_byte_array(),6:params,15:Model.patch_bytes(lab.light_model),16:lab.effect._joint_layout_bytes(),17:source_ids,21:lab.effect._groups}
+    var data: Dictionary={1:instance,2:PackedInt32Array([0,count,42,0]).to_byte_array(),6:params,15:Model.patch_bytes(lab.light_model),16:lab.effect._joint_layout_bytes(),17:source_ids,21:lab.effect._groups}
     for pair in [[3,count*96],[4,SIZE*SIZE*4],[5,SIZE*SIZE*4],[7,SIZE*SIZE*32],[13,512*512*4],[18,SIZE*SIZE*4],[19,160],[20,16],[22,32],[23,272],[24,32],[25,32],[26,16],[27,16],[28,count*8]]:
         var bytes:=PackedByteArray();bytes.resize(pair[1]);data[pair[0]]=bytes
     var rids: Dictionary={0:bank};var uniforms: Array[RDUniform]=[u(0,bank)]
