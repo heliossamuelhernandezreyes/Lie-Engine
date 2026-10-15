@@ -1,5 +1,5 @@
 {
-  "checks": 43,
+  "checks": 49,
   "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
   "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
   "renderer": "LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
@@ -46,6 +46,19 @@
         38
       ],
       "sample_invocations": 724600
+    },
+    "microcontact": {
+      "disabled_bit_exact": true,
+      "enabled_differs": true,
+      "stages": [
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ]
     },
     "multiwall_transport": {
       "active_links": 6787,
