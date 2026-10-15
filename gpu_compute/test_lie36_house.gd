@@ -3,7 +3,7 @@ extends SceneTree
 var checks: int=0
 var failed: bool=false
 var output: Dictionary={}
-var house: Node3D
+var house
 func _initialize() -> void:call_deferred("_run")
 func check(ok: bool,description: String) -> bool:
     checks+=1
