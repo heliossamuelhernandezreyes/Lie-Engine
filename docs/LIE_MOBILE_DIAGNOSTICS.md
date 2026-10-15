@@ -94,3 +94,28 @@ de GLSL y registró dependencias sin loader, aunque imprimió 25 checks; ese
 intento no se acepta. Tras importar, las mismas 25 comprobaciones pasan sin
 errores. La instalación Vulkan local también encontró archivos de apt de
 solo lectura; la verificación gráfica se ejecuta en el runner nativo.
+
+
+## Resultado aceptado
+
+Código 604da39237307d410f07d1f9f758e4ed80fa1b05, run 38759295824,
+job 116505994661: 9 comprobaciones de reducción, 19 de controles y 12
+Vulkan de WALL14 aprobadas, incluidas copia real en display, nueve cambios,
+restauración y una subida. WALL13 mantiene sus 50 y las regresiones nativas
+WALL07–12 también aprueban. El pipeline completo exporta ARM64 offline,
+normaliza manifiesto, alinea a 16 KiB y verifica firmas V2/V3.
+
+APK `LIE-Diagnostico-1.1.0.apk`, 58,059,428 bytes, SHA256
+`a9422fe2e99bc33141608857bd500503b0e8c927a426f6d42690eecb6a589cff`.
+Paquete org.lieengine.wallruntime.v110, versión/código
+1.1.0-diagnostics-touch/11. Arranca WALL14 y conserva exactamente el banco
+ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340.
+El archivo descargado coincide con el SHA del exportador; ZIP y banco se
+verifican otra vez tras descargar. Evidencia completa:
+`checkpoints/LIE_DIAGNOSTICS_NATIVE.json` y
+`checkpoints/LIE_DIAGNOSTICS_CHECKPOINT.json`.
+
+El diagnóstico separa ahora potencia y posición de luz por serial. La muestra
+nativa confirma que los nueve eventos tienen mediciones y restaura el estado;
+la jerarquía obtenida en llvmpipe no se atribuye al Poco. La medición física,
+el gesto y el portapapeles Android deben confirmarse en el teléfono.
