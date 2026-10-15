@@ -39,6 +39,25 @@ layout(set=0,binding=16,std430) buffer PanelBounce { vec4 energy[]; } panel_boun
 const int LIE_HOUSE_CAP=128;
 const float PANEL_W=2.64675009727478;
 const float PANEL_H=.6878780770301819;
+// LIE37 seam repair: interpolate ONLY a one-pixel absence between matching
+// captured neighbor surfaces. Never invent colors where authentic scanned
+// geometry has already won, and never bridge silhouettes or wide apertures.
+bool lie_neighbor_match(ivec2 a,ivec2 b) {
+    if(!inside(a) || !inside(b))return false;
+    ivec2 size=parameters.counts.zw;
+    int ia=a.y*size.x+a.x,ib=b.y*size.x+b.x;
+    uint wa=winners.v[ia],wb=winners.v[ib];
+    if(wa==EMPTY || wb==EMPTY)return false;
+    vec3 na=projected.v[wa].normal.xyz;
+    vec3 nb=projected.v[wb].normal.xyz;
+    if(dot(na,nb)<.94)return false;
+    float za=uintBitsToFloat(depths.v[ia]),zb=uintBitsToFloat(depths.v[ib]);
+    if(abs(za-zb)>.075+max(za,zb)*.003)return false;
+    vec3 ca=imageLoad(output_image,a).rgb;
+    vec3 cb=imageLoad(output_image,b).rgb;
+    return length(ca-cb)<.29;
+}
+
 vec3 panel_normal(int idx) {
     Instance inst=instances.v[idx];
     return normalize(cross(inst.x.xyz,inst.y.xyz));
@@ -333,6 +352,30 @@ void main() {
                 (panel_area(src)/receiver_area)*w;
         }
         panel_bounce.energy[target]=vec4(max(indirect,vec3(0)),1);
+        return;
+    }
+    if(stage==11 || stage==12) {
+        if(i>=pixels)return;
+        ivec2 at=ivec2(int(i)%parameters.counts.z,int(i)/parameters.counts.z);
+        if(stage==12) {imageStore(output_image,at,imageLoad(specular_image,at));return;}
+        vec4 original=imageLoad(output_image,at);
+        if(original.a>.5 || parameters.settings.w<.5) {
+            imageStore(specular_image,at,original);
+            return;
+        }
+        ivec2 left=at+ivec2(-1,0),right=at+ivec2(1,0);
+        ivec2 top=at+ivec2(0,-1),bottom=at+ivec2(0,1);
+        vec3 color=vec3(0);
+        float count=0.;
+        if(lie_neighbor_match(left,right)) {
+            color+=.5*(imageLoad(output_image,left).rgb+imageLoad(output_image,right).rgb);
+            count+=1.;
+        }
+        if(lie_neighbor_match(top,bottom)) {
+            color+=.5*(imageLoad(output_image,top).rgb+imageLoad(output_image,bottom).rgb);
+            count+=1.;
+        }
+        imageStore(specular_image,at,count>0.?vec4(color/count,1.):original);
         return;
     }
     if(stage==7) {
