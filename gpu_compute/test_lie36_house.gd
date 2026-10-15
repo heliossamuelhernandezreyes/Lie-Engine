@@ -98,7 +98,29 @@ func _run() -> void:
         "Identical camera/light changes native GPU pixels when bounce toggles")
     output["multiwall_transport"]=transport
     output["bounce_on_off_different"]=without.get("color",PackedFloat32Array())!=c.get("color",PackedFloat32Array())
+    var no_bounce_image:=Image.create_from_data(without["output_size"],without["output_size"],
+        false,Image.FORMAT_RGBAF,without["color"].to_byte_array())
+    no_bounce_image.convert(Image.FORMAT_RGBA8)
+    check(no_bounce_image.save_png("res://captures_out/lie37-no-bounce.png")==OK,
+        "Native unbounced benchmark PNG")
     house.command({"op":"set_values","values":{"bounce":true}})
+    await _wait_frames(7)
+    var full: Dictionary=await _read()
+    check(not full.is_empty(),"Same scene restored before seam control")
+    check(house.command({"op":"set_values","values":{"seams":false}}).get("ok",false),
+        "Independent seam micro-hole filter switch")
+    await _wait_frames(7)
+    var no_seams: Dictionary=await _read()
+    var repaired: bool=not no_seams.is_empty() and no_seams["color"]!=full["color"]
+    check(repaired,"Depth-normal-surface seam treatment changes actual pixels")
+    output["seam_on_off_different"]=repaired
+    if not no_seams.is_empty():
+        var raw_img:=Image.create_from_data(no_seams["output_size"],no_seams["output_size"],
+            false,Image.FORMAT_RGBAF,no_seams["color"].to_byte_array())
+        raw_img.convert(Image.FORMAT_RGBA8)
+        check(raw_img.save_png("res://captures_out/lie37-no-seam-repair.png")==OK,
+            "Native raw-seam benchmark PNG")
+    house.command({"op":"set_values","values":{"seams":true}})
     await _wait_frames(7)
     var no_roof: Dictionary=house.command({"op":"set_values","values":{"roof":false}})
     check(no_roof.get("ok",false),"Roof toggles")
