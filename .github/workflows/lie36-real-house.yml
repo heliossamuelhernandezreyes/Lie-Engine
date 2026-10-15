@@ -86,5 +86,9 @@ jobs:
           git add docs/captures/lie36
           if ! git diff --cached --quiet; then
             git commit -m 'Evidence: actual LIE36 scanned-house Vulkan renders [skip ci]'
-            git push origin HEAD:${{ github.head_ref }}
+            # Actions checks out a detached PR SHA. Fetch the current head
+            # before publishing evidence; never force-push over user changes.
+            git fetch origin '${{ github.head_ref }}'
+            git rebase FETCH_HEAD
+            git push origin HEAD:'${{ github.head_ref }}'
           fi
