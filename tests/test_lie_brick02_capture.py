@@ -57,6 +57,14 @@ class RealGeometryPipelineTest(unittest.TestCase):
         self.assertFalse(result["source_photo_texture_uv_used"])
         self.assertEqual(result["sample_count"],800)
 
+    def test_common_compiler_uses_authored_frame_for_another_master(self):
+        profile={'master':'curved_test_piece','source_to_lie':[[0,0,1],[0,1,0],[-1,0,0]],'meters_per_source_unit':2.,'source_pivot':[0,0,0],'material_zone':5,'optical_material':{'metallic':0.,'transmission':0.,'ior':1.5,'roughness_origin':'source_factor'}}
+        result=capture.capture(self.source,self.provenance,self.root/'generic',counts=(600,200,100),asset_profile=profile)
+        self.assertIn('curved_test_piece',result['masters']);self.assertTrue(result['asset_frame']['semantic_frame_verified'])
+        data=np.fromfile(self.root/'generic/library.bin',dtype='<f4').reshape(-1,20);self.assertTrue((data[:,8]==5).all())
+        self.assertGreater(result['source_bbox_m'][2],.4)
+        self.assertTrue((self.root/'generic/asset-contract.json').is_file())
+
     def test_source_fixture_has_texture_and_real_triangles(self):
         meshes=capture.load_source(self.source)
         self.assertGreater(len(meshes[0].faces),500)
