@@ -239,24 +239,24 @@ void main() {
         if(i>=uint(parameters.counts.x))return;
         uint j=job_index(i);
         uvec4 job=jobs.v[j];
-        Sample sample=samples.v[job.x+i-job.w];
+        Sample source_record=samples.v[job.x+i-job.w];
         Instance inst=instances.v[job.z];
         mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);
-        vec3 local=sample.position_radius.xyz;
-        float radius=sample.position_radius.w;
+        vec3 local=source_record.position_radius.xyz;
+        float radius=source_record.position_radius.w;
         if(parameters.settings.y<.5) {
             float r=length(local.xy),inner=.0017,outer=.006;
-            if(int(sample.attributes.x)==1 && r>1e-8) {
+            if(int(source_record.attributes.x)==1 && r>1e-8) {
                 float nr=parameters.iris.w+(r-inner)*(outer-parameters.iris.w)/(outer-inner);
                 local.xy*=nr/r;
                 radius*=max(nr/r,(outer-parameters.iris.w)/(outer-inner));
-            } else if(int(sample.attributes.x)==2) {
+            } else if(int(source_record.attributes.x)==2) {
                 local.xy*=parameters.iris.w/inner;
                 radius*=parameters.iris.w/inner;
             }
         }
         vec3 world=basis*local+inst.origin.xyz;
-        vec3 normal=normalize(transpose(inverse(basis))*sample.normal_gray.xyz);
+        vec3 normal=normalize(transpose(inverse(basis))*source_record.normal_gray.xyz);
         radius*=max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
         vec3 delta=world-parameters.light.xyz;
         float z=dot(delta,parameters.shadow_forward.xyz);
