@@ -1,0 +1,18 @@
+{
+  "schema": "lie-light-field-checkpoint/1",
+  "base_commit": "ff6a548624559cccdfc98a8ea8b0c55a4300748f",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "source_light_sha256": "3801b721d33738d6fe0ab8c6cb5606aaf35928567a72d21622e8aa15d72748df",
+  "implementation": "common opaque finite-patch field; separate per-source directional frontiers; scene emitter registry",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "godot_core_modified": false,
+  "local": {"python_field_tests": 6, "python_asset_tests": 10, "python_lie35_tests": 11, "field_contract_checks": 25, "rig_checks": 247, "agent_checks": 25, "headless_import_errors": 0},
+  "native_vulkan": {"status": "pending"},
+  "android": {"status": "pending", "physical_device_measured": false},
+  "negative_results": [
+    {"stage": "initial CPU roughness fixture", "result": "failed meaningful-response assertion", "cause": "receivers exactly on reflected axes produced lobe values 0/1 for both roughness choices", "fix": "off-axis receivers with geometric inward normals; roughness response and all six regressions passed"},
+    {"stage": "local staging retry", "result": "existing destination rejected", "cause": "builder requires an empty directory", "fix": "new isolated staging path; successful import and 25 contract checks"},
+    {"stage": "workflow inspection", "result": "ad hoc step-count assertion expected 10 but workflow has 9", "fix": "validated YAML content without an unrelated step-count requirement"}
+  ],
+  "limits": ["one directional moment per source/surface/bounce", "relative RGB units, not calibrated lumens", "eight point sources per field", "full-field light invalidation, no subregion updates", "opaque approximate diffuse/gloss response", "fixed captured indirect visibility", "no refracted paths or view-dependent appearance specular", "software Vulkan cannot certify physical Android FPS"]
+}
