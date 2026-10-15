@@ -1,0 +1,60 @@
+// Generic world-space hierarchy over adapter-evaluated immutable surface IDs.
+// Four vec4s per node: center bounds and normal component intervals.
+layout(set=0,binding=36,std430) buffer QueryArena {uint words[];} query_arena;
+vec4 lie_query_bound(uint i){uint at=query_memory.words[6]+i*4u;return uintBitsToFloat(uvec4(query_arena.words[at],query_arena.words[at+1u],query_arena.words[at+2u],query_arena.words[at+3u]));}
+void lie_query_store(uint i,vec4 value){uint at=query_memory.words[6]+i*4u;uvec4 v=floatBitsToUint(value);for(uint k=0u;k<4u;k++)query_arena.words[at+k]=v[k];}
+shared vec3 query_positions[64];
+shared vec3 query_normals[64];
+bool lie_query_visible(uint node) {
+    vec3 lo=lie_query_bound(node*4u).xyz,hi=lie_query_bound(node*4u+1u).xyz;
+    if(any(isnan(lo)) || any(isnan(hi)) || any(isinf(lo)) || any(isinf(hi)))return true;
+    vec3 center=(lo+hi)*.5,extent=(hi-lo)*.5,delta=center-parameters.eye.xyz;
+    float tolerance=2e-5*(1.+length(center)+length(parameters.eye.xyz));
+    float z=dot(delta,parameters.forward.xyz),rz=dot(extent,abs(parameters.forward.xyz));
+    if(z+rz<parameters.lens.z-tolerance || z-rz>parameters.lens.w+tolerance)return false;
+    // Raster footprints are clamped to 8 pixels; floor/ceil add one pixel.
+    float tx=parameters.lens.x*(1.+20./float(parameters.counts.z));
+    float ty=parameters.lens.x*(1.+20./float(parameters.counts.w));
+    for(int axis=0;axis<4;axis++) {
+        vec3 side=axis<2?parameters.right.xyz:parameters.up.xyz;
+        vec3 plane=parameters.forward.xyz*(axis<2?tx:ty)+(axis%2==0?side:-side);
+        if(dot(delta,plane)+dot(extent,abs(plane)) < -tolerance)return false;
+    }
+    vec3 nl=lie_query_bound(node*4u+2u).xyz,nh=lie_query_bound(node*4u+3u).xyz;
+    vec3 dl=parameters.eye.xyz-hi,dh=parameters.eye.xyz-lo;
+    vec3 upper=max(max(nl*dl,nl*dh),max(nh*dl,nh*dh));
+    return upper.x+upper.y+upper.z>=-tolerance;
+}
+void lie_query_build(uint group,uint lane) {
+    uvec2 block=source_blocks.values[query_memory.words[5]+group];uvec4 job=jobs.v[block.x];
+    uint local=block.y+lane;vec3 point=vec3(0),normal=vec3(0);
+    if(local<job.y) {
+        uint sid=sample_refs.values[job.x+local];Instance source_inst=instances.v[job.z];
+        Sample s=fetch_sample(sid,source_inst);Instance inst=render_instance(source_inst);float radius;
+        lie_query_geometry(s,inst,point,normal,radius);
+    }
+    query_positions[lane]=point;query_normals[lane]=normal;barrier();
+    if(lane==0u) {
+        vec3 low=vec3(3.402823e38),high=-low,nlow=low,nhigh=-low;
+        uint count=min(64u,job.y-block.y);
+        for(uint k=0u;k<count;k++){low=min(low,query_positions[k]);high=max(high,query_positions[k]);nlow=min(nlow,query_normals[k]);nhigh=max(nhigh,query_normals[k]);}
+        lie_query_store(group*4u,vec4(low,0));lie_query_store(group*4u+1u,vec4(high,0));
+        lie_query_store(group*4u+2u,vec4(nlow,0));lie_query_store(group*4u+3u,vec4(nhigh,0));
+    }
+}
+void lie_query_parent(uint page) {
+    uint groups=query_memory.words[3];if(page>=query_memory.words[4])return;
+    vec4 lo=vec4(3.402823e38),hi=-lo,nlo=lo,nhi=-lo;
+    for(uint block=page*16u;block<min((page+1u)*16u,groups);block++) {
+        lo=min(lo,lie_query_bound(block*4u));hi=max(hi,lie_query_bound(block*4u+1u));
+        nlo=min(nlo,lie_query_bound(block*4u+2u));nhi=max(nhi,lie_query_bound(block*4u+3u));
+    }
+    uint at=(groups+page)*4u;lie_query_store(at,lo);lie_query_store(at+1u,hi);
+    lie_query_store(at+2u,nlo);lie_query_store(at+3u,nhi);
+}
+void lie_query_select(uint page) {
+    uint groups=query_memory.words[3];if(page>=query_memory.words[4] || !lie_query_visible(groups+page))return;
+    for(uint block=page*16u;block<min((page+1u)*16u,groups);block++)if(lie_query_visible(block)) {
+        uint at=atomicAdd(query_arena.words[0],1u);query_arena.words[4u+at]=query_memory.words[5]+block;
+    }
+}
