@@ -1,0 +1,171 @@
+{
+  "schema": "lie-area-continuity-checkpoint/1",
+  "base_commit": "ce2816730f3afafce8c739c7537358f58df9ac81",
+  "runtime_commit": "35b078f88f9210a074b26714296f569c0a4e9107",
+  "run": 38731060102,
+  "job": 116408663591,
+  "artifact": 11970771277,
+  "artifact_bytes": 61880218,
+  "artifact_sha256": "99ace6fdefa2b9e08e663529d937af3be2de85ae5f2f2de5a39a54c1bbaf78c7",
+  "workflow_successes": 20,
+  "apk": {
+    "bytes": 58042487,
+    "sha256": "45c62dca76ed118a56a580e93500fe442adec4785e52a285a6cdd2c25c3e0336",
+    "package": "org.lieengine.wallruntime.v100",
+    "version": "1.0.0-area-continuity"
+  },
+  "android": {
+    "version_code": 10,
+    "arm64_only": true,
+    "min_sdk": 24,
+    "target_sdk": 36,
+    "network_permissions": false,
+    "signature_v2_v3_verified": true,
+    "zipalign_16k_verified": true
+  },
+  "checks": {
+    "wall": 50,
+    "area_field": 536,
+    "filter": 22,
+    "emitter": 9,
+    "commands": 17,
+    "python_new": 7,
+    "rig": 247,
+    "agent": 25
+  },
+  "physical_android_tested": false,
+  "software_gpu_timings": {
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "per_mode_samples": 3,
+    "paired_serials": [
+      {
+        "fused": false,
+        "serial": 25,
+        "base_ms": 41.532671,
+        "total_ms": 335.77996,
+        "passes_ms": {
+          "clear": 7.19489,
+          "project": 59.725773,
+          "raster": 70.306958,
+          "coarse_light": 31.528829,
+          "compose": 10.003842,
+          "recovery_build": 76.359785,
+          "visibility_keys": 0.157123,
+          "visibility_invalidate": 2.56851,
+          "world_visibility": 6.58663,
+          "surface_light": 60.587444,
+          "output": 10.760176
+        }
+      },
+      {
+        "fused": true,
+        "serial": 26,
+        "base_ms": 28.014793,
+        "total_ms": 301.619024,
+        "passes_ms": {
+          "clear": 9.076174,
+          "project": 59.48577,
+          "raster": 67.812024,
+          "fused_base": 28.014793,
+          "recovery_build": 66.877543,
+          "visibility_keys": 0.179381,
+          "visibility_invalidate": 2.316262,
+          "world_visibility": 6.663305,
+          "surface_light": 54.19511,
+          "output": 6.998662
+        }
+      },
+      {
+        "fused": false,
+        "serial": 27,
+        "base_ms": 34.777881,
+        "total_ms": 304.265872,
+        "passes_ms": {
+          "clear": 7.298256,
+          "project": 58.203573,
+          "raster": 65.515532,
+          "coarse_light": 25.745897,
+          "compose": 9.031984,
+          "recovery_build": 66.732219,
+          "visibility_keys": 0.160111,
+          "visibility_invalidate": 2.329427,
+          "world_visibility": 6.715513,
+          "surface_light": 55.435824,
+          "output": 7.097536
+        }
+      },
+      {
+        "fused": true,
+        "serial": 28,
+        "base_ms": 34.155824,
+        "total_ms": 308.121696,
+        "passes_ms": {
+          "clear": 7.586412,
+          "project": 58.492124,
+          "raster": 68.082296,
+          "fused_base": 34.155824,
+          "recovery_build": 67.28718,
+          "visibility_keys": 0.181458,
+          "visibility_invalidate": 2.419703,
+          "world_visibility": 6.835661,
+          "surface_light": 55.382702,
+          "output": 7.698336
+        }
+      },
+      {
+        "fused": false,
+        "serial": 29,
+        "base_ms": 35.897014,
+        "total_ms": 313.304497,
+        "passes_ms": {
+          "clear": 8.395875,
+          "project": 60.660159,
+          "raster": 67.646068,
+          "coarse_light": 25.956018,
+          "compose": 9.940996,
+          "recovery_build": 67.214538,
+          "visibility_keys": 0.139607,
+          "visibility_invalidate": 2.298602,
+          "world_visibility": 6.75485,
+          "surface_light": 56.85931,
+          "output": 7.438474
+        }
+      },
+      {
+        "fused": true,
+        "serial": 30,
+        "base_ms": 31.106224,
+        "total_ms": 317.380064,
+        "passes_ms": {
+          "clear": 7.719568,
+          "project": 58.467418,
+          "raster": 65.64472,
+          "fused_base": 31.106224,
+          "recovery_build": 77.7884,
+          "visibility_keys": 0.155282,
+          "visibility_invalidate": 2.380801,
+          "world_visibility": 6.748762,
+          "surface_light": 59.605091,
+          "output": 7.763798
+        }
+      }
+    ],
+    "medians": {
+      "separate": {
+        "base_ms": 35.897014,
+        "total_ms": 313.304497
+      },
+      "fused": {
+        "base_ms": 31.106224,
+        "total_ms": 308.121696
+      }
+    },
+    "scope": "interleaved same-camera geometry solves with warm shadows and filter OFF; base uses coarse+compose or fused_base; total sums measured appearance passes, excluding transport; N=3 is insufficient to establish stable whole-frame speedup"
+  },
+  "limitations": [
+    "4-point quadrature per area emitter; at most 8 physical channels",
+    "spatial material filter; no new source coverage or temporal AA",
+    "relative linear RGB power, not measured lumens",
+    "no native Godot depth/shadow bridge or physical-phone FPS/thermal measurement"
+  ]
+}

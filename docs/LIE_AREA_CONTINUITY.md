@@ -1,7 +1,7 @@
-# LIE área y continuidad — trabajo en curso
+# LIE área y continuidad — 1.0 validada
 
 Base validada: ce2816730f3afafce8c739c7537358f58df9ac81 (0.9).
-El entorno perdió los cambios locales anteriores a su publicación; este hito se reconstruye desde esa base. Este primer checkpoint conserva código **sin aceptación Vulkan ni APK nueva**.
+Código aceptado: `35b078f88f9210a074b26714296f569c0a4e9107`. Los 20 workflows aprobaron; el run 38731060102 completó Vulkan y la APK ARM64 firmada. El historial conserva la reconstrucción posterior al reinicio y los dos resultados negativos previos.
 
 Objetivo autorizado: fusionar iluminación y composición, filtrar material guiado por propietario/grupo/normal/plano y huella, añadir emisores rectangulares y una prueba automática en Android.
 
@@ -13,7 +13,7 @@ Se mantienen el banco fuente aceptado, sus IDs de 80 bytes, las instancias, la c
 
 Referencias primarias: [PBRT 4: Area Lights](https://www.pbr-book.org/4ed/Light_Sources/Area_Lights), [MERL: Object Space EWA Surface Splatting](https://www.merl.com/publications/TR2002-31). Esta última orienta el uso de huellas; el filtro implementado no equivale a su algoritmo.
 
-Pendiente: terminar pruebas sintéticas del filtro y pruebas integradas de imágenes/caché, compilar shaders, ejecutar Vulkan real y regresiones CPU, verificar APK firmada y registrar resultados incluyendo fallos. Ningún tiempo de Vulkan software se debe presentar como FPS del Poco.
+La aceptación incluye las pruebas sintéticas, imágenes/caché con el banco atribuido, regresiones CPU y APK firmada. La ejecución en el Poco y su rendimiento sostenido siguen pendientes. Ningún tiempo de Vulkan software se debe presentar como FPS del teléfono.
 
 ## Contratos e invalidación
 
@@ -48,3 +48,21 @@ La comprobación headless de timeout del benchmark detectó también una diferen
 Segundo CI (2d36ea46703644f8b19019616481c6314398faec), run 38729836592 / job 116404600116: filtro 15 y campo de área 536 comprobaciones aprobadas (error máximo de campo 4.34e-8). La pared falló tres comparaciones de reutilización: máximos RGB 0.0014977 al cambiar fusión, 0.0026897 reconstruyendo geometría de área y 0.0007878 al volver a puntos. Sus MAE fueron inferiores a 1e-6 e IoU 1, pero no se relajan los umbrales. Profundidad, invalidación por tamaño, apagado, suma de fuentes, resolución y benchmark sí pasaron. Artefacto 11969453806, 857,820 bytes, SHA256 a3f8c5ca881710b1ab8034459bfa73be42019791524b24b7c0df399c421c8dbe.
 
 El kernel sintético mostró que un roundtrip pack/unpack local no produjo todos los componentes cuantizados igual que una lectura posterior del paquete: por ejemplo rugosidad 0.8000000119 frente al half almacenado 0.7998046875. Para que ambas rutas consuman exactamente los mismos bits, la etapa 14 escribe el material y una barrera de despacho precede a la lectura desde la etapa 4. Solo se ejecuta al invalidar el material; no añade imagen de frame completo ni se repite por cambiar potencia. El test sintético replica ahora esa escritura/lectura en dos despachos y comprueba explícitamente el valor half de rugosidad. La atribución a una optimización concreta del compilador/controlador no se considera demostrada.
+
+## Resultado aceptado y límites medidos
+
+Run [38731060102](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38731060102), job 116408663591, código 35b078f88f9210a074b26714296f569c0a4e9107: **50 comprobaciones de pared, 536 de campo en diez escenarios y 22 de filtro**; también nueve contratos de emisor y 17 de comandos. Se mantienen las aceptaciones nativas de WALL07–12 y los 20 workflows del PR terminan aprobados. El kernel del filtro coincide exactamente con su referencia half almacenada (máximo 0); el campo tiene error máximo 4.34e-8 frente a float64. La prueba de oclusión parcial conserva dos muestras y bloquea las otras dos del panel.
+
+Todos los controles nuevos apagados reproducen 0.9 con máximo RGB 0 e IoU 1. La composición fusionada/separada coincide hasta 7.70e-7 con filtro, y la caché de área frente a reconstrucción hasta 1.54e-6; la vuelta al punto hasta 7.70e-7. Los tres fallos del segundo CI quedan resueltos sin relajar el umbral 1e-4. El filtro y las áreas preservan profundidad y silueta en estas pruebas; la suma lineal de fuentes tiene error máximo 3.68e-6.
+
+La diferencia visual del filtro es discreta: MAE 0.000303 y máximo 0.10853. La de área frente a punto es MAE 0.02815 y máximo 0.61380. La misma potencia total de un Lambert orientado NO implica igual irradiancia frontal que un punto isotrópico. Las imágenes cálidas muestran una pared más luminosa con el panel; no se atribuye toda esa diferencia a una mejora de sombras. Continúan el grano, pequeños huecos y las limitaciones del escaneo/recuperación. La integración de cuatro muestras produce una aproximación escalonada de penumbra, no una integral convergida para todo emisor u obstáculo.
+
+En llvmpipe, tres reconstrucciones intercaladas por modo, a igual cámara y filtro OFF, dieron mediana de iluminación base+composición 35.8970 ms separada y 31.1062 ms fusionada (13.35% menos en ESE bloque). La suma de pases de apariencia fue 313.3045 frente a 308.1217 ms; la dispersión y N=3 no sustentan una ganancia estable de todo el frame. No se convierten estos tiempos en FPS de un móvil. El coste dominante sigue fuera de la composición.
+
+En la prueba corta del mismo dispositivo software, construir el filtro a 1080 costó 30.6–38.6 ms. Se omite al reutilizar material con cambios de luz. Los eventos de área costaron 962.5–2106.7 ms de apariencia por el trabajo adicional de visibilidad; no son un incremento gratuito de calidad. La opción permanece desactivada inicialmente. La prueba propia del teléfono permite comparar los cuatro modos y copiar sus filas; no certifica temperatura ni consumo sostenido.
+
+Apariencia: 251,994,904 bytes solicitados, 16 bytes más de control que 0.9; transporte: 1,544,184, 128 bytes más de emisión. Cero nuevas imágenes de frame completo. Son bytes referenciados por RIDs, no memoria total de proceso o VRAM medida. El banco continúa en 41,700,560 bytes/SHA ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340, con 96 ladrillos, mortero, 97 instancias y una caja invisible.
+
+APK **LIE-Area-1.0.0.apk**, 58,042,487 bytes, SHA256 `45c62dca76ed118a56a580e93500fe442adec4785e52a285a6cdd2c25c3e0336`, paquete `org.lieengine.wallruntime.v100`, versión/código 1.0.0-area-continuity/10. Verificadas firmas V2/V3, alineación 16 KiB, ARM64, minSDK 24/target 36, arranque WALL13, ZIP y banco/paquetes fuente. No declara permisos de red. Puede instalarse junto a 0.9. El APK descargado conserva exactamente el hash del exportador.
+
+Evidencia cruda: `checkpoints/LIE_AREA_CONTINUITY_NATIVE.json`; metadatos, tiempos y APK: `checkpoints/LIE_AREA_CONTINUITY_CHECKPOINT.json`. Negativos: `LIE_AREA_FIRST_NATIVE.json` y `LIE_AREA_SECOND_NATIVE.json`. Artefacto final 11970771277, 61,880,218 bytes, SHA256 99ace6fdefa2b9e08e663529d937af3be2de85ae5f2f2de5a39a54c1bbaf78c7.
