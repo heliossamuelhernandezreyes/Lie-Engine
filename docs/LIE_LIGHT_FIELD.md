@@ -55,8 +55,8 @@ físicas. El radio por umbral es una aproximación de coste que debe compararse
 con el transporte sin recorte. No ofrece una cota universal de error visual.
 
 Los frentes, direcciones, acumulación por fuente y normalización tienen
-capacidad residente de ocho luces. El trabajo recorre únicamente la cantidad
-activa. Añadir una fuente dentro de esa capacidad conserva banco, geometría,
+capacidad residente de ocho luces. El trabajo recorre la cantidad de slots publicada; los frentes y fuentes
+sin potencia omiten las evaluaciones de sombra y lóbulos que no contribuyen. Añadir una fuente dentro de esa capacidad conserva banco, geometría,
 salida y RIDs del transporte. Un slot borrado entrega potencia cero hasta su
 reutilización. Un cambio de iluminación vuelve a resolver el campo; el gestor
 actual todavía no actualiza subregiones del grafo de forma independiente.
@@ -107,7 +107,8 @@ implemente DDGI/GI-1.0 o necesite su hardware de ray tracing.
 
 WALL08 añade una segunda luz fría con intensidad y azimut independientes,
 su interruptor y una comparación con la dirección combinada anterior.
-La principal conserva los presets existentes, incluida la luz cálida.
+Cada fuente tiene un interruptor independiente. La principal conserva los
+presets existentes, incluida la luz cálida.
 La misma ruta de comandos valida las transacciones de UI y agente.
 
 `lie_light_field.py` es un oráculo float64 independiente que reparte energía
@@ -122,7 +123,9 @@ el capturador fotográfico a materiales metálicos.
 para comprobar conservación por fuente/generación. `test_lie_wall08_mobile.gd`
 compara la imagen con WALL07 usando una luz, verifica el campo completo de
 872 superficies frente al oráculo, suma de fuentes, caché/frío, exposición,
-IDs, cambio de cantidad de luces, recorte y restauración. Se mantienen las
+IDs, cambio de cantidad de luces, recorte y restauración. Las 13 pruebas
+headless de comandos comprueban apagado, restauración y transacciones inválidas
+antes de la comparación de imágenes. Se mantienen las
 aceptaciones previas de WALL07 y del núcleo de interpolación de assets.
 
 Límites vigentes: no refracción de caminos, cáusticas, transmisión por volumen,

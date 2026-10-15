@@ -16,6 +16,8 @@ func refresh() -> bool:
         if id.is_empty() or id.length()>96 or incoming.has(id):return false
         var code: Dictionary=child.light_code(global_transform)
         if not Registry.Model.valid_light_codes([code]):return false
+        for key in code:
+            if key not in ["position","power_rgb","radius"]:return false
         incoming[id]=code
     if incoming.size()>Registry.CAPACITY:return false
     var before: int=registry.revision

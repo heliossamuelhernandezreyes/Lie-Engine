@@ -3,6 +3,8 @@ extends RefCounted
 static func load_sources(root: String) -> Dictionary:
     var proof: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"light-field.json"))
     if not proof is Dictionary or proof.get("schema")!="lie-light-field-sources/1":return {}
+    var catalog: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"catalog.json"))
+    if not catalog is Dictionary or proof.get("source_bank_sha256")!=catalog.get("sha256"):return {}
     if proof.get("source_light_sha256")!=FileAccess.get_sha256(root+"light-model.json"):return {}
     var result: Dictionary={}
     for key in ["factors","outgoing","optics","planes","owners","boxes"]:

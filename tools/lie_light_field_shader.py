@@ -143,6 +143,12 @@ bool field_step(uint id) {
 void main() {''')
     s=replace(s,'    uint n=uint(cfg.dims.x), count=uint(cfg.dims.y);',
       '    uint n=uint(cfg.dims.x), count=uint(cfg.dims.y);\n    if(optical.config.x!=0u && optical.config.w!=0u && field_step(i))return;')
+    s=replace(s,'        uint l=i/n, p=i%n;',
+      '        uint l=i/n, p=i%n;\n        if(max(lights.values[l].power.r,max(lights.values[l].power.g,lights.values[l].power.b))<=0.){weights.values[i]=0.;return;}')
+    s=replace(s,'        vec4 frontier=ping==0?frontier_a.values[id]:frontier_b.values[id];',
+      '        vec4 frontier=ping==0?frontier_a.values[id]:frontier_b.values[id];\n        if(max(frontier.r,max(frontier.g,frontier.b))<=0.){angular_caps.values[id]=vec4(1,1,0,0);return true;}')
+    s=replace(s,'            vec4 emitted=ping==0?frontier_a.values[packet]:frontier_b.values[packet];',
+      '            vec4 emitted=ping==0?frontier_a.values[packet]:frontier_b.values[packet];\n            if(max(emitted.r,max(emitted.g,emitted.b))<=0.)continue;')
     return s
 
 if __name__=='__main__':

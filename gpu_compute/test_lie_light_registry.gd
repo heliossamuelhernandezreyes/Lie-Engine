@@ -19,6 +19,8 @@ func run() -> void:
     check(registry.upsert("cool",code) and registry.snapshot()["ids"]==["warm","cool"],"second source keeps separate slot")
     var revision: int=registry.revision
     check(not registry.upsert("bad",{"position":[NAN,0,0],"radius":1.,"power_rgb":[1,1,1]}) and registry.revision==revision,"invalid update is atomic")
+    var unsupported: Dictionary=code.duplicate(true);unsupported["type"]="spot"
+    check(not registry.upsert("spot",unsupported) and registry.revision==revision,"unsupported light type cannot silently become a point source")
     for i in range(6):check(registry.upsert(str(i),code),"bounded source capacity "+str(i))
     check(not registry.upsert("overflow",code),"ninth source explicitly rejected")
     check(registry.remove("warm") and registry.snapshot()["lights"][0]["power_rgb"]==[0.,0.,0.],"removed slot contributes zero")
@@ -28,6 +30,8 @@ func run() -> void:
     for key in case["sources_hex"]:packets[key]=str(case["sources_hex"][key]).hex_decode()
     var field=Field.new();check(field.bind_sources(case["model"],packets),"common source ABI and graph transpose")
     check(field.configure(case["model"]),"generic three-surface scene accepted")
+    var unknown: Dictionary=case["model"].duplicate(true);unknown["lights"][0]["type"]="spot"
+    check(not field.configure(unknown),"field rejects unsupported emitter semantics")
     var changed: Dictionary=case["model"].duplicate(true);changed["patches"][0]["position"][0]=1.
     check(field.factor_input_bytes(changed).is_empty(),"changed geometry cannot reuse stale transport")
     var wrong: Dictionary=packets.duplicate(true);wrong["owners"].encode_u32(0,12)

@@ -15,9 +15,9 @@ func run() -> void:
     check(lab.agent_snapshot()["collider_count"]==1 and lab.agent_snapshot()["metrics"]["visible_source_meshes"]==0,"One invisible envelope and no source mesh draws")
     check(single["instances"]==97 and single["asset_uploads"]==1,"96 virtual bricks share one upload")
     var left: Dictionary=await capture(lab.transport)
-    lab.command({"op":"set_values","values":{"fill_enabled":true,"light_power":0.}});await settle()
+    check(lab.command({"op":"set_values","values":{"fill_enabled":true,"key_enabled":false}})["ok"],"Isolate fill through a valid source switch");await settle()
     var right: Dictionary=await capture(lab.transport)
-    lab.command({"op":"set_values","values":{"light_power":1.}});await settle()
+    check(lab.command({"op":"set_values","values":{"key_enabled":true}})["ok"],"Reenable key through the same validated control");await settle()
     var both: Dictionary=await capture(lab.transport);var image: Dictionary=await capture(lab.effect)
     var sum_error: float=0.;var max_error: float=0.;var finite: bool=true;var total:=Vector3.ZERO
     var oracle: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://fixtures/wall08-field-reference.json"))

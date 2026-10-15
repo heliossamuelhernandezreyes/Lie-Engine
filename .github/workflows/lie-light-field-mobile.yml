@@ -52,6 +52,7 @@ jobs:
             --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
             --audio-driver Dummy --script res://test_lie_asset_stencil_gpu.gd 2>&1 | tee asset-stencil.log
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_light_registry.gd 2>&1 | tee light-contract.log
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall08_commands.gd 2>&1 | tee light-command.log
           xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
             --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile \
             --audio-driver Dummy --script res://test_lie_light_field_gpu.gd 2>&1 | tee light-field.log
@@ -60,7 +61,7 @@ jobs:
             --audio-driver Dummy --script res://test_lie_wall08_mobile.gd 2>&1 | tee wall08-mobile.log
           python - <<'PY'
           from pathlib import Path
-          for name in ['assets-import.log','assets-mobile.log','asset-stencil.log','light-contract.log','light-field.log','wall08-mobile.log']:
+          for name in ['assets-import.log','assets-mobile.log','asset-stencil.log','light-contract.log','light-command.log','light-field.log','wall08-mobile.log']:
             text=Path(name).read_text()
             assert 'ERROR:' not in text and 'were leaked at exit' not in text,text[-15000:]
           PY
@@ -122,6 +123,7 @@ jobs:
             asset-stencil.log
             /tmp/lie-assets-ci/asset-stencil-native.json
             light-contract.log
+            light-command.log
             light-field.log
             wall08-mobile.log
             /tmp/lie-assets-ci/light-field-native.json

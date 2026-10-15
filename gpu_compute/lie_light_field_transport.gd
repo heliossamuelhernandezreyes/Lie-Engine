@@ -89,8 +89,18 @@ func factor_input_bytes(model: Dictionary) -> PackedByteArray:
     return _field_factors if Model.transfer_geometry_key(model)==_field_geometry else PackedByteArray()
 
 func configure(model: Dictionary) -> bool:
-    if (model.get("lights",[]) as Array).size()>MAX_FIELD_LIGHTS or _field_factors.is_empty():return false
+    if not _valid_point_codes(model.get("lights",[])) or _field_factors.is_empty():return false
     return super.configure(model)
+
+func _valid_point_codes(codes: Array) -> bool:
+    if codes.size()>MAX_FIELD_LIGHTS or not Model.valid_light_codes(codes):return false
+    for code in codes:
+        for key in code:
+            if key not in ["position","power_rgb","radius"]:return false
+    return true
+
+func set_light_codes(model: Dictionary) -> void:
+    if _valid_point_codes(model.get("lights",[])):super.set_light_codes(model)
 
 func _initial_transport_buffer(binding: int, bytes: PackedByteArray) -> PackedByteArray:
     if binding==5 or binding==6:bytes.resize(_count*16*MAX_FIELD_LIGHTS)

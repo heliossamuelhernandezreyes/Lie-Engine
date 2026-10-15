@@ -196,6 +196,7 @@ bool field_step(uint id) {
     }
     if(stage==5) {
         vec4 frontier=ping==0?frontier_a.values[id]:frontier_b.values[id];
+        if(max(frontier.r,max(frontier.g,frontier.b))<=0.){angular_caps.values[id]=vec4(1,1,0,0);return true;}
         vec2 sum=vec2(0);uint ob=outgoing_graph.values[2],eb=outgoing_graph.values[3];
         for(uint e=outgoing_graph.values[ob+node];e<outgoing_graph.values[ob+node+1u];e++) {
             uint dst=outgoing_graph.values[eb+e*2u];float F=uintBitsToFloat(outgoing_graph.values[eb+e*2u+1u]);
@@ -210,6 +211,7 @@ bool field_step(uint id) {
             uint src=factors.values[eb+e*2u],packet=light*n+src;
             float F=uintBitsToFloat(factors.values[eb+e*2u+1u]);
             vec4 emitted=ping==0?frontier_a.values[packet]:frontier_b.values[packet];
+            if(max(emitted.r,max(emitted.g,emitted.b))<=0.)continue;
             vec3 travel=field_direction(packet,ping),D,R;parts(src,travel,D,R);
             vec2 w=angular_weight(src,node,F,travel,emitted.w)/angular_caps.values[packet].xy;
             vec3 flux=emitted.rgb*(D*w.x+R*w.y)*
@@ -236,6 +238,7 @@ void main() {
     if(phase.data.x==0) {
         if(i>=n*count) return;
         uint l=i/n, p=i%n;
+        if(max(lights.values[l].power.r,max(lights.values[l].power.g,lights.values[l].power.b))<=0.){weights.values[i]=0.;return;}
         vec3 delta=lights.values[l].position_radius.xyz-patches.values[p].center_area.xyz;
         float d2=dot(delta,delta), radius=lights.values[l].position_radius.w;
         float value=0.0;

@@ -6,13 +6,76 @@
   "implementation": "common opaque finite-patch field; separate per-source directional frontiers; scene emitter registry",
   "godot": "4.7.2.stable.official.ed1daf0bf",
   "godot_core_modified": false,
-  "local": {"python_field_tests": 6, "python_asset_tests": 10, "python_lie35_tests": 11, "field_contract_checks": 25, "rig_checks": 247, "agent_checks": 25, "headless_import_errors": 0},
-  "native_vulkan": {"status": "pending"},
-  "android": {"status": "pending", "physical_device_measured": false},
+  "local": {
+    "python_field_tests": 6,
+    "python_asset_tests": 10,
+    "python_lie35_tests": 11,
+    "field_contract_checks": 27,
+    "rig_checks": 247,
+    "agent_checks": 25,
+    "headless_import_errors": 0,
+    "field_command_checks": 13,
+    "python_wall06_tests": 4,
+    "python_wall05_tests": 4
+  },
+  "native_vulkan": {
+    "status": "pending"
+  },
+  "android": {
+    "status": "pending",
+    "physical_device_measured": false
+  },
   "negative_results": [
-    {"stage": "initial CPU roughness fixture", "result": "failed meaningful-response assertion", "cause": "receivers exactly on reflected axes produced lobe values 0/1 for both roughness choices", "fix": "off-axis receivers with geometric inward normals; roughness response and all six regressions passed"},
-    {"stage": "local staging retry", "result": "existing destination rejected", "cause": "builder requires an empty directory", "fix": "new isolated staging path; successful import and 25 contract checks"},
-    {"stage": "workflow inspection", "result": "ad hoc step-count assertion expected 10 but workflow has 9", "fix": "validated YAML content without an unrelated step-count requirement"}
+    {
+      "stage": "initial CPU roughness fixture",
+      "result": "failed meaningful-response assertion",
+      "cause": "receivers exactly on reflected axes produced lobe values 0/1 for both roughness choices",
+      "fix": "off-axis receivers with geometric inward normals; roughness response and all six regressions passed"
+    },
+    {
+      "stage": "local staging retry",
+      "result": "existing destination rejected",
+      "cause": "builder requires an empty directory",
+      "fix": "new isolated staging path; successful import and 25 contract checks"
+    },
+    {
+      "stage": "workflow inspection",
+      "result": "ad hoc step-count assertion expected 10 but workflow has 9",
+      "fix": "validated YAML content without an unrelated step-count requirement"
+    },
+    {
+      "stage": "first actual Vulkan wall acceptance",
+      "commit": "2389d0bd5ccd9a5339e8ce0d720553b47af4baef",
+      "run_id": 38666965106,
+      "job_id": 116201013527,
+      "artifact_id": 11942950228,
+      "artifact_zip_sha256": "a65c771adf540b4a5334c115cf83aabea905d9e8bd7b4716ef775e29ca2e4416",
+      "passed": {
+        "wall07_checks": 27,
+        "asset_stencil_queries": 80,
+        "field_contract_checks": 25,
+        "field_gpu_checks": 374,
+        "field_gpu_cases": 15,
+        "field_gpu_float64_max_error": 3.34194344520089e-06,
+        "field_gpu_superposition_max_error": 1.6577541828155518e-07
+      },
+      "failed": [
+        "wall source-superposition comparison",
+        "wall two-light float64 comparison"
+      ],
+      "cause": "test attempted light_power=0, outside inherited control limits; atomic range_light_power rejection also kept fill disabled. The test did not assert that setup command succeeded. Headless reproduction confirmed unchanged primary-only codes.",
+      "fix": "independent key_enabled switch; assert isolation commands succeed; 13 headless command checks including switch restoration and rejected-transaction atomicity. No acceptance tolerance was relaxed.",
+      "apk_produced": false
+    }
   ],
-  "limits": ["one directional moment per source/surface/bounce", "relative RGB units, not calibrated lumens", "eight point sources per field", "full-field light invalidation, no subregion updates", "opaque approximate diffuse/gloss response", "fixed captured indirect visibility", "no refracted paths or view-dependent appearance specular", "software Vulkan cannot certify physical Android FPS"]
+  "limits": [
+    "one directional moment per source/surface/bounce",
+    "relative RGB units, not calibrated lumens",
+    "eight point sources per field",
+    "full-field light invalidation, no subregion updates",
+    "opaque approximate diffuse/gloss response",
+    "fixed captured indirect visibility",
+    "no refracted paths or view-dependent appearance specular",
+    "software Vulkan cannot certify physical Android FPS"
+  ]
 }

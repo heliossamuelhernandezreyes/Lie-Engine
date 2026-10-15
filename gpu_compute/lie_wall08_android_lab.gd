@@ -10,7 +10,7 @@ var fill_emitter: Node3D
 var _last_separate: bool=true
 
 func _ready() -> void:
-    state["fill_enabled"]=true;state["fill_power"]=.32;state["fill_azimuth"]=55.;state["separate_lights"]=true
+    state["key_enabled"]=true;state["fill_enabled"]=true;state["fill_power"]=.32;state["fill_azimuth"]=55.;state["separate_lights"]=true
     super._ready()
 
 func _transport_factory() -> CompositorEffect:return FieldTransport.new()
@@ -40,7 +40,7 @@ func _accept_light_snapshot(snapshot: Dictionary) -> void:
 func command(request: Variant) -> Dictionary:
     if request is Dictionary and request.get("values",{}) is Dictionary:
         var values: Dictionary=request.get("values",{})
-        for key in ["fill_enabled","separate_lights"]:
+        for key in ["key_enabled","fill_enabled","separate_lights"]:
             if values.has(key) and not values[key] is bool:return {"ok":false,"error":key+"_type","revision":revision}
         for key in ["fill_power","fill_azimuth"]:
             if not values.has(key):continue
@@ -50,6 +50,7 @@ func command(request: Variant) -> Dictionary:
     return super.command(request)
 
 func _apply() -> void:
+    if key_emitter!=null and key_emitter.enabled!=bool(state["key_enabled"]):last_light_key=""
     if light_model.get("lights",[]).size()==2 and effect!=null:
         var bounds: Dictionary=effect.catalog["masters"]["real_scan_wall"]
         var c: Array=bounds["bounds_center"];var size: Array=bounds["bounds_size"]
@@ -60,7 +61,7 @@ func _apply() -> void:
     super._apply()
     if transport==null or light_model.is_empty():return
     var key: Dictionary=light_model["lights"][0];var p: Array=key["position"];var rgb: Array=key["power_rgb"]
-    key_emitter.position=Vector3(p[0],p[1],p[2]);key_emitter.power_rgb_linear=Vector3(rgb[0],rgb[1],rgb[2]);light_world.refresh()
+    key_emitter.position=Vector3(p[0],p[1],p[2]);key_emitter.power_rgb_linear=Vector3(rgb[0],rgb[1],rgb[2]);key_emitter.enabled=bool(state["key_enabled"]);light_world.refresh()
     var separate: bool=state["separate_lights"]
     if separate!=_last_separate:
         transport.set_separate_lights(separate);effect.invalidate_lighting();_last_separate=separate
@@ -75,6 +76,7 @@ func _field_slider(box: Node,key: String,title: String,low: float,high: float) -
 func _ui() -> void:
     super._ui()
     var box: Node=status.get_parent()
+    _check(box,"key_enabled","Encender luz principal")
     _label(box,"SEGUNDA LUZ · FRÍA",19)
     _check(box,"fill_enabled","Encender segunda luz")
     _field_slider(box,"fill_power","Intensidad de segunda luz",0.,2.)
@@ -88,7 +90,7 @@ func _ui() -> void:
 func agent_snapshot() -> Dictionary:
     var result: Dictionary=super.agent_snapshot()
     result["control_contract"]=result["control_contract"].duplicate(true)
-    for key in ["fill_enabled","separate_lights"]:
+    for key in ["key_enabled","fill_enabled","separate_lights"]:
         if not result["control_contract"]["booleans"].has(key):result["control_contract"]["booleans"].append(key)
     result["control_contract"]["limits"]["fill_power"]=[0.,2.]
     result["control_contract"]["limits"]["fill_azimuth"]=[-85.,85.]

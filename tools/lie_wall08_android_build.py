@@ -25,7 +25,7 @@ def stage_project(destination):
     reference=wall_reference(root);(destination/'fixtures/wall08-field-reference.json').write_text(json.dumps(reference,indent=2)+'\n')
     shutil.copy2(source/'fixtures/light-field-reference.json',destination/'fixtures/light-field-reference.json')
     pattern=re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
-    pending=['lie_wall08_android_lab.tscn','test_lie_light_registry.gd','test_lie_light_field_gpu.gd','test_lie_wall08_mobile.gd'];copied=set()
+    pending=['lie_wall08_android_lab.tscn','test_lie_light_registry.gd','test_lie_light_field_gpu.gd','test_lie_wall08_mobile.gd','test_lie_wall08_commands.gd'];copied=set()
     while pending:
         name=pending.pop()
         if name in copied:continue

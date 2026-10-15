@@ -9,6 +9,8 @@ var _slots: Array[String]=[]
 
 func upsert(id: String, code: Dictionary) -> bool:
     if id.is_empty() or id.length()>96 or not Model.valid_light_codes([code]):return false
+    for key in code:
+        if key not in ["position","power_rgb","radius"]:return false
     var clean: Dictionary={"position":code["position"].duplicate(),"power_rgb":code["power_rgb"].duplicate(),"radius":float(code["radius"])}
     if _records.get(id)==clean:return true
     if not _records.has(id):
