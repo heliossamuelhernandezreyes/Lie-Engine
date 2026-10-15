@@ -1,5 +1,5 @@
 {
-  "checks": 42,
+  "checks": 43,
   "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
   "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
   "renderer": "LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
