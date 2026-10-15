@@ -83,6 +83,23 @@ func _run() -> void:
         return
     check(a["color"]!=b["color"] and b["color"]!=c["color"],
         "Three true camera views show differing scanned surfaces")
+    var transport: Dictionary=c.get("multiwall_transport",{})
+    check(transport.get("panels",0)==113 and transport.get("panels_with_bounce",0)>0,
+        "Oriented cross-wall GPU transport actually receives positive bounced RGB")
+    check(transport.get("energy_violations",999)==0,
+        "Each emitter conserves normalized outgoing RGB transport")
+    check(transport.get("active_links",0)>0 and transport.get("max_row_sum",99.)<=1.0001,
+        "Occlusion-aware panel graph has physical nonnegative links")
+    var disabled: Dictionary=house.command({"op":"set_values","values":{"bounce":false}})
+    check(disabled.get("ok",false),"Independent GUI/agent control disables transport")
+    await _wait_frames(7)
+    var without: Dictionary=await _read()
+    check(not without.is_empty() and without["color"]!=c["color"],
+        "Identical camera/light changes native GPU pixels when bounce toggles")
+    output["multiwall_transport"]=transport
+    output["bounce_on_off_different"]=without.get("color",PackedFloat32Array())!=c.get("color",PackedFloat32Array())
+    house.command({"op":"set_values","values":{"bounce":true}})
+    await _wait_frames(7)
     var no_roof: Dictionary=house.command({"op":"set_values","values":{"roof":false}})
     check(no_roof.get("ok",false),"Roof toggles")
     await _wait_frames(6)
@@ -93,7 +110,7 @@ func _run() -> void:
     var report: Dictionary={"result":"pass" if not failed else "failure",
         "checks":checks,"device":a["device"],"samples":eff.catalog["sample_count"],
         "source":eff.catalog["source_bank_sha256"],
-        "views":output,"renderer":"LIE28 GLSL actual captured-source Vulkan compute",
+        "views":output,"renderer":"LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
         "limits":"LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction"}
     var f:=FileAccess.open("res://captures_out/lie36-native.json",FileAccess.WRITE)
     if f!=null:
