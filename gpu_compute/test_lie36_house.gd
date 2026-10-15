@@ -42,6 +42,7 @@ func _take(label: String, angle: float, elevation: float=18.) -> Dictionary:
             if values[i-3]+values[i-2]+values[i-1]>.24:bright+=1
     output[label]={"covered_pixels":covered,"lit_pixels":bright,
         "sample_invocations":data["sample_invocations"],
+        "lod_distribution":house._metrics.get("lod_distribution",[]),
         "instances":data["instances"],"gpu_name":data["device"],
         "allocation_bytes":data["allocation_bytes"]}
     check(covered>1200 and bright>700,"Real photographed surfaces render "+label)
@@ -64,6 +65,8 @@ func _run() -> void:
     check(house._instances().size()>100 and house._instances().size()<=128,
         "Detailed house within generic LIE instance budget")
     check(_meshes(house)==0,"No original source mesh or rendered procedural substitute")
+    check(house._metrics.get("lod_distribution",[]).size()==3 and house._metrics["lod_distribution"][0]>0, "Actual LIE preassembled-wall 3-LOD with hero faces")
+    check(house._metrics.get("sample_invocations",0)<=750000, "Shared material sample work within compositor GPU budget")
     for i in range(330):
         await process_frame
         if eff.gpu_ready and eff.frame_count>=1:break
