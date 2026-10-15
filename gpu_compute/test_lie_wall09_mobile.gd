@@ -11,6 +11,7 @@ func run() -> void:
     if not lab.effect.gpu_ready or not lab.transport.gpu_ready:printerr(lab.effect.failure," / ",lab.transport.failure);quit(1);return
     check(lab.command({"op":"set_values","values":{"contact_shadows":false,"surface_detail":false}})["ok"],"comparison uses validated controls");await settle()
     var disabled: Dictionary=await capture(lab.effect);report["off_vs_wall08"]=comparison(baseline["color"],disabled["color"])
+    save_surface(disabled,"neutral-before")
     check(report["off_vs_wall08"]["max"]<.000001 and report["off_vs_wall08"]["iou"]==1.,"both OFF preserves accepted image")
     var geometry: int=lab.effect.geometry_rebuilds;var uploads: int=lab.effect.asset_uploads
     lab.command({"op":"set_values","values":{"contact_shadows":true}});await settle();var contacts: Dictionary=await capture(lab.effect)
@@ -22,10 +23,12 @@ func run() -> void:
             if difference<-.001:darkened+=1
     check(brightening<.000001 and alpha_error==0.,"contact-only attenuates without changing coverage")
     report["contact_only"]={"max_brightening":brightening,"alpha_error":alpha_error,"darkened_channels":darkened}
+    check(darkened>0,"contact actually affects captured geometry");save_surface(contacts,"neutral-contact-only")
     lab.command({"op":"set_values","values":{"surface_detail":true}});await settle();var detailed: Dictionary=await capture(lab.effect)
     report["detail_vs_baseline"]=comparison(disabled["color"],detailed["color"])
     check(report["detail_vs_baseline"]["max"]>.001 and report["detail_vs_baseline"]["iou"]==1.,"captured detail changes direct shading only")
     var finite: bool=true
+    save_surface(detailed,"neutral-detail-contact")
     for value in detailed["color"]:finite=finite and is_finite(value) and value>=0.
     check(finite,"every final channel finite and nonnegative")
     check(lab.effect.geometry_rebuilds==geometry and lab.effect.asset_uploads==uploads,"new switches reuse geometry and immutable bank")
@@ -43,6 +46,7 @@ func run() -> void:
     lab.command({"op":"set_values","values":{"quality_2x":false,"lighting_preset":"warm_raking","light_azimuth":-62.,"fill_power":.2,"exposure":2.}});await settle();var warm: Dictionary=await capture(lab.effect);save_surface(warm,"warm")
     lab.command({"op":"set_values","values":{"contact_shadows":false,"surface_detail":false}});await settle();var warm_old: Dictionary=await capture(lab.effect);save_surface(warm_old,"warm-before")
     check(warm["passes"]["available"] and warm["passes"]["passes"].has_all(["project","raster","surface_light","output"]),"asynchronous actual GPU timestamps for each pass")
+    check(warm["passes"]["context"]=={"internal_size":1080,"contacts":true,"detail":true,"steps":12},"percentiles group the same resolution and options")
     report.merge({"checks":checks,"failed":failed,"device":warm["device"],"profile":warm["profile"],"passes":warm["passes"],"cache":warm["cache"],"appearance_allocation_bytes":warm["allocation_bytes"],"transport_allocation_bytes":lab.transport.allocation_bytes,"source_bank_sha256":lab.effect.catalog["sha256"],"physical_android_tested":false})
     var file:=FileAccess.open("res://wall09-native.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     lab.queue_free();await settle();print("WALL09 ","FAIL" if failed else "PASS"," ",checks);quit(1 if failed else 0)

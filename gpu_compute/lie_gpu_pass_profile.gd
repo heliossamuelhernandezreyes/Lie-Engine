@@ -2,7 +2,14 @@ extends RefCounted
 ## Timestamp deltas, asynchronously collected; no GPU synchronization/readback.
 var _rows: Array=[]
 var _seen: Dictionary={}
+var _contexts: Dictionary={}
 var _mutex:=Mutex.new()
+func set_context(serial: int,context: Dictionary) -> void:
+    _mutex.lock();_contexts[serial]=context.duplicate(true)
+    if _contexts.size()>240:
+        for key in _contexts.keys():
+            if key<serial-120:_contexts.erase(key)
+    _mutex.unlock()
 func marker(owner_id: int,serial: int,pass_name: String,edge: String) -> String:
     return "liepass|%d|%d|%s|%s" % [owner_id,serial,pass_name,edge]
 func collect(rd: RenderingDevice,owner_id: int) -> void:
@@ -17,19 +24,24 @@ func collect(rd: RenderingDevice,owner_id: int) -> void:
     for key in groups:
         var row: Dictionary=groups[key]
         if _seen.has(key) or not row.has_all(["begin","end"]) or row["end"]<=row["begin"]:continue
-        _seen[key]=true;_rows.append({"serial":row["serial"],"pass":row["pass"],"gpu_ns":row["end"]-row["begin"]})
+        _seen[key]=true;_rows.append({"serial":row["serial"],"pass":row["pass"],"gpu_ns":row["end"]-row["begin"],"context":_contexts.get(row["serial"],{}).duplicate(true)})
     if _rows.size()>840:
         _rows=_rows.slice(_rows.size()-840);_seen.clear()
         for row in _rows:_seen[str(row["serial"])+"|"+row["pass"]]=true
     _mutex.unlock()
 func snapshot() -> Dictionary:
     _mutex.lock();var rows: Array=_rows.duplicate(true);_mutex.unlock()
+    # Percentiles compare the same resolution and contact/detail settings.
+    # Preserve all raw rows so geometry/lighting/exposure events can be joined
+    # by serial; a cached idle frame never fabricates a new timing sample.
+    var context: Dictionary=rows[-1]["context"] if not rows.is_empty() else {}
     var buckets: Dictionary={};var result: Dictionary={}
     for row in rows:
+        if row["context"]!=context:continue
         var name: String=row["pass"]
         if not buckets.has(name):buckets[name]=[]
         buckets[name].append(float(row["gpu_ns"])/1000000.)
     for name in buckets:
         var samples: Array=buckets[name];samples.sort();var n: int=samples.size()
         result[name]={"samples":n,"p50_ms":samples[clampi(ceili(.5*n)-1,0,n-1)],"p95_ms":samples[clampi(ceili(.95*n)-1,0,n-1)]}
-    return {"available":not rows.is_empty(),"units":"GPU milliseconds","passes":result,"rows":rows,"scope":"changed-image solves only; cached idle has no new samples"}
+    return {"available":not rows.is_empty(),"units":"GPU milliseconds","context":context,"passes":result,"rows":rows,"scope":"same resolution/options; changed-image solves including cold work; cached idle has no new samples"}

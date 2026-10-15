@@ -39,6 +39,8 @@ func _process(delta: float) -> void:
     var profile: Dictionary=effect.pass_profile.snapshot()
     if not profile["available"]:
         status.text+="\nGPU por pasada: esperando medición";return
+    var context: Dictionary=profile["context"]
+    status.text+="\nGPU: %d px · contacto %s · relieve %s · %d pasos" % [context.get("internal_size",0),"sí" if context.get("contacts",false) else "no","sí" if context.get("detail",false) else "no",context.get("steps",0)]
     for name in ["project","raster","recovery_reuse","surface_light","output"]:
         if profile["passes"].has(name):
             var row: Dictionary=profile["passes"][name]
