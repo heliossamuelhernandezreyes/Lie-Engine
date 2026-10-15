@@ -9,7 +9,7 @@ import json,math
 import numpy as np
 ROOT=Path(__file__).resolve().parents[1]
 def normalized(v):
-    v=np.asarray(v,dtype=np.float64);return v/np.linalg.norm(v,axis=-1,keepdims=True)
+    v=np.asarray(v,dtype=np.float64);return v/np.maximum(np.linalg.norm(v,axis=-1,keepdims=True),1e-10)
 def fresnel(c,f0=.04):return f0+(1-f0)*(1-np.clip(c,0,1))**5
 def filtered(rough,mean=1.,enabled=True):return min(max(rough,.2),.98)**4 if not enabled else min(min(max(rough,.2),.98)**4+min(max(1-mean,0),1),1)
 def evaluate(albedo,rough,view,light,normal=(0,0,1),mean=1.,enabled=True,f0=.04,survival=1.):
@@ -41,6 +41,8 @@ def prepare():
         for nv in [.02,.3,1.]:
             v=(math.sqrt(1-nv*nv),0,nv)
             for light in [(0,0,1),(-.8,.1,.59),(.4,.5,.2)]:add(f'r{r}-nv{nv}-l{len(cases)}',(.35,.12,.04),r,v,light)
+    add('source_on_receiver',(1,1,1),.6,(0,0,1),(0,0,0))
+    add('zero_view',(1,1,1),.6,(0,0,0),(0,0,1))
     add('back_light',(1,1,1),.6,(0,0,1),(0,0,-1))
     add('back_view',(1,1,1),.6,(0,0,-1),(0,0,1))
     add('zero_albedo',(0,0,0),.35,(0,0,1),(.1,0,1))

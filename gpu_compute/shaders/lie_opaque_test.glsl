@@ -10,6 +10,11 @@ layout(push_constant,std430) uniform Options {uvec4 counts;} options;
 // GGX / height-correlated Smith, Schlick dielectric Fresnel; reciprocal
 // two-sided Fresnel attenuation of the Lambert substrate. Single scattering.
 // This is an authored material approximation, not measured coated transport.
+vec3 lie_opaque_direction(vec3 delta) {
+    // A source exactly on a receiver has zero incident irradiance. Keep its
+    // direction finite as well: normalize(0) is undefined on GPU hardware.
+    return delta*inversesqrt(max(dot(delta,delta),1e-20));
+}
 float lie_fresnel(float cosine,float f0) {
     float m=clamp(1.-cosine,0.,1.);float m2=m*m;
     return f0+(1.-f0)*m2*m2*m;
@@ -56,5 +61,5 @@ void main() {
     uint i=gl_GlobalInvocationID.x;if(i>=options.counts.x)return;
     uint at=i*5u;vec4 albedo=source.values[at],view=source.values[at+1u],light=source.values[at+2u],normal=source.values[at+3u],config=source.values[at+4u];
     float rough=lie_filtered_roughness(albedo.w,config.x,config.y>.5);
-    result.values[i]=vec4(lie_opaque_brdf(albedo.rgb,rough,config.z,config.w,normalize(normal.xyz),normalize(view.xyz),normalize(light.xyz)),rough);
+    result.values[i]=vec4(lie_opaque_brdf(albedo.rgb,rough,config.z,config.w,normalize(normal.xyz),lie_opaque_direction(view.xyz),lie_opaque_direction(light.xyz)),rough);
 }

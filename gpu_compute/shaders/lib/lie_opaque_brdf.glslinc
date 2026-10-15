@@ -3,6 +3,11 @@
 // GGX / height-correlated Smith, Schlick dielectric Fresnel; reciprocal
 // two-sided Fresnel attenuation of the Lambert substrate. Single scattering.
 // This is an authored material approximation, not measured coated transport.
+vec3 lie_opaque_direction(vec3 delta) {
+    // A source exactly on a receiver has zero incident irradiance. Keep its
+    // direction finite as well: normalize(0) is undefined on GPU hardware.
+    return delta*inversesqrt(max(dot(delta,delta),1e-20));
+}
 float lie_fresnel(float cosine,float f0) {
     float m=clamp(1.-cosine,0.,1.);float m2=m*m;
     return f0+(1.-f0)*m2*m2*m;

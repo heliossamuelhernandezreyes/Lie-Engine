@@ -24,23 +24,30 @@ void lie_resolve_surface(uint i) {''')
     s=replace(s,'surface_options.flags.x!=0u && max(old_direct.r,max(old_direct.g,old_direct.b))>0.', 'surface_options.flags.x!=0u && (max(old_direct.r,max(old_direct.g,old_direct.b))>0. || (appearance_control.words[0]!=0u && max(optical_direct.r,max(optical_direct.g,optical_direct.b))>0.))')
     s=replace(s,'vec3 old_total=vec3(0),new_total=vec3(0);','''vec3 old_total=vec3(0),new_total=vec3(0);
     roughness=lie_filtered_roughness(roughness,mean_length,appearance_control.words[2]!=0u);
-    vec3 view=normalize(parameters.eye.xyz-world);
+    vec3 view=lie_opaque_direction(parameters.eye.xyz-world);
     float survival=0.;
     for(uint k=0u;k<group.y;k++)survival+=optical_weights[k]*(1.-clamp(injected_material_codes.values[(group.x+k)*3u+2u].w,0.,1.));
     float f0=uintBitsToFloat(appearance_control.words[3]);''')
     s=replace(s,'vec3 old_direct=vec3(0),unoccluded=vec3(0);','vec3 old_direct=vec3(0),unoccluded=vec3(0),optical_direct=vec3(0),optical_unoccluded=vec3(0);')
-    s=replace(s,'if(max(coefficients[k].r,max(coefficients[k].g,coefficients[k].b))<=0.)continue;', '''if(appearance_control.words[0]!=0u) {
-                uint optical_node=group.x+k;
-                optical_direct+=optical_weights[k]*surface_lights.values[16u+l*surface_lights.header.x+optical_node].rgb;
-                optical_unoccluded+=optical_weights[k]*lie_surface_unoccluded(l,lie_position(optical_node),lie_normal(optical_node));
-            }
-            if(max(coefficients[k].r,max(coefficients[k].g,coefficients[k].b))<=0.)continue;''')
+    s=replace(s,'''            if(max(coefficients[k].r,max(coefficients[k].g,coefficients[k].b))<=0.)continue;
+            uint node=group.x+k;
+            old_direct+=coefficients[k]*surface_lights.values[16u+l*surface_lights.header.x+node].rgb;
+            unoccluded+=coefficients[k]*lie_surface_unoccluded(l,lie_position(node),lie_normal(node));''','''            bool optical=appearance_control.words[0]!=0u && surface_options.flags.y!=0u;
+            if(max(coefficients[k].r,max(coefficients[k].g,coefficients[k].b))<=0. && (!optical || optical_weights[k]<=0.))continue;
+            uint node=group.x+k;
+            vec3 incident=lie_surface_unoccluded(l,lie_position(node),lie_normal(node));
+            vec3 coarse=surface_lights.values[16u+l*surface_lights.header.x+node].rgb;
+            old_direct+=coefficients[k]*coarse;
+            if(optical) {
+                optical_direct+=optical_weights[k]*coarse;
+                optical_unoccluded+=optical_weights[k]*incident;
+            } else unoccluded+=coefficients[k]*incident;''')
     s=replace(s,'new_total+=lie_surface_refined(old_direct,unoccluded,coefficient,local_direct,visibility,surface_options.flags.y!=0u);', '''if(appearance_control.words[0]!=0u && surface_options.flags.y!=0u) {
             // Replace the existing direct term. The indirect field is retained
             // once, outside this loop. No second point emitter or cached RGB.
             vec3 gate=vec3(0);
             for(int c=0;c<3;c++)if(optical_unoccluded[c]>1e-20)gate[c]=clamp(optical_direct[c]/optical_unoccluded[c],0.,1.);
-            vec3 direction=normalize(surface_lights.values[l*2u].xyz-world);
+            vec3 direction=lie_opaque_direction(surface_lights.values[l*2u].xyz-world);
             vec3 response=lie_opaque_brdf(coefficient*PI,roughness,f0,survival,normal,view,direction);
             new_total+=max(response,vec3(0))*local_direct*gate*visibility;
         } else new_total+=lie_surface_refined(old_direct,unoccluded,coefficient,local_direct,visibility,surface_options.flags.y!=0u);''')
@@ -113,7 +120,7 @@ void main() {
     uint i=gl_GlobalInvocationID.x;if(i>=options.counts.x)return;
     uint at=i*5u;vec4 albedo=source.values[at],view=source.values[at+1u],light=source.values[at+2u],normal=source.values[at+3u],config=source.values[at+4u];
     float rough=lie_filtered_roughness(albedo.w,config.x,config.y>.5);
-    result.values[i]=vec4(lie_opaque_brdf(albedo.rgb,rough,config.z,config.w,normalize(normal.xyz),normalize(view.xyz),normalize(light.xyz)),rough);
+    result.values[i]=vec4(lie_opaque_brdf(albedo.rgb,rough,config.z,config.w,normalize(normal.xyz),lie_opaque_direction(view.xyz),lie_opaque_direction(light.xyz)),rough);
 }
 '''
 if __name__=='__main__':

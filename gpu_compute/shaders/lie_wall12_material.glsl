@@ -448,6 +448,11 @@ layout(set=0,binding=32,std430) buffer AppearanceControl {uint words[];} appeara
 // GGX / height-correlated Smith, Schlick dielectric Fresnel; reciprocal
 // two-sided Fresnel attenuation of the Lambert substrate. Single scattering.
 // This is an authored material approximation, not measured coated transport.
+vec3 lie_opaque_direction(vec3 delta) {
+    // A source exactly on a receiver has zero incident irradiance. Keep its
+    // direction finite as well: normalize(0) is undefined on GPU hardware.
+    return delta*inversesqrt(max(dot(delta,delta),1e-20));
+}
 float lie_fresnel(float cosine,float f0) {
     float m=clamp(1.-cosine,0.,1.);float m2=m*m;
     return f0+(1.-f0)*m2*m2*m;
@@ -532,7 +537,7 @@ void lie_resolve_surface(uint i) {
     }
     vec3 old_total=vec3(0),new_total=vec3(0);
     roughness=lie_filtered_roughness(roughness,mean_length,appearance_control.words[2]!=0u);
-    vec3 view=normalize(parameters.eye.xyz-world);
+    vec3 view=lie_opaque_direction(parameters.eye.xyz-world);
     float survival=0.;
     for(uint k=0u;k<group.y;k++)survival+=optical_weights[k]*(1.-clamp(injected_material_codes.values[(group.x+k)*3u+2u].w,0.,1.));
     float f0=uintBitsToFloat(appearance_control.words[3]);
@@ -540,15 +545,16 @@ void lie_resolve_surface(uint i) {
         if(max(surface_lights.values[l*2u+1u].r,max(surface_lights.values[l*2u+1u].g,surface_lights.values[l*2u+1u].b))<=0.)continue;
         vec3 old_direct=vec3(0),unoccluded=vec3(0),optical_direct=vec3(0),optical_unoccluded=vec3(0);
         for(uint k=0u;k<group.y;k++) {
-            if(appearance_control.words[0]!=0u) {
-                uint optical_node=group.x+k;
-                optical_direct+=optical_weights[k]*surface_lights.values[16u+l*surface_lights.header.x+optical_node].rgb;
-                optical_unoccluded+=optical_weights[k]*lie_surface_unoccluded(l,lie_position(optical_node),lie_normal(optical_node));
-            }
-            if(max(coefficients[k].r,max(coefficients[k].g,coefficients[k].b))<=0.)continue;
+            bool optical=appearance_control.words[0]!=0u && surface_options.flags.y!=0u;
+            if(max(coefficients[k].r,max(coefficients[k].g,coefficients[k].b))<=0. && (!optical || optical_weights[k]<=0.))continue;
             uint node=group.x+k;
-            old_direct+=coefficients[k]*surface_lights.values[16u+l*surface_lights.header.x+node].rgb;
-            unoccluded+=coefficients[k]*lie_surface_unoccluded(l,lie_position(node),lie_normal(node));
+            vec3 incident=lie_surface_unoccluded(l,lie_position(node),lie_normal(node));
+            vec3 coarse=surface_lights.values[16u+l*surface_lights.header.x+node].rgb;
+            old_direct+=coefficients[k]*coarse;
+            if(optical) {
+                optical_direct+=optical_weights[k]*coarse;
+                optical_unoccluded+=optical_weights[k]*incident;
+            } else unoccluded+=coefficients[k]*incident;
         }
         float visibility=1.;
         if(surface_options.flags.x!=0u && (max(old_direct.r,max(old_direct.g,old_direct.b))>0. || (appearance_control.words[0]!=0u && max(optical_direct.r,max(optical_direct.g,optical_direct.b))>0.))) {
@@ -563,7 +569,7 @@ void lie_resolve_surface(uint i) {
             // once, outside this loop. No second point emitter or cached RGB.
             vec3 gate=vec3(0);
             for(int c=0;c<3;c++)if(optical_unoccluded[c]>1e-20)gate[c]=clamp(optical_direct[c]/optical_unoccluded[c],0.,1.);
-            vec3 direction=normalize(surface_lights.values[l*2u].xyz-world);
+            vec3 direction=lie_opaque_direction(surface_lights.values[l*2u].xyz-world);
             vec3 response=lie_opaque_brdf(coefficient*PI,roughness,f0,survival,normal,view,direction);
             new_total+=max(response,vec3(0))*local_direct*gate*visibility;
         } else new_total+=lie_surface_refined(old_direct,unoccluded,coefficient,local_direct,visibility,surface_options.flags.y!=0u);

@@ -48,7 +48,9 @@ Coarse optical transmittance is interpolated using independent geometric stencil
 weights. It must not be inferred from the receiver's base color: a black
 substrate can still reflect at a dielectric boundary. Recovery records store
 these scalar weights in their previously unused coefficient W values; RGB and
-record sizes are preserved. Captured source ownership/normal/depth restrictions
+record sizes are preserved. Coarse node irradiance/falloff is evaluated once
+per stencil node/light and reused by the direct replacement. Zero-length
+source/view directions stay finite rather than invoking undefined normalize(0). Captured source ownership/normal/depth restrictions
 still limit recovery. Unwitnessed or overflow pixels retain the baseline path.
 
 A normal-variance option broadens microfacet width using the length of the
@@ -68,12 +70,12 @@ leases and per-light persistent cache continue to work.
 
 * CPU float64 oracle uses explicit Smith lambda/G, independent of the GPU's
   cancellation-free denominator. Tests cover reciprocity, rigid frame rotation,
-  zero survival, normal variance, and a 25-point white-furnace numerical grid.
+  zero survival, zero source/view directions, normal variance, and a 25-point white-furnace numerical grid.
   This finite quadrature audit is not a proof for every possible material.
 * Conservative row coverage is checked against exhaustive pixels in 1200
   independent rotated SPD ellipses, including subpixel and capped footprints.
 * Actual Vulkan uses the shared BRDF include, not a reimplemented test shader;
-  46 direction/roughness/normal/survival cases compare against float64.
+  48 direction/roughness/normal/survival cases compare against float64.
 * WALL12 compares all-new-controls OFF against WALL11, then bounded vs square
   raster at frontal/oblique/grazing views, requiring equal depth and coverage.
   Further tests cover cached/cold material light, camera changes, independent
