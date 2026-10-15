@@ -1,0 +1,7 @@
+// Relative total RGB power: an isotropic point has gain 1. A one-sided
+// Lambert emitter has intensity Phi*cos(theta)/PI, hence gain 4*cos.
+float lie_emitter_gain(vec4 shape,vec3 from_source) {
+    if(shape.w<.5)return 1.;
+    float d2=dot(from_source,from_source);
+    return d2>1e-20?4.*max(dot(shape.xyz,from_source*inversesqrt(d2)),0.):0.;
+}

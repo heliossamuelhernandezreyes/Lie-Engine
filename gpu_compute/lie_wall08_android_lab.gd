@@ -14,14 +14,16 @@ func _ready() -> void:
     super._ready()
 
 func _transport_factory() -> CompositorEffect:return FieldTransport.new()
+func _light_world_factory() -> Node3D:return LightWorld.new()
+func _point_emitter_factory() -> Node3D:return PointEmitter.new()
 
 func _make_effect() -> CompositorEffect:
     var coded: CompositorEffect=super._make_effect()
     if not light_model.is_empty():
-        light_world=LightWorld.new();light_world.name="LieLights";add_child(light_world)
+        light_world=_light_world_factory();light_world.name="LieLights";add_child(light_world)
         light_registry=light_world.registry
-        key_emitter=PointEmitter.new();key_emitter.name="WarmKey";key_emitter.light_id="key";light_world.add_child(key_emitter)
-        fill_emitter=PointEmitter.new();fill_emitter.name="CoolFill";fill_emitter.light_id="fill";light_world.add_child(fill_emitter)
+        key_emitter=_point_emitter_factory();key_emitter.name="WarmKey";key_emitter.light_id="key";light_world.add_child(key_emitter)
+        fill_emitter=_point_emitter_factory();fill_emitter.name="CoolFill";fill_emitter.light_id="fill";light_world.add_child(fill_emitter)
         var key: Dictionary=light_model["lights"][0];var p: Array=key["position"];var rgb: Array=key["power_rgb"]
         key_emitter.position=Vector3(p[0],p[1],p[2]);key_emitter.power_rgb_linear=Vector3(rgb[0],rgb[1],rgb[2])
         fill_emitter.power_rgb_linear=Vector3.ZERO
