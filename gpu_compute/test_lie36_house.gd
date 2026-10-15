@@ -45,7 +45,7 @@ func _take(label: String, angle: float, elevation: float=18.) -> Dictionary:
         "lod_distribution":house._metrics.get("lod_distribution",[]),
         "instances":data["instances"],"gpu_name":data["device"],
         "allocation_bytes":data["allocation_bytes"]}
-    check(covered>1200 and bright>700,"Real photographed surfaces render "+label)
+    check(covered>60000 and bright>50000,"Real photographed wall density is maintained "+label)
     var img:=Image.create_from_data(data["output_size"],data["output_size"],
         false,Image.FORMAT_RGBAF,values.to_byte_array())
     img.convert(Image.FORMAT_RGBA8)
