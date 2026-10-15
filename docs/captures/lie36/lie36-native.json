@@ -1,5 +1,5 @@
 {
-  "checks": 49,
+  "checks": 50,
   "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
   "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
   "renderer": "LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
@@ -10,10 +10,10 @@
     "bounce_on_off_different": true,
     "corner": {
       "allocation_bytes": 178465792,
-      "covered_pixels": 100467,
+      "covered_pixels": 100582,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
-      "lit_pixels": 100467,
+      "lit_pixels": 100582,
       "lod_distribution": [
         15,
         60,
@@ -23,10 +23,10 @@
     },
     "courtyard": {
       "allocation_bytes": 178465792,
-      "covered_pixels": 94654,
+      "covered_pixels": 94839,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
-      "lit_pixels": 94654,
+      "lit_pixels": 94839,
       "lod_distribution": [
         15,
         60,
@@ -36,10 +36,10 @@
     },
     "front": {
       "allocation_bytes": 178465792,
-      "covered_pixels": 89969,
+      "covered_pixels": 90137,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
-      "lit_pixels": 89969,
+      "lit_pixels": 90137,
       "lod_distribution": [
         15,
         60,
@@ -47,7 +47,70 @@
       ],
       "sample_invocations": 724600
     },
+    "gpu_passes": {
+      "available": true,
+      "scope": "Software Vulkan llvmpipe only; NOT physical phone frame time",
+      "stages": {
+        "bounce": {
+          "p50_ms": 0.168038,
+          "p95_ms": 0.245335,
+          "samples": 4
+        },
+        "clear": {
+          "p50_ms": 5.121414,
+          "p95_ms": 775.775233,
+          "samples": 4
+        },
+        "compose": {
+          "p50_ms": 6.044528,
+          "p95_ms": 9.99571,
+          "samples": 4
+        },
+        "direct": {
+          "p50_ms": 0.199001,
+          "p95_ms": 0.20848,
+          "samples": 4
+        },
+        "exposure": {
+          "p50_ms": 2.956644,
+          "p95_ms": 3.232632,
+          "samples": 4
+        },
+        "material": {
+          "p50_ms": 18.955516,
+          "p95_ms": 21.728853,
+          "samples": 4
+        },
+        "panel_graph": {
+          "p50_ms": 6.596271,
+          "p95_ms": 7.451944,
+          "samples": 2
+        },
+        "project_and_shadow": {
+          "p50_ms": 114.024776,
+          "p95_ms": 130.643772,
+          "samples": 4
+        },
+        "raster": {
+          "p50_ms": 118.873918,
+          "p95_ms": 135.604254,
+          "samples": 4
+        },
+        "seam_commit": {
+          "p50_ms": 4.86034,
+          "p95_ms": 5.723103,
+          "samples": 4
+        },
+        "seam_recovery": {
+          "p50_ms": 8.617474,
+          "p95_ms": 10.74066,
+          "samples": 4
+        }
+      },
+      "units": "GPU milliseconds"
+    },
     "microcontact": {
+      "coverage_unchanged": true,
       "disabled_bit_exact": true,
       "enabled_differs": true,
       "stages": [
