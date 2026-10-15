@@ -24,4 +24,5 @@ func _initialize() -> void:
     check(not D.summarize({})["available"],"missing timestamps never become zero-time success")
     check(D.percentiles([1.,2.,3.,4.,5.])["p95_ms"]==5.,"nearest-rank p95")
     check(D.brief(result).contains("1440"),"summary reports its own context")
+    check(D.summarize({"rows":rows},0,{1:"light_power",2:"light_position",3:"light_position"})["groups"].size()==3,"radiometry and moved sources never share a diagnosis bucket")
     print("DIAGNOSTIC SUMMARY ",checks," ","FAIL" if failed else "PASS");quit(1 if failed else 0)

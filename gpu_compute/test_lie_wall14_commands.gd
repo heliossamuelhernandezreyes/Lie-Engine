@@ -23,6 +23,13 @@ func run() -> void:
     touch(lab,0,Vector2(300,350),true);touch(lab,1,Vector2(500,350),true);drag(lab,1,Vector2(700,350));lab._flush_gesture()
     check(lab.state["distance_factor"]<distance and lab.state["distance_factor"]>=.6,"two touches zoom with authored limits")
     lab._notification(Node.NOTIFICATION_APPLICATION_FOCUS_OUT);check(lab._touches.is_empty(),"focus loss clears active fingers")
+    revision=lab.revision
+    var press:=InputEventScreenTouch.new();press.index=0;press.position=Vector2(400,350);press.pressed=true;Input.parse_input_event(press)
+    var motion:=InputEventScreenDrag.new();motion.index=0;motion.position=Vector2(430,370);motion.relative=Vector2(30,20);Input.parse_input_event(motion)
+    await process_frame;await process_frame
+    var release:=InputEventScreenTouch.new();release.index=0;release.position=motion.position;release.pressed=false;Input.parse_input_event(release)
+    await process_frame;await process_frame
+    check(lab.revision==revision+1 and lab._touches.is_empty(),"engine input dispatch reaches the coalesced validated orbit")
     lab._show_report()
     check(lab._report_dialog.visible and lab._report_text.text.contains("lie-mobile-diagnostics/1") and not lab._report_content.is_empty(),"report available without prior benchmark")
     var persisted: Variant=JSON.parse_string(FileAccess.get_file_as_string("user://lie-performance-last.json"))
@@ -37,4 +44,11 @@ func run() -> void:
     for i in range(24):await process_frame
     check(not lab.benchmark_busy and lab.state==backup and lab._diagnostic_report.get("restored",false) and lab._diagnostic_report.get("cancelled",false),"cancellation restores exact state")
     check(lab.agent_snapshot()["touch_controls"]["changes_wall_geometry"]==false,"inspection scope explicit")
+    for power in [.25,1.,3.]:
+        var previous: float=power;var valid: bool=true;var parameters: Dictionary=backup.duplicate(true);parameters["light_power"]=power
+        for trial in lab._diagnostic_trials(parameters):
+            if trial["kind"]!="light_power":continue
+            var current: float=trial["values"]["light_power"]
+            valid=valid and not is_equal_approx(previous,current) and current>=.25 and current<=3.;previous=current
+        check(valid and previous==power,"power bounds never turn a trial into an idle timeout")
     lab.queue_free();await process_frame;print("MOBILE CONTROL ",checks," ","FAIL" if failed else "PASS");quit(1 if failed else 0)

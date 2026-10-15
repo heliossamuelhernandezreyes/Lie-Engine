@@ -5,13 +5,16 @@ static func percentiles(values: Array) -> Dictionary:
     if values.is_empty():return {"samples":0}
     var ordered: Array=values.duplicate();ordered.sort();var n: int=ordered.size()
     return {"samples":n,"p50_ms":ordered[clampi(ceili(.5*n)-1,0,n-1)],"p95_ms":ordered[clampi(ceili(.95*n)-1,0,n-1)],"max_ms":ordered[-1]}
-static func summarize(profile: Dictionary, minimum_serial: int=0) -> Dictionary:
+static func summarize(profile: Dictionary, minimum_serial: int=0, event_kinds: Dictionary={}) -> Dictionary:
     var events: Dictionary={};var groups: Dictionary={};var rejected: int=0
     for row in profile.get("rows",[]):
         var serial: int=int(row.get("serial",-1));var ns: float=float(row.get("gpu_ns",-1))
         if serial<minimum_serial:continue
         if not is_finite(ns) or ns<0 or not row.get("context") is Dictionary:rejected+=1;continue
-        if not events.has(serial):events[serial]={"context":row["context"],"passes":{}}
+        if not events.has(serial):
+            var context: Dictionary=row["context"].duplicate(true)
+            if event_kinds.has(serial):context["diagnostic_kind"]=event_kinds[serial]
+            events[serial]={"context":context,"passes":{}}
         events[serial]["passes"][str(row["pass"])]=ns/1e6
     for serial in events:
         var event: Dictionary=events[serial];var context: Dictionary=event["context"];var passes: Dictionary=event["passes"]
@@ -42,6 +45,6 @@ static func brief(summary: Dictionary) -> String:
     var groups: Array=summary.get("groups",[])
     if groups.is_empty():return "GPU: todavía sin eventos completos. Mueve la vista o pulsa Medir modo actual."
     var group: Dictionary=groups[-1];var context: Dictionary=group["context"];var stats: Dictionary=group["total_instrumented_gpu"]
-    var text: String="GPU · %s · %d px · %d eventos\nSuma de etapas: p50 %.2f ms · p95 %.2f ms" % [context.get("event_kind","cambio"),context.get("internal_size",0),stats["samples"],stats["p50_ms"],stats["p95_ms"]]
+    var text: String="GPU · %s · %d px · %d eventos\nSuma de etapas: p50 %.2f ms · p95 %.2f ms" % [context.get("diagnostic_kind",context.get("event_kind","cambio")),context.get("internal_size",0),stats["samples"],stats["p50_ms"],stats["p95_ms"]]
     for row in group["ranking"].slice(0,3):text+="\n%s: %.2f ms (%.0f%%)" % [row["title"],row["p50_ms"],row["share_of_pass_medians_percent"]]
     return text

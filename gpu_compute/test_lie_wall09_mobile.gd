@@ -46,7 +46,7 @@ func run() -> void:
     lab.command({"op":"set_values","values":{"quality_2x":false,"lighting_preset":"warm_raking","light_azimuth":-62.,"fill_power":.2,"exposure":2.}});await settle();var warm: Dictionary=await capture(lab.effect);save_surface(warm,"warm")
     lab.command({"op":"set_values","values":{"contact_shadows":false,"surface_detail":false}});await settle();var warm_old: Dictionary=await capture(lab.effect);save_surface(warm_old,"warm-before")
     check(warm["passes"]["available"] and warm["passes"]["passes"].has_all(["project","raster","surface_light","output"]),"asynchronous actual GPU timestamps for each pass")
-    check(warm["passes"]["context"]=={"internal_size":1080,"contacts":true,"detail":true,"steps":12},"percentiles group the same resolution and options")
+    check(warm["passes"]["context"]=={"internal_size":1080,"contacts":true,"detail":true,"steps":12,"event_kind":"geometry"},"percentiles group the same resolution, options and geometry event")
     report.merge({"checks":checks,"failed":failed,"device":warm["device"],"profile":warm["profile"],"passes":warm["passes"],"cache":warm["cache"],"appearance_allocation_bytes":warm["allocation_bytes"],"transport_allocation_bytes":lab.transport.allocation_bytes,"source_bank_sha256":lab.effect.catalog["sha256"],"physical_android_tested":false})
     var file:=FileAccess.open("res://wall09-native.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     lab.queue_free();await settle();print("WALL09 ","FAIL" if failed else "PASS"," ",checks);quit(1 if failed else 0)

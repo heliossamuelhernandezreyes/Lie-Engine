@@ -56,8 +56,8 @@ collider. La interfaz lo describe como «girar la vista».
 
 ## Verificación y límites
 
-Local, Godot oficial 4.7.2: reductor 8 comprobaciones, controles 15,
-regresiones Python de área/filtro 7. Vulkan y portapapeles con display real
+Local, Godot oficial 4.7.2: reductor 9 comprobaciones, controles 19,
+regresiones Python de área/filtro 7; rig 247 y agente 25 tras importación. Vulkan y portapapeles con display real
 se verifican por el workflow dedicado antes de aceptar la APK. Las pruebas
 incluyen imagen idéntica a WALL13, nueve cambios reales, restauración visual,
 portapapeles, una sola subida y una caja invisible. El informe no afirma
@@ -67,3 +67,30 @@ Se conservan fallos de infraestructura local: apt inicial no pudo cambiar
 UID del usuario de descarga; se intentó instalación sin ese cambio de UID.
 No se presenta ese fallo como defecto gráfico de LIE. El proyecto aislado
 importa y ejecuta las comprobaciones CPU sin sustituir Vulkan por mocks.
+
+
+## Primera ejecución nativa conservada
+
+Código 622851b49f6058dd8fdbb6b32225899ba76fa44e, run 38758447231:
+WALL14 aprobó 12 comprobaciones Vulkan, incluido portapapeles y nueve eventos.
+WALL13 aprobó 50. El job se detuvo posteriormente en WALL09: su contrato
+exacto de contexto no incluía la nueva clave `event_kind`. La muestra real
+contiene `geometry`, coherente con reducir 1440 a 1080 en esa comprobación.
+Se amplía la igualdad esperada con esa clave; no se relajan tolerancias de
+imagen ni tiempos. No se exportó APK de ese run. Evidencia WALL14 completa:
+`checkpoints/LIE_DIAGNOSTICS_FIRST_NATIVE.json`; artefacto 11983944729,
+3,027,091 bytes, SHA256 445f687f4d9c0698e5548ffb1d213bdc209cfe7de88233096701ad7d27a68681.
+
+La revisión de límites detectó un ensayo de potencia que podía quedar sin
+cambio al recortar al mínimo/máximo. Se usan tres potencias distintas dentro
+del intervalo y se verifica .25/1/3. La reducción añade etiquetas por serial
+para separar potencia y posición de fuente, incluso compartiendo el mismo
+contexto de luz. Una prueba de despacho de entrada necesitaba esperar también
+el evento de liberación; con esa espera pasa la ruta real de Input y no deja
+un dedo activo. No se modifica el control para satisfacer ese desfase del test.
+
+El primer intento del agente local se lanzó antes de terminar la importación
+de GLSL y registró dependencias sin loader, aunque imprimió 25 checks; ese
+intento no se acepta. Tras importar, las mismas 25 comprobaciones pasan sin
+errores. La instalación Vulkan local también encontró archivos de apt de
+solo lectura; la verificación gráfica se ejecuta en el runner nativo.

@@ -92,16 +92,22 @@ func _run_benchmark(quick: bool) -> void:
     await super._run_benchmark(quick)
     _benchmark_report["gpu_analysis"]=Diagnostics.summarize(_benchmark_report.get("passes",{}),first_serial)
     _persist_report("user://lie-benchmark-last.json",_benchmark_report)
-func _run_diagnostic() -> void:
-    var backup: Dictionary=state.duplicate(true);var events: Array=[];var error: String=""
-    var start_serial: int=effect.frame_count;var transport_start: int=transport.frame_count
+func _diagnostic_trials(backup: Dictionary) -> Array:
     # Explicitly separate camera rebuilds, radiometry and moved-source shadows.
     # Each path is repeated three times at the user's current quality settings.
     var trials: Array=[]
     for repeat in range(3):
         trials.append({"kind":"camera","values":{"camera_yaw":wrapf(float(backup["camera_yaw"])+[5.,-5.,0.][repeat],-180.,180.)}})
-    for repeat in range(3):trials.append({"kind":"light_power","values":{"light_power":clampf(float(backup["light_power"])*[.9,1.1,1.][repeat],.25,3.)}})
+    var power: float=float(backup["light_power"])
+    var changed_power: float=clampf(power*.9,.25,3.)
+    if is_equal_approx(changed_power,power):changed_power=clampf(power*1.1,.25,3.)
+    for value in [changed_power,(changed_power+power)*.5,power]:trials.append({"kind":"light_power","values":{"light_power":value}})
     for repeat in range(3):trials.append({"kind":"light_position","values":{"light_azimuth":wrapf(float(backup["light_azimuth"])+[8.,-8.,0.][repeat],-180.,180.)}})
+    return trials
+func _run_diagnostic() -> void:
+    var backup: Dictionary=state.duplicate(true);var events: Array=[];var error: String=""
+    var start_serial: int=effect.frame_count;var transport_start: int=transport.frame_count
+    var trials: Array=_diagnostic_trials(backup)
     for trial in trials:
         if _benchmark_cancelled:break
         if _benchmark_status!=null:_benchmark_status.text="Midiendo "+trial["kind"]+" · %d/9" % (events.size()+1)
@@ -123,7 +129,9 @@ func _run_diagnostic() -> void:
     for row in transport.transport_metrics().get("profile",[]):
         if int(row["serial"])>transport_start:transport_rows.append(row)
     var restore: Dictionary=_benchmark_set_values(backup)
-    _diagnostic_report={"events":events,"passes":profile,"gpu_analysis":Diagnostics.summarize(profile,start_serial+1),"transport_rows":transport_rows,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Current options; three camera, three radiometry and three source-position changes. Event latency ends at CPU render submission, not GPU completion; use asynchronous GPU timestamps for GPU cost."}
+    var event_kinds: Dictionary={}
+    for event in events:event_kinds[int(event["serial"])]=event["kind"]
+    _diagnostic_report={"events":events,"passes":profile,"gpu_analysis":Diagnostics.summarize(profile,start_serial+1,event_kinds),"transport_rows":transport_rows,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Current options; three camera, three radiometry and three source-position changes. Event latency ends at CPU render submission, not GPU completion; use asynchronous GPU timestamps for GPU cost."}
     _persist_report("user://lie-current-mode-last.json",_diagnostic_report)
     benchmark_busy=false
     if _benchmark_status!=null:_benchmark_status.text="Medición cancelada" if _benchmark_cancelled else "Error: "+error if error!="" else "Medición lista · abre Informe"
