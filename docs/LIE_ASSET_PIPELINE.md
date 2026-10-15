@@ -114,3 +114,27 @@ la aceptación válida. La primera ejecución local de captura no encontró
 las regresiones se repitieron. No se interpretan esos casos como aceptación.
 La guardia de atributos se extendió a GLTF externo y OBJ para evitar un
 fallback silencioso de materiales fuera del backend soportado.
+
+## Resultado verificado
+
+Código `f93f8e3`, [run 38660051236](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38660051236):
+**27 comprobaciones de pared y 80 consultas GPU de la biblioteca común**, con
+los **19 workflows de PR aprobados**. Modo OFF frente a WALL06: IoU 1 y
+error RGB exactamente 0. Modo continuo, caché frente a reconstrucción fría:
+IoU 1, máximo 1.19e-7. Biblioteca común frente a float64: máximo 2.69e-7.
+El solver de 872 nodos conserva el error máximo 9.89e-9 de la referencia.
+
+La cobertura y alpha de las imágenes ON/OFF son idénticas. Cambian 65,067
+píxeles RGB (máximo 9/255 en esta captura), por la reconstrucción de luz.
+La fracción negra permanece 1.793%: esta versión no elimina más huecos ni
+certifica que el mortero esté físicamente calibrado. No se filtra la foto.
+El búfer de grupos añade 13,968 bytes; asignación RD equilibrada total
+228,578,212 bytes, que no es PSS. No se promete mejora de FPS por esta función.
+
+APK **LIE-Pared-0.4.0.apk**, 52,989,866 bytes, paquete
+`org.lieengine.wallruntime.v040`, versión `0.4.0-common-assets`, ARM64 offline.
+SHA256 `c9f382efe3c4c794c07b0adacd7d17444f9ad352325b45a55fa19ac0c10a24b8`.
+Firma v2/v3, alineación 16 KiB, manifiesto, bancos, contrato e índices comprobados.
+Se instala junto a 0.3 para comparar; el control Luz continua permite volver
+al resultado anterior. Los campos completos, perfiles, imágenes y negativos
+están en `docs/checkpoints/LIE_ASSET_PIPELINE_CHECKPOINT.json`.
