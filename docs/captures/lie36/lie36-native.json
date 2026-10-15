@@ -1,14 +1,15 @@
 {
-  "checks": 19,
+  "checks": 24,
   "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
   "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
-  "renderer": "LIE28 GLSL actual captured-source Vulkan compute",
+  "renderer": "LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
   "result": "pass",
   "samples": 110800.0,
   "source": "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da",
   "views": {
+    "bounce_on_off_different": true,
     "corner": {
-      "allocation_bytes": 178396160,
+      "allocation_bytes": 178465792,
       "covered_pixels": 99318,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
@@ -21,7 +22,7 @@
       "sample_invocations": 724600
     },
     "courtyard": {
-      "allocation_bytes": 178396160,
+      "allocation_bytes": 178465792,
       "covered_pixels": 93661,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
@@ -34,7 +35,7 @@
       "sample_invocations": 724600
     },
     "front": {
-      "allocation_bytes": 178396160,
+      "allocation_bytes": 178465792,
       "covered_pixels": 88839,
       "gpu_name": "llvmpipe (LLVM 20.1.2, 256 bits)",
       "instances": 113,
@@ -45,6 +46,27 @@
         38
       ],
       "sample_invocations": 724600
+    },
+    "multiwall_transport": {
+      "active_links": 6787,
+      "bounce_irradiance_sum": [
+        65.5219955444336,
+        38.0057411193848,
+        25.5035877227783
+      ],
+      "direct_irradiance_sum": [
+        263.932159423828,
+        245.457015991211,
+        224.342376708984
+      ],
+      "dispatches": 3,
+      "energy_violations": 0,
+      "graph": "GPU panel-centre, oriented and aperture-aware, one diffuse bounce",
+      "limitations": "finite source/receiver panels; not full WALL12 micro-patch global illumination",
+      "max_row_sum": 1.00000036950223,
+      "mobile_fps_measured": false,
+      "panels": 113,
+      "panels_with_bounce": 112
     },
     "roof_off_instances": 92
   }
