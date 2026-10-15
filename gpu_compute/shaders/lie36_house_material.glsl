@@ -229,6 +229,58 @@ void main() {
         if(i<pixels) {depths.v[i]=0x7f7fffffu;winners.v[i]=EMPTY;accumulated.v[i].color_weight=uvec4(0);accumulated.v[i].normal_roughness=uvec4(0);}
         if(i<uint(SHADOW_SIZE*SHADOW_SIZE))shadow.v[i]=0x7f7fffffu;return;
     }
+    // WALL05-style relighting: clear and regenerate light shadow coverage
+    // WITHOUT invalidating depth, owners, projected records or accumulation.
+    if(stage==14) {
+        if(i<uint(SHADOW_SIZE*SHADOW_SIZE))shadow.v[i]=0x7f7fffffu;
+        return;
+    }
+    if(stage==13) {
+        if(i>=uint(parameters.counts.x))return;
+        uint j=job_index(i);
+        uvec4 job=jobs.v[j];
+        Sample sample=samples.v[job.x+i-job.w];
+        Instance inst=instances.v[job.z];
+        mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);
+        vec3 local=sample.position_radius.xyz;
+        float radius=sample.position_radius.w;
+        if(parameters.settings.y<.5) {
+            float r=length(local.xy),inner=.0017,outer=.006;
+            if(int(sample.attributes.x)==1 && r>1e-8) {
+                float nr=parameters.iris.w+(r-inner)*(outer-parameters.iris.w)/(outer-inner);
+                local.xy*=nr/r;
+                radius*=max(nr/r,(outer-parameters.iris.w)/(outer-inner));
+            } else if(int(sample.attributes.x)==2) {
+                local.xy*=parameters.iris.w/inner;
+                radius*=parameters.iris.w/inner;
+            }
+        }
+        vec3 world=basis*local+inst.origin.xyz;
+        vec3 normal=normalize(transpose(inverse(basis))*sample.normal_gray.xyz);
+        radius*=max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
+        vec3 delta=world-parameters.light.xyz;
+        float z=dot(delta,parameters.shadow_forward.xyz);
+        if(z<=.00001 || dot(normal,normalize(-delta))<=.05)return;
+        vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,
+                        parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
+        float plane=dot(normal,delta);
+        if(abs(plane)<1e-7)return;
+        vec2 gradient=vec2(2*1.25*dot(normal,parameters.shadow_right.xyz),
+            -2*1.25*dot(normal,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*plane);
+        for(int yy=-1; yy<=1; yy++)for(int xx=-1; xx<=1; xx++) {
+            ivec2 q=ivec2(xy)+ivec2(xx,yy);
+            if(any(lessThan(q,ivec2(0)))||any(greaterThanEqual(q,ivec2(SHADOW_SIZE))))continue;
+            float depth=1.0/(1.0/z+dot(gradient,vec2(q)+.5-xy));
+            vec2 uv=(vec2(q)+.5)/float(SHADOW_SIZE);
+            vec3 ray=parameters.shadow_forward.xyz+
+                parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+
+                parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
+            if(depth>.00001 && length(parameters.light.xyz+ray*depth-world)<=
+                radius+z*1.25/float(SHADOW_SIZE))
+                atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(depth));
+        }
+        return;
+    }
     if(stage==2 || stage==3) {
         if(i>=uint(parameters.counts.x))return;
         uint j=job_index(i);uvec4 job=jobs.v[j];uint sid=job.x+i-job.w;
