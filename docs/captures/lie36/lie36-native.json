@@ -1,5 +1,5 @@
 {
-  "checks": 29,
+  "checks": 42,
   "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
   "limits": "LLVMPipe software GPU, not mobile FPS; authentic brick+mortar, visual-only construction",
   "renderer": "LIE37 Vulkan captured-wall + 0.9 GGX + oriented cross-panel transport",
@@ -67,6 +67,46 @@
       "mobile_fps_measured": false,
       "panels": 113,
       "panels_with_bounce": 112
+    },
+    "reuse": {
+      "cold_rebuild": [
+        1,
+        2,
+        3,
+        9,
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ],
+      "exposure_only": [
+        7
+      ],
+      "graph_rebuilds_three_camera_views": 1,
+      "max_absolute_pixel_error": 0.0,
+      "moving_light": [
+        14,
+        13,
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ],
+      "power_only": [
+        8,
+        10,
+        4,
+        6,
+        11,
+        12,
+        7
+      ]
     },
     "roof_off_instances": 92,
     "seam_on_off_different": true
