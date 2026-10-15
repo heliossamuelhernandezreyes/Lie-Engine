@@ -229,6 +229,11 @@ func _run() -> void:
     check(not d.is_empty() and d["instances"]<c["instances"],
         "Actual roof samples removed without replacing source")
     output["roof_off_instances"]=d.get("instances",0)
+    var measurements: Dictionary=cold.get("passes",{})
+    output["gpu_passes"]={"available":measurements.get("available",false),
+        "units":measurements.get("units","GPU milliseconds"),
+        "stages":measurements.get("passes",{}),
+        "scope":"Software Vulkan llvmpipe only; NOT physical phone frame time"}
     var report: Dictionary={"result":"pass" if not failed else "failure",
         "checks":checks,"device":a["device"],"samples":eff.catalog["sample_count"],
         "source":eff.catalog["source_bank_sha256"],
