@@ -86,6 +86,13 @@ La primera ejecución local encontró una declaración múltiple de variables
 GDScript inválida; se separó y se repitió el contrato (14 PASS). Se conserva
 este negativo, sin atribuirlo a Vulkan o Android.
 
+Primer negativo Vulkan: commit 644f819f, run 38785529257/job 116596419724.
+El test aislado de testigos pasó 281 comprobaciones. El shader completo falló
+porque una sustitución global de `if(limit<=bias)` alcanzó también la función
+de contacto en pantalla. Se restringe a una única secuencia de visibilidad
+del mundo y se añade comparación de la función de pantalla con 1.2. El primer
+artifact 11998615322 conserva el resultado aislado y el error; no produjo APK.
+
 La CI dedicada debe comprobar contra float64 los testigos originales/movidos,+huecos, otro ejemplar del maestro, escala/rotación, metric fade, IDs inválidos y
 ocho canales; comparar la imagen real con 1.2 y con ambos interruptores OFF,
 vistas oblicuas y reversas, LOD, continuidad, área, resize y diagnóstico.

@@ -4,6 +4,7 @@ import numpy as np
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tools'))
 from lie_wall16_shader import generate,generate_test
+from lie_wall15_shader import generate as previous
 
 class Queries(unittest.TestCase):
     def test_generated_contract_and_mobile_descriptor_budget(self):
@@ -15,6 +16,10 @@ class Queries(unittest.TestCase):
         self.assertLessEqual(len(bindings),32)
         self.assertIn('lie_query_geometry(s,inst,world,n,radius)',shader)
         self.assertIn('query_memory.words[64u+slot*8u+light]',shader)
+        def screen_contact(text):
+            start=text.index('float lie_contact_visibility(')
+            return text[start:text.index('\nvec3 lie_surface_unoccluded',start)]
+        self.assertEqual(screen_contact(shader),screen_contact(previous()))
 
     def test_conservative_regions_against_individual_points(self):
         rng=np.random.default_rng(162613)

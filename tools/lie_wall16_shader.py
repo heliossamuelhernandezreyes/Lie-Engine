@@ -11,7 +11,10 @@ def witnesses(s):
     s=replace(s,'float lie_source_world_visibility(vec3 point,vec3 normal,vec3 light,float reach,float bias,uint owner,uint source_id) {',
         '''float lie_source_world_visibility_hint(vec3 point,vec3 normal,vec3 light,float reach,float bias,uint owner,uint source_id,uint hint,out uint found) {
     found=0u;''')
-    s=replace(s,'if(limit<=bias)return 1.;','''if(limit<=bias)return 1.;
+    anchor='float limit=min(reach,distance_to_light-bias),nearest=limit;\n    if(limit<=bias)return 1.;'
+    if s.count(anchor)!=1:raise ValueError('Unique world visibility segment contract')
+    s=replace(s,anchor,'''float limit=min(reach,distance_to_light-bias),nearest=limit;
+    if(limit<=bias)return 1.;
     if(query_memory.words[1]!=0u && hint!=0u) {
         lie_query_stat(0u);
         if(lie_witness_blocks(hint,o,d,bias,.75*limit,owner,source_id)){found=hint;lie_query_stat(1u);return 0.;}

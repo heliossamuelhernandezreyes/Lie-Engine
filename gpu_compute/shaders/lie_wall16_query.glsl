@@ -243,11 +243,6 @@ float lie_contact_visibility(vec3 world,vec3 normal,vec3 light,float reach,float
     vec3 origin=world+normal*bias;
     float limit=min(reach,distance_to_light-bias);
     if(limit<=bias)return 1.;
-    if(query_memory.words[1]!=0u && hint!=0u) {
-        lie_query_stat(0u);
-        if(lie_witness_blocks(hint,o,d,bias,.75*limit,owner,source_id)){found=hint;lie_query_stat(1u);return 0.;}
-    }
-    lie_query_stat(2u);
     float visibility=1.;
     for(int k=0;k<32;k++) {
         if(k>=steps)break;
