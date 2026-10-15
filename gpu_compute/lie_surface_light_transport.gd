@@ -14,11 +14,6 @@ func _dispatch(commands: int,stage: int,threads: int,ping: int=0) -> void:
     if stage==2:super._dispatch(commands,6,_count*_light_count,ping)
     super._dispatch(commands,stage,threads,ping)
 func surface_light_codes_rid() -> RID:return _surface_codes if gpu_ready else RID()
-func _capture_data() -> void:
-    super._capture_data()
-    if gpu_ready:
-        var bytes: PackedByteArray=_rd.buffer_get_data(_surface_codes)
-        _lock.lock();_readback["surface_codes"]=bytes;_lock.unlock()
 func _release_gpu() -> void:
     super._release_gpu()
     if _surface_codes.is_valid():_rd.free_rid(_surface_codes)
