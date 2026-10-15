@@ -49,7 +49,7 @@ bool lie_neighbor_match(ivec2 a,ivec2 b) {
     ivec2 size=parameters.counts.zw;
     int ia=a.y*size.x+a.x,ib=b.y*size.x+b.x;
     uint wa=winners.v[ia],wb=winners.v[ib];
-    if(wa==EMPTY || wb==EMPTY)return false;
+    if(wa==0xffffffffu || wb==0xffffffffu)return false;
     vec3 na=projected.v[wa].normal.xyz;
     vec3 nb=projected.v[wb].normal.xyz;
     if(dot(na,nb)<.94)return false;
