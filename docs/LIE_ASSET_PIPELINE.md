@@ -82,6 +82,23 @@ La suma convexa evita superar irradiancias vecinas, pero no certifica la
 integral de flujo sobre toda la superficie ni sombras exactas: puede suavizar
 fronteras de sombra de los nodos gruesos. El solver pasivo/CSR queda intacto.
 
+## Continuidad de muestras y visibilidad 3D
+
+La etapa 0.7 añade `tools/lie_asset_surface.py`: selección por estratos de
+posición/normal que devuelve IDs auténticos del banco, BLAS por maestro y TLAS
+de instancias afines. El kernel común
+`shaders/lib/lie_source_visibility.glslinc` consulta discos tangentes capturados
+sin depender de la cámara. El adaptador `lie_wall10_prepare.py` contiene la
+disposición específica de la pared; esas constantes no pertenecen al compilador
+ni al kernel. La residencia de BLAS se comparte por identidad y RenderingDevice.
+
+Para incorporar otro asset, compilar sus rangos de captura y transformaciones,
+mantener el perfil semántico original y validar cobertura/material/LOD con sus
+propias referencias. La escena actual es estática: una deformación o cambio de
+geometría necesita actualizar la jerarquía y revalidar el campo de luz. Los discos
+no certifican un sólido cerrado. Resultados, coste añadido, negativos y APK de
+comparación: [LIE_SOURCE_SURFACE.md](LIE_SOURCE_SURFACE.md).
+
 ## Aceptación
 
 Regresiones con banco real escaneado y panel de hormigón LIE31 existente.
