@@ -12,6 +12,7 @@ func _ready() -> void:
     state["variation"]=0.
     state["roof"]=true
     state["bounce"]=true
+    state["seams"]=true
     effect=HouseEffect.new(512)
     var plan: Variant=JSON.parse_string(FileAccess.get_file_as_string("res://captures/liehouse36/house-plan.json"))
     if plan is Dictionary:house_plan=plan
@@ -58,6 +59,7 @@ func _ui() -> void:
         _slider(right,pair[0],pair[1])
     _check(right,"shadows","Sombras")
     _check(right,"bounce","Rebote dinámico entre muros")
+    _check(right,"seams","Reparar microporos y uniones")
     status=_label(right,"Preparando escaneo auténtico…",12)
     status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
     status.custom_minimum_size.x=220
@@ -161,7 +163,7 @@ func _apply() -> void:
         1 if state["shadows"] else 0,1,spacing,spacing*.3])
     for vec in [light_pose.basis.x,light_pose.basis.y,-light_pose.basis.z]:
         v.append_array(PackedFloat32Array([vec.x,vec.y,vec.z,0]))
-    v.append_array(PackedFloat32Array([1,1,1,0,1,1,1,0,1203,1,1 if state["bounce"] else 0,0]))
+    v.append_array(PackedFloat32Array([1,1,1,0,1,1,1,0,1203,1,1 if state["bounce"] else 0,1 if state["seams"] else 0]))
     bytes.append_array(v.to_byte_array())
     var accepted: bool=effect.configure(bytes,instances.to_byte_array(),jobs.to_byte_array(),work)
     _metrics={"instances":entries.size(),"sample_invocations":work,
@@ -169,11 +171,13 @@ func _apply() -> void:
         "masters":effect.catalog["masters"].size(),"visible_source_meshes":0,
         "configured":accepted,"material":"LIE0.9 GGX/Smith/Fresnel",
         "raster":"LIE0.9 conservative bounds","illumination":"LIE37 dynamic per-panel GPU transport with blockers + one RGB bounce",
-        "bounce":state["bounce"]}
+        "bounce":state["bounce"],"seams":state["seams"]}
 
 func command(request: Variant) -> Dictionary:
     if request is Dictionary and request.get("op")=="set_values":
         var values: Variant=request.get("values")
+        if values is Dictionary and values.has("seams") and not values["seams"] is bool:
+            return {"ok":false,"error":"boolean_seams","revision":revision}
         if values is Dictionary and values.has("bounce") and not values["bounce"] is bool:
             return {"ok":false,"error":"boolean_bounce","revision":revision}
     return super.command(request)
