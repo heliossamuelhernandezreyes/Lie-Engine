@@ -2,6 +2,8 @@ extends "res://lie28_building_effect.gd"
 ## LIE38: reuse WALL05 dependency-separated geometry/light/exposure caching
 ## on the actual scanned house. Original source bank is never edited.
 const HouseShader=preload("res://shaders/lie36_house_material.glsl")
+const PassProfile=preload("res://lie_gpu_pass_profile.gd")
+var pass_profile=PassProfile.new()
 const PANEL_CAP: int=128
 var transport_dispatches: int=0
 var geometry_rebuilds: int=0
@@ -52,9 +54,15 @@ func _appearance_key(params: PackedByteArray, geometry: PackedByteArray) -> Pack
     return key
 
 func _dispatch_stage(cmds: int, stage: int, count: int) -> void:
+    var names: Dictionary={1:"clear",2:"project_and_shadow",3:"raster",4:"material",
+        6:"compose",7:"exposure",8:"direct",9:"panel_graph",10:"bounce",
+        11:"seam_recovery",12:"seam_commit",13:"relight_shadow",14:"shadow_clear"}
+    var label: String=names.get(stage,str(stage))
+    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"begin"))
     _rd.compute_list_set_push_constant(cmds,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
     _rd.compute_list_dispatch(cmds,ceili(float(count)/64.),1,1)
     _rd.compute_list_add_barrier(cmds)
+    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"end"))
     _last_stages.append(stage)
 
 func _render_callback(_type: int,_data: RenderData) -> void:
@@ -64,6 +72,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _mutex.unlock()
     if next.is_empty():return
     _collect_profile()
+    pass_profile.collect(_rd,get_instance_id())
     var params: PackedByteArray=next["parameters"]
     var all: PackedByteArray=params.duplicate()
     all.append_array(next["instances"])
@@ -105,6 +114,8 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.compute_list_bind_compute_pipeline(cmds,_pipeline)
     _rd.compute_list_bind_uniform_set(cmds,_set,0)
     _last_stages=[]
+    pass_profile.set_context(frame_count+1,{"mode":"geometry" if rebuild_geometry else "relight" if relight else "exposure",
+        "internal_resolution":render_size,"instances":n,"source_work":work})
     _rd.capture_timestamp(_profile_marker("begin"))
     if rebuild_geometry:
         # 1 resets sample depth/winners and the light-shadow atlas.
@@ -168,6 +179,7 @@ func force_geometry_rebuild() -> void:
 func _capture() -> void:
     super._capture()
     if not gpu_ready:return
+    pass_profile.collect(_rd,get_instance_id())
     var n: int=mini(instance_count,PANEL_CAP)
     if n<=0:return
     var direct: PackedFloat32Array=_rd.buffer_get_data(_buffers[14]).to_float32_array()
@@ -196,6 +208,7 @@ func _capture() -> void:
         if b.length_squared()>1e-12:positive+=1
     _mutex.lock()
     _readback["cache"]=cache_metrics()
+    _readback["passes"]=pass_profile.snapshot()
     _readback["multiwall_transport"]={
         "panels":n,
         "direct_irradiance_sum":[dsum.x,dsum.y,dsum.z],
