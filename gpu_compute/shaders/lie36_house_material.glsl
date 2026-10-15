@@ -43,7 +43,9 @@ const float PANEL_H=.6878780770301819;
 // captured neighbor surfaces. Never invent colors where authentic scanned
 // geometry has already won, and never bridge silhouettes or wide apertures.
 bool lie_neighbor_match(ivec2 a,ivec2 b) {
-    if(!inside(a) || !inside(b))return false;
+    if(any(lessThan(a,ivec2(0))) || any(lessThan(b,ivec2(0))) ||
+       any(greaterThanEqual(a,parameters.counts.zw)) ||
+       any(greaterThanEqual(b,parameters.counts.zw)))return false;
     ivec2 size=parameters.counts.zw;
     int ia=a.y*size.x+a.x,ib=b.y*size.x+b.x;
     uint wa=winners.v[ia],wb=winners.v[ib];
