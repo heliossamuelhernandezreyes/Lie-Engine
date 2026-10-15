@@ -33,7 +33,7 @@ def stage(dest:Path):
     meta,layout=build(root)
     # Reuse the common LIE0.9 asset preflight, NOT a house-specific hash.
     contract=inspect_bank((root/"library.bin").read_bytes(),meta)
-    (root/"asset-contract.json").write_text(json.dumps(contract,indent=2)+"\\n")
+    (root/"asset-contract.json").write_text(json.dumps(contract,indent=2)+"\n")
     (dest/"project.godot").write_text(
         'config_version=5\n[application]\nconfig/name="LIE36 Real Scan House"\n'
         'run/main_scene="res://lie36_house_lab.tscn"\n'
