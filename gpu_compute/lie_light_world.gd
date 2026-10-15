@@ -4,6 +4,9 @@ signal codes_changed(snapshot: Dictionary)
 const Registry=preload("res://lie_light_registry.gd")
 const Emitter=preload("res://lie_point_emitter_3d.gd")
 var registry=Registry.new()
+func _validate_emitter_set(incoming: Dictionary) -> bool:return incoming.size()<=Registry.CAPACITY
+func _extra_codes_changed() -> bool:return false
+func render_snapshot() -> Dictionary:return registry.snapshot()
 func _process(_delta: float) -> void:refresh()
 func refresh() -> bool:
     # Preserve meter units. A world transform may translate/rotate, not scale.
@@ -19,11 +22,12 @@ func refresh() -> bool:
         for key in code:
             if key not in ["position","power_rgb","radius"]:return false
         incoming[id]=code
-    if incoming.size()>Registry.CAPACITY:return false
+    if not _validate_emitter_set(incoming):return false
     var before: int=registry.revision
     for id in registry.snapshot()["ids"]:
         if id!="" and not incoming.has(id):registry.remove(id)
     for id in incoming:
         if not registry.upsert(id,incoming[id]):return false
-    if registry.revision!=before:codes_changed.emit(registry.snapshot())
+    var extra: bool=_extra_codes_changed()
+    if registry.revision!=before or extra:codes_changed.emit(render_snapshot())
     return true

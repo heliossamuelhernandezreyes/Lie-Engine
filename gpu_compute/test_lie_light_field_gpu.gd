@@ -11,6 +11,7 @@ var pipeline: RID
 var report: Dictionary={"cases":{},"max_error":0.,"physical_android_tested":false}
 func shader_resource() -> RDShaderFile:return ShaderFile
 func surface_bridge() -> bool:return false
+func case_extra_buffers(_case: Dictionary) -> Dictionary:return {}
 func _initialize() -> void:call_deferred("run")
 func check(value: bool,label: String) -> void:
     checks+=1
@@ -44,6 +45,7 @@ func execute(case: Dictionary,name: String) -> PackedFloat32Array:
         var zero:=PackedByteArray();zero.resize(pair[1]);data[pair[0]]=zero
     if surface_bridge():
         var zero:=PackedByteArray();zero.resize(272+n*8*16);data[25]=zero
+    data.merge(case_extra_buffers(case))
     var rids: Dictionary={};var uniforms: Array[RDUniform]=[]
     for binding in data:
         rids[binding]=rd.storage_buffer_create(data[binding].size(),data[binding]);uniforms.append(uniform(binding,rids[binding]))

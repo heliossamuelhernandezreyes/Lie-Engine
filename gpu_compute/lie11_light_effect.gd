@@ -42,6 +42,9 @@ func factor_input_bytes(model: Dictionary) -> PackedByteArray:
 func invalidate_transport() -> void:
     _lock.lock();_pending["force"]=true;_lock.unlock()
 
+func _additional_transport_data(_model: Dictionary) -> Dictionary:return {}
+func _before_transport_update(_data: Dictionary) -> void:pass
+
 func configure(model: Dictionary) -> bool:
     if not Model.valid(model):
         failure="Invalid LIE-11 spatial/material/light code"
@@ -71,22 +74,28 @@ func configure(model: Dictionary) -> bool:
     config.append_array(PackedFloat32Array([float(policy.get("radius_max",1)),float(policy.get("radius_decay",1)),Model.radius_reference(policy),float((model.get("optical_sheets",[]) as Array).size())]).to_byte_array())
     var next: Dictionary={0:Model.patch_bytes(model),1:Model.light_bytes(model),
         2:factors,8:config,9:Model.blocker_bytes(model),11:Model.triangle_bytes(model),12:Model.radius_bytes(model),13:Optics.bytes(model.get("optical_sheets",[]))}
+    next.merge(_additional_transport_data(model),true)
     _lock.lock()
     _serial+=1
     next["serial"]=_serial
     next["lights"]=(model["lights"] as Array).size()
     next["bounces"]=int(model.get("bounces",2))
+    next["force"]=bool(next.get("force",false)) or bool(_pending.get("force",false))
     _pending=next
     _lock.unlock()
     return true
 
 func set_light_codes(model: Dictionary) -> void:
     # A moving light changes a small persistent buffer; the spatial graph is reused.
-    if not Model.valid_light_codes(model.get("lights",[])) or (model["lights"] as Array).size()!=_light_count:
+    if not Model.valid_light_codes(model.get("lights",[])):
         return
     var data: PackedByteArray=Model.light_bytes(model)
     _lock.lock()
+    if model["lights"].size()!=int(_pending.get("lights",_light_count)):_lock.unlock();return
     _pending[1]=data
+    var extra: Dictionary=_additional_transport_data(model)
+    extra["force"]=bool(extra.get("force",false)) or bool(_pending.get("force",false))
+    _pending.merge(extra,true)
     _lock.unlock()
 
 ## LIE-WALL-01 bridge: share the existing GPU-resident material code buffer
@@ -199,6 +208,7 @@ func _render_callback(kind: int, _render_data: RenderData) -> void:
         if not changed:
             _transport_cache_hits+=1
             return
+    _before_transport_update(data)
     if not gpu_ready:
         if data.is_empty() or not _initialize_gpu(data):
             return

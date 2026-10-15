@@ -79,7 +79,7 @@ def visible(a,b,node,model,packets,scan_caps=True):
         if k!=owners[node] and hit_box(a,b,boxes[k,:3],boxes[k,4:7],planes[k] if scan_caps else None):return False
     return True
 
-def solve(model,packets,separate=True,scan_caps=True):
+def solve(model,packets,separate=True,scan_caps=True,emission_normals=None):
     if model.get('optical_sheets'):raise ValueError('Oracle covers opaque paths only')
     patches=model['patches'];n=len(patches);L=len(model['lights'])
     if not 1<=n<=1024 or not 1<=L<=8:raise ValueError('Field capacity')
@@ -110,11 +110,13 @@ def solve(model,packets,separate=True,scan_caps=True):
         else:r=np.minimum(parent*decay*np.sqrt(np.max(rho,axis=1)),maximum*np.sqrt(e/policy['power_reference']))
         return np.minimum(r,maximum)*scale
     direct=[];travels=[];parents=[]
-    for light in model['lights']:
+    for light_index,light in enumerate(model['lights']):
         lamp=np.asarray(light['position'],dtype='<f4').astype(float);power=np.asarray(light['power_rgb'],dtype='<f4').astype(float)
         span=lamp-p;d2=np.sum(span*span,axis=1);cosine=np.maximum(np.sum(normals*unit(span),axis=1),0)
         fade=np.maximum(0,1-(np.sqrt(d2)/float(light['radius']))**4)**2
         w=areas*cosine*fade/(4*math.pi*np.maximum(d2,.0025));w=np.where(d2>1e-10,w,0)
+        if emission_normals is not None and emission_normals[light_index] is not None:
+            w*=4*np.maximum(np.sum(unit(p-lamp)*np.asarray(emission_normals[light_index]),axis=1),0)
         for i in range(n):
             if w[i]>0 and not visible(p[i],lamp,i,model,packets,scan_caps):w[i]=0
         flux=w[:,None]*power/max(1,float(w.sum()));direct.append(flux);travels.append(unit(p-lamp,fallback=-normals));parents.append(np.where(flux.max(1)>0,light['radius'],0))
