@@ -7,7 +7,8 @@ layout(set=0,binding=0,std430) readonly buffer Accumulated {Accumulator v[];} ac
 layout(set=0,binding=1,std430) readonly buffer Winners {uint v[];} winners;
 layout(set=0,binding=2,std430) readonly buffer Projected {Projection v[];} projected;
 layout(set=0,binding=3,std430) readonly buffer Parameters {ivec4 counts;vec4 lens;} parameters;
-layout(set=0,binding=4,std430) buffer Results {float v[];} results;
+layout(set=0,binding=4,std430) buffer Results {uint v[];} results;
+layout(push_constant,std430) uniform Phase {uvec4 data;} phase;
 const uint EMPTY=0xffffffffu;
 bool inside(ivec2 p){return p.x>=0 && p.y>=0 && p.x<parameters.counts.z && p.y<parameters.counts.w;}
 uint projection_node(Projection p){return uint(p.world.w);}
@@ -57,8 +58,9 @@ LiePixelMaterial lie_filter_material(uint i) {
 
 void main(){
  uint i=gl_GlobalInvocationID.x;if(i>=uint(parameters.counts.z*parameters.counts.w))return;
- if(winners.v[i]==EMPTY){for(uint k=0u;k<8u;k++)results.v[i*8u+k]=0.;return;}
- LiePixelMaterial m=lie_unpack_material(lie_pack_material(lie_filter_material(i)));
- for(uint k=0u;k<3u;k++){results.v[i*8u+k]=m.albedo[k];results.v[i*8u+4u+k]=m.mean_normal[k];}
- results.v[i*8u+3u]=m.roughness;results.v[i*8u+7u]=m.mean_length;
+ if(winners.v[i]==EMPTY){for(uint k=0u;k<8u;k++)results.v[i*8u+k]=0u;return;}
+ if(phase.data.x==0u){uvec4 b=lie_pack_material(lie_filter_material(i));for(uint k=0u;k<4u;k++)results.v[i*8u+k]=b[k];return;}
+ LiePixelMaterial m=lie_unpack_material(uvec4(results.v[i*8u],results.v[i*8u+1u],results.v[i*8u+2u],results.v[i*8u+3u]));
+ for(uint k=0u;k<3u;k++){results.v[i*8u+k]=floatBitsToUint(m.albedo[k]);results.v[i*8u+4u+k]=floatBitsToUint(m.mean_normal[k]);}
+ results.v[i*8u+3u]=floatBitsToUint(m.roughness);results.v[i*8u+7u]=floatBitsToUint(m.mean_length);
 }

@@ -32,13 +32,7 @@ vec3 lie_surface_unoccluded(uint l,vec3 world,vec3 normal) {''')
     s=s[:start]+'''    if(stage==4) {
         bool fused=pipeline_control.flags.x!=0u,filtered=pipeline_control.flags.y!=0u;
         if(owner==EMPTY) {if(fused)imageStore(output_image,xy,vec4(0));return;}
-        LiePixelMaterial material;
-        if(filtered) {
-            if(phase.value.w!=0) {
-                uvec4 packet=lie_pack_material(lie_filter_material(i));imageStore(diffuse_image,xy,packet);
-                material=lie_unpack_material(packet);
-            } else material=lie_unpack_material(imageLoad(diffuse_image,xy));
-        } else material=lie_raw_material(i);
+        LiePixelMaterial material=lie_material(i);
         vec3 E=lie_irradiance_code(projected.v[owner]);
         if(fused)imageStore(output_image,xy,vec4(max(material.albedo*E,vec3(0)),1));
         else if(filtered)imageStore(specular_image,xy,vec4(E,1));
@@ -53,7 +47,12 @@ vec3 lie_surface_unoccluded(uint l,vec3 world,vec3 normal) {''')
 }
 '''
     # Pipeline phase is named data in the inherited shader.
-    s=replace(s,'if(stage==10) {lie_resolve_surface(i);return;}','''if(stage==15) {
+    s=replace(s,'if(stage==10) {lie_resolve_surface(i);return;}','''if(stage==14) {
+        if(i>=uint(parameters.counts.z*parameters.counts.w) || winners.v[i]==EMPTY)return;
+        ivec2 pixel=ivec2(int(i)%parameters.counts.z,int(i)/parameters.counts.z);
+        imageStore(diffuse_image,pixel,lie_pack_material(lie_filter_material(i)));return;
+    }
+    if(stage==15) {
         if(i<uint(parameters.counts.z*parameters.counts.w))recovery_map.values[i]=EMPTY;
         if(i==0u){recovery_count.count=0u;recovery_count.overflow=0u;}return;
     }
@@ -73,7 +72,8 @@ layout(set=0,binding=0,std430) readonly buffer Accumulated {Accumulator v[];} ac
 layout(set=0,binding=1,std430) readonly buffer Winners {uint v[];} winners;
 layout(set=0,binding=2,std430) readonly buffer Projected {Projection v[];} projected;
 layout(set=0,binding=3,std430) readonly buffer Parameters {ivec4 counts;vec4 lens;} parameters;
-layout(set=0,binding=4,std430) buffer Results {float v[];} results;
+layout(set=0,binding=4,std430) buffer Results {uint v[];} results;
+layout(push_constant,std430) uniform Phase {uvec4 data;} phase;
 const uint EMPTY=0xffffffffu;
 bool inside(ivec2 p){return p.x>=0 && p.y>=0 && p.x<parameters.counts.z && p.y<parameters.counts.w;}
 uint projection_node(Projection p){return uint(p.world.w);}
@@ -82,10 +82,11 @@ float pixel_depth(Projection p,vec2 xy){return 1./(1./p.screen.z+dot(p.gradient.
 '''+common('lie_surface_filter.glslinc')+'''
 void main(){
  uint i=gl_GlobalInvocationID.x;if(i>=uint(parameters.counts.z*parameters.counts.w))return;
- if(winners.v[i]==EMPTY){for(uint k=0u;k<8u;k++)results.v[i*8u+k]=0.;return;}
- LiePixelMaterial m=lie_unpack_material(lie_pack_material(lie_filter_material(i)));
- for(uint k=0u;k<3u;k++){results.v[i*8u+k]=m.albedo[k];results.v[i*8u+4u+k]=m.mean_normal[k];}
- results.v[i*8u+3u]=m.roughness;results.v[i*8u+7u]=m.mean_length;
+ if(winners.v[i]==EMPTY){for(uint k=0u;k<8u;k++)results.v[i*8u+k]=0u;return;}
+ if(phase.data.x==0u){uvec4 b=lie_pack_material(lie_filter_material(i));for(uint k=0u;k<4u;k++)results.v[i*8u+k]=b[k];return;}
+ LiePixelMaterial m=lie_unpack_material(uvec4(results.v[i*8u],results.v[i*8u+1u],results.v[i*8u+2u],results.v[i*8u+3u]));
+ for(uint k=0u;k<3u;k++){results.v[i*8u+k]=floatBitsToUint(m.albedo[k]);results.v[i*8u+4u+k]=floatBitsToUint(m.mean_normal[k]);}
+ results.v[i*8u+3u]=floatBitsToUint(m.roughness);results.v[i*8u+7u]=floatBitsToUint(m.mean_length);
 }
 '''
 if __name__=='__main__':

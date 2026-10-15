@@ -20,10 +20,14 @@ func run() -> void:
             var rid: RID=rd.storage_buffer_create(payloads[binding].size(),payloads[binding]);buffers.append(rid)
             var u:=RDUniform.new();u.binding=binding;u.uniform_type=RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER;u.add_id(rid);uniforms.append(u)
         var set_rid: RID=rd.uniform_set_create(uniforms,shader,0);check(set_rid.is_valid(),name+" actual descriptor set")
-        var list: int=rd.compute_list_begin();rd.compute_list_bind_compute_pipeline(list,pipeline);rd.compute_list_bind_uniform_set(list,set_rid,0);rd.compute_list_dispatch(list,1,1,1);rd.compute_list_end();rd.submit();rd.sync()
+        var list: int=rd.compute_list_begin();rd.compute_list_bind_compute_pipeline(list,pipeline);rd.compute_list_bind_uniform_set(list,set_rid,0)
+        for stage in [0,1]:
+            rd.compute_list_set_push_constant(list,PackedInt32Array([stage,0,0,0]).to_byte_array(),16);rd.compute_list_dispatch(list,1,1,1);rd.compute_list_add_barrier(list)
+        rd.compute_list_end();rd.submit();rd.sync()
         var output: PackedFloat32Array=rd.buffer_get_data(buffers[4]).to_float32_array();var worst: float=0
         for i in range(output.size()):worst=maxf(worst,absf(output[i]-float(case["expected"][i])))
         check(worst<.0006,name+" float64 reference and half packet");results[name]={"max_error":worst,"center":Array(output.slice(12*8,13*8))}
+        check(output[3]==.7998046875,"material is actually quantized before reuse "+name)
         if name=="open_hole":check(output[12*8]==0. and output[12*8+7]==0.,"real hole remains empty")
         rd.free_rid(set_rid)
         for rid in buffers:rd.free_rid(rid)

@@ -35,6 +35,11 @@ func _stage(list: int,stage: int,count: int) -> void:
     if stage==1:_material_dirty=true;_filter_recovery_dirty=false
     if stage==6 and _gpu_fused:return
     if stage==4 and _filter_recovery_dirty:_extra_stage(list,15,count,"filter_recovery_clear")
+    if stage==4:
+        if _gpu_filter:
+            if _material_dirty:_extra_stage(list,14,count,"material_filter");material_builds+=1
+            else:material_reuses+=1
+        _material_dirty=false
     if stage==9 and _filter_recovery_dirty:
         stage=8;_filter_recovery_dirty=false;recovery_reuses-=1;recovery_builds+=1
     super._stage(list,stage,count)
@@ -45,10 +50,6 @@ func _timed_stage(list: int,stage: int,count: int,name: String) -> void:
     _rd.compute_list_set_push_constant(list,PackedInt32Array([4,2,_coverage_mode,1 if _material_dirty else 0]).to_byte_array(),16)
     _rd.compute_list_dispatch(list,ceili(float(count)/64.),1,1);_rd.compute_list_add_barrier(list)
     _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"end"))
-    if _gpu_filter:
-        if _material_dirty:material_builds+=1
-        else:material_reuses+=1
-    _material_dirty=false
 func cache_metrics() -> Dictionary:
     var result: Dictionary=super.cache_metrics()
     result["surface_pipeline"]={"fused":fused_shading,"filtered":surface_filter,"material_builds":material_builds,"material_reuses":material_reuses,"additional_full_frame_bytes":0,"material_packet_bytes_per_pixel":16}

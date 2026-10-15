@@ -637,6 +637,11 @@ void main() {
         gl_WorkGroupID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x,
         pixels=uint(parameters.counts.z*parameters.counts.w);
     int stage=phase.value.x;
+    if(stage==14) {
+        if(i>=uint(parameters.counts.z*parameters.counts.w) || winners.v[i]==EMPTY)return;
+        ivec2 pixel=ivec2(int(i)%parameters.counts.z,int(i)/parameters.counts.z);
+        imageStore(diffuse_image,pixel,lie_pack_material(lie_filter_material(i)));return;
+    }
     if(stage==15) {
         if(i<uint(parameters.counts.z*parameters.counts.w))recovery_map.values[i]=EMPTY;
         if(i==0u){recovery_count.count=0u;recovery_count.overflow=0u;}return;
@@ -965,13 +970,7 @@ void main() {
     if(stage==4) {
         bool fused=pipeline_control.flags.x!=0u,filtered=pipeline_control.flags.y!=0u;
         if(owner==EMPTY) {if(fused)imageStore(output_image,xy,vec4(0));return;}
-        LiePixelMaterial material;
-        if(filtered) {
-            if(phase.value.w!=0) {
-                uvec4 packet=lie_pack_material(lie_filter_material(i));imageStore(diffuse_image,xy,packet);
-                material=lie_unpack_material(packet);
-            } else material=lie_unpack_material(imageLoad(diffuse_image,xy));
-        } else material=lie_raw_material(i);
+        LiePixelMaterial material=lie_material(i);
         vec3 E=lie_irradiance_code(projected.v[owner]);
         if(fused)imageStore(output_image,xy,vec4(max(material.albedo*E,vec3(0)),1));
         else if(filtered)imageStore(specular_image,xy,vec4(E,1));
