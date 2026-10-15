@@ -163,3 +163,20 @@ Firma v2/v3, alineación 16 KiB, manifiesto, bancos, contrato e índices comprob
 Se instala junto a 0.3 para comparar; el control Luz continua permite volver
 al resultado anterior. Los campos completos, perfiles, imágenes y negativos
 están en `docs/checkpoints/LIE_ASSET_PIPELINE_CHECKPOINT.json`.
+
+## Shared direct material response and bounded splat work (WALL12)
+
+`shaders/lib/lie_opaque_brdf.glslinc` evaluates an authored opaque nonmetal
+GGX/Smith/Fresnel direct response per light and view direction. Substrate
+albedo/roughness stay separate from geometric visibility; black base color
+must not erase dielectric reflection. Independent optical stencil weights fit
+inside unused recovery coefficient components without increasing record sizes.
+The existing indirect field is retained once when replacing the direct term.
+
+`shaders/lib/lie_splat_work.glslinc` bounds pixel iteration conservatively within
+the existing projected ellipse; the host's original source support, depth and
+ownership acceptance remain authoritative. Both helpers are free of brick
+counts and wall layout. New asset adapters still need their authored material
+contract and native reconstruction acceptance; this does not certify arbitrary
+material support or automatic photo fidelity. See `LIE_MATERIAL_LIGHT.md` for
+comparisons, finite energy checks, native evidence and physical-device limits.

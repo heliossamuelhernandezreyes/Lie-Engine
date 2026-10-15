@@ -97,3 +97,71 @@ thermal behavior and the material's subjective appearance require device testing
 The EWA paper informs anisotropic footprints and filtering boundaries. This
 implementation reduces work within the existing projected ellipse; it does not
 claim the paper's full EWA reconstruction or watertightness guarantees.
+
+## Accepted native result
+
+Validated runtime: `f60f8ff058b49c04eb192af184d82f134e604f02`, tree
+`c1390d4ddc70a22a26dbfcc422f96781e8b5dc75`.
+[Native run 38705971701](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38705971701)
+passed **48 common GPU BRDF cases and 43 full-wall checks**, alongside the
+existing field, source-geometry, contact, ID, shared-cache and command tests.
+All **19 PR workflows** passed for that same runtime. CPU acceptance includes
+5 new Python cases, 2 persistent-reference regressions, 15 asset contract/surface
+cases, 8 new command checks, rig 247 and agent 25. Logs contain no reported
+errors or leaked resources.
+
+GPU BRDF vs float64 maximum absolute error: **6.264e-6**. Independent warm/cool
+source superposition, inverted back to linear radiance: **2.308e-6** maximum.
+All-new-controls OFF vs 0.8 is bit-exact. Bounded vs square raster is bit-exact
+in color and source depth at all three tested camera angles; coverage IoU is 1.
+Cached material vs rebuilt geometry differs at most **1.540e-6**, IoU 1.
+
+At 1080px internal resolution, 535670 genuine source invocations remain:
+
+| Camera yaw | Square candidate tests per phase | Bounded tests | Reduction |
+| --- | ---: | ---: | ---: |
+| 12 degrees | 10639758 | 7337076 | 31.04% |
+| 60 degrees | 9207709 | 6799419 | 26.16% |
+| 80 degrees | 9065843 | 6542476 | 27.83% |
+
+Interleaved same-camera warm-cache solves on **llvmpipe LLVM 20.1.2**, counters
+and material response disabled, N=3 per raster mode:
+
+| Pass | Square median ms | Bounded median ms |
+| --- | ---: | ---: |
+| Projection | 60.075 | 57.445 |
+| Raster | 68.792 | 66.577 |
+| Recovery build, unchanged algorithm | 66.283 | 67.905 |
+
+These small software-device samples show substantially less candidate work
+and a modest reduction in the two affected passes. Other pass timings vary;
+this is not a whole-frame FPS improvement or a physical-mobile benchmark.
+The material toggle independently exposes the cost of the new shading.
+
+Appearance requests **251994888 bytes**, transport **1544056 bytes**. Only the
+64-byte control/counter buffer is added to 0.8's requested allocation. Shared
+bank/BLAS/cache residency, 96 brick instances plus photographed mortar, and the
+single invisible collision envelope remain intact. These bytes are not PSS or
+physical VRAM. Native warm/diffuse/angled images were visually inspected; source
+grain and existing coverage limitations remain. A material model does not by
+itself remove source pinholes or make the reconstruction photograph-equivalent.
+
+First positive run `38704957639` / `17e1cab4` is preserved with all 19 workflows,
+43 wall checks and 46 BRDF cases. The final refinement removes duplicate
+incident-node evaluations and handles zero-length source/view directions; its
+saved images match the first result exactly except one 1/255 channel change
+in the warm capture. This does not establish an inter-run speedup. The checkpoint
+also preserves an exploratory under-resolved hemisphere quadrature result:
+a grazing narrow lobe can alias an aligned angular grid, so the energy audit
+is explicitly finite and resolution-dependent.
+
+Signed offline ARM64 APK: **57921521 bytes**, package
+`org.lieengine.wallruntime.v090`, code 9, `0.9.0-material-light`.
+SHA256 `8809b833b7a7ea783ee45b2d6c96e5e225e9086385dbb640a001d68181b606c4`.
+V2/V3 signatures, 16KiB alignment, actual WALL12 startup scene and all source
+packet hashes were verified. It installs beside 0.8. Physical Poco FPS and
+thermal behavior remain unmeasured.
+
+Full raw evidence: `checkpoints/LIE_MATERIAL_LIGHT_NATIVE.json`.
+Hashes, timings, first-positive evidence, limits and CI runs:
+`checkpoints/LIE_MATERIAL_LIGHT_CHECKPOINT.json`.
