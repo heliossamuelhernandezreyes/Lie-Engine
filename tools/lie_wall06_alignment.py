@@ -11,20 +11,16 @@ from lie_wall05_shared import build as build_previous
 from lie_wall02_bake import layout,transform_real_samples,support_rebuild,make_node_model,canonical_light_codes
 from lie_wall04_factors import calculate
 from lie_sparse_transport import pack
+from lie_asset_contract import planar_frame
 ROOT=Path(__file__).resolve().parents[1]
 DEST=ROOT/'gpu_compute/captures/liewall06'
 
 def sha(data):return hashlib.sha256(data).hexdigest()
 def orientation(source):
     hero=source[:220000]
-    front=hero[(hero[:,6]>.85)&(hero[:,2]>.02),:3].astype(np.float64)
-    _,v=np.linalg.eigh(np.cov(front,rowvar=False));normal=v[:,0]
-    if normal[2]<0:normal=-normal
-    x=np.array([1.,0.,0.]);x-=normal*np.dot(x,normal);x/=np.linalg.norm(x)
-    rotate=np.stack([x,np.cross(normal,x),normal])
-    xyz=source[:,:3].astype(np.float64)@rotate.T
-    shift=-(xyz.max(0)+xyz.min(0))*.5
-    return rotate,shift,np.ptp(xyz,axis=0),normal,len(front)
+    indices=np.flatnonzero((hero[:,6]>.85)&(hero[:,2]>.02))
+    frame=planar_frame(source,indices)
+    return frame['rotation'],frame['translation'],frame['bounds_size'],frame['source_normal'],frame['selection_count']
 
 def rotate_master(source):
     R,t,dims,n,count=orientation(source)

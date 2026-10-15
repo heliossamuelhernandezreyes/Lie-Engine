@@ -34,3 +34,21 @@ use a fresh disposable application session, not an unsaved user session.
 User instructions determine publication/merge authorization. Preserve
 reviewable history and inspect current branch heads before updating refs.
 Do not edit generated capture bytes without updating provenance and hashes.
+
+## New 80-byte assets
+
+Use `tools/lie_asset_capture.py` with an authored unit/pivot/rotation profile,
+or an explicit source-surface frame recipe through `lie_asset_contract.py`.
+Do not silently infer semantic orientation from bounding-box aspect ratios.
+Keep source SHA/provenance, linear albedo, geometric normals and optical
+material declarations separate; the current capture backend supports opaque
+nonmetal base color/roughness and source geometry normals. Unsupported glTF
+features must be reported or explicitly declared as an authored override.
+
+Run the common preflight and keep `asset-contract.json` alongside the bank.
+Runtime IDs bind the bank SHA, master name and LOD ranges; residency uses the
+existing RenderingDevice bank leases. Native depth/coverage/material/cache
+acceptance is still required. Preflight alone does not establish photo fidelity.
+Use source-authored owner/material groups for shared irradiance interpolation;
+never interpolate appearance across an unrelated master or real opening.
+Read `docs/LIE_ASSET_PIPELINE.md` for the compiler, common kernel and limits.

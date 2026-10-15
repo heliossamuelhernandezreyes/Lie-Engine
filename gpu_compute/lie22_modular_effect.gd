@@ -5,6 +5,7 @@ const ROOT="res://captures/modular22/"
 const MAX_INSTANCES=128
 const MAX_WORK=750000
 const SharedSamples=preload("res://lie_shared_sample_buffers.gd")
+const AssetIdentity=preload("res://lie_asset_catalog.gd")
 var catalog: Dictionary={}
 var capture_loaded: bool=false
 var gpu_ready: bool=false
@@ -56,6 +57,12 @@ func _init(size: int=384) -> void:
         if master.get("levels",[]).size()<2 or master.get("levels",[]).size()>3:failure="Niveles inválidos";return
         for level in master["levels"]:
             if int(level["start"])<0 or int(level["count"])<1 or int(level["start"])+int(level["count"])>int(catalog["sample_count"]):failure="Rango de captura";return
+    if stride==80:
+        var contract_path: String=root+"asset-contract.json"
+        if FileAccess.file_exists(contract_path):
+            var checked: Dictionary=AssetIdentity.validate(JSON.parse_string(FileAccess.get_file_as_string(contract_path)),catalog)
+            if not checked.get("ok",false):failure="Asset identity: "+str(checked.get("error"));return
+        elif catalog.get("asset_frame",{}).get("semantic_frame_verified",false):failure="Missing compiled asset contract";return
     capture_loaded=true
 
 func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:

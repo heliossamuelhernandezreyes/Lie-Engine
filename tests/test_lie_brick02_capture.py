@@ -57,6 +57,23 @@ class RealGeometryPipelineTest(unittest.TestCase):
         self.assertFalse(result["source_photo_texture_uv_used"])
         self.assertEqual(result["sample_count"],800)
 
+    def test_common_compiler_uses_authored_frame_for_another_master(self):
+        profile={'master':'curved_test_piece','source_to_lie':[[0,0,1],[0,1,0],[-1,0,0]],'meters_per_source_unit':2.,'source_pivot':[0,0,0],'material_zone':5,'optical_material':{'metallic':0.,'transmission':0.,'ior':1.5,'roughness_origin':'source_factor'}}
+        result=capture.capture(self.source,self.provenance,self.root/'generic',counts=(600,200,100),asset_profile=profile)
+        self.assertIn('curved_test_piece',result['masters']);self.assertTrue(result['asset_frame']['semantic_frame_verified'])
+        data=np.fromfile(self.root/'generic/library.bin',dtype='<f4').reshape(-1,20);self.assertTrue((data[:,8]==5).all())
+        self.assertGreater(result['source_bbox_m'][2],.4)
+        self.assertTrue((self.root/'generic/asset-contract.json').is_file())
+
+    def test_external_gltf_normal_map_and_obj_do_not_silently_fall_back(self):
+        profile={'master':'piece','source_to_lie':np.eye(3).tolist(),'meters_per_source_unit':1,'source_pivot':[0,0,0],'material_zone':5,'optical_material':{'metallic':0.,'transmission':0.,'ior':1.5,'roughness_origin':'source_factor'}}
+        unsupported=self.root/'unsupported.gltf';unsupported.write_text(json.dumps({'asset':{'version':'2.0'},'materials':[{'pbrMetallicRoughness':{'metallicFactor':0},'normalTexture':{'index':0}}]}))
+        identity=json.loads(self.provenance.read_text());identity['expected_sha256']=hashlib.sha256(unsupported.read_bytes()).hexdigest();self.provenance.write_text(json.dumps(identity))
+        with self.assertRaisesRegex(ValueError,'requires_another_capture_backend'):capture.capture(unsupported,self.provenance,self.root/'refused',counts=(200,100,100),asset_profile=profile)
+        unsupported=self.root/'unsupported.obj';unsupported.write_text('# unsupported material fixture')
+        identity['expected_sha256']=hashlib.sha256(unsupported.read_bytes()).hexdigest();self.provenance.write_text(json.dumps(identity))
+        with self.assertRaisesRegex(ValueError,'requires_declared_material_override'):capture.capture(unsupported,self.provenance,self.root/'refused',counts=(200,100,100),asset_profile=profile)
+
     def test_source_fixture_has_texture_and_real_triangles(self):
         meshes=capture.load_source(self.source)
         self.assertGreater(len(meshes[0].faces),500)

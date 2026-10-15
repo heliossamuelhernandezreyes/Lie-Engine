@@ -1,0 +1,17 @@
+// Shared LIE11 irradiance reconstruction, with source-authored node groups.
+// Host provides lie_group(node), lie_position(node), lie_normal(node).
+// Convex weights do not overshoot compatible node irradiances. This does not
+// prove exact area-integrated flux or replace the passive transport solver.
+float lie_stencil_weight(vec3 world,uint reference,uint candidate) {
+    vec3 normal=normalize(lie_normal(reference));
+    float agreement=dot(normal,normalize(lie_normal(candidate)));
+    if(agreement<.9)return 0.;
+    vec3 delta=world-lie_position(candidate);delta-=normal*dot(delta,normal);
+    float alignment=max((agreement-.9)/.1,0.);
+    return alignment*alignment/(dot(delta,delta)+max(lie_area(reference)*1e-4,1e-12));
+}
+float lie_stencil_sum(vec3 world,uint node) {
+    uvec2 group=lie_group(node);float total=0.;
+    for(uint k=0u;k<group.y;k++)total+=lie_stencil_weight(world,node,group.x+k);
+    return total;
+}

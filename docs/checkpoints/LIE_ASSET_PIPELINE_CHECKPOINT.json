@@ -1,0 +1,457 @@
+{
+  "schema": "lie-common-assets-checkpoint/1",
+  "code_commit": "f93f8e3332e35241fb68e93c009c33c27f6e4704",
+  "base": "ca5112e9ebbfd85fecdb8eaf04b05f98f7c2f7d5",
+  "run": 38660051236,
+  "job": 116178905341,
+  "artifact": 11937724790,
+  "artifact_sha256": "9b185ef3a9fd0ab36c332290a790cdc9af734f9b3d4cff7dff44ecd71be84d62",
+  "source_bank_unchanged_from_wall06": true,
+  "native_wall": {
+    "allocation_bytes": 228578212,
+    "baseline_profile": [
+      {
+        "gpu_ns": 3739670912,
+        "marker_frame": 1,
+        "owner_instance_id": -9223371987613645358,
+        "serial": 1
+      },
+      {
+        "gpu_ns": 55252971,
+        "marker_frame": 12,
+        "owner_instance_id": -9223371987613645358,
+        "serial": 2
+      },
+      {
+        "gpu_ns": 52272221,
+        "marker_frame": 20,
+        "owner_instance_id": -9223371987613645358,
+        "serial": 3
+      },
+      {
+        "gpu_ns": 545346834,
+        "marker_frame": 28,
+        "owner_instance_id": -9223371987613645358,
+        "serial": 4
+      }
+    ],
+    "black_opaque_pixels": {
+      "baseline": 1396,
+      "scan_caps": 1396
+    },
+    "cache": {
+      "asset_contract": {
+        "assets": 3,
+        "ok": true,
+        "source_identity": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+      },
+      "brick_instances": 96,
+      "brick_master_count": 1,
+      "continuous_light": true,
+      "geometry_rebuilds": 8,
+      "internal_size": 1080,
+      "lighting_resolves": 14,
+      "output_resolves": 15,
+      "recovery_builds": 8,
+      "recovery_capacity": 65536,
+      "recovery_reuses": 6,
+      "reference_bytes": 3088388,
+      "source_bank_bytes": 41700560
+    },
+    "cache_events": [
+      {
+        "internal_size": 1080,
+        "kind": "geometry",
+        "serial": 1
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 2
+      },
+      {
+        "internal_size": 1440,
+        "kind": "exposure",
+        "serial": 3
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 4
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 5
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 6
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 7
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 8
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 9
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 10
+      },
+      {
+        "internal_size": 1440,
+        "kind": "geometry",
+        "serial": 11
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 12
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 13
+      },
+      {
+        "internal_size": 1440,
+        "kind": "lighting",
+        "serial": 14
+      },
+      {
+        "internal_size": 1080,
+        "kind": "geometry",
+        "serial": 15
+      }
+    ],
+    "cached_vs_cold": {
+      "iou": 1.0,
+      "mae": 2.4741591966779258e-11,
+      "max": 1.7881393432617188e-07
+    },
+    "checks": 27,
+    "continuous_cached_vs_cold": {
+      "iou": 1.0,
+      "mae": 2.7900501333146233e-11,
+      "max": 1.1920928955078125e-07
+    },
+    "continuous_off_vs_wall06": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "matched_optical_darkness": {
+      "after_black": 1396,
+      "after_fraction": 0.017928926447735125,
+      "after_opaque": 77863,
+      "before_black": 1396,
+      "before_fraction": 0.017928926447735125,
+      "before_opaque": 77863,
+      "same_optics_and_resolution": true
+    },
+    "optical": {
+      "directional_codes": true,
+      "graph": "WALL06 rebuilt CSR from rigidly aligned scan and recalibrated photo mortar",
+      "incident_direction": "single power-weighted direction per patch/frontier",
+      "optical_header_updates": 0,
+      "patches": 872,
+      "scan_shadow_caps": true,
+      "scope": "opaque wall; no transmitted or refracted paths"
+    },
+    "optical_gpu_cpu_max_error": 9.887594049073911e-09,
+    "optical_reference_generations": [
+      [
+        1.9789945405590268,
+        1.8404649227198964,
+        1.701935304880765
+      ],
+      [
+        0.10189549589079493,
+        0.06088552727675676,
+        0.04185835289401996
+      ],
+      [
+        0.03608290493111858,
+        0.01414272352737654,
+        0.00746622080983135
+      ]
+    ],
+    "physical_android_tested": false,
+    "profile": [
+      {
+        "gpu_ns": 4029144622,
+        "marker_frame": 45,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 1
+      },
+      {
+        "gpu_ns": 443387270,
+        "marker_frame": 57,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 2
+      },
+      {
+        "gpu_ns": 6625296,
+        "marker_frame": 86,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 3
+      },
+      {
+        "gpu_ns": 65533729,
+        "marker_frame": 94,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 4
+      },
+      {
+        "gpu_ns": 438098321,
+        "marker_frame": 103,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 5
+      },
+      {
+        "gpu_ns": 57038588,
+        "marker_frame": 112,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 6
+      },
+      {
+        "gpu_ns": 444192858,
+        "marker_frame": 120,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 7
+      },
+      {
+        "gpu_ns": 424612984,
+        "marker_frame": 128,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 8
+      },
+      {
+        "gpu_ns": 506580585,
+        "marker_frame": 137,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 9
+      },
+      {
+        "gpu_ns": 83545688,
+        "marker_frame": 154,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 10
+      },
+      {
+        "gpu_ns": 506006051,
+        "marker_frame": 163,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 11
+      },
+      {
+        "gpu_ns": 91912205,
+        "marker_frame": 172,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 12
+      },
+      {
+        "gpu_ns": 87284946,
+        "marker_frame": 180,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 13
+      },
+      {
+        "gpu_ns": 84177913,
+        "marker_frame": 189,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 14
+      },
+      {
+        "gpu_ns": 374783089,
+        "marker_frame": 198,
+        "owner_instance_id": -9223371973856328234,
+        "serial": 15
+      }
+    ],
+    "received_total_rgb": [
+      2.116973400115967,
+      1.9154927730560303,
+      1.7512603998184204
+    ],
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+  },
+  "native_common_kernel": {
+    "banks": [
+      "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+      "608558a3e33083de0809c18f896001bb44d7216d2a1c9fd52e4a76dfd08eda77"
+    ],
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "gpu_cpu_max_error": 2.69464211166692e-07,
+    "okay": true,
+    "physical_android_tested": false,
+    "queries": 80,
+    "source_types": 2
+  },
+  "image_hashes": {
+    "baseline": {
+      "sha256": "ad583bdb1a3912cba49b611e43ad88e402f50b2d1ac15958b4d1a7d00a65445a"
+    },
+    "shared-legacy": {
+      "sha256": "ad583bdb1a3912cba49b611e43ad88e402f50b2d1ac15958b4d1a7d00a65445a"
+    },
+    "optical": {
+      "sha256": "1f58549cb137b519046d9dd24e84fbc084ccde75ebf4de3fa188c402bc5a2110"
+    },
+    "balanced": {
+      "sha256": "6d8f2455179d3ee0c08da475db782033dccdfe71d6e8ee4328e7b7a5439b5540"
+    }
+  },
+  "image_mode_difference": {
+    "changed_rgb_pixels": 65067,
+    "max_8bit_rgb_delta": 9,
+    "alpha_identical": true
+  },
+  "android": {
+    "bytes": 52989866,
+    "sha256": "c9f382efe3c4c794c07b0adacd7d17444f9ad352325b45a55fa19ac0c10a24b8",
+    "package": "org.lieengine.wallruntime.v040",
+    "version": "0.4.0-common-assets",
+    "physical_android_tested": false
+  },
+  "local_validation": {
+    "contract_and_interpolation": 10,
+    "capture": 9,
+    "wall06_orientation": 4,
+    "rig": 247,
+    "agent": 25,
+    "shader_compile_errors": 0,
+    "gdscript_import_errors": 0
+  },
+  "capture_backend": "opaque nonmetal base color/roughness + geometric normals; GLB/GLTF unsupported attrs refused unless explicitly authored override; OBJ requires declaration",
+  "limitations": [
+    "No physical Poco FPS/thermal results",
+    "Coverage holes and mortar geometric-normal/height calibration remain from WALL06",
+    "Convex nodal interpolation does not certify area-integrated flux or exact shadow borders",
+    "Wall cache adapter supports <=9 compatible nodes per group",
+    "Existing concrete is authored LIE30/31 geometry, not a new concrete scan",
+    "External dependency provenance and advanced animated/material backends need separate acceptance"
+  ],
+  "negative_cases": [
+    {
+      "commit": "829022dcd9142845570f4afdc93c831d28033b93",
+      "result": "initial remote upload only four of seven code groups; completed in05b770 before valid acceptance"
+    },
+    {
+      "result": "local missing trimesh caused capture test import failure; isolated temporary dependency install; nine checks subsequently pass"
+    },
+    {
+      "result": "external GLTF/OBJ material guard expanded to prevent silent fallback; unsupported materials have explicit rejection case"
+    }
+  ],
+  "green_workflows": [
+    {
+      "id": 38660051454,
+      "name": "LIE-26 anatomical rig",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051277,
+      "name": "LIE-27 spherical regions and face",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051320,
+      "name": "LIE-11 coded sprite light transport",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051278,
+      "name": "LIE-14 rigid masters and perception boxes",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051272,
+      "name": "LIE WALL06 aligned optical Android",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051321,
+      "name": "LIE-22 shared eyes and modular destruction",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051457,
+      "name": "LIE-12 captured grayscale material and node lighting",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051325,
+      "name": "LIE runtime lighting and shared samples",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051197,
+      "name": "LIE-20 captured human, invisible deformation and skin",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051236,
+      "name": "LIE common asset contract and continuous light",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051206,
+      "name": "LIE-15 Arcont robot and compact camera reconstruction",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051253,
+      "name": "LIE-13 finite secondary radii and dielectric sprites",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051263,
+      "name": "LIE-17 contrast-guided edges and measured filter cost",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051271,
+      "name": "LIE-16 stable capture quality and measured consumer cost",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051316,
+      "name": "LIE-18 workshop, shared agent API and GPU transport",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051365,
+      "name": "LIE-01 native acceptance",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051328,
+      "name": "LIE-21 human quality versus Cycles and LIE-20",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051435,
+      "name": "LIE-23 integrated eyes and continuous captured eyelids",
+      "conclusion": "success"
+    },
+    {
+      "id": 38660051288,
+      "name": "LIE-24 captured facial construction and compatible modules",
+      "conclusion": "success"
+    }
+  ]
+}

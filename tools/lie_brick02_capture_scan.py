@@ -15,6 +15,7 @@ import numpy as np
 from PIL import Image
 import trimesh
 from lie_gltf_vertex_color import load_colored_glb, read_glb
+from lie_asset_contract import proper_rotation,inspect_bank,optical_profile
 
 STRIDE = 80
 MAX_SAMPLES = 750_000
@@ -134,7 +135,7 @@ def frame_for_brick(meshes: list[trimesh.Trimesh], length_m: float) -> tuple[np.
 
 def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
                  perm: np.ndarray, scale: float, center: np.ndarray,
-                 radius: float) -> np.ndarray:
+                 radius: float, basis=None) -> np.ndarray:
     triangles = mesh.faces
     areas = np.asarray(mesh.area_faces, dtype=np.float64)
     positive = np.where(areas > 1e-14, areas, 0.)
@@ -172,6 +173,9 @@ def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
              else np.full(count, np.clip(factor, .18, .98), dtype=np.float32))
     world = ((position - center)[:, perm] * scale).astype(np.float32)
     normals = normalized(nr[:, perm]).astype(np.float32)
+    if basis is not None:
+        world=((position-center)@basis.T*scale).astype(np.float32)
+        normals=normalized(nr@basis.T).astype(np.float32)
     out = np.zeros((count, 20), dtype="<f4")
     out[:, :3] = world
     out[:, 3] = radius
@@ -194,7 +198,7 @@ def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
 
 
 def capture(source: Path, provenance: Path, output: Path, length_m: float = .2032,
-            counts: tuple[int, int, int] = DEFAULT_COUNTS, seed: int = 2102) -> dict:
+            counts: tuple[int, int, int] = DEFAULT_COUNTS, seed: int = 2102, asset_profile=None) -> dict:
     if len(counts) != 3 or any(x < 100 for x in counts) or sum(counts) > MAX_SAMPLES:
         raise ValueError("Require 3 LOD levels of >=100 samples; max total 750K")
     identity = json.loads(provenance.read_text(encoding="utf-8"))
@@ -207,12 +211,44 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     expected = identity.get("expected_sha256")
     if expected and expected.lower() != source_sha:
         raise ValueError("Source SHA-256 does not match provenance lock")
+    if asset_profile is not None:
+        policy=asset_profile.get('source_material_policy','preserve_source')
+        if source.suffix.lower()=='.obj' and policy!='declared_opaque_override':raise ValueError('asset_obj_requires_declared_material_override')
+        doc=read_glb(source)[0] if source.suffix.lower()=='.glb' else json.loads(source.read_text()) if source.suffix.lower()=='.gltf' else {}
+        if policy not in ('preserve_source','declared_opaque_override'):raise ValueError('asset_source_material_policy')
+        for material in doc.get('materials',[]):
+            pbr=material.get('pbrMetallicRoughness',{})
+            unsupported=(float(pbr.get('metallicFactor',1))!=0 or material.get('alphaMode','OPAQUE')!='OPAQUE' or material.get('normalTexture') is not None or float(material.get('extensions',{}).get('KHR_materials_transmission',{}).get('transmissionFactor',0))>0)
+            unsupported |= bool(material.get('extensions')) or any(float(x)!=0 for x in material.get('emissiveFactor',[0,0,0])) or material.get('occlusionTexture') is not None
+            for texture in ('baseColorTexture','metallicRoughnessTexture'):
+                info=pbr.get(texture,{})
+                unsupported |= bool(info.get('extensions')) or info.get('texCoord',0)!=0
+            if unsupported and policy=='preserve_source':raise ValueError('asset_source_material_requires_another_capture_backend')
     meshes = load_source(source)
-    perm, scale, center = frame_for_brick(meshes, length_m)
+    basis=None;name="brick_full";zone=3;material_info={"metallic":0.,"transmission":0.,"ior":1.5,"roughness_origin":"source_factor"}
+    if asset_profile is None:
+        perm, scale, center = frame_for_brick(meshes, length_m)
+        frame_info={"policy":"legacy_brick_axis_heuristic","semantic_frame_verified":False}
+    else:
+        basis=proper_rotation(asset_profile["source_to_lie"])
+        scale=float(asset_profile["meters_per_source_unit"])
+        center=np.asarray(asset_profile["source_pivot"],dtype=float)
+        if not np.isfinite(scale) or scale<=0 or center.shape!=(3,) or not np.isfinite(center).all():raise ValueError("asset_units_or_pivot")
+        name=asset_profile["master"];zone=asset_profile["material_zone"]
+        if not isinstance(name,str) or not name or type(zone) is not int or not 0<=zone<2**24:raise ValueError("asset_master_or_material_zone")
+        material_info=optical_profile(asset_profile["optical_material"])
+        if material_info['metallic']!=0 or material_info['transmission']!=0:raise ValueError('asset_capture_backend_requires_opaque_nonmetal')
+        perm=np.arange(3)
+        frame_info={"policy":"authored_semantic_frame","semantic_frame_verified":True,"source_to_lie":basis.tolist(),"meters_per_source_unit":scale,"source_pivot":center.tolist()}
+
     surface_areas = np.asarray([m.area for m in meshes], dtype=np.float64)
     size_lo = np.min(np.stack([m.vertices.min(axis=0) for m in meshes]), axis=0)
     size_hi = np.max(np.stack([m.vertices.max(axis=0) for m in meshes]), axis=0)
     true_size = (size_hi - size_lo)[perm] * scale
+    if basis is not None:
+        transformed=np.concatenate([(np.asarray(m.vertices)-center)@basis.T*scale for m in meshes]);bounds_center=(transformed.min(0)+transformed.max(0))*.5;true_size=np.ptp(transformed,axis=0)
+    else:bounds_center=np.zeros(3)
+
     envelope_size = (true_size + .003 * 2).tolist()
     samples = []
     ranges = []
@@ -227,12 +263,13 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
                 continue
             area_m2 = float(mesh.area) * scale ** 2
             radius = float(np.clip(1.55 * np.sqrt(area_m2 / allocated), .00020, .009))
-            sampled.append(_sample_mesh(mesh, int(allocated), rng, perm, scale, center, radius))
+            sampled.append(_sample_mesh(mesh, int(allocated), rng, perm, scale, center, radius,basis))
         data = np.concatenate(sampled)
+        if asset_profile is not None:data[:,8]=zone
         rng.shuffle(data)
         if len(data) != target:
             raise ValueError("Incorrect captured sample count")
-        if np.max(np.abs(data[:, :3]), axis=0).max() > max(true_size) + .02:
+        if (np.max(np.abs(data[:, :3]-bounds_center), axis=0).max() > max(true_size) + .02):
             raise ValueError("Sample positions escape source bounds")
         samples.append(data)
         ranges.append({"start": byte_count // STRIDE, "count": int(target)})
@@ -250,8 +287,8 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     metadata = {
         "schema": 1, "stride": STRIDE, "sample_count": sum(counts),
         "bytes": len(raw), "sha256": bank_sha,
-        "masters": {"brick_full": {"levels": ranges, "bounds_size": envelope_size,
-                                   "origin_offset": [0., 0., 0.],
+        "masters": {name: {"levels": ranges, "bounds_size": envelope_size,
+                                   "origin_offset": [0., 0., 0.],"bounds_center":bounds_center.tolist(),
                                    "collision_proxy": "one invisible BoxShape3D"}},
         "source_title": identity["title"], "source_author": identity["author"],
         "source_url": identity["source_url"], "license": identity["license"],
@@ -272,10 +309,15 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
         "photo_reference_ab_test_passed": False,
         "lod_reports": reports,
     }
+    metadata['asset_frame']=frame_info
+    metadata['optical_material']=material_info
+    metadata['source_material_policy']='legacy_declared_clay' if asset_profile is None else asset_profile.get('source_material_policy','preserve_source')
+    contract=inspect_bank(raw,metadata)
     output.mkdir(parents=True, exist_ok=True)
+    (output/"asset-contract.json").write_text(json.dumps(contract,indent=2)+"\n")
     (output / "library.bin").write_bytes(raw)
     (output / "catalog.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
-    print("LIE-BRICK02:", metadata["source_original_triangles"], "source triangles;",
+    print("LIE-BRICK02:" if asset_profile is None else "LIE-ASSET:", metadata["source_original_triangles"], "source triangles;",
           sum(counts), "captured LIE samples;", bank_sha, flush=True)
     return metadata
 
