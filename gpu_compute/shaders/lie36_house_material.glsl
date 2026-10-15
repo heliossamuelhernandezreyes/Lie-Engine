@@ -183,6 +183,62 @@ bool covered(Projection p,vec2 xy) {
     vec2 q=n.x>=n.y && n.x>=n.z?local.zy:n.y>=n.z?local.xz:local.xy;
     return all(greaterThanEqual(q,s.support.xy-vec2(.000002))) && all(lessThanEqual(q,s.support.zw+vec2(.000002)));
 }
+
+// Reuse WALL09's genuine observed-source short-contact model. Pixels filled
+// by seam repair cannot become blockers; only native winning scans count.
+vec2 lie_surface_project(vec3 world) {
+    return project(world,parameters.eye.xyz,parameters.right.xyz,
+        parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,
+        vec2(parameters.counts.zw));
+}
+bool lie_surface_observed(ivec2 q,out vec3 point,out vec3 normal) {
+    if(!inside(q))return false;
+    uint index=uint(q.y*parameters.counts.z+q.x);
+    uint owner=winners.v[index];
+    if(owner==EMPTY)return false;
+    Projection p=projected.v[owner];
+    float depth=pixel_depth(p,vec2(q)+.5);
+    if(depth<=0. || isnan(depth) || isinf(depth))return false;
+    vec2 uv=(vec2(q)+.5)/vec2(parameters.counts.zw);
+    vec3 ray=parameters.forward.xyz+
+        parameters.right.xyz*((2.*uv.x-1.)*parameters.lens.x)+
+        parameters.up.xyz*((1.-2.*uv.y)*parameters.lens.x);
+    point=parameters.eye.xyz+ray*depth;
+    normal=normalize(p.normal.xyz);
+    return true;
+}
+// Exact shared library body of gpu_compute/shaders/lib/lie_contact_surface.glslinc:
+// Bounded screen-space contact test. The host supplies projection and a REAL
+// observed tangent plane per pixel; recovered holes never become occluders.
+// The plane is bounded by its observed pixel cell, not an infinite surface or
+// a guessed solid thickness. Missing/off-screen geometry contributes no shadow.
+float lie_contact_visibility(vec3 world,vec3 normal,vec3 light,float reach,float bias,int steps) {
+    vec3 delta=light-world;float distance_to_light=length(delta);
+    if(distance_to_light<=bias || dot(normal,delta)<=0.)return 1.;
+    vec3 direction=delta/distance_to_light;
+    vec3 origin=world+normal*bias;
+    float limit=min(reach,distance_to_light-bias);
+    if(limit<=bias)return 1.;
+    float visibility=1.;
+    for(int k=0;k<32;k++) {
+        if(k>=steps)break;
+        float t=limit*(float(k)+.5)/float(steps);
+        vec2 screen=lie_surface_project(origin+direction*t);
+        ivec2 q=ivec2(floor(screen));vec3 point,plane_normal;
+        if(!lie_surface_observed(q,point,plane_normal))continue;
+        float denominator=dot(plane_normal,direction);
+        if(abs(denominator)<1e-6)continue;
+        float hit=dot(plane_normal,point-origin)/denominator;
+        if(hit<=bias || hit>=limit)continue;
+        vec2 hit_screen=lie_surface_project(origin+direction*hit);
+        if(any(lessThan(hit_screen,vec2(q))) || any(greaterThanEqual(hit_screen,vec2(q)+1.)))continue;
+        // Fade only near the metric traversal limit; direct-only attenuation.
+        visibility=min(visibility,smoothstep(.75*limit,limit,hit));
+        if(visibility<=0.)break;
+    }
+    return clamp(visibility,0.,1.);
+}
+
 float lambda(float cosine,float a2) {
     return .5*(sqrt(1+a2*max(1-cosine*cosine,0)/max(cosine*cosine,1e-8))-1);
 }
@@ -467,6 +523,9 @@ void main() {
         float nl=max(dot(n,light),0.);
         float visibility_factor=parameters.options.x>.5?
             visibility(world+point.geometry.xyz*parameters.options.z*.45,point.geometry.xyz):1.;
+        if(parameters.options.y>.5)
+            visibility_factor*=lie_contact_visibility(world,n,parameters.light.xyz,
+                .025,.0003,12);
         vec3 radiance=parameters.light_color.rgb*
             (parameters.light.w/(4.*PI*distance2))*visibility_factor;
         // LIE0.9 physically motivated opaque BRDF, evaluated under this
