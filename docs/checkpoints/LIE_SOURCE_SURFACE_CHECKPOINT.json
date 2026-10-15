@@ -1,0 +1,447 @@
+{
+  "schema": "lie-source-surface-checkpoint/1",
+  "date_utc": "2026-10-15T06:24:02.315715+00:00",
+  "pr": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/pull/52",
+  "branch": "work/lie-continuous-visibility",
+  "base_code": "b3d71cf1806eda5f7a39ca60edd4c3556b00d30b",
+  "runtime_commit": "ef348f5380d16b7fcf44549a3032000b00b5a998",
+  "runtime_tree": "99c1bdd6f578263f3241aa57f682e80a360f2128",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "source_packets": {
+    "references": {
+      "file": "surface-refs.bin",
+      "bytes": 3088388,
+      "sha256": "f7aa45d72c635ecda77fb599e5fd778ab9b8b4d45b3f96ccef7ef268913d3cca"
+    },
+    "nodes": {
+      "file": "surface-bvh.bin",
+      "bytes": 4194240,
+      "sha256": "5b5295d22f6e1a7d4d063fe1d4d473b34b58046940f3a439a82e1deeec1a3775"
+    },
+    "leaves": {
+      "file": "surface-leaves.bin",
+      "bytes": 1748824,
+      "sha256": "9382bc31da50053b439dcb164cece4aea5b1ddfdd0ac0905004b8d4669e592ea"
+    },
+    "scene": {
+      "file": "surface-scene.bin",
+      "bytes": 13184,
+      "sha256": "f361b3507989fc829e44248bdbe4e983b3897c780b493974563d70fc8918b50c"
+    }
+  },
+  "source_selection": [
+    {
+      "lod": 0,
+      "budget": 4000,
+      "distinct_seeded_selections": 96,
+      "first_four_p95_reduction_mean_percent": 26.84344901161334,
+      "range_percent": [
+        26.455944642057318,
+        27.564044717569235
+      ]
+    },
+    {
+      "lod": 1,
+      "budget": 1300,
+      "distinct_seeded_selections": 96,
+      "first_four_p95_reduction_mean_percent": 25.14554148542646,
+      "range_percent": [
+        23.50984670820577,
+        27.224603950116265
+      ]
+    },
+    {
+      "lod": 2,
+      "budget": 240,
+      "distinct_seeded_selections": 96,
+      "first_four_p95_reduction_mean_percent": 22.73601806558063,
+      "range_percent": [
+        21.18795411915333,
+        23.76196980748405
+      ]
+    }
+  ],
+  "scope": [
+    "same projection budgets and authentic IDs, spatially distributed",
+    "shared immutable captured-disk BLAS, per-scene TLAS",
+    "camera-free short visibility, per-winning-patch GPU cache",
+    "one invisible wall collider and no source mesh draws"
+  ],
+  "limits": [
+    "captured tangent disks are not watertight exact source meshes",
+    "fine visibility constant per selected reconstruction patch",
+    "static authored instance TLAS requires recompilation on geometry edits",
+    "source-albedo MAE slightly higher in dense-piece comparison",
+    "visible grain, pinholes and oblique silhouette errors persist",
+    "physical Android performance unmeasured",
+    "software Vulkan timings are diagnostic only; low sample counts"
+  ],
+  "local_tests": {
+    "source_python": 5,
+    "surface_python": 5,
+    "staged_import_errors": 0,
+    "source_commands": 7,
+    "rig": 247,
+    "agent": 25,
+    "initial_agent_unimported_glsl_failure_retained": true
+  },
+  "negative_runs": [
+    {
+      "run_id": 38681073795,
+      "job_id": 116245539982,
+      "commit": "2c7fd83949262f2b030e7667d4bb9e944cef43b2",
+      "result": "failure",
+      "cause": "Dense fixture owner42 placed in slot0; no dense reference pixels; guard failed",
+      "fix": "823b1564008950f18e6f768d514cb6fd76a2b27a",
+      "artifact_id": 11948096702,
+      "artifact_zip_sha256": "f236ba29066cedf7559d23e4e6f025f5db8fa80d801a3da21c2deb85ad622dbf"
+    },
+    {
+      "run_id": 38681532435,
+      "job_id": 116246955684,
+      "commit": "823b1564008950f18e6f768d514cb6fd76a2b27a",
+      "result": "cancelled at job timeout after script error",
+      "cause": "Two root WorldEnvironments competed for one viewport; second compositor not rendered; missing-cache script error",
+      "dense_piece_checks_passed": 15,
+      "full_wall_checks_passed_before_error": 13,
+      "fix": "ef348f5380d16b7fcf44549a3032000b00b5a998",
+      "artifact_id": 11949416217,
+      "artifact_zip_sha256": "7bd4e4ce020459244ba85d548e0ec82da91a924705a2732de05a3f08a046f49f"
+    }
+  ],
+  "native": {
+    "run_id": 38691565933,
+    "job_id": 116278411773,
+    "result": "success",
+    "artifact_id": 11952306745,
+    "artifact_zip_bytes": 59202990,
+    "artifact_zip_sha256": "a2f9f4e744e215ddefe9ff7434b3f4a394ad128afaef965f107fe9b551de131c",
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "source_visibility_checks": 68,
+    "source_visibility_max_error": 0.0,
+    "dense_piece_checks": 15,
+    "wall_checks": 18,
+    "source_commands": 7,
+    "prior_field_checks": 374,
+    "surface_field_checks": 404,
+    "surface_checks": 88,
+    "prior_wall07_checks": 27,
+    "prior_wall08_checks": 26,
+    "prior_wall09_checks": 16,
+    "asset_stencil_gpu_queries": 80,
+    "registry_checks": 27,
+    "off_vs_wall09": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "cached_vs_cold": {
+      "iou": 1.0,
+      "mae": 4.4035298772733915e-11,
+      "max": 7.699709385633469e-07
+    },
+    "world_vs_screen": {
+      "alpha_error": 0.0,
+      "max_rgb_change": 0.5718117994256318
+    },
+    "two_viewports_share_one_bank_and_blas_upload": true,
+    "appearance_requested_bytes": 242631644,
+    "transport_requested_bytes": 1544056,
+    "new_blas_requested_bytes": 5943064,
+    "new_scene_requested_bytes_per_consumer": 13184,
+    "new_cache_requested_bytes_per_consumer": 6000000,
+    "timestamp_context": {
+      "contacts": true,
+      "detail": true,
+      "internal_size": 1080,
+      "steps": 12,
+      "surface_continuity": true,
+      "world_contacts": true
+    },
+    "world_visibility_software_vulkan": {
+      "p50_ms": 398.26919,
+      "p95_ms": 412.069154,
+      "samples": 5
+    },
+    "physical_android_tested": false
+  },
+  "apk": {
+    "filename": "LIE-Superficie-0.7.0.apk",
+    "bytes": 57738754,
+    "sha256": "b79dcd4912d881cbf2e8c0af0ef6ebc6a663027285e61898118d348184cd1cd6",
+    "package": "org.lieengine.wallruntime.v070",
+    "version": "0.7.0-source-continuity",
+    "version_code": 7,
+    "abi": "arm64-v8a",
+    "sdk_min": 24,
+    "sdk_target": 36,
+    "signature_v2_verified": true,
+    "signature_v3_verified": true,
+    "zipalign_16kib_verified": true,
+    "offline": true,
+    "side_by_side_with_060": true
+  },
+  "evidence_files": {
+    "wall10-native.json": {
+      "bytes": 39899,
+      "sha256": "da3cfe5d8ffbd3f3fa8314a7de0f656427e2e7ad27f4d463ca5c72d533d32185"
+    },
+    "source-visibility-native.json": {
+      "bytes": 1752,
+      "sha256": "beece8822b965d63bd6eeb3c2f394655689e30b06cd231abd42bc163d5fa2b9a"
+    },
+    "source-piece-native.json": {
+      "bytes": 1628,
+      "sha256": "73cd78b469b78f8b3b2134ecd4e39b87be232aa02d402b088ebc759f0fd7c0c0"
+    },
+    "surface-source.json": {
+      "bytes": 16332,
+      "sha256": "de7b5e3b15fc9b01569694a92526b8f7532269a592ead692ebd1035961715011"
+    },
+    "wall10-warm.png": {
+      "bytes": 207943,
+      "sha256": "4057ff6f36969e6ee7d614cf9ef1d1a7050ff04d83982ad6b652c05f1e94d93e"
+    },
+    "wall10-warm-before.png": {
+      "bytes": 218033,
+      "sha256": "ed65ada00b0f866dd16e8d06809c3a8f9567db7d1184e17350ed7483fc7f8962"
+    },
+    "wall10-angled.png": {
+      "bytes": 133581,
+      "sha256": "04f48baca02d1031aac436cb47b8d4ce736eb68d02d55e00d2a7875b464f2aff"
+    },
+    "android-build.log": {
+      "bytes": 22807,
+      "sha256": "92a61467075257c0c93e29dbfb7b0d7acb8aa28f1a37400428c788e8c79a64a6"
+    },
+    "ci-job.log": {
+      "bytes": 77342,
+      "sha256": "70e55cc77a943161b766d811c4f9e5d76bbfb2f6523cc4a852504cdcaf9cadc4"
+    },
+    "wall10-mobile.log": {
+      "bytes": 1465,
+      "sha256": "b02a08198392c7cef1eff26caef737620605f7d6dab73d04c3784fb4d5ed42f9"
+    },
+    "source-command.log": {
+      "bytes": 95,
+      "sha256": "718cf60fd393aaf3106970d5ea79c00bf91cf1e5ba51061d3a0d3444e295083e"
+    }
+  },
+  "source_files": {
+    ".github/workflows/lie-source-surface-mobile.yml": "49fb6e2f84507bb8c73af0cd9ac210c1b30de848d0b603a6fc8c437e4296d2e5",
+    "gpu_compute/lie_shared_visibility_buffers.gd": "31963ccde580a3e2aeee12685d4a6bffd7b8b23b63b55683cb1444b49ccdc98b",
+    "gpu_compute/lie_source_surface_loader.gd": "bb44d66ad251b31a6099a5a1378251d3609b0043478ed33e9e23e83e66406191",
+    "gpu_compute/lie_wall10_android_lab.gd": "befc936092f56b0bf3679dc6ebb9f001f955498ab2b4c3ac2a25312017fef962",
+    "gpu_compute/lie_wall10_android_lab.tscn": "f60190f03ec6695e160c0bb4e26bd44a7c557f6f130d5e91dae07875ce5306bd",
+    "gpu_compute/lie_wall10_shared_effect.gd": "65d6cc0f738e724c36c88e17e008367eeca4af15a8674d932c9bf768bba5475f",
+    "gpu_compute/shaders/lib/lie_source_visibility.glslinc": "8b13a78e7ff8f07ac3f89f24903e98eac49f5936727774901746a254fa9cd699",
+    "gpu_compute/shaders/lie_source_visibility_test.glsl": "0e2395f7918c176c2395b4aa468b5078dd792e755c38328daee2fcef315d8e78",
+    "gpu_compute/shaders/lie_wall10_source.glsl": "4c1eba654d97ada01ebf11cb07e9037b2b290a88cbb20ad930e965e1ad1be387",
+    "gpu_compute/test_lie_source_reference_gpu.gd": "52f492f7f6ddd7f124654b2ef3da8f8261918e5a13c073470870707fc4fbc910",
+    "gpu_compute/test_lie_source_visibility_gpu.gd": "66c462dfb2c75b7b879d6212ab6aee94a1bda769d2cb45ec363e19bdcb9f528e",
+    "gpu_compute/test_lie_wall10_commands.gd": "f2e80e3d37a7b42070d02ba338b9b3097a70226dad13e9fbc406c89242503eb7",
+    "gpu_compute/test_lie_wall10_mobile.gd": "f642b56d6fe3900d23b94729d3c7a2c6d1a3bcde2ec8c618ea02e7a2f99f2389",
+    "tests/test_lie_asset_surface.py": "0459f9df84ec90d7658f871de57cc5f668e881af77ebb974d499ccd505dd956a",
+    "tools/lie_asset_surface.py": "f84abb7259babd82e99d62fc951ef642f43d0fdc441bf8674f7b13e199366154",
+    "tools/lie_source_visibility_fixture.py": "6aff642df1b68be13a2958adb3e4a19c6cf57f350f00758a8a3e685259b7619b",
+    "tools/lie_wall10_android_build.py": "1913252f23b38a8e360b86e4c62aa92c566f20177cb050382a7f8ea623827e05",
+    "tools/lie_wall10_prepare.py": "5477e63a63aee77ca4709a4fbf44f6d92b875b3b0fcc116d4276582c46bf54b0",
+    "tools/lie_wall10_shader.py": "ce1d962320e23b8aaf5c0bc86f0e67c75c63929afa8ec2b3c69acdab499c121e"
+  },
+  "ci_snapshot": {
+    "workflow_runs": [
+      {
+        "id": 38691565915,
+        "name": "LIE-27 spherical regions and face",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 217,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565915/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565915/logs",
+        "workflow_id": 381499134
+      },
+      {
+        "id": 38691565860,
+        "name": "LIE-26 anatomical rig",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 223,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565860/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565860/logs",
+        "workflow_id": 381351026
+      },
+      {
+        "id": 38691565864,
+        "name": "LIE-11 coded sprite light transport",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 337,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565864/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565864/logs",
+        "workflow_id": 380031393
+      },
+      {
+        "id": 38691565834,
+        "name": "LIE common asset contract and continuous light",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 12,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565834/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565834/logs",
+        "workflow_id": 384946975
+      },
+      {
+        "id": 38691565832,
+        "name": "LIE-14 rigid masters and perception boxes",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 314,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565832/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565832/logs",
+        "workflow_id": 380269909
+      },
+      {
+        "id": 38691565920,
+        "name": "LIE-22 shared eyes and modular destruction",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 254,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565920/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565920/logs",
+        "workflow_id": 380619138
+      },
+      {
+        "id": 38691565924,
+        "name": "LIE runtime lighting and shared samples",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 36,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565924/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565924/logs",
+        "workflow_id": 384540140
+      },
+      {
+        "id": 38691565830,
+        "name": "LIE-12 captured grayscale material and node lighting",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 334,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565830/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565830/logs",
+        "workflow_id": 380084815
+      },
+      {
+        "id": 38691565960,
+        "name": "LIE-15 Arcont robot and compact camera reconstruction",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 303,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565960/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565960/logs",
+        "workflow_id": 380305820
+      },
+      {
+        "id": 38691565879,
+        "name": "LIE-20 captured human, invisible deformation and skin",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 265,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565879/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565879/logs",
+        "workflow_id": 380515192
+      },
+      {
+        "id": 38691565859,
+        "name": "LIE-13 finite secondary radii and dielectric sprites",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 323,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565859/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565859/logs",
+        "workflow_id": 380110265
+      },
+      {
+        "id": 38691565933,
+        "name": "LIE continuous source surface and 3D visibility",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 3,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565933/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565933/logs",
+        "workflow_id": 385108398
+      },
+      {
+        "id": 38691565833,
+        "name": "LIE-16 stable capture quality and measured consumer cost",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 296,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565833/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565833/logs",
+        "workflow_id": 380332911
+      },
+      {
+        "id": 38691565827,
+        "name": "LIE-17 contrast-guided edges and measured filter cost",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 286,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565827/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565827/logs",
+        "workflow_id": 380358730
+      },
+      {
+        "id": 38691565923,
+        "name": "LIE-18 workshop, shared agent API and GPU transport",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 282,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565923/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565923/logs",
+        "workflow_id": 380402547
+      },
+      {
+        "id": 38691565866,
+        "name": "LIE-21 human quality versus Cycles and LIE-20",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 258,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565866/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565866/logs",
+        "workflow_id": 380544768
+      },
+      {
+        "id": 38691565851,
+        "name": "LIE-01 native acceptance",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 438,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565851/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565851/logs",
+        "workflow_id": 379478425
+      },
+      {
+        "id": 38691565829,
+        "name": "LIE-23 integrated eyes and continuous captured eyelids",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 249,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565829/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565829/logs",
+        "workflow_id": 380663205
+      },
+      {
+        "id": 38691565841,
+        "name": "LIE-24 captured facial construction and compatible modules",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 231,
+        "jobs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565841/jobs",
+        "logs_url": "https://api.github.com/repos/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38691565841/logs",
+        "workflow_id": 381080040
+      }
+    ],
+    "checked_at_utc": "2026-10-15T06:24:40.843317+00:00"
+  }
+}

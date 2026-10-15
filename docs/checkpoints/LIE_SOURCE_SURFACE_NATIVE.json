@@ -1,0 +1,1716 @@
+{
+  "schema": "lie-source-surface-native/1",
+  "wall": {
+    "appearance_requested_bytes": 242631644,
+    "cache": {
+      "asset_contract": {
+        "assets": 3,
+        "ok": true,
+        "source_identity": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+      },
+      "brick_instances": 96,
+      "brick_master_count": 1,
+      "continuous_light": true,
+      "geometry_rebuilds": 6,
+      "internal_size": 1080,
+      "lighting_resolves": 8,
+      "output_resolves": 9,
+      "recovery_builds": 6,
+      "recovery_capacity": 65536,
+      "recovery_reuses": 2,
+      "reference_bytes": 3088388,
+      "source_bank_bytes": 41700560,
+      "source_surface": {
+        "cache_bytes": 6000000,
+        "camera_independent_occluders": true,
+        "continuity": true,
+        "receiver_queries": "once per winning source patch/light; recovered pixels reuse witnessed source",
+        "scene_bytes": 13184,
+        "shared_visibility": {
+          "groups": 1,
+          "references": 1,
+          "scope": "immutable source visibility; scene hierarchy and writable caches excluded",
+          "shared_blas_bytes": 5943064,
+          "uploads_total": 1
+        },
+        "source_geometry": "captured tangent disks, shared master IDs",
+        "visibility_precision": "8 bits per light; eighth light 7 bits",
+        "visibility_uploads": 1,
+        "world_contacts": true
+      },
+      "surface_light": {
+        "bias_m": 0.0003,
+        "contacts": true,
+        "detail": true,
+        "reach_m": 0.025,
+        "recovery_surface_bytes": 2097152,
+        "steps": 12
+      }
+    },
+    "cached_vs_cold": {
+      "iou": 1.0,
+      "mae": 4.4035298772733915e-11,
+      "max": 7.699709385633469e-07
+    },
+    "checks": 18,
+    "continuity_vs_legacy": {
+      "iou": 0.994956129479998,
+      "mae": 0.007776810269513206,
+      "max": 0.6294060349464417
+    },
+    "coverage_proof": [
+      {
+        "baseline_first_four_instances": [
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00894051114857889,
+            "distance_p95_m": 0.00392561827918701,
+            "distance_p99_m": 0.00487720244900345,
+            "normal_agreement_mean": 0.9226391911506652,
+            "rgb_mean": [
+              0.439004123210907,
+              0.2740239202976227,
+              0.20076942443847656
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00727019716684877,
+            "distance_p95_m": 0.00387372687497711,
+            "distance_p99_m": 0.004743185241982,
+            "normal_agreement_mean": 0.9263758659362792,
+            "rgb_mean": [
+              0.43820419907569885,
+              0.2745114266872406,
+              0.2009257674217224
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00665544535443938,
+            "distance_p95_m": 0.00385741618035928,
+            "distance_p99_m": 0.00475604363037946,
+            "normal_agreement_mean": 0.9254127144813538,
+            "rgb_mean": [
+              0.4379136264324188,
+              0.2741810083389282,
+              0.20075063407421112
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00689994763084053,
+            "distance_p95_m": 0.00387894393406066,
+            "distance_p99_m": 0.00485464547678864,
+            "normal_agreement_mean": 0.9273051023483276,
+            "rgb_mean": [
+              0.4396761357784271,
+              0.2748788297176361,
+              0.2013488411903381
+            ]
+          }
+        ],
+        "budget": 4000.0,
+        "distinct_instance_selections": 96.0,
+        "lod": 0.0,
+        "selected_first_four_instances": [
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00478811981753677,
+            "distance_p95_m": 0.00284355910127083,
+            "distance_p99_m": 0.00336841101272432,
+            "normal_agreement_mean": 0.9357106685638428,
+            "rgb_mean": [
+              0.43933022022247314,
+              0.2748323082923889,
+              0.20136559009552
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00511409192166164,
+            "distance_p95_m": 0.00284389558571775,
+            "distance_p99_m": 0.00336353838904075,
+            "normal_agreement_mean": 0.9362238645553588,
+            "rgb_mean": [
+              0.4389833211898804,
+              0.27463144063949585,
+              0.20122060179710388
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00486990486275192,
+            "distance_p95_m": 0.00283690029106966,
+            "distance_p99_m": 0.00334944035425064,
+            "normal_agreement_mean": 0.9358548521995544,
+            "rgb_mean": [
+              0.43889668583869934,
+              0.27465978264808655,
+              0.20109309256076813
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00507345866806841,
+            "distance_p95_m": 0.00284059793175444,
+            "distance_p99_m": 0.00336085696366213,
+            "normal_agreement_mean": 0.9363405108451844,
+            "rgb_mean": [
+              0.4384981393814087,
+              0.2742998003959656,
+              0.2007901519536972
+            ]
+          }
+        ],
+        "variants": [
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.0051131125992853,
+            "distance_p95_m": 0.00283754426068223,
+            "distance_p99_m": 0.00334786873620154,
+            "normal_agreement_mean": 0.936131477355957,
+            "rgb_mean": [
+              0.43863895535469055,
+              0.27468568086624146,
+              0.2012968063354492
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00499433287678907,
+            "distance_p95_m": 0.00284768316233656,
+            "distance_p99_m": 0.00336234406149085,
+            "normal_agreement_mean": 0.9359046816825868,
+            "rgb_mean": [
+              0.4392566382884979,
+              0.27470821142196655,
+              0.2012423723936081
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00487051320252742,
+            "distance_p95_m": 0.00285427831993356,
+            "distance_p99_m": 0.00339427467427554,
+            "normal_agreement_mean": 0.9352566599845886,
+            "rgb_mean": [
+              0.43832775950431824,
+              0.2742396593093872,
+              0.20077773928642273
+            ]
+          },
+          {
+            "count": 4000.0,
+            "distance_max_m": 0.00486395466989269,
+            "distance_p95_m": 0.00284661855985706,
+            "distance_p99_m": 0.00335042238265158,
+            "normal_agreement_mean": 0.9358856678009032,
+            "rgb_mean": [
+              0.4391361474990845,
+              0.27470606565475464,
+              0.20129083096981049
+            ]
+          }
+        ]
+      },
+      {
+        "baseline_first_four_instances": [
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.01101384399552843,
+            "distance_p95_m": 0.00673160714778133,
+            "distance_p99_m": 0.00823241377183869,
+            "normal_agreement_mean": 0.8983045220375061,
+            "rgb_mean": [
+              0.43875691294670105,
+              0.27452802658081055,
+              0.2012079358100891
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.01212550104075407,
+            "distance_p95_m": 0.00699878423601907,
+            "distance_p99_m": 0.00872738689387057,
+            "normal_agreement_mean": 0.9004114270210266,
+            "rgb_mean": [
+              0.4404502213001251,
+              0.2756718397140503,
+              0.20203545689582825
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.01222074278128672,
+            "distance_p95_m": 0.00676136449715366,
+            "distance_p99_m": 0.00838300516335447,
+            "normal_agreement_mean": 0.9009343385696412,
+            "rgb_mean": [
+              0.4368830621242523,
+              0.274222731590271,
+              0.20085960626602173
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.01250261029727549,
+            "distance_p95_m": 0.00662085365839855,
+            "distance_p99_m": 0.0081742581069794,
+            "normal_agreement_mean": 0.9038673639297484,
+            "rgb_mean": [
+              0.4417478144168854,
+              0.275240421295166,
+              0.20125122368335724
+            ]
+          }
+        ],
+        "budget": 1300.0,
+        "distinct_instance_selections": 96.0,
+        "lod": 1.0,
+        "selected_first_four_instances": [
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.0074866568290444,
+            "distance_p95_m": 0.00506206434796452,
+            "distance_p99_m": 0.00595949508551416,
+            "normal_agreement_mean": 0.9157457947731018,
+            "rgb_mean": [
+              0.4343594014644623,
+              0.2729901671409607,
+              0.2003340721130371
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.00781735752858874,
+            "distance_p95_m": 0.00509339294643971,
+            "distance_p99_m": 0.00601608006758212,
+            "normal_agreement_mean": 0.9155972003936768,
+            "rgb_mean": [
+              0.4363015592098236,
+              0.2739872336387634,
+              0.20105627179145813
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.00804648698374011,
+            "distance_p95_m": 0.00506790185654238,
+            "distance_p99_m": 0.005954957329613,
+            "normal_agreement_mean": 0.9133179783821106,
+            "rgb_mean": [
+              0.43581053614616394,
+              0.2740471661090851,
+              0.20121218264102936
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.00781735752858874,
+            "distance_p95_m": 0.00506430111253441,
+            "distance_p99_m": 0.00592225345481979,
+            "normal_agreement_mean": 0.9137362241744996,
+            "rgb_mean": [
+              0.43621769547462463,
+              0.2734670639038086,
+              0.20082154870033264
+            ]
+          }
+        ],
+        "variants": [
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.00771970504823772,
+            "distance_p95_m": 0.00505440767631825,
+            "distance_p99_m": 0.00596243514240954,
+            "normal_agreement_mean": 0.9160203337669371,
+            "rgb_mean": [
+              0.4359416365623474,
+              0.2738085985183716,
+              0.2009006589651108
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.00803636421406984,
+            "distance_p95_m": 0.00506648063935119,
+            "distance_p99_m": 0.00592690724902134,
+            "normal_agreement_mean": 0.9131472110748292,
+            "rgb_mean": [
+              0.4351449310779571,
+              0.273472398519516,
+              0.2006032317876816
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.00788314903538128,
+            "distance_p95_m": 0.00509622426556716,
+            "distance_p99_m": 0.00602082654913849,
+            "normal_agreement_mean": 0.9154927730560304,
+            "rgb_mean": [
+              0.43573272228240967,
+              0.2731952667236328,
+              0.20065182447433472
+            ]
+          },
+          {
+            "count": 1300.0,
+            "distance_max_m": 0.00761619003210333,
+            "distance_p95_m": 0.00503777226023622,
+            "distance_p99_m": 0.00588277630108109,
+            "normal_agreement_mean": 0.9141245484352112,
+            "rgb_mean": [
+              0.43573543429374695,
+              0.2738456428050995,
+              0.20108261704444885
+            ]
+          }
+        ]
+      },
+      {
+        "baseline_first_four_instances": [
+          {
+            "count": 240.0,
+            "distance_max_m": 0.02308867580837765,
+            "distance_p95_m": 0.01550680546619194,
+            "distance_p99_m": 0.01867409601527616,
+            "normal_agreement_mean": 0.8249534368515015,
+            "rgb_mean": [
+              0.4410071074962616,
+              0.2755031883716583,
+              0.20192492008209229
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.02657017960133437,
+            "distance_p95_m": 0.0151290089890505,
+            "distance_p99_m": 0.01956776742507024,
+            "normal_agreement_mean": 0.8419881463050842,
+            "rgb_mean": [
+              0.439695805311203,
+              0.2747712731361389,
+              0.20076525211334229
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.02432397124491695,
+            "distance_p95_m": 0.01487140274776261,
+            "distance_p99_m": 0.01857823464487654,
+            "normal_agreement_mean": 0.8284497261047363,
+            "rgb_mean": [
+              0.44371727108955383,
+              0.27716344594955444,
+              0.2032400518655777
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.0229316672678209,
+            "distance_p95_m": 0.01496643503537748,
+            "distance_p99_m": 0.01812925393135191,
+            "normal_agreement_mean": 0.8387400507926941,
+            "rgb_mean": [
+              0.4334340095520019,
+              0.2736703157424927,
+              0.20062853395938873
+            ]
+          }
+        ],
+        "budget": 240.0,
+        "distinct_instance_selections": 96.0,
+        "lod": 2.0,
+        "selected_first_four_instances": [
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01693083591101468,
+            "distance_p95_m": 0.01182208303321012,
+            "distance_p99_m": 0.01350784743710883,
+            "normal_agreement_mean": 0.8715806603431702,
+            "rgb_mean": [
+              0.4294703900814056,
+              0.27210351824760437,
+              0.1996825486421585
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01623107222336541,
+            "distance_p95_m": 0.01161475169888735,
+            "distance_p99_m": 0.01353453898011738,
+            "normal_agreement_mean": 0.8758351802825928,
+            "rgb_mean": [
+              0.43379124999046326,
+              0.27392899990081787,
+              0.2006366401910782
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01602056545582427,
+            "distance_p95_m": 0.01172045675669216,
+            "distance_p99_m": 0.01375495906840792,
+            "normal_agreement_mean": 0.8692883253097534,
+            "rgb_mean": [
+              0.4372226297855377,
+              0.27690771222114563,
+              0.20311325788497925
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01574239289128511,
+            "distance_p95_m": 0.01155924433809112,
+            "distance_p99_m": 0.01319862674865768,
+            "normal_agreement_mean": 0.8664401173591614,
+            "rgb_mean": [
+              0.4339717030525207,
+              0.2728155255317688,
+              0.1999541074037552
+            ]
+          }
+        ],
+        "variants": [
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01692308958739074,
+            "distance_p95_m": 0.01181731009646527,
+            "distance_p99_m": 0.01382006294957891,
+            "normal_agreement_mean": 0.873528003692627,
+            "rgb_mean": [
+              0.43482980132102966,
+              0.27278345823287964,
+              0.19881300628185272
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01626333859177317,
+            "distance_p95_m": 0.01166803620082328,
+            "distance_p99_m": 0.01356610046797089,
+            "normal_agreement_mean": 0.8723586797714233,
+            "rgb_mean": [
+              0.43537673354148865,
+              0.2758645713329315,
+              0.2022860199213028
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01655649968216965,
+            "distance_p95_m": 0.011628289438634,
+            "distance_p99_m": 0.01343867344642107,
+            "normal_agreement_mean": 0.8756702542304993,
+            "rgb_mean": [
+              0.43290650844573975,
+              0.2733857333660126,
+              0.20073793828487396
+            ]
+          },
+          {
+            "count": 240.0,
+            "distance_max_m": 0.01606809055691118,
+            "distance_p95_m": 0.0116700053108503,
+            "distance_p99_m": 0.01358686976263691,
+            "normal_agreement_mean": 0.8651501536369324,
+            "rgb_mean": [
+              0.4312019646167755,
+              0.27363336086273193,
+              0.20057615637779236
+            ]
+          }
+        ]
+      }
+    ],
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "off_vs_wall09": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "passes": {
+      "available": true,
+      "context": {
+        "contacts": true,
+        "detail": true,
+        "internal_size": 1080,
+        "steps": 12,
+        "surface_continuity": true,
+        "world_contacts": true
+      },
+      "passes": {
+        "clear": {
+          "p50_ms": 7.35038,
+          "p95_ms": 9.464969,
+          "samples": 3
+        },
+        "coarse_light": {
+          "p50_ms": 28.889615,
+          "p95_ms": 31.288503,
+          "samples": 5
+        },
+        "compose": {
+          "p50_ms": 7.978832,
+          "p95_ms": 10.832766,
+          "samples": 5
+        },
+        "output": {
+          "p50_ms": 6.623229,
+          "p95_ms": 7.464563,
+          "samples": 6
+        },
+        "project": {
+          "p50_ms": 78.812598,
+          "p95_ms": 79.284666,
+          "samples": 3
+        },
+        "raster": {
+          "p50_ms": 92.49088,
+          "p95_ms": 92.589759,
+          "samples": 3
+        },
+        "recovery_build": {
+          "p50_ms": 64.861343,
+          "p95_ms": 70.574709,
+          "samples": 3
+        },
+        "recovery_reuse": {
+          "p50_ms": 8.734546,
+          "p95_ms": 9.740136,
+          "samples": 2
+        },
+        "surface_light": {
+          "p50_ms": 52.13378,
+          "p95_ms": 52.359659,
+          "samples": 5
+        },
+        "world_visibility": {
+          "p50_ms": 398.26919,
+          "p95_ms": 412.069154,
+          "samples": 5
+        }
+      },
+      "rows": [
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9464969,
+          "pass": "clear",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 77865760,
+          "pass": "project",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 92589759,
+          "pass": "raster",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 31288503,
+          "pass": "coarse_light",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9177233,
+          "pass": "compose",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 70574709,
+          "pass": "recovery_build",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 399173208,
+          "pass": "world_visibility",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52133780,
+          "pass": "surface_light",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7464563,
+          "pass": "output",
+          "serial": 1
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 5883058,
+          "pass": "clear",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 104761221,
+          "pass": "project",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 126252256,
+          "pass": "raster",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 29054963,
+          "pass": "coarse_light",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 7404180,
+          "pass": "compose",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 72719583,
+          "pass": "recovery_build",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 1862830,
+          "pass": "world_visibility",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 103617648,
+          "pass": "surface_light",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": false,
+            "world_contacts": false
+          },
+          "gpu_ns": 6508219,
+          "pass": "output",
+          "serial": 2
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 8995160,
+          "pass": "clear",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 78700032,
+          "pass": "project",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 93330400,
+          "pass": "raster",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 37794435,
+          "pass": "coarse_light",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 8717634,
+          "pass": "compose",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 71882708,
+          "pass": "recovery_build",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 1971845,
+          "pass": "world_visibility",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 101328882,
+          "pass": "surface_light",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": false
+          },
+          "gpu_ns": 6761108,
+          "pass": "output",
+          "serial": 3
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28697323,
+          "pass": "coarse_light",
+          "serial": 4
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 10832766,
+          "pass": "compose",
+          "serial": 4
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 8734546,
+          "pass": "recovery_reuse",
+          "serial": 4
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 394418584,
+          "pass": "world_visibility",
+          "serial": 4
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52359659,
+          "pass": "surface_light",
+          "serial": 4
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6569874,
+          "pass": "output",
+          "serial": 4
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28135576,
+          "pass": "coarse_light",
+          "serial": 5
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7968893,
+          "pass": "compose",
+          "serial": 5
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 9740136,
+          "pass": "recovery_reuse",
+          "serial": 5
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 398269190,
+          "pass": "world_visibility",
+          "serial": 5
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52030617,
+          "pass": "surface_light",
+          "serial": 5
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6623229,
+          "pass": "output",
+          "serial": 5
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6021988,
+          "pass": "clear",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 79284666,
+          "pass": "project",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 92490880,
+          "pass": "raster",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 30587983,
+          "pass": "coarse_light",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7978832,
+          "pass": "compose",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 64861343,
+          "pass": "recovery_build",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 393756042,
+          "pass": "world_visibility",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52106360,
+          "pass": "surface_light",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6815880,
+          "pass": "output",
+          "serial": 6
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6577227,
+          "pass": "output",
+          "serial": 7
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 10346837,
+          "pass": "clear",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 94641922,
+          "pass": "project",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 109458084,
+          "pass": "raster",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 59196803,
+          "pass": "coarse_light",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 19456514,
+          "pass": "compose",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 82622477,
+          "pass": "recovery_build",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 367715370,
+          "pass": "world_visibility",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 76873761,
+          "pass": "surface_light",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1440,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7764315,
+          "pass": "output",
+          "serial": 8
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7350380,
+          "pass": "clear",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 78812598,
+          "pass": "project",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 92065325,
+          "pass": "raster",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 28889615,
+          "pass": "coarse_light",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 7402046,
+          "pass": "compose",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 64654171,
+          "pass": "recovery_build",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 412069154,
+          "pass": "world_visibility",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 52285247,
+          "pass": "surface_light",
+          "serial": 9
+        },
+        {
+          "context": {
+            "contacts": true,
+            "detail": true,
+            "internal_size": 1080,
+            "steps": 12,
+            "surface_continuity": true,
+            "world_contacts": true
+          },
+          "gpu_ns": 6681531,
+          "pass": "output",
+          "serial": 9
+        }
+      ],
+      "scope": "same resolution/options; changed-image solves including cold work; cached idle has no new samples",
+      "units": "GPU milliseconds"
+    },
+    "physical_android_tested": false,
+    "profile": [
+      {
+        "gpu_ns": 750343177,
+        "marker_frame": 25,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 1
+      },
+      {
+        "gpu_ns": 458609989,
+        "marker_frame": 41,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 2
+      },
+      {
+        "gpu_ns": 410044522,
+        "marker_frame": 50,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 3
+      },
+      {
+        "gpu_ns": 501974987,
+        "marker_frame": 59,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 4
+      },
+      {
+        "gpu_ns": 503165344,
+        "marker_frame": 68,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 5
+      },
+      {
+        "gpu_ns": 734499579,
+        "marker_frame": 77,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 6
+      },
+      {
+        "gpu_ns": 6681221,
+        "marker_frame": 98,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 7
+      },
+      {
+        "gpu_ns": 828649600,
+        "marker_frame": 106,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 8
+      },
+      {
+        "gpu_ns": 750754798,
+        "marker_frame": 140,
+        "owner_instance_id": -9223371969074821673,
+        "serial": 9
+      }
+    ],
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "transport_requested_bytes": 1544056,
+    "world_vs_screen": {
+      "alpha_error": 0.0,
+      "max_rgb_change": 0.5718117994256318
+    }
+  },
+  "visibility": {
+    "cases": {
+      "flat": {
+        "error": 0.0,
+        "reference": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "visibility": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "hidden_step": {
+        "error": 0.0,
+        "reference": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "visibility": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "nonuniform_scale": {
+        "error": 0.0,
+        "reference": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "visibility": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "opening": {
+        "error": 0.0,
+        "reference": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "visibility": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "range": {
+        "error": 0.0,
+        "reference": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "visibility": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "reverse": {
+        "error": 0.0,
+        "reference": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "visibility": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "rotation": {
+        "error": 0.0,
+        "reference": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "visibility": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "same_master_other_instance": {
+        "error": 0.0,
+        "reference": [
+          0.0
+        ],
+        "visibility": [
+          0.0
+        ]
+      },
+      "slope": {
+        "error": 0.0,
+        "reference": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "visibility": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      }
+    },
+    "checks": 68,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "max_error": 0.0,
+    "physical_android_tested": false
+  },
+  "dense_piece": {
+    "cases": {
+      "0.0": {
+        "legacy": {
+          "common_pixels": 6264,
+          "depth_mae_m": 0.00099761086595774,
+          "extra_pixels": 583,
+          "linear_albedo_mae": 0.027754711707270303,
+          "missing_source_pixels": 19
+        },
+        "selected": {
+          "common_pixels": 6282,
+          "depth_mae_m": 0.0010587484218519381,
+          "extra_pixels": 534,
+          "linear_albedo_mae": 0.030290292714153566,
+          "missing_source_pixels": 1
+        }
+      },
+      "35.0": {
+        "legacy": {
+          "common_pixels": 5979,
+          "depth_mae_m": 0.0020473058615705403,
+          "extra_pixels": 496,
+          "linear_albedo_mae": 0.028905452939664684,
+          "missing_source_pixels": 17
+        },
+        "selected": {
+          "common_pixels": 5996,
+          "depth_mae_m": 0.002011304081301438,
+          "extra_pixels": 419,
+          "linear_albedo_mae": 0.03135524907805172,
+          "missing_source_pixels": 0
+        }
+      },
+      "60.0": {
+        "legacy": {
+          "common_pixels": 5726,
+          "depth_mae_m": 0.0025843693150992665,
+          "extra_pixels": 501,
+          "linear_albedo_mae": 0.029435710263595108,
+          "missing_source_pixels": 12
+        },
+        "selected": {
+          "common_pixels": 5738,
+          "depth_mae_m": 0.002820125860530518,
+          "extra_pixels": 423,
+          "linear_albedo_mae": 0.031205474152858678,
+          "missing_source_pixels": 0
+        }
+      }
+    },
+    "checks": 15,
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "failed": false,
+    "physical_android_tested": false,
+    "reference": "220000 genuine captured source IDs at original radii; same actual GPU kernel; no hole recovery"
+  }
+}
