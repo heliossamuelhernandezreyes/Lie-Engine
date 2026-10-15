@@ -71,9 +71,10 @@ func _run() -> void:
         printerr(eff.failure)
         quit(1)
         return
-    var a: Dictionary=await _take("front",35.,18.)
-    var b: Dictionary=await _take("corner",-55.,19.)
-    var c: Dictionary=await _take("courtyard",115.,22.)
+    var a: Dictionary=await _take("front",-165.,24.)
+    var b: Dictionary=await _take("corner",-110.,20.)
+    house.command({"op":"set_values","values":{"light_azimuth":110.}})
+    var c: Dictionary=await _take("courtyard",115.,23.)
     if a.is_empty() or b.is_empty() or c.is_empty():
         quit(1)
         return
