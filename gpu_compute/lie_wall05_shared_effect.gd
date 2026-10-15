@@ -12,6 +12,7 @@ var recovery_reuses: int=0
 var output_resolves: int=0
 var _requested_internal: int=1080
 var _cache_events: Array=[]
+var _profile_event_kind: String="unknown"
 
 func capture_root() -> String:return "res://captures/liewall05/"
 func shader_resource() -> RDShaderFile:return SHARED_CACHED_SHADER
@@ -97,6 +98,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     geometry.append_array(params.slice(152,160));geometry.append_array(params.slice(208,256))
     geometry.append_array(next["instances"]);geometry.append_array(next["jobs"])
     var rebuild: bool=geometry!=_geometry_resident
+    _profile_event_kind="geometry" if rebuild else "lighting" if _shade_dirty else "exposure"
     var work: int=next["work"]
     if work>projection_capacity:
         _rd.free_rid(_set);_set=RID();_rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3])

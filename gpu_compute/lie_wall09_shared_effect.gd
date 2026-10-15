@@ -35,6 +35,7 @@ func _timed_stage(list: int,stage: int,count: int,name: String) -> void:
 func _stage(list: int,stage: int,count: int) -> void:
     if _profile_serial!=frame_count+1:
         var context: Dictionary=_measured_options.duplicate();context["internal_size"]=render_size
+        context["event_kind"]=_profile_event_kind
         pass_profile.set_context(frame_count+1,context);_profile_serial=frame_count+1
     var names: Dictionary={1:"clear",2:"project",3:"raster",4:"coarse_light",6:"compose",7:"output",8:"recovery_build",9:"recovery_reuse"}
     _timed_stage(list,stage,count,names.get(stage,str(stage)))

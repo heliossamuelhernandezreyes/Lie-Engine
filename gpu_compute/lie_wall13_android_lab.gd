@@ -69,6 +69,9 @@ func command(request: Variant) -> Dictionary:
                 if not (value is int or value is float):return {"ok":false,"error":"area_size_type","revision":revision}
                 if not is_finite(float(value)) or value<.01 or value>1.:return {"ok":false,"error":"area_size_range","revision":revision}
     return super.command(request)
+func _benchmark_set_values(values: Dictionary) -> Dictionary:
+    # Internal benchmark edits still use the same validated transaction path.
+    return super.command({"op":"set_values","values":values})
 func _run_benchmark(quick: bool) -> void:
     var backup: Dictionary=state.duplicate(true);var events: Array=[];var error: String=""
     var modes: Array=[{"name":"point_separate_raw","fused_shading":false,"surface_filter":false,"area_lights":false},{"name":"point_fused_raw","fused_shading":true,"surface_filter":false,"area_lights":false},{"name":"point_fused_filtered","fused_shading":true,"surface_filter":true,"area_lights":false},{"name":"area_fused_filtered","fused_shading":true,"surface_filter":true,"area_lights":true}]
