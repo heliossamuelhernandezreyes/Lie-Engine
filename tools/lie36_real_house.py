@@ -99,7 +99,8 @@ def plan():
     for edge_id, (x, z, dx, dz, yaw, side) in enumerate(edges):
         px = (x-1)*PANEL_X + dx*PANEL_X*.5
         pz = (z-.5)*PANEL_X + dz*PANEL_X*.5
-        for tier in range(8):
+        tiers = 4 if (x, z) == (2, 1) else 8
+        for tier in range(tiers):
             kind = "brick"
             if side == "front" and (x, z) == (1, 0) and tier <= 2:
                 kind = "door"  # 2.06-m true continuous doorway
@@ -111,13 +112,20 @@ def plan():
                                   yaw=yaw, pitch=0, group="walls",
                                   owner=f"{side}:{x},{z}:{tier}"))
         # Roof parapet uses the same photographed wall master, not a fake box.
-        positions.append(dict(master="brick", position=[px, 8.5*PANEL_Y, pz],
+        positions.append(dict(master="brick", position=[px, (tiers+.5)*PANEL_Y, pz],
                               yaw=yaw, pitch=0, group="parapet", owner=f"parapet:{edge_id}"))
+    # Where the lower annex joins the main two-storey volume, the upper
+    # storey needs a REAL exposed scanned wall (not an imaginary solid box).
+    for tier in range(4,8):
+        positions.append(dict(master="window" if tier==6 else "brick",
+            position=[.5*PANEL_X,(tier+.5)*PANEL_Y,.5*PANEL_X],
+            yaw=math.pi/2,pitch=0,group="walls",
+            owner=f"annex-upper-return:{tier}"))
     # Five real-scan masonry deck areas, four transverse strips each.
     for x, z in CELLS:
         for strip in range(4):
             positions.append(dict(master="brick",
-                                  position=[(x-1)*PANEL_X, 8*PANEL_Y+.055,
+                                  position=[(x-1)*PANEL_X, (4 if x==2 else 8)*PANEL_Y+.055,
                                             (z-.5)*PANEL_X+(strip-1.5)*PANEL_Y*.95],
                                   yaw=0, pitch=-math.pi/2, group="roof",
                                   owner=f"roof:{x},{z}:{strip}"))
@@ -125,12 +133,33 @@ def plan():
                           position=[0, 3.50*PANEL_Y, -1.0*PANEL_X],
                           yaw=0, pitch=-math.pi/2, group="awning",
                           owner="entry-canopy"))
+    # A photographed-brick porch, steps, pillars and chimney. Transformed
+    # copies remain genuine sampled material, not procedural surface meshes.
+    for px in (-.92,.92):
+        positions.append(dict(master="brick",position=[px,1.1,-3.03],
+                              yaw=0,pitch=0,scale=[.10,3.2,5.0],
+                              group="porch",owner=f"porch-pillar:{px}"))
+    for x in (-.69,.69):
+        for z in (-3.07,-3.58):
+            positions.append(dict(master="brick",position=[x,-.04,z],
+                                  yaw=0,pitch=-math.pi/2,
+                                  scale=[.52,1,1],group="paving",
+                                  owner=f"front-stoop:{x}:{z}"))
+    for z,y in [(-4.01,-.12),(-4.26,-.18)]:
+        positions.append(dict(master="brick",position=[0,y,z],
+                              yaw=0,pitch=-math.pi/2,
+                              scale=[.62,1,.75],group="steps",
+                              owner=f"entry-step:{z}"))
+    for level in range(2):
+        positions.append(dict(master="brick",position=[-2.03,(8.5+level)*PANEL_Y,1.45],
+                              yaw=0,pitch=0,scale=[.28,.95,5.0],
+                              group="chimney",owner=f"chimney:{level}"))
     if len(positions) > 128 or len(positions)*BUDGETS[0] > 750000:
         raise ValueError("House exceeds actual LIE28 GPU instance/work limits")
     if len(edges) != 10 or not any(p["master"]=="door" for p in positions):
         raise ValueError("Invalid L-shaped house architecture")
     return dict(schema="lie36-scan-house/1", footprint_cells=[list(p) for p in CELLS],
-                dimensions_m=[3*PANEL_X, 9*PANEL_Y, 2*PANEL_X],
+                dimensions_m=[3*PANEL_X, 11*PANEL_Y, 2*PANEL_X],
                 panel_m=[PANEL_X, PANEL_Y, .12861716479063035],
                 stories=2, edges=len(edges), instances=positions,
                 purpose="Actual LIE source library demonstration; not an engineering simulation")
