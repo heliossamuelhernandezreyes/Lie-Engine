@@ -20,7 +20,7 @@ DEST = ROOT / "gpu_compute/captures/liehouse36"
 SOURCE_BANK_SHA = "f6f7d9f726e909c7bfba2aff5e416d1b12d2162b07e50844f351ac273682e4da"
 PANEL_X = 2.64675009727478
 PANEL_Y = .6878780770301819
-BUDGETS = (6000, 2300)
+BUDGETS = (20000, 6000, 1700)
 CELLS = ((0, 0), (1, 0), (0, 1), (1, 1), (2, 1))
 KINDS = ("brick", "window", "door", "slit")
 
@@ -154,7 +154,7 @@ def plan():
         positions.append(dict(master="brick",position=[-2.03,(8.5+level)*PANEL_Y,1.45],
                               yaw=0,pitch=0,scale=[.28,.95,5.0],
                               group="chimney",owner=f"chimney:{level}"))
-    if len(positions) > 128 or len(positions)*BUDGETS[0] > 750000:
+    if len(positions) > 128 or len(positions)*BUDGETS[-1] > 750000:
         raise ValueError("House exceeds actual LIE28 GPU instance/work limits")
     if len(edges) != 10 or not any(p["master"]=="door" for p in positions):
         raise ValueError("Invalid L-shaped house architecture")
@@ -177,7 +177,7 @@ def build(destination: Path=DEST):
             chosen=select_strata(eligible, count, seed=36025+100*k+lod)
             picked=eligible[chosen].copy()
             references.append(source_ids[chosen].astype("<u4").tobytes())
-            picked[:, 3]=np.maximum(picked[:, 3], .020 if lod==0 else .029)
+            picked[:, 3]=np.maximum(picked[:, 3], (.010, .018, .034)[lod])
             source_face_support(picked)
             if not np.isfinite(picked).all():raise ValueError("Invalid scanned data")
             chunks.append(picked)
@@ -185,7 +185,7 @@ def build(destination: Path=DEST):
             cursor += len(picked)
         masters[kind]=dict(levels=levels,
             bounds_size=[PANEL_X, PANEL_Y, .12861716479063035],
-            origin_offset=[0,0,0], capture_views=36, source="verified_wall04")
+            origin_offset=[0,0,0], capture_views=36, source="verified_wall04_preassembled_96_brick_mortar")
     raw=np.concatenate(chunks).astype("<f4",copy=False).tobytes()
     ids=b"".join(references)
     c=dict(schema=1,stride=80,sample_count=cursor,bytes=len(raw),
@@ -199,7 +199,10 @@ def build(destination: Path=DEST):
            authentic_positions_normals_rgb_materials=True,
            source_reference_bytes=len(ids),source_reference_sha256=hashlib.sha256(ids).hexdigest(),
            derived_fields=["reconstruction splat radius","local face support","aperture omission"],
-           source_texture_generated=False, roof_material="same verified scanned masonry",
+           source_texture_generated=False,
+           prepared_wall_master="WALL04: 96 authentic photographed mortar+scanned brick assembly",
+           selection="stratified LOD of immutable assembled scanned wall",
+           roof_material="same verified scanned masonry",
            note="Finite authentic sampled surfaces; not a full dense photographic replica")
     layout=plan()
     destination=Path(destination)
