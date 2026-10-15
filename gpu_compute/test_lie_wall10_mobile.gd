@@ -46,9 +46,15 @@ func run() -> void:
     lab.command({"op":"set_values","values":{"quality_2x":true,"camera_yaw":60.}});await settle();var angled: Dictionary=await capture(lab.effect)
     check(angled["internal_size"]==1440 and finite_image(angled) and lab.effect.asset_uploads==uploads,"angled camera and resize keep real source residency")
     save_source(angled,"angled")
-    var twin=load("res://lie_wall10_android_lab.tscn").instantiate();root.add_child(twin);await settle(16);var shared: Dictionary=await capture(twin.effect)
+    # Each camera needs its own rendered world. Two WorldEnvironments in the
+    # root viewport compete, so a second root lab cannot exercise two consumers.
+    var twin_view:=SubViewport.new();twin_view.size=Vector2i(720,720);twin_view.own_world_3d=true
+    twin_view.render_target_update_mode=SubViewport.UPDATE_ALWAYS;root.add_child(twin_view)
+    var twin=load("res://lie_wall10_android_lab.tscn").instantiate();twin_view.add_child(twin);await settle(16);var shared: Dictionary=await capture(twin.effect)
+    check(shared.has("cache"),"independent second viewport produces actual compositor readback")
+    if not shared.has("cache"):printerr("Second compositor not rendered: ",shared.keys()," / ",twin.effect.failure);quit(1);return
     check(twin.effect.asset_uploads==0 and twin.effect.visibility_uploads==0 and shared["cache"]["source_surface"]["shared_visibility"]["references"]==2,"two cameras share one source bank and one immutable BLAS upload")
-    twin.queue_free();await settle()
+    twin_view.queue_free();await settle()
     lab.command({"op":"set_values","values":{"quality_2x":false,"camera_yaw":12.,"lighting_preset":"warm_raking","light_azimuth":-62.,"fill_power":.2,"exposure":2.}});await settle();var warm: Dictionary=await capture(lab.effect);save_source(warm,"warm")
     check(warm["cache"]["source_surface"]["shared_visibility"]["references"]==1,"releasing a camera retains the other lease")
     check(lab.agent_snapshot()["collider_count"]==1 and lab.agent_snapshot()["metrics"]["visible_source_meshes"]==0,"one invisible collider and no source mesh draws")
