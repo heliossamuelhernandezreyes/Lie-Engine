@@ -137,3 +137,41 @@ eliminado los huecos de cobertura pendientes. Un shader correcto y una
 compilación Android no certifican FPS, consumo ni temperatura del Poco.
 
 Resultados y negativos: `checkpoints/LIE_LIGHT_FIELD_CHECKPOINT.json`.
+
+## Resultado de la compilación 0.5
+
+Código validado: `657e077a5a3a7479fe7229907afdf19f4caf3df7`.
+[Run 38667463039](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/38667463039):
+**374 comprobaciones GPU en 15 escenarios y 26 comprobaciones de pared**,
+además de 27 de WALL07, 80 consultas del núcleo común de interpolación,
+27 contratos de campo/escena y 13 de comandos. Importación y ejecución sin
+errores ni fugas de recursos reportadas. Dispositivo: llvmpipe LLVM 20.1.2, Vulkan Mobile.
+
+Error máximo del campo pequeño frente a float64: **3.34e-6**; suma de fuentes:
+**1.66e-7**. En la pared completa: **1.00e-8** frente a float64 y **1.86e-9**
+en suma de fuentes. Una luz frente a WALL07: IoU 1, máximo RGB **1.19e-7**;
+caché frente a reconstrucción fría: IoU 1, máximo **1.79e-7**.
+
+El defecto de dirección combinada se reproduce en el escenario brillante
+sintético: diferencia máxima **0.01112** en flujo relativo. En el ladrillo
+rugoso de la pared, el cambio aislado de separación es pequeño: máximo de
+imagen **0.00217**, MAE **5.70e-7**. No se presenta esa corrección como una
+transformación visual completa de la pared. La segunda luz sí añade su
+contribución independiente y se puede apagar junto con la principal.
+
+Búferes solicitados por el transporte: **1,432,168 bytes**; apariencia:
+**228,578,212 bytes**. Son contabilidades de RIDs, no PSS ni uso total de RAM.
+La captura de referencia y los colores conservan su SHA anterior.
+
+APK **LIE Luz 0.5**, `org.lieengine.wallruntime.v050`, ARM64,
+**53,122,952 bytes**, SHA256
+`033cac4e1ea278babcd1b0bcabd9114cce01c8bb71ea3515d87a5e7c575c2571`.
+Se instala junto a 0.4. La exportación verificó firma, alineación de 16 KiB,
+manifiesto, banco y todos los paquetes del campo. No hay una nueva medición
+de FPS, temperatura o memoria de proceso en un teléfono físico.
+
+Evidencia completa: `checkpoints/LIE_LIGHT_FIELD_NATIVE.json`; el checkpoint
+conserva también el primer resultado negativo y su causa comprobada.
+
+Los **19 workflows de PR** terminaron aprobados para ese mismo commit de código.
+El commit posterior registra únicamente documentación y evidencia.
