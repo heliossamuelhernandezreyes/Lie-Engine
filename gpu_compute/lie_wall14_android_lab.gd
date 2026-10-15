@@ -122,7 +122,7 @@ func _run_diagnostic() -> void:
         if waited>=600:error="render_timeout";break
         var serial: int=effect.frame_count;var event_ms: float=float(Time.get_ticks_usec()-begin)/1000.
         for i in range(6):await get_tree().process_frame
-        events.append({"kind":trial["kind"],"serial":serial,"transport_serial":transport.frame_count,"cpu_command_ms":apply_ms,"submit_event_latency_ms":event_ms})
+        events.append({"kind":trial["kind"],"revision":revision,"serial":serial,"transport_serial":transport.frame_count,"cpu_command_ms":apply_ms,"submit_event_latency_ms":event_ms})
     # Drain asynchronous timestamp metadata before restoring, never GPU images.
     for i in range(8):await get_tree().process_frame
     var profile: Dictionary=effect.pass_profile.snapshot();var transport_rows: Array=[]

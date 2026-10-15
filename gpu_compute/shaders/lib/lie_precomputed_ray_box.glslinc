@@ -1,0 +1,18 @@
+// Conservative broad phase with a per-ray reciprocal. Primitive intersections
+// and their order remain unchanged. Padding can only admit extra BVH nodes.
+vec3 lie_ray_reciprocal(vec3 d) {
+    return vec3(abs(d.x)<1e-12?0.:1./d.x,abs(d.y)<1e-12?0.:1./d.y,abs(d.z)<1e-12?0.:1./d.z);
+}
+bool lie_source_box_precomputed(vec3 o,vec3 d,vec3 inverse,vec3 low,vec3 high,float minimum,float maximum) {
+    float enter=minimum,leave=maximum;
+    for(int k=0;k<3;k++) {
+        if(abs(d[k])<1e-12){if(o[k]<low[k] || o[k]>high[k])return false;}
+        else {
+            float a=(low[k]-o[k])*inverse[k],b=(high[k]-o[k])*inverse[k];
+            if(isinf(a) || isinf(b) || isnan(a) || isnan(b))return lie_source_box(o,d,low,high,minimum,maximum);
+            float tolerance=8.*1.1920928955078125e-7*max(abs(a),abs(b))+1e-9;
+            enter=max(enter,min(a,b)-tolerance);leave=min(leave,max(a,b)+tolerance);
+        }
+    }
+    return enter<=leave;
+}

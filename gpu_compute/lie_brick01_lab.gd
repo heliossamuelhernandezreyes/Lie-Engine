@@ -1,6 +1,13 @@
 extends Node3D
 ## UI and agent edits share this validated document. Source meshes stay offline.
 const Effect=preload("res://lie_brick01_effect.gd")
+const InstancePackets=preload("res://lie_instance_packet_cache.gd")
+var instance_packets=InstancePackets.new()
+var cpu_stage_rows: Array=[]
+func _instance_cache_identity() -> PackedByteArray:return PackedByteArray()
+func _cpu_stage(name: String,begin: int) -> void:
+    cpu_stage_rows.append({"revision":revision,"stage":name,"ms":float(Time.get_ticks_usec()-begin)/1000.})
+    if cpu_stage_rows.size()>360:cpu_stage_rows.pop_front()
 const LIMITS={"camera_yaw":[-180,180],"camera_elevation":[-10,85],"distance_factor":[.6,2],"light_azimuth":[-180,180],"light_power":[.25,3],"exposure":[.5,4],"variation":[0,.4],"explode":[0,1],"seed":[0,999999],"roughness_variation":[0,.2]}
 const MODES=["master"]
 var state: Dictionary={"mode":"master","master":"brick_full","camera_yaw":28.0,"camera_elevation":24.0,"distance_factor":1.0,"light_azimuth":-68.0,"light_power":1.0,"exposure":2.0,"variation":.12,"roughness_variation":.06,"seed":29,"explode":0.0,"roof":true,"shadows":true}
@@ -147,36 +154,32 @@ func _apply() -> void:
     if has_node("InvisibleBrick"):
         var box_node: CollisionShape3D=get_node("InvisibleBrick/OnlyCollider")
         var dimensions: Array=effect.get("catalog")["masters"][state["master"]]["bounds_size"]
-        var new_box:=BoxShape3D.new()
-        new_box.size=Vector3(float(dimensions[0]),float(dimensions[1]),float(dimensions[2]))
-        box_node.shape=new_box
+        var requested_size:=Vector3(float(dimensions[0]),float(dimensions[1]),float(dimensions[2]))
+        if not box_node.shape is BoxShape3D or box_node.shape.size!=requested_size:
+            var new_box:=BoxShape3D.new();new_box.size=requested_size;box_node.shape=new_box
     distance*=state["distance_factor"]
     var yaw: float=deg_to_rad(state["camera_yaw"]);var elevation: float=deg_to_rad(state["camera_elevation"])
     camera.fov=42;camera.position=target+Vector3(sin(yaw)*cos(elevation),sin(elevation),cos(yaw)*cos(elevation))*distance;camera.look_at(target)
-    var list: Array=_instances();var instance_data:=PackedFloat32Array();var jobs:=PackedInt32Array();var work: int=0;var level_used: int=0
+    var packet_begin: int=Time.get_ticks_usec()
     var selected_level: int=0 if float(state["distance_factor"])<1.25 else 1 if float(state["distance_factor"])<1.7 else 2
-    for level in range(selected_level,3):
-        level_used=level;instance_data.clear();jobs.clear();work=0
-        for entry in list:
-            var pose: Transform3D=entry["pose"];var master: Dictionary=effect.get("catalog")["masters"][entry["master"]];var range_data: Dictionary=master["levels"][level];var index: int=instance_data.size()/24
-            for v in [pose.basis.x,pose.basis.y,pose.basis.z,pose.origin]:instance_data.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
-            var identity: int=index*128
-            var tint: Array=entry.get("tint",[1.0,1.0,1.0,0.0])
-            instance_data.append_array(PackedFloat32Array([identity,0,0,0,float(tint[0]),float(tint[1]),float(tint[2]),float(tint[3])]));jobs.append_array(PackedInt32Array([range_data["start"],range_data["count"],index,work]));work+=int(range_data["count"])
-        if work<=Effect.MAX_WORK:break
-    if work>Effect.MAX_WORK or list.size()>Effect.MAX_INSTANCES:
-        _metrics={"error":"work_budget","instances":list.size(),"sample_invocations":work};status.text="Presupuesto excedido";return
+    var prepared: Dictionary=instance_packets.packet(_instance_cache_identity(),_instances,effect.get("catalog"),selected_level,Effect.MAX_WORK,Effect.MAX_INSTANCES)
+    _cpu_stage("instance_packets",packet_begin)
+    var work: int=prepared["work"];var level_used: int=prepared["lod"];var count: int=prepared["count"]
+    if not prepared["ok"]:
+        _metrics={"error":"work_budget","instances":count,"sample_invocations":work};status.text="Presupuesto excedido";return
     var packet:=PackedFloat32Array()
     for v in [camera.position,camera.basis.x,camera.basis.y,-camera.basis.z]:packet.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     packet.append_array(PackedFloat32Array([tan(deg_to_rad(camera.fov)*.5),1,.001,40]))
-    var bytes: PackedByteArray=packet.to_byte_array();bytes.append_array(PackedInt32Array([work,list.size(),effect.get("render_size"),effect.get("render_size")]).to_byte_array())
+    var bytes: PackedByteArray=packet.to_byte_array();bytes.append_array(PackedInt32Array([work,count,effect.get("render_size"),effect.get("render_size")]).to_byte_array())
     var angle: float=deg_to_rad(state["light_azimuth"]);var radius: float=distance*.8;var light: Vector3=target+Vector3(sin(angle)*radius,radius*.9,cos(angle)*radius);var light_pose:=Transform3D(Basis.IDENTITY,light).looking_at(target,Vector3.UP)
     var spacing: float=.0008 if small else .0015
     var values:=PackedFloat32Array([light.x,light.y,light.z,160*radius*radius*state["light_power"],1,.93,.85,0,.4,.45,.55,state["exposure"],1 if state["shadows"] else 0,1,spacing,spacing*.3])
     for v in [light_pose.basis.x,light_pose.basis.y,-light_pose.basis.z]:values.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     values.append_array(PackedFloat32Array([1,1,1,0,1,1,1,0,1203,1,0,0]));bytes.append_array(values.to_byte_array())
-    var configured: bool=effect.call("configure",bytes,instance_data.to_byte_array(),jobs.to_byte_array(),work)
-    _metrics={"instances":list.size(),"sample_invocations":work,"lod":level_used,"masters":effect.get("catalog")["masters"].size(),"visible_source_meshes":0,"configured":configured}
+    var configure_begin: int=Time.get_ticks_usec()
+    var configured: bool=effect.call("configure",bytes,prepared["instances"],prepared["jobs"],work)
+    _cpu_stage("effect_configuration",configure_begin)
+    _metrics={"instances":count,"sample_invocations":work,"lod":level_used,"masters":effect.get("catalog")["masters"].size(),"visible_source_meshes":0,"configured":configured}
 func agent_snapshot() -> Dictionary:
     var masters: Dictionary=effect.get("catalog").get("masters",{}) if effect!=null else {}
     return {"physical_proxy":"one BoxShape3D", "collider_count":1 if has_node("InvisibleBrick/OnlyCollider") else 0,"state":state.duplicate(true),"revision":revision,"metrics":_metrics.duplicate(),"commands":["snapshot","set_values"],"control_contract":{"modes":MODES,"booleans":["roof","shadows"],"masters":masters.keys(),"limits":LIMITS}}
