@@ -101,6 +101,14 @@ comparación: [LIE_SOURCE_SURFACE.md](LIE_SOURCE_SURFACE.md).
 
 ## Aceptación
 
+La etapa 0.8 añade identidad semántica por asset/LOD/muestra, handles de banco
+con generación, direcciones de muestra consultables mediante `sample_address`
+y planificación GPU por bloques. La caché de visibilidad se liga al banco,
+las referencias, la escena y la geometría de oclusión; sobrevive a cambios de
+cámara y distingue las posiciones de cada luz de sus parámetros radiométricos.
+El código común no contiene cantidades de ladrillos. Alcance, validación y
+coste: [LIE_PERSISTENT_IDENTITY.md](LIE_PERSISTENT_IDENTITY.md).
+
 Regresiones con banco real escaneado y panel de hormigón LIE31 existente.
 El panel deriva de geometría autorada LIE30/31; no es un escaneo nuevo de
 hormigón. La prueba Vulkan de la misma biblioteca usa 80 consultas de ambas

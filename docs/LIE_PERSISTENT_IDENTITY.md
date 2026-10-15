@@ -23,7 +23,8 @@ generation to each actual RD bank allocation. Resident handles contain bank
 key and generation; `resolve()` rejects stale generations, wrong devices and
 out-of-range IDs without file I/O, hashing, scanning or GPU readback. Existing
 bank-sharing callers remain compatible. Semantic IDs persist across reloads;
-the allocation handle must be reacquired. A disk miss still has loading cost.
+the allocation handle must be reacquired. Generation-guarded release also
+rejects an old handle instead of freeing a newly reloaded bank. A disk miss still has loading cost.
 This stage does not implement world streaming, eviction policy or prefetch.
 
 ## Direct workgroup ownership
@@ -41,7 +42,7 @@ establish an FPS increase.
 ## Camera-independent mutable cache
 
 `lie_shared_shadow_cache.gd` owns a GPU buffer leased by RD, bank SHA,
-reference SHA and scene SHA. The same reference index always binds the same
+reference SHA, scene SHA and both BLAS packet SHAs. The same reference index always binds the same
 captured source ID and instance in this immutable domain. A different source
 selection gets a different domain. The source index and instance are never
 replaced by a screen pixel. Projection `normal.w`, previously an unused front

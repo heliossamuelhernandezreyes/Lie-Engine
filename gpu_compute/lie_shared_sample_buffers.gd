@@ -40,6 +40,11 @@ static func release(rd: RenderingDevice,key: String) -> bool:
         _entries.erase(key)
     return true
 
+static func release_handle(rd: RenderingDevice,handle: Dictionary) -> bool:
+    var key: String=handle.get("key","")
+    if not _entries.has(key) or _entries[key]["generation"]!=handle.get("generation"):return false
+    return release(rd,key)
+
 static func metrics(rd: RenderingDevice) -> Dictionary:
     var bytes: int=0;var references: int=0;var banks: int=0
     for entry in _entries.values():

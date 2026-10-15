@@ -35,7 +35,7 @@ func _init(size: int=720) -> void:
     var proof: Dictionary=_source_packets["proof"]
     for mode in [true,false]:
         var references_sha: String=proof["packets"]["references"]["sha256"] if mode else proof["legacy_reference_sha256"]
-        _domains[mode]=("lie-visibility/1|"+catalog["sha256"]+"|"+references_sha+"|"+proof["packets"]["scene"]["sha256"]).sha256_text()
+        _domains[mode]=("lie-visibility/1|"+catalog["sha256"]+"|"+references_sha+"|"+proof["packets"]["scene"]["sha256"]+"|"+proof["packets"]["nodes"]["sha256"]+"|"+proof["packets"]["leaves"]["sha256"]).sha256_text()
 func _control_bytes() -> PackedByteArray:
     return PackedInt32Array([1 if persistent_visibility else 0,1 if visibility_diagnostics else 0,_reference_count,1 if block_access else 0]).to_byte_array()
 func _make_set() -> void:
@@ -46,7 +46,7 @@ func _make_set() -> void:
     if _shadow_lease.is_empty():
         _shadow_mode=_gpu_continuity if gpu_ready else surface_continuity
         _shadow_lease=ShadowCache.acquire(_rd,_domains[_shadow_mode],_reference_count)
-        if not _shadow_lease.get("ok",false):failure="Shared persistent shadow allocation";return
+        if not _shadow_lease.get("ok",false):failure="Shared persistent shadow allocation";_shadow_lease={};gpu_ready=false;return
         allocation_bytes+=_shadow_lease["bytes"];shadow_allocations+=1 if _shadow_lease["uploaded"] else 0
     _buffers[30]=_shadow_lease["rid"]
     super._make_set();_buffers.erase(30)
@@ -71,6 +71,7 @@ func _render_callback(type: int,data: RenderData) -> void:
         # Free the descriptor set before replacing its borrowed cache RID.
         if _set.is_valid():_rd.free_rid(_set);_set=RID()
         allocation_bytes-=int(_shadow_lease["bytes"]);ShadowCache.release(_rd,_shadow_lease["key"]);_shadow_lease={};_make_set()
+        if not gpu_ready:return
     _mutex.lock();var next: Dictionary=_pending.duplicate();_mutex.unlock()
     if next.is_empty():return
     var jobs: PackedByteArray=next["jobs"];_active_schedule=_schedules.get(jobs.decode_u32(4),{})
@@ -112,4 +113,4 @@ func _capture() -> void:
     _readback["visibility_work"]={"instrumented":_gpu_diagnostics,"hits":Array(counters.slice(4,12)),"queries":Array(counters.slice(12,20)),"zero_power_skips":Array(counters.slice(20,28)),"dirty_lights":header[0],"prepare_count":header[3],"invalidation_count":header[40],"per_light_invalidations":Array(header.slice(41,49))};_mutex.unlock()
 func _release() -> void:
     super._release()
-    if not _shadow_lease.is_empty():ShadowCache.release(_rd,_shadow_lease["key"]);_shadow_lease={}
+    if not _shadow_lease.is_empty():ShadowCache.release(_rd,_shadow_lease.get("key",""));_shadow_lease={}

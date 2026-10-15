@@ -188,7 +188,7 @@ func _release() -> void:
         if rid.is_valid():_rd.free_rid(rid)
     for binding in _buffers:
         if binding!=0 and _buffers[binding].is_valid():_rd.free_rid(_buffers[binding])
-    if not _sample_lease.is_empty():SharedSamples.release(_rd,_sample_lease);_sample_lease=""
+    if not _sample_lease.is_empty():SharedSamples.release_handle(_rd,_sample_handle);_sample_lease=""
     _sample_handle={}
     _buffers.clear();_images.clear();gpu_ready=false
     _lengths.clear();allocation_bytes=0;projection_capacity=0;_resident=PackedByteArray()

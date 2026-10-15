@@ -84,6 +84,7 @@ func run() -> void:
     check(Samples.resolve(rd,first,1)["byte_offset"]==80 and Samples.resolve(rd,first,2).is_empty(),"direct bank address and range guard")
     Samples.release(rd,first["key"]);check(not Samples.resolve(rd,first,0).is_empty(),"one release preserves remaining bank owner")
     Samples.release(rd,second["key"]);check(Samples.resolve(rd,first,0).is_empty(),"evicted address is rejected")
-    var replacement: Dictionary=Samples.acquire(rd,bytes,digest,80);check(replacement["generation"]!=first["generation"] and Samples.resolve(rd,first,0).is_empty(),"reloaded bank cannot revive a stale handle");Samples.release(rd,replacement["key"])
+    var replacement: Dictionary=Samples.acquire(rd,bytes,digest,80);check(replacement["generation"]!=first["generation"] and Samples.resolve(rd,first,0).is_empty(),"reloaded bank cannot revive a stale handle")
+    check(not Samples.release_handle(rd,first) and not Samples.resolve(rd,replacement,0).is_empty(),"stale release cannot free the replacement bank");Samples.release_handle(rd,replacement)
     var file:=FileAccess.open("res://persistent-visibility-native.json",FileAccess.WRITE);file.store_string(JSON.stringify({"checks":checks,"failed":failed,"cases":results,"device":rd.get_device_name(),"physical_android_tested":false},"  ",true,true));file.close()
     rd.free_rid(pipeline);rd.free_rid(shader);rd.free();print("PERSISTENT GPU ","FAIL" if failed else "PASS"," ",checks);quit(1 if failed else 0)
