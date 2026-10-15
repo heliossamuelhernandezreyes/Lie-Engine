@@ -153,6 +153,18 @@ func _run() -> void:
     var contact_on: Dictionary=await _read()
     check(not contact_on.is_empty() and contact_on.get("color",PackedFloat32Array())!=cold.get("color",PackedFloat32Array()),
         "Observed captured relief changes actual GPU shading when contact enabled")
+    var alpha_unchanged: bool=false
+    if not contact_on.is_empty() and not cold.is_empty():
+        var off_rgba: PackedFloat32Array=cold["color"]
+        var on_rgba: PackedFloat32Array=contact_on["color"]
+        alpha_unchanged=off_rgba.size()==on_rgba.size()
+        if alpha_unchanged:
+            for q in range(3,off_rgba.size(),4):
+                if off_rgba[q]!=on_rgba[q]:
+                    alpha_unchanged=false
+                    break
+    check(alpha_unchanged,
+        "Microsurface lighting cannot change aperture/silhouette coverage")
     check(contact_on.get("cache",{}).get("last_stages",[])==[8,10,4,6,11,12,7],
         "Contact-only changes reuse all projected geometry and visibility graph")
     check(contact_on.get("cache",{}).get("geometry_rebuilds",-1)==contact_before.get("geometry_rebuilds",-2),
@@ -168,7 +180,7 @@ func _run() -> void:
     var contact_reset: Dictionary=await _read()
     check(contact_reset.get("color",PackedFloat32Array())==cold.get("color",PackedFloat32Array()),
         "Disabled source contact restores unmodified original capture exactly")
-    output["microcontact"]={"enabled_differs":contact_on.get("color",PackedFloat32Array())!=cold.get("color",PackedFloat32Array()),
+    output["microcontact"]={"coverage_unchanged":alpha_unchanged,"enabled_differs":contact_on.get("color",PackedFloat32Array())!=cold.get("color",PackedFloat32Array()),
         "disabled_bit_exact":contact_reset.get("color",PackedFloat32Array())==cold.get("color",PackedFloat32Array()),
         "stages":contact_on.get("cache",{}).get("last_stages",[])}
     var transport: Dictionary=c.get("multiwall_transport",{})
