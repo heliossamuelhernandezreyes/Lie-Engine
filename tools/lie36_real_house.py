@@ -137,14 +137,17 @@ def plan():
 
 def build(destination: Path=DEST):
     src, original = original_samples()
-    chunks, masters = [], {}
+    chunks, masters, references = [], {}, []
     cursor=0
     for k, kind in enumerate(KINDS):
-        eligible=src[aperture(kind, src)]
+        mask=aperture(kind, src)
+        eligible=src[mask]
+        source_ids=np.flatnonzero(mask)
         levels=[]
         for lod, count in enumerate(BUDGETS):
             chosen=select_strata(eligible, count, seed=36025+100*k+lod)
             picked=eligible[chosen].copy()
+            references.append(source_ids[chosen].astype("<u4").tobytes())
             picked[:, 3]=np.maximum(picked[:, 3], .020 if lod==0 else .029)
             source_face_support(picked)
             if not np.isfinite(picked).all():raise ValueError("Invalid scanned data")
@@ -155,6 +158,7 @@ def build(destination: Path=DEST):
             bounds_size=[PANEL_X, PANEL_Y, .12861716479063035],
             origin_offset=[0,0,0], capture_views=36, source="verified_wall04")
     raw=np.concatenate(chunks).astype("<f4",copy=False).tobytes()
+    ids=b"".join(references)
     c=dict(schema=1,stride=80,sample_count=cursor,bytes=len(raw),
            sha256=hashlib.sha256(raw).hexdigest(), masters=masters,
            original_mesh_drawn=False, source_title=original["source_title"],
@@ -164,6 +168,7 @@ def build(destination: Path=DEST):
            source_brick_scan_sha256=original["source_scan_sha256"],
            photographed_mortar_source=original["wall04"]["mortar01_cc0_source_maps"],
            authentic_positions_normals_rgb_materials=True,
+           source_reference_bytes=len(ids),source_reference_sha256=hashlib.sha256(ids).hexdigest(),
            derived_fields=["reconstruction splat radius","local face support","aperture omission"],
            source_texture_generated=False, roof_material="same verified scanned masonry",
            note="Finite authentic sampled surfaces; not a full dense photographic replica")
@@ -171,6 +176,7 @@ def build(destination: Path=DEST):
     destination=Path(destination)
     destination.mkdir(parents=True,exist_ok=True)
     (destination/"library.bin").write_bytes(raw)
+    (destination/"source-ids.bin").write_bytes(ids)
     (destination/"catalog.json").write_text(json.dumps(c,indent=2)+"\n")
     (destination/"house-plan.json").write_text(json.dumps(layout,indent=2)+"\n")
     print("LIE36 REAL HOUSE",json.dumps(dict(samples=cursor,bytes=len(raw),
