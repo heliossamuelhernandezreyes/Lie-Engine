@@ -67,9 +67,22 @@ func _capture() -> void:
     if n<=0:return
     var direct: PackedFloat32Array=_rd.buffer_get_data(_buffers[14]).to_float32_array()
     var bounce: PackedFloat32Array=_rd.buffer_get_data(_buffers[16]).to_float32_array()
+    var pairs: PackedFloat32Array=_rd.buffer_get_data(_buffers[15]).to_float32_array()
     var dsum:=Vector3.ZERO
     var bsum:=Vector3.ZERO
     var positive: int=0
+    var active_links: int=0
+    var energy_violations: int=0
+    var max_row_sum: float=0.
+    for emitter in range(n):
+        var row_sum: float=0.
+        for receiver in range(n):
+            var w: float=pairs[emitter*PANEL_CAP+receiver]
+            if w>0:active_links+=1
+            if not is_finite(w) or w<0.:energy_violations+=1
+            row_sum+=w
+        max_row_sum=maxf(max_row_sum,row_sum)
+        if row_sum>1.0001 or not is_finite(row_sum):energy_violations+=1
     for i in range(n):
         var d:=Vector3(direct[i*4],direct[i*4+1],direct[i*4+2])
         var b:=Vector3(bounce[i*4],bounce[i*4+1],bounce[i*4+2])
@@ -82,6 +95,9 @@ func _capture() -> void:
         "direct_irradiance_sum":[dsum.x,dsum.y,dsum.z],
         "bounce_irradiance_sum":[bsum.x,bsum.y,bsum.z],
         "panels_with_bounce":positive,
+        "active_links":active_links,
+        "energy_violations":energy_violations,
+        "max_row_sum":max_row_sum,
         "dispatches":transport_dispatches,
         "graph":"GPU panel-centre, oriented and aperture-aware, one diffuse bounce",
         "limitations":"finite source/receiver panels; not full WALL12 micro-patch global illumination",
