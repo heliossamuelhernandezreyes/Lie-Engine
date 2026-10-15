@@ -18,6 +18,7 @@ FILES=[
     "lie36_house_lab.tscn",
     "test_lie36_house.gd",
     "shaders/lie28_building.glsl",
+    "shaders/lie22_modular.glsl",
 ]
 def stage(dest:Path):
     dest=Path(dest)
