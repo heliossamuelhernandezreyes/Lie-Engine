@@ -85,6 +85,8 @@ func _run() -> void:
         "Three true camera views show differing scanned surfaces")
     # WALL05 cache adaptation. Every transition must be proved by
     # actual RD pass lists and by captured GPU output (never guessed FPS).
+    check(c.has("passes") and c["passes"].get("units","")=="GPU milliseconds",
+        "WALL09 native per-pass GPU profiler is connected to the house")
     var camera_cache: Dictionary=c.get("cache",{})
     check(camera_cache.get("geometry_rebuilds",0)>=3 and
         camera_cache.get("graph_rebuilds",999)==1,
