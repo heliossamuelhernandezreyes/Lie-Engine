@@ -1,0 +1,125 @@
+{
+  "schema": "lie-physical-comparison-transcription/1",
+  "origin": "User-pasted compact LIE 1.6 report; selected numeric fields transcribed, not original timestamp/frame history",
+  "created_utc": "2026-10-16T04:04:16",
+  "app_version": "1.6.0-visibility-stream",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "physical_android": true,
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "recorded_events": 54,
+  "expected_events": 54,
+  "warmup_events": 60,
+  "restored": true,
+  "error": "",
+  "rounds": 3,
+  "samples_per_mode_kind": 9,
+  "scene": {
+    "camera_yaw": -7.96316833496092,
+    "camera_elevation": 3.296510828865894,
+    "distance_factor": 1.0,
+    "energy_radius": false,
+    "light_azimuth": -24.0,
+    "light_power": 1.0,
+    "exposure": 2.0,
+    "fill_azimuth": 55.0,
+    "fill_power": 0.32,
+    "lighting_preset": "neutral",
+    "internal_size": 1080,
+    "physical_lights": 2,
+    "contact_steps": 12,
+    "area_lights": false,
+    "seed": 29.0
+  },
+  "summary": [
+    {
+      "kind": "camera",
+      "reference_gpu_p50_ms": 52.307156,
+      "stream_gpu_p50_ms": 51.494156,
+      "reference_gpu_p95_ms": 55.522698,
+      "stream_gpu_p95_ms": 53.372618,
+      "median_change_percent": -1.5542806418303523,
+      "reference_world_visibility_p50_ms": 6.720846,
+      "stream_world_visibility_0_p50_ms": 4.931616,
+      "scope": "stream trace_0 excludes separately timed prepare/reset and trace_1; compare whole-event totals"
+    },
+    {
+      "kind": "light_power",
+      "reference_gpu_p50_ms": 18.737462,
+      "stream_gpu_p50_ms": 18.350231,
+      "reference_gpu_p95_ms": 20.087617,
+      "stream_gpu_p95_ms": 19.387386,
+      "median_change_percent": -2.0666139309582054,
+      "reference_world_visibility_p50_ms": 1.347154,
+      "stream_world_visibility_0_p50_ms": 0.032384,
+      "scope": "stream trace_0 excludes separately timed prepare/reset and trace_1; compare whole-event totals"
+    },
+    {
+      "kind": "light_position",
+      "reference_gpu_p50_ms": 42.23708,
+      "stream_gpu_p50_ms": 42.609387,
+      "reference_gpu_p95_ms": 48.29331,
+      "stream_gpu_p95_ms": 45.63723,
+      "median_change_percent": 0.881469552345937,
+      "reference_world_visibility_p50_ms": 30.251694,
+      "stream_world_visibility_0_p50_ms": 30.248386,
+      "scope": "stream trace_0 excludes separately timed prepare/reset and trace_1; compare whole-event totals"
+    }
+  ],
+  "warmup": {
+    "reference": {
+      "initial_geometry": 90.359157,
+      "camera": 60.530312,
+      "light_power": 18.297615,
+      "light_position": 44.906924
+    },
+    "stream": {
+      "initial_geometry": 87.322926,
+      "camera": 58.381389,
+      "light_power": 18.609923,
+      "light_position": 43.641232
+    }
+  },
+  "work": [
+    {
+      "light_azimuth": -16.0,
+      "untimed": true,
+      "eligible": 155182,
+      "cache_hits": 77591,
+      "backface_or_disabled": 2508,
+      "blas_nodes": 4758522,
+      "disk_tests": 2096465,
+      "scene_nodes": 2010445,
+      "unresolved_queries": 72188,
+      "witness_hits": 2895,
+      "scope": "instrumented stream, separate explicit 32-byte counter read after timed events; unchanged fill accounts for cached half"
+    },
+    {
+      "light_azimuth": -32.0,
+      "untimed": true,
+      "eligible": 155182,
+      "cache_hits": 77591,
+      "backface_or_disabled": 2787,
+      "blas_nodes": 4811995,
+      "disk_tests": 2150675,
+      "scene_nodes": 1997634,
+      "unresolved_queries": 71886,
+      "witness_hits": 2918,
+      "scope": "instrumented stream, separate explicit 32-byte counter read after timed events; unchanged fill accounts for cached half"
+    },
+    {
+      "light_azimuth": -24.0,
+      "untimed": true,
+      "eligible": 155182,
+      "cache_hits": 77591,
+      "backface_or_disabled": 2606,
+      "blas_nodes": 4737979,
+      "disk_tests": 2097575,
+      "scene_nodes": 1992723,
+      "unresolved_queries": 71342,
+      "witness_hits": 3643,
+      "scope": "instrumented stream, separate explicit 32-byte counter read after timed events; unchanged fill accounts for cached half"
+    }
+  ],
+  "verdict": "No material median speedup on this physical Mali scene. Nine events and uncontrolled thermals do not establish significance of 1-2% changes. Original 1.4 remains default. Final visibility_stream=false is the restored scene, not evidence that stream comparison was skipped. Do not compare absolute times against other versions/scenes or claim fresh-image FPS from cached display FPS."
+}

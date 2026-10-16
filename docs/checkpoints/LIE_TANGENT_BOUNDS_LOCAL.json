@@ -1,0 +1,18 @@
+{
+  "schema": "lie-tangent-bounds-local/1",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "godot_binary_bytes": 146414384,
+  "godot_binary_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+  "python": {
+    "tangent_bounds": 4,
+    "visibility_stream": 3,
+    "source_surface": 5
+  },
+  "command_checks": 13,
+  "standalone_parse_checks": 2,
+  "cpu_rig_checks": 247,
+  "agent_checks": 25,
+  "import_errors": 0,
+  "scope": "Local correctness and parse checks only. Local staging used capture packets from the SHA-verified 1.6 APK. Native Vulkan/export CI uses clean authoring stage; no Android timing is established here.",
+  "environment_issue": "Initial system unzip produced truncated ELF (111673344 bytes); source ZIP passed CRC, restored full 146414384-byte executable with chunked writes and byte equality before any accepted Godot checks."
+}
