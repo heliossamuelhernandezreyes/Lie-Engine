@@ -1,0 +1,97 @@
+{
+  "cases": [
+    {
+      "count": 1,
+      "pattern": 0,
+      "selected": 0
+    },
+    {
+      "count": 1,
+      "pattern": 1,
+      "selected": 1
+    },
+    {
+      "count": 1,
+      "pattern": 2,
+      "selected": 1
+    },
+    {
+      "count": 63,
+      "pattern": 0,
+      "selected": 0
+    },
+    {
+      "count": 63,
+      "pattern": 1,
+      "selected": 21
+    },
+    {
+      "count": 63,
+      "pattern": 2,
+      "selected": 63
+    },
+    {
+      "count": 64,
+      "pattern": 0,
+      "selected": 0
+    },
+    {
+      "count": 64,
+      "pattern": 1,
+      "selected": 22
+    },
+    {
+      "count": 64,
+      "pattern": 2,
+      "selected": 64
+    },
+    {
+      "count": 65,
+      "pattern": 0,
+      "selected": 0
+    },
+    {
+      "count": 65,
+      "pattern": 1,
+      "selected": 22
+    },
+    {
+      "count": 65,
+      "pattern": 2,
+      "selected": 65
+    },
+    {
+      "count": 130,
+      "pattern": 0,
+      "selected": 0
+    },
+    {
+      "count": 130,
+      "pattern": 1,
+      "selected": 44
+    },
+    {
+      "count": 130,
+      "pattern": 2,
+      "selected": 130
+    },
+    {
+      "count": 535670,
+      "pattern": 0,
+      "selected": 0
+    },
+    {
+      "count": 535670,
+      "pattern": 1,
+      "selected": 178557
+    },
+    {
+      "count": 535670,
+      "pattern": 2,
+      "selected": 535670
+    }
+  ],
+  "checks": 54,
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "failed": false
+}

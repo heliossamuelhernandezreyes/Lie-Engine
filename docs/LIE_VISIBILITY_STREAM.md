@@ -85,3 +85,71 @@ Before delivery require deterministic/permutation regressions, changed shader
 and command checks, CPU rig/agent checks, actual Vulkan queue boundary/ownership
 tests, real-bank images/depth/cache/light/resize tests, actual 1.4 regressions
 and a signed APK whose bank and order packet hashes match their manifests.
+
+## Accepted runtime and measured result
+
+Runtime `df7b9beced441219d23dfa188d9784fbdc018d01`, native/export run
+38841998377, job 116783980652, artifact 12021253367. All 19 triggered workflows
+passed. Local checks: three Python tests, five compiled SPIR-V shaders, 13
+commands, two standalone test parse checks, CPU rig 247 and agent 25. Actual
+Vulkan checks: queue 54, new Mobile 64, prior 1.4 Mobile 73 and exact witness
+oracle 281. The work-counter checks exercise the instrumented specializations;
+the timed comparison uses the production specializations.
+
+Initial shipping output and all four tested camera views match 1.4 exactly in
+RGB and coverage, with exact tested depth. Three moved-light comparisons have
+zero RGB error and the 0.01-degree comparison has maximum RGB difference
+2.099e-7, within the 1e-4 acceptance threshold. Area/LOD/continuity/resize and
+inactive-queue fallback comparisons also match. This is tested rendering
+equivalence, not a new photometric-realism claim.
+
+The final 1080, two-light **software Vulkan (llvmpipe)** paired totals are:
+
+| Change | Reference p50 | Stream p50 | Reference p95 | Stream p95 |
+| --- | ---: | ---: | ---: | ---: |
+| Camera | 230.566 ms | 231.202 ms | 250.631 ms | 239.609 ms |
+| Light power | 76.080 ms | 78.125 ms | 102.730 ms | 86.074 ms |
+| Light position | 206.807 ms | 171.223 ms | 220.528 ms | 187.630 ms |
+
+Light-position total median improves by 17.21%. Camera median is 0.28% higher
+and light-power median 2.69% higher. The negatives remain in the evidence;
+this is not a uniform win and not a physical Mali measurement. Nine measured
+events per mode/kind, all 54 measured events, 60 separately classified warm-up
+events and 1,356 raw timestamp rows were retained with exact state restoration.
+The compact report, scene and three counter events fit below 16 KiB.
+
+The three untimed work observations report 161,746 receiver/light pairs each,
+including 80,873 cached pairs for the unchanged source. Only 61,562 / 25,560 /
+46,456 unresolved pairs enter BLAS traversal at the three tested key positions.
+This confirms classification and quantifies remaining work; it does not claim
+that the old kernel traced cached pairs. The highest observed event visits
+5,882,565 BLAS nodes and tests 3,560,783 disks. Counters are from the separate
+instrumented solves, not added to the timing samples.
+
+The earlier accepted initial implementation (`24f80c1`, run 38840927767) is
+also preserved in full. It improved moved-light software median by 6.27%, but
+camera/power regressed by 5.50%/6.96%. Its scan and per-node diagnostics were
+then revised. The full initial append has fourteen barriers including its final
+base synchronization (thirteen in the prefix phase). Do not compare absolute
+times across these separate CI runners; only compare variants paired inside
+each run. The first test-script parser failure is retained separately.
+
+## Signed APK and evidence
+
+`LIE-Visibilidad-1.6.0.apk`: 59,883,176 bytes, package
+`org.lieengine.wallruntime.v160`, code 16, SHA-256
+`738b8bb7aaf2f427d40601500ca80cf289cb7da9f4e00fc7efe5c86e1fe5f8fa`.
+Official Godot 4.7.2 Android template verified, APK aligned, signed and checked.
+Downloaded artifact ZIP SHA-256:
+`2a6f55ff07013ba6f0b6afc208b8873f588e4444c39a7fe63a10d3b6c722d852`.
+APK bank and order bytes match their manifests; deprecated 1.5 page data/shaders
+are absent. Requested appearance storage is 286,669,404 bytes; extra driver
+pipeline memory is not measured. Bank uploads, one collider, independent order
+leases, cached idle and retained allocations passed.
+
+Full initial/final native observations, queue/local checks and artifact
+identities are in `docs/checkpoints/LIE_VISIBILITY_STREAM_*.json`. The supplied
+Mali page regression remains in `LIE_SPATIAL_PAGE_MALI_NEGATIVE.json`. Capture
+banks and APK bytes are outside Git. The app keeps reference mode as default;
+use `Comparar GPU` then `Informe` / `Copiar informe` on the physical Mali before
+choosing the new route. No maximum or sustained phone FPS is established here.

@@ -1,0 +1,536 @@
+{
+  "schema": "lie-stream-initial-result/1",
+  "runtime_commit": "24f80c1181214ef3db3acfb366dee7e1208caed4",
+  "run_id": 38840927767,
+  "job_id": 116780576931,
+  "artifact_id": 12020968022,
+  "artifact_sha256": "2c02a97f1455410b9ea48856d7e781020f9737bc363b614af18e302c2eb3df77",
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "physical_android_tested": false,
+  "passed_checks": {
+    "queue": 54,
+    "mobile": 64,
+    "prior_1_4": 73,
+    "oracle": 281
+  },
+  "summary": [
+    {
+      "cpu": {
+        "max_ms": 0.507,
+        "p50_ms": 0.468,
+        "p95_ms": 0.507,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 484.95328500000005,
+        "p50_ms": 441.465737,
+        "p95_ms": 484.95328500000005,
+        "samples": 9
+      },
+      "kind": "camera",
+      "mode": "reference",
+      "passes": {
+        "clear": {
+          "p50_ms": 4.700114,
+          "p95_ms": 6.538623,
+          "samples": 9
+        },
+        "fused_base": {
+          "p50_ms": 41.253503,
+          "p95_ms": 47.038992,
+          "samples": 9
+        },
+        "material_filter": {
+          "p50_ms": 62.64262,
+          "p95_ms": 71.969277,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.536536,
+          "p95_ms": 6.703469,
+          "samples": 9
+        },
+        "project": {
+          "p50_ms": 65.840576,
+          "p95_ms": 71.26402,
+          "samples": 9
+        },
+        "raster": {
+          "p50_ms": 87.155923,
+          "p95_ms": 90.617067,
+          "samples": 9
+        },
+        "recovery_build": {
+          "p50_ms": 60.916212,
+          "p95_ms": 65.65056,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 88.61645,
+          "p95_ms": 101.265515,
+          "samples": 9
+        },
+        "surface_select": {
+          "p50_ms": 0.299123,
+          "p95_ms": 0.327689,
+          "samples": 9
+        },
+        "visibility_compact": {
+          "p50_ms": 4.288499,
+          "p95_ms": 4.389444,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.936842,
+          "p95_ms": 1.16149,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.165327,
+          "p95_ms": 0.220214,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 26.797878,
+          "p95_ms": 43.660067,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.648,
+        "p50_ms": 0.61,
+        "p95_ms": 0.648,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 156.40198800000002,
+        "p50_ms": 146.685648,
+        "p95_ms": 156.40198800000002,
+        "samples": 9
+      },
+      "kind": "light_power",
+      "mode": "reference",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 40.07013,
+          "p95_ms": 50.619649,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.486133,
+          "p95_ms": 5.896857,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 7.96418,
+          "p95_ms": 11.605526,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 88.675013,
+          "p95_ms": 90.705851,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.940715,
+          "p95_ms": 0.986132,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.155567,
+          "p95_ms": 0.202464,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 2.842444,
+          "p95_ms": 3.473678,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.667,
+        "p50_ms": 0.619,
+        "p95_ms": 0.667,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 397.430577,
+        "p50_ms": 385.382343,
+        "p95_ms": 397.430577,
+        "samples": 9
+      },
+      "kind": "light_position",
+      "mode": "reference",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 39.989786,
+          "p95_ms": 42.778216,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.609753,
+          "p95_ms": 7.145226,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 7.750786,
+          "p95_ms": 8.770945,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 88.391982,
+          "p95_ms": 90.277401,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.377149,
+          "p95_ms": 1.447122,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.167674,
+          "p95_ms": 0.183574,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 242.103865,
+          "p95_ms": 249.648619,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.503,
+        "p50_ms": 0.466,
+        "p95_ms": 0.503,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 481.33397099999996,
+        "p50_ms": 465.73301999999995,
+        "p95_ms": 481.33397099999996,
+        "samples": 9
+      },
+      "kind": "camera",
+      "mode": "stream",
+      "passes": {
+        "clear": {
+          "p50_ms": 4.753531,
+          "p95_ms": 6.508486,
+          "samples": 9
+        },
+        "fused_base": {
+          "p50_ms": 40.761335,
+          "p95_ms": 54.639009,
+          "samples": 9
+        },
+        "material_filter": {
+          "p50_ms": 61.84323,
+          "p95_ms": 68.706672,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.470518,
+          "p95_ms": 6.532355,
+          "samples": 9
+        },
+        "project": {
+          "p50_ms": 65.288341,
+          "p95_ms": 71.896178,
+          "samples": 9
+        },
+        "raster": {
+          "p50_ms": 86.011136,
+          "p95_ms": 92.207966,
+          "samples": 9
+        },
+        "recovery_build": {
+          "p50_ms": 60.184056,
+          "p95_ms": 63.079163,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 89.413156,
+          "p95_ms": 97.936448,
+          "samples": 9
+        },
+        "surface_select": {
+          "p50_ms": 0.293771,
+          "p95_ms": 0.328461,
+          "samples": 9
+        },
+        "visibility_compact": {
+          "p50_ms": 2.103951,
+          "p95_ms": 2.951321,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.920124,
+          "p95_ms": 1.338817,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.160822,
+          "p95_ms": 0.194933,
+          "samples": 9
+        },
+        "visibility_order": {
+          "p50_ms": 15.847593,
+          "p95_ms": 17.765413,
+          "samples": 9
+        },
+        "visibility_prepare_0": {
+          "p50_ms": 4.846207,
+          "p95_ms": 6.175771,
+          "samples": 9
+        },
+        "visibility_prepare_1": {
+          "p50_ms": 3.549513,
+          "p95_ms": 3.73001,
+          "samples": 9
+        },
+        "visibility_reset_0": {
+          "p50_ms": 0.139487,
+          "p95_ms": 0.194792,
+          "samples": 9
+        },
+        "visibility_reset_1": {
+          "p50_ms": 0.150642,
+          "p95_ms": 0.208628,
+          "samples": 9
+        },
+        "world_visibility_0": {
+          "p50_ms": 16.145566,
+          "p95_ms": 32.555854,
+          "samples": 9
+        },
+        "world_visibility_1": {
+          "p50_ms": 0.109223,
+          "p95_ms": 0.168285,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.649,
+        "p50_ms": 0.629,
+        "p95_ms": 0.649,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 170.74859700000002,
+        "p50_ms": 156.90081099999998,
+        "p95_ms": 170.74859700000002,
+        "samples": 9
+      },
+      "kind": "light_power",
+      "mode": "stream",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 40.176732,
+          "p95_ms": 49.777709,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.551166,
+          "p95_ms": 5.739083,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 7.824892,
+          "p95_ms": 9.091375,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 90.427715,
+          "p95_ms": 95.683137,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.933196,
+          "p95_ms": 1.315418,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.162748,
+          "p95_ms": 0.206003,
+          "samples": 9
+        },
+        "visibility_prepare_0": {
+          "p50_ms": 5.508739,
+          "p95_ms": 5.919061,
+          "samples": 9
+        },
+        "visibility_prepare_1": {
+          "p50_ms": 3.785903,
+          "p95_ms": 5.60034,
+          "samples": 9
+        },
+        "visibility_reset_0": {
+          "p50_ms": 0.164452,
+          "p95_ms": 0.191887,
+          "samples": 9
+        },
+        "visibility_reset_1": {
+          "p50_ms": 0.14925,
+          "p95_ms": 0.177177,
+          "samples": 9
+        },
+        "world_visibility_0": {
+          "p50_ms": 0.123395,
+          "p95_ms": 0.145549,
+          "samples": 9
+        },
+        "world_visibility_1": {
+          "p50_ms": 0.126688,
+          "p95_ms": 0.152915,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.703,
+        "p50_ms": 0.633,
+        "p95_ms": 0.703,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 364.814994,
+        "p50_ms": 361.227815,
+        "p95_ms": 364.814994,
+        "samples": 9
+      },
+      "kind": "light_position",
+      "mode": "stream",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 40.102511,
+          "p95_ms": 43.226076,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.599889,
+          "p95_ms": 7.881481,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 7.783205,
+          "p95_ms": 11.174779,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 93.574063,
+          "p95_ms": 95.690066,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.396465,
+          "p95_ms": 2.207036,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.175066,
+          "p95_ms": 0.193552,
+          "samples": 9
+        },
+        "visibility_prepare_0": {
+          "p50_ms": 7.907993,
+          "p95_ms": 10.932882,
+          "samples": 9
+        },
+        "visibility_prepare_1": {
+          "p50_ms": 3.630702,
+          "p95_ms": 3.960759,
+          "samples": 9
+        },
+        "visibility_reset_0": {
+          "p50_ms": 0.144294,
+          "p95_ms": 0.18298,
+          "samples": 9
+        },
+        "visibility_reset_1": {
+          "p50_ms": 0.176348,
+          "p95_ms": 0.220498,
+          "samples": 9
+        },
+        "world_visibility_0": {
+          "p50_ms": 200.348447,
+          "p95_ms": 204.117732,
+          "samples": 9
+        },
+        "world_visibility_1": {
+          "p50_ms": 0.117629,
+          "p95_ms": 0.15582,
+          "samples": 9
+        }
+      }
+    }
+  ],
+  "work": [
+    {
+      "counters": {
+        "available": true,
+        "backface_or_disabled": 17688,
+        "blas_nodes": 5883655,
+        "cache_hits": 80873,
+        "disk_tests": 3562581,
+        "eligible": 161746,
+        "instrumented": true,
+        "scene_nodes": 1642483,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 61560,
+        "witness_hits": 1625
+      },
+      "untimed": true,
+      "values": {
+        "light_azimuth": -88.75
+      }
+    },
+    {
+      "counters": {
+        "available": true,
+        "backface_or_disabled": 53739,
+        "blas_nodes": 2455348,
+        "cache_hits": 80873,
+        "disk_tests": 1681731,
+        "eligible": 161746,
+        "instrumented": true,
+        "scene_nodes": 512625,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 25558,
+        "witness_hits": 1576
+      },
+      "untimed": true,
+      "values": {
+        "light_azimuth": -104.75
+      }
+    },
+    {
+      "counters": {
+        "available": true,
+        "backface_or_disabled": 30636,
+        "blas_nodes": 4965346,
+        "cache_hits": 80873,
+        "disk_tests": 3722167,
+        "eligible": 161746,
+        "instrumented": true,
+        "scene_nodes": 1111450,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 46455,
+        "witness_hits": 3782
+      },
+      "untimed": true,
+      "values": {
+        "light_azimuth": -96.75
+      }
+    }
+  ],
+  "conclusion": "Initial software run improves light-position total median by 6.27%, but camera/power medians regress by 5.50%/6.96%. The prefix scan is expensive. Preserve this attempt; replace its 13 barriers with portable masks and compile node counters out of production before final validation."
+}

@@ -1,0 +1,12 @@
+{
+  "schema": "lie-stream-local-checks/1",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "python_stream_tests": 3,
+  "standalone_command_checks": 13,
+  "compiled_spirv_shaders": 5,
+  "standalone_gpu_test_parse_checks": 2,
+  "cpu_rig_checks": 247,
+  "cpu_agent_checks": 25,
+  "all_passed": true,
+  "physical_android_tested": false
+}

@@ -1,0 +1,88 @@
+{
+  "schema": "lie-stream-acceptance/1",
+  "runtime_commit": "df7b9beced441219d23dfa188d9784fbdc018d01",
+  "run_id": 38841998377,
+  "job_id": 116783980652,
+  "artifact_id": 12021253367,
+  "artifact_sha256": "2a6f55ff07013ba6f0b6afc208b8873f588e4444c39a7fe63a10d3b6c722d852",
+  "apk": {
+    "name": "LIE-Visibilidad-1.6.0.apk",
+    "bytes": 59883176,
+    "sha256": "738b8bb7aaf2f427d40601500ca80cf289cb7da9f4e00fc7efe5c86e1fe5f8fa",
+    "package": "org.lieengine.wallruntime.v160",
+    "version": "1.6.0-visibility-stream",
+    "version_code": 16
+  },
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "order_sha256": "07e8370b5357d71eae5d9305efb457945af5988f2d5245b376aafd72a682fe39",
+  "native_device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "physical_android_tested": false,
+  "checks": {
+    "commands": 13,
+    "queue": 54,
+    "mobile": 64,
+    "prior_1_4": 73,
+    "exact_witness_oracle": 281,
+    "python_stream": 3,
+    "compiled_spirv_shaders": 5,
+    "cpu_rig": 247,
+    "cpu_agent": 25
+  },
+  "measured_events": 54,
+  "warmup_events": 60,
+  "timestamp_rows": 1356,
+  "work_counter_events": 3,
+  "restored": true,
+  "requested_appearance_bytes": 286669404,
+  "paired": {
+    "camera": {
+      "reference": {
+        "max_ms": 250.63137800000004,
+        "p50_ms": 230.56590100000003,
+        "p95_ms": 250.63137800000004,
+        "samples": 9
+      },
+      "stream": {
+        "max_ms": 239.60883099999998,
+        "p50_ms": 231.201873,
+        "p95_ms": 239.60883099999998,
+        "samples": 9
+      },
+      "median_change_percent": 0.27583090007745614
+    },
+    "light_power": {
+      "reference": {
+        "max_ms": 102.73020800000002,
+        "p50_ms": 76.080348,
+        "p95_ms": 102.73020800000002,
+        "samples": 9
+      },
+      "stream": {
+        "max_ms": 86.07418100000001,
+        "p50_ms": 78.124862,
+        "p95_ms": 86.07418100000001,
+        "samples": 9
+      },
+      "median_change_percent": 2.68730894869198
+    },
+    "light_position": {
+      "reference": {
+        "max_ms": 220.52828499999998,
+        "p50_ms": 206.80743900000002,
+        "p95_ms": 220.52828499999998,
+        "samples": 9
+      },
+      "stream": {
+        "max_ms": 187.629567,
+        "p50_ms": 171.222744,
+        "p95_ms": 187.629567,
+        "samples": 9
+      },
+      "median_change_percent": -17.20668036511008
+    }
+  },
+  "scope": "Paired software Vulkan timing only. No direct performance comparison between different CI runners/attempts. Original route remains default pending physical Mali validation. Counter-only events are separate from timing.",
+  "runtime_tree": "654b5e2f25a019d39788d18aac47c54b2b01a156",
+  "triggered_workflows": 19,
+  "all_triggered_workflows_passed": true
+}
