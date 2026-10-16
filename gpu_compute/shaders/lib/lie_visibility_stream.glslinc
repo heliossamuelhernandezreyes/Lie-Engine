@@ -1,5 +1,6 @@
 layout(set=0,binding=38,std430) buffer TraceQueue {uint values[];} trace_queue;
-void lie_stream_stat(uint slot) {if(query_memory.words[2]!=0u)atomicAdd(query_memory.words[24u+slot],1u);}
+layout(constant_id=0) const bool LIE_STREAM_INSTRUMENTED=false;
+void lie_stream_stat(uint slot) {if(LIE_STREAM_INSTRUMENTED)atomicAdd(query_memory.words[24u+slot],1u);}
 // Each light dispatch completes before the next one. No cross-light word races.
 void lie_stream_store(uint i,uint slot,uint light,uint value,bool cache_value) {
     uvec2 result=source_visibility.values[i];result=lie_write_visibility(result,light,value);source_visibility.values[i]=result;

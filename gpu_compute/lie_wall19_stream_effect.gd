@@ -41,6 +41,12 @@ func _make_set() -> void:
             var shader: RID=_rd.shader_create_from_spirv(spirv);var pipeline: RID=_rd.compute_pipeline_create(shader)
             _stream_pipelines[name]={"shader":shader,"pipeline":pipeline}
             if not pipeline.is_valid():failure=name+" pipeline";return
+            if name in ["prepare","trace"]:
+                var option:=RDPipelineSpecializationConstant.new();option.constant_id=0;option.value=true
+                var options: Array[RDPipelineSpecializationConstant]=[option]
+                var instrumented: RID=_rd.compute_pipeline_create(shader,options)
+                _stream_pipelines[name]["instrumented"]=instrumented
+                if not instrumented.is_valid():failure=name+" instrumented pipeline";return
     var handles: Dictionary=_buffers.duplicate();handles[23]=transport.surface_light_codes_rid();handles[25]=_visibility_lease["nodes"];handles[26]=_visibility_lease["leaves"];handles[30]=_shadow_lease["rid"];handles[37]=_order_lease["rid"];handles[38]=_trace_queue
     for name in Stream.SHADERS:
         var uniforms: Array[RDUniform]=[]
@@ -70,7 +76,9 @@ func _render_callback(type: int,data: RenderData) -> void:
     super._render_callback(type,data)
 func _stream_dispatch(list: int,key: String,count: int,label: String,light: int=0,flags: int=0,indirect: RID=RID()) -> void:
     _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"begin"))
-    _rd.compute_list_bind_compute_pipeline(list,_stream_pipelines[key]["pipeline"]);_rd.compute_list_bind_uniform_set(list,_stream_sets[key],0)
+    var entry: Dictionary=_stream_pipelines[key]
+    var pipeline: RID=entry.get("instrumented",entry["pipeline"]) if _gpu_diagnostics else entry["pipeline"]
+    _rd.compute_list_bind_compute_pipeline(list,pipeline);_rd.compute_list_bind_uniform_set(list,_stream_sets[key],0)
     _rd.compute_list_set_push_constant(list,PackedInt32Array([0,2,light,flags]).to_byte_array(),16)
     if indirect.is_valid():_rd.compute_list_dispatch_indirect(list,indirect,0)
     else:_rd.compute_list_dispatch(list,maxi(1,ceili(float(count)/64.)),1,1)
@@ -111,7 +119,7 @@ func _release() -> void:
         if _rd.uniform_set_is_valid(rid):_rd.free_rid(rid)
     _stream_sets.clear()
     for item in _stream_pipelines.values():
-        for rid in [item["pipeline"],item["shader"]]:
+        for rid in [item["pipeline"],item.get("instrumented",RID()),item["shader"]]:
             if rid.is_valid():_rd.free_rid(rid)
     _stream_pipelines.clear()
     if _trace_queue.is_valid():_rd.free_rid(_trace_queue)

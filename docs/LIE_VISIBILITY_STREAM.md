@@ -24,7 +24,7 @@ The packet is 3,088,388 bytes and is leased once per device/hash. It is scheduli
 data, not new geometry or an opaque spatial envelope.
 
 The GPU marks unique final pixel winners, then compacts them in spatial blocks
-with a 64-lane prefix scan and one global append per nonempty block. This queue
+with a portable 64-lane bit mask and one global append per nonempty block. This queue
 is retained across lighting-only updates. Within each physical light, a small
 preparation kernel resolves persistent cache hits, backfacing receivers,
 disabled sources and exact blocking witnesses. Only unresolved original IDs
@@ -54,6 +54,14 @@ BLAS nodes and exact disk tests. Each explicit diagnostic reads only 32 counter
 bytes on the render thread. These reads and instrumentation do not occur inside
 the timed comparison. Their results enter the copied report. Display FPS still
 includes cached frames and must not be presented as fresh-image solve rate.
+
+Preparation/traversal use separate production and instrumented Vulkan pipeline
+specializations. Per-node/disk diagnostic counter branches are compile-time
+false in production. The portable ballot uses two shared 32-bit masks, population
+counts and three barriers, replacing the initial thirteen-barrier prefix scan.
+No optional native subgroup feature or unexposed Godot device capability is
+assumed. This trades shared atomic OR operations for fewer barriers and must
+still be measured on the target GPU.
 
 The reference remains the default until physical device measurements establish
 a benefit. If source hierarchy, active queue or split kernels are unavailable,

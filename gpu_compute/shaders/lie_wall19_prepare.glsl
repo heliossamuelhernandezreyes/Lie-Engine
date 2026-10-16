@@ -234,7 +234,8 @@ layout(set=0,binding=35,std430) buffer ActiveVisibility {uint values[];} active_
 
 
 layout(set=0,binding=38,std430) buffer TraceQueue {uint values[];} trace_queue;
-void lie_stream_stat(uint slot) {if(query_memory.words[2]!=0u)atomicAdd(query_memory.words[24u+slot],1u);}
+layout(constant_id=0) const bool LIE_STREAM_INSTRUMENTED=false;
+void lie_stream_stat(uint slot) {if(LIE_STREAM_INSTRUMENTED)atomicAdd(query_memory.words[24u+slot],1u);}
 // Each light dispatch completes before the next one. No cross-light word races.
 void lie_stream_store(uint i,uint slot,uint light,uint value,bool cache_value) {
     uvec2 result=source_visibility.values[i];result=lie_write_visibility(result,light,value);source_visibility.values[i]=result;
@@ -278,21 +279,22 @@ bool lie_stream_prepare(uint i,uint light) {
     }
     lie_stream_stat(4u);return true;
 }
-// Stable lane order within a 64-entry spatial block; one global append per block.
-shared uint stream_prefix[64];
+// Portable 64-lane ballot: no optional subgroup capability is assumed.
+// Three barriers instead of the shared prefix scan's thirteen barriers.
+shared uint stream_masks[2];
 shared uint stream_base;
 void lie_stream_append(bool selected,uint id,uint lane) {
-    stream_prefix[lane]=selected?1u:0u;barrier();
-    for(uint step=1u;step<64u;step*=2u) {
-        uint addend=lane>=step?stream_prefix[lane-step]:0u;barrier();
-        stream_prefix[lane]+=addend;barrier();
-    }
-    if(lane==63u) {
-        uint count=stream_prefix[63];stream_base=0u;
+    if(lane<2u)stream_masks[lane]=0u;barrier();
+    if(selected)atomicOr(stream_masks[lane/32u],1u<<(lane%32u));barrier();
+    uvec2 votes=uvec2(stream_masks[0],stream_masks[1]);
+    uint lower=(1u<<(lane%32u))-1u;
+    uint rank=uint(bitCount(votes[lane/32u]&lower))+(lane>=32u?uint(bitCount(votes.x)):0u);
+    if(lane==0u) {
+        uint count=uint(bitCount(votes.x)+bitCount(votes.y));stream_base=0u;
         if(count>0u){stream_base=atomicAdd(trace_queue.values[3],count);atomicMax(trace_queue.values[0],(stream_base+count+63u)/64u);}
     }
     barrier();
-    if(selected)trace_queue.values[4u+stream_base+stream_prefix[lane]-1u]=id;
+    if(selected)trace_queue.values[4u+stream_base+rank]=id;
 }
 
 void main() {

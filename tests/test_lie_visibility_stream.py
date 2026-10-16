@@ -25,6 +25,7 @@ class Stream(unittest.TestCase):
         baseline={v[0]:v[3] for v in functions(generate(11)[0])};trace={v[0]:v[3] for v in functions(out['gpu_compute/shaders/lie_wall19_trace.glsl'])};prepare=out['gpu_compute/shaders/lie_wall19_prepare.glsl']
         self.assertNotIn('float lie_source_trace(',prepare)
         self.assertNotIn('bool lie_witness_blocks(',out['gpu_compute/shaders/lie_wall19_trace.glsl'])
+        self.assertIn('layout(constant_id=0) const bool LIE_STREAM_INSTRUMENTED=false;',out['gpu_compute/shaders/lie_wall19_trace.glsl'])
         for name in ['lie_source_box','lie_source_box_precomputed','lie_ray_reciprocal','lie_write_visibility']:self.assertEqual(baseline[name],trace[name])
         disk='float denominator=dot(normal,d);if(abs(denominator)<1e-8)continue;'
         self.assertIn(disk,trace['lie_source_trace']);self.assertIn('if(dot(delta,delta)>source.w*source.w)continue;',trace['lie_source_trace'])
