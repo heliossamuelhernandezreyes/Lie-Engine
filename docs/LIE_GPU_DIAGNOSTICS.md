@@ -1,6 +1,9 @@
 # LIE 1.8: hardware evidence and compact shadow records
 
 This iteration isolates one data-layout change and adds native observability.
+The later physical report exposed a hardware-reader queue lifecycle bug in 1.8;
+use the [1.8.1 interval correction](LIE_COUNTER_INTERVALS.md) before interpreting
+those hardware rows. The earlier clean A/B timing is separate from that capture.
 It does not establish physical Mali performance. The original 80-byte source
 bank and accepted 1.4 route remain available, with compact shadows OFF at start.
 The 1.7 tangent-bound setting is held constant within each 1.8 comparison.

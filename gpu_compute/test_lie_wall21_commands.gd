@@ -25,6 +25,6 @@ func run() -> void:
     for i in range(24):await process_frame
     check(not lab.benchmark_busy and lab.state==backup and lab._comparison_report.get("restored",false) and lab._comparison_report.get("cancelled",false),"cancel restores kernel, bounds and scene options")
     var report: Dictionary=lab._build_report();var portable: Dictionary=lab._portable_report(report)
-    check(report["app_version"]=="1.8.0-gpu-diagnostics" and portable["cache"].has("compact_shadows"),"bounds resources and app version copied")
+    check(report["app_version"]=="1.8.1-counter-intervals" and portable["cache"].has("compact_shadows"),"bounds resources and app version copied")
     check(portable["kernel_comparison"]["scene"]==backup and JSON.stringify(portable).to_utf8_buffer().size()<32768,"paired scene retained in compact copy")
     lab.queue_free();await process_frame;print("GPU DIAGNOSTICS COMMAND ",checks," ","FAIL" if failed else "PASS");quit(1 if failed else 0)

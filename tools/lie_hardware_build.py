@@ -25,6 +25,7 @@ def build(cache,platform,ndk=None):
         if not ndk:raise ValueError('NDK path required')
         args += [f'-DCMAKE_TOOLCHAIN_FILE={ndk}/build/cmake/android.toolchain.cmake','-DANDROID_ABI=arm64-v8a','-DANDROID_PLATFORM=android-26','-DANDROID_STL=c++_static','-DGODOTCPP_PLATFORM=android','-DGODOTCPP_ARCH=arm64']
     run(args);run(['cmake','--build',build_dir,'-j','4'])
+    if platform=='linux.x86_64':run(['ctest','--test-dir',build_dir,'--output-on-failure'])
     output=dest/'bin'/platform/'liblie_gpu_probe.so';output.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(build_dir/'liblie_gpu_probe.so',output)
     # Activate only after a real native build. An ordinary source checkout must
     # remain usable by laboratories which do not build this optional module.

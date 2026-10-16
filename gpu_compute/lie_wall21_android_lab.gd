@@ -1,6 +1,7 @@
 extends "res://lie_wall20_android_lab.gd"
 const CompactEffect=preload("res://lie_wall21_compact_effect.gd")
 const Hardware=preload("res://lie_hardware_diagnostics.gd")
+const HardwareReport=preload("res://lie_hardware_report.gd")
 var hardware:=Hardware.new()
 var hardware_status: Dictionary={"available":false,"reason":"not_probed"}
 var hardware_profile: Dictionary={}
@@ -69,26 +70,31 @@ func _run_comparison(quick: bool) -> void:
     _persist_report("user://lie-gpu-diagnostics-last.json",_comparison_report);benchmark_busy=false
     if _benchmark_status!=null:_benchmark_status.text="Comparación cancelada" if _benchmark_cancelled else "Error: "+error if error!="" else "Comparación lista · abre Informe"
 func _build_report() -> Dictionary:
-    var result: Dictionary=super._build_report();result["app_version"]="1.8.0-gpu-diagnostics";result["hardware_status"]=hardware_status;result["scope"]="Timed comparison has no GPU reads; separate explicitly instrumented work events read 32 GPU counter bytes afterward. Display FPS includes cached images. Requested RID bytes are not measured VRAM/PSS.";return result
+    var result: Dictionary=super._build_report();result["app_version"]="1.8.1-counter-intervals";result["hardware_status"]=hardware_status;result["scope"]="Timed comparison has no GPU reads; separate explicitly instrumented work events read 32 GPU counter bytes afterward. Display FPS includes cached images. Requested RID bytes are not measured VRAM/PSS.";return result
 func _portable_report(report: Dictionary) -> Dictionary:
     var result: Dictionary=super._portable_report(report);result["cache"]["compact_shadows"]=report["cache"]["compact_shadows"];result["hardware_status"]=report["hardware_status"]
     if not report.get("kernel_comparison",{}).is_empty():
         var original: Dictionary=report["kernel_comparison"];var compact: Dictionary=result["kernel_comparison"].duplicate(true)
-        compact["hardware_profile"]=_compact_hardware(original.get("hardware_profile",{}));compact["telemetry_boundaries"]=original.get("telemetry_boundaries",[]);compact["scene"]=original["scene"];compact["work_diagnostic"]=original.get("work_diagnostic",[]);compact["warmup_summary"]=original["warmup_summary"];compact["warmup_recorded_events"]=original["warmup_events"].size()
+        compact["hardware_profile"]=_compact_hardware(original.get("hardware_profile",{}));compact["telemetry_boundaries"]=[];
+        for boundary in original.get("telemetry_boundaries",[]):
+            var item: Dictionary=boundary.duplicate(true);item["telemetry"]=HardwareReport.telemetry(boundary["telemetry"]);compact["telemetry_boundaries"].append(item)
+        compact["scene"]=original["scene"];compact["work_diagnostic"]=original.get("work_diagnostic",[]);compact["warmup_summary"]=original["warmup_summary"];compact["warmup_recorded_events"]=original["warmup_events"].size()
         for group in compact["summary"]:
             for pass_name in group["passes"]:group["passes"][pass_name].erase("samples")
         result["kernel_comparison"]=compact
     return result
 func _report_header(report: Dictionary) -> String:
     var comparison: Dictionary=report.get("kernel_comparison",{})
-    if comparison.is_empty():return super._report_header(report).replace("LIE 1.7","LIE 1.8")
-    var text: String="LIE 1.8 · DATOS Y DIAGNÓSTICO GPU\n%s · %s\n" % [report["device"],report["gpu"]]
+    if comparison.is_empty():return super._report_header(report).replace("LIE 1.7","LIE 1.8.1")
+    var text: String="LIE 1.8.1 · DATOS Y DIAGNÓSTICO GPU\n%s · %s\n" % [report["device"],report["gpu"]]
     for kind in ["camera","light_power","light_position"]:
         text+="\n"+{"camera":"Cámara","light_power":"Potencia","light_position":"Posición de luz"}[kind]
         for mode in ["reference","compact"]:
             for group in comparison["summary"]:
                 if group["kind"]==kind and group["mode"]==mode:text+="\n%s: %.2f ms · %d eventos" % ["80 B" if mode=="reference" else "32 B",group["gpu"]["p50_ms"],group["gpu"]["samples"]]
-    text+="\n\nContadores GPU: "+("disponibles" if comparison.get("hardware_profile",{}).get("status",{}).get("available",false) else "no disponibles · "+str(comparison.get("hardware_profile",{}).get("status",{}).get("reason","sin diagnóstico")))
+    var hardware_result: Dictionary=comparison.get("hardware_profile",{})
+    text+="\n\nContadores GPU: %d/6 intervalos corroborados" % int(hardware_result.get("valid_blocks",0))
+    if not hardware_result.get("status",{}).get("available",false):text+=" · "+str(hardware_result.get("status",{}).get("reason","no disponibles"))
     return text+"\n\nMisma escena. Calentamiento registrado por separado; sin eliminar picos de la medición.\n\n"
 func _ui() -> void:
     super._ui()
@@ -97,9 +103,9 @@ func _ui() -> void:
     var probe_button:=Button.new();probe_button.text="Diagnóstico GPU";box.add_child(probe_button)
     probe_button.pressed.connect(func():
         var result: Dictionary=command({"op":"gpu_probe"})
-        if result["ok"]:status.text="Contadores GPU disponibles" if hardware_status.get("available",false) else "Contadores: "+str(hardware_status.get("reason","no disponibles")))
+        if result["ok"]:status.text="Acceso a contadores disponible; Comparar GPU valida los intervalos" if hardware_status.get("available",false) else "Contadores: "+str(hardware_status.get("reason","no disponibles")))
     for item in picture.get_parent().get_children():
-        if item is Label and item.text.begins_with("LIE ·"):item.text="LIE · Diagnóstico GPU · 1.8.0"
+        if item is Label and item.text.begins_with("LIE ·"):item.text="LIE · Diagnóstico GPU · 1.8.1"
 func agent_snapshot() -> Dictionary:
     var result: Dictionary=super.agent_snapshot();result["control_contract"]["booleans"].append("compact_shadows");return result
 
@@ -119,7 +125,7 @@ func _stream_event(values: Dictionary,kind: String,mode: String,cycle: int,force
     return event
 func _measure_hardware(backup: Dictionary) -> Dictionary:
     hardware_status=hardware.probe()
-    var result: Dictionary={"status":hardware_status.duplicate(true),"blocks":[],"telemetry":hardware.telemetry(),"scope":"separate untimed whole-device intervals; may include other apps, engine and presentation; not per-pass counters or input-to-photon latency"}
+    var result: Dictionary={"status":hardware_status.duplicate(true),"measurement_available":false,"valid_blocks":0,"invalid_blocks":0,"blocks":[],"telemetry":hardware.telemetry(),"scope":"separate untimed whole-device intervals; may include other apps, engine and presentation; not per-pass counters or input-to-photon latency"}
     if not hardware_status.get("available",false):hardware.release_counters();return result
     for enabled in [false,true]:
         var mode: String="compact" if enabled else "reference"
@@ -140,18 +146,28 @@ func _measure_hardware(backup: Dictionary) -> Dictionary:
                 events.append(event)
                 if event.has("error"):break
             var sample: Dictionary=hardware.end()
-            result["blocks"].append({"mode":mode,"kind":kind,"events":events,"sample":sample,"telemetry_before":before,"telemetry_after":hardware.telemetry()})
+            var rows: Array=[];var seen: Dictionary={}
+            for drain in range(8):await get_tree().process_frame
+            var completed_events: Array=events.filter(func(event: Dictionary) -> bool:return event.has("serial"))
+            _comparison_collect(completed_events,rows,seen)
+            var event_kinds: Dictionary={}
+            for event in events:
+                if event.has("serial"):event_kinds[int(event["serial"])]=kind
+            var gpu: Dictionary=Diagnostics.summarize({"rows":rows},0,event_kinds);var completed: Dictionary={};var gpu_ms: float=0.
+            for group in gpu["groups"]:
+                for serial in group["serials"]:completed[serial]=true
+            for row in rows:
+                if completed.has(int(row["serial"])):gpu_ms+=float(row["gpu_ns"])/1000000.
+            gpu["instrumented_gpu_ms"]=gpu_ms
+            var validity: Dictionary=HardwareReport.corroborate(sample,gpu,3)
+            sample["validity"]=validity
+            if validity["valid"]:result["valid_blocks"]+=1
+            else:result["invalid_blocks"]+=1
+            result["blocks"].append({"mode":mode,"kind":kind,"events":events,"sample":sample,"gpu_evidence":{"groups":gpu["groups"],"instrumented_gpu_ms":gpu_ms},"telemetry_before":before,"telemetry_after":hardware.telemetry()})
             if not sample.get("available",false):result["status"]["available"]=false;result["status"]["reason"]=sample.get("reason",sample.get("stop_error","sampling failed"));hardware.release_counters();return result
+    result["measurement_available"]=result["valid_blocks"]==6 and not _benchmark_cancelled
     hardware.release_counters();return result
-func _compact_hardware(profile: Dictionary) -> Dictionary:
-    var result: Dictionary=profile.duplicate(true)
-    for block in result.get("blocks",[]):
-        var serials: Array=[]
-        for event in block["events"]:serials.append(event.get("serial",-1))
-        block["serials"]=serials;block.erase("events")
-        for name in block["sample"].get("counters",{}):
-            var row: Dictionary=block["sample"]["counters"][name];row.erase("timestamp_ns");row.erase("unit")
-    return result
+func _compact_hardware(profile: Dictionary) -> Dictionary:return HardwareReport.compact(profile)
 
 func _measure_stream_work(backup: Dictionary) -> Array:
     var result: Array=[]

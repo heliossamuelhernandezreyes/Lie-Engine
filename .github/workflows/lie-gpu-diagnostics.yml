@@ -1,7 +1,7 @@
 name: LIE compact shadows and native hardware diagnostics
 on:
   pull_request:
-    paths: ["native/hardware_probe/**", "gpu_compute/addons/lie_gpu_probe/**", "gpu_compute/*wall21*", "gpu_compute/lie_hardware_diagnostics.gd", "gpu_compute/lie_shared_shadow_view.gd", "gpu_compute/lie_shadow_view_kernels.gd", "gpu_compute/shaders/lie_wall21*.glsl", "gpu_compute/shaders/lie_compact_shadow_test.glsl", "gpu_compute/test_lie_compact_reference_gpu.gd", "gpu_compute/test_lie_hardware_probe.gd", "tools/lie_hardware_build.py", "tools/lie_shadow_view.py", "tools/lie_wall21*", "tools/lie_gpu_apk_verify.py", "tests/test_lie_shadow_view.py", "gpu_compute/*wall20*", "gpu_compute/lie_shared_tangent_bounds.gd", "gpu_compute/test_lie_tangent_reference_gpu.gd", "tools/lie_tangent_bounds.py", "tools/lie_wall20*", "tests/test_lie_tangent_bounds.py", ".github/workflows/lie-gpu-diagnostics.yml"]
+    paths: ["native/hardware_probe/**", "gpu_compute/addons/lie_gpu_probe/**", "gpu_compute/*wall21*", "gpu_compute/lie_hardware_diagnostics.gd", "gpu_compute/lie_shared_shadow_view.gd", "gpu_compute/lie_shadow_view_kernels.gd", "gpu_compute/shaders/lie_wall21*.glsl", "gpu_compute/shaders/lie_compact_shadow_test.glsl", "gpu_compute/test_lie_compact_reference_gpu.gd", "gpu_compute/test_lie_hardware_probe.gd", "gpu_compute/lie_hardware_report.gd", "gpu_compute/test_lie_hardware_report.gd", "tools/lie_hardware_build.py", "tools/lie_shadow_view.py", "tools/lie_wall21*", "tools/lie_gpu_apk_verify.py", "tests/test_lie_shadow_view.py", "gpu_compute/*wall20*", "gpu_compute/lie_shared_tangent_bounds.gd", "gpu_compute/test_lie_tangent_reference_gpu.gd", "tools/lie_tangent_bounds.py", "tools/lie_wall20*", "tests/test_lie_tangent_bounds.py", ".github/workflows/lie-gpu-diagnostics.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -87,6 +87,7 @@ jobs:
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_stream_queue_gpu.gd --check-only
           godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall21_mobile.gd --check-only
           set -o pipefail
+          timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_hardware_report.gd 2>&1 | tee hardware-report.log
           timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_hardware_probe.gd 2>&1 | tee hardware-probe.log
           timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall21_commands.gd 2>&1 | tee stream-command.log
       - name: Exact GPU prefix queue acceptance
@@ -112,7 +113,7 @@ jobs:
           timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_compact_reference_gpu.gd 2>&1 | tee compact-reference.log
           python - <<'PY_CHECK'
           from pathlib import Path
-          for name in ['native-probe-build.log','hardware-probe.log','compact-reference.log','assets-import.log','stream-command.log','stream-queue.log','wall21-mobile.log','wall17-mobile.log','witness-gpu.log','tangent-reference.log']:
+          for name in ['native-probe-build.log','hardware-probe.log','hardware-report.log','compact-reference.log','assets-import.log','stream-command.log','stream-queue.log','wall21-mobile.log','wall17-mobile.log','witness-gpu.log','tangent-reference.log']:
             text=Path(name).read_text()
             assert 'ERROR:' not in text and 'were leaked at exit' not in text,text[-15000:]
           PY_CHECK
@@ -141,11 +142,11 @@ jobs:
             -alias androiddebugkey -dname 'CN=LIE Experimental Android,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
           python tools/lie_wall21_android_build.py --stage /tmp/lie-assets-export \
             --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" \
-            --keystore /tmp/lie-wall06-debug.keystore --output "$PWD/apk/LIE-GPU-1.8.0.apk"
+            --keystore /tmp/lie-wall06-debug.keystore --output "$PWD/apk/LIE-GPU-1.8.1.apk"
           python - <<'PY'
           import hashlib,json,zipfile
           from pathlib import Path
-          p=Path('apk/LIE-GPU-1.8.0.apk');z=zipfile.ZipFile(p)
+          p=Path('apk/LIE-GPU-1.8.1.apk');z=zipfile.ZipFile(p)
           assert z.testzip() is None
           cat=json.loads(z.read('assets/captures/liewall06/catalog.json'))
           assert hashlib.sha256(z.read('assets/captures/liewall06/library.bin')).hexdigest()==cat['sha256']
@@ -179,7 +180,7 @@ jobs:
             assert hashlib.sha256(data).hexdigest()==expected
           PY
       - name: Verify native ELF, compact bytes and bundled licenses
-        run: python tools/lie_gpu_apk_verify.py apk/LIE-GPU-1.8.0.apk
+        run: python tools/lie_gpu_apk_verify.py apk/LIE-GPU-1.8.1.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -188,6 +189,7 @@ jobs:
             native-probe-build.log
             native-android-build.log
             hardware-probe.log
+            hardware-report.log
             compact-reference.log
             /tmp/lie-assets-ci/hardware-probe-native.json
             /tmp/lie-assets-ci/compact-reference-native.json
