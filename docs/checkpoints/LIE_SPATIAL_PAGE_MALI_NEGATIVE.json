@@ -1,0 +1,19 @@
+{
+  "schema": "lie-mali-paired-negative/1",
+  "source": "User-provided LIE 1.5 paired report, created_utc 2026-10-16T01:55:51",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "physical_android": true,
+  "resolution": 1080,
+  "physical_lights": 2,
+  "samples_per_kind_mode": 9,
+  "measured_events": 54,
+  "warmup_events": 60,
+  "restored": true,
+  "scene": {"camera_yaw": -52.655622406005804, "camera_elevation": -7.3502966033088075, "distance_factor": 0.6, "energy_radius": true, "light_azimuth": -96.75, "light_power": 1.46, "fill_power": 0.32, "exposure": 1.0899999999999999, "lighting_preset": "warm_raking", "area_lights": false, "contact_steps": 12},
+  "camera": {"reference_p50_ms": 64.494079, "pages_p50_ms": 64.476155, "reference_p95_ms": 69.356696, "pages_p95_ms": 71.417849},
+  "light_power": {"reference_p50_ms": 20.763079, "pages_p50_ms": 21.719846, "reference_p95_ms": 23.818618, "pages_p95_ms": 24.537156},
+  "light_position": {"reference_p50_ms": 59.448389, "pages_p50_ms": 184.630162, "reference_p95_ms": 63.077772, "pages_p95_ms": 218.863547, "reference_visibility_p50_ms": 43.85731, "pages_visibility_p50_ms": 168.901547, "reference_visibility_p95_ms": 48.49131, "pages_visibility_p95_ms": 203.860009},
+  "warmup_light_position": {"reference_p50_ms": 58.237541, "pages_p50_ms": 186.648162},
+  "scope": "Transcribed measured values and scene subset from the supplied summary; not a new measurement, full raw timestamps not provided. Thermal state uncontrolled. No register/cache/bandwidth diagnosis inferred."
+}

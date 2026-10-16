@@ -1,0 +1,181 @@
+name: LIE coherent visibility queues and split traversal
+on:
+  pull_request:
+    paths: ["gpu_compute/*wall19*", "gpu_compute/lie_shared_visibility_order.gd", "gpu_compute/lie_visibility_stream_kernels.gd", "gpu_compute/test_lie_stream_queue_gpu.gd", "gpu_compute/shaders/lie_wall19*", "gpu_compute/shaders/lib/lie_*stream*.glslinc", "tools/lie_visibility_order.py", "tools/lie_wall19*", "tests/test_lie_visibility_stream.py", ".github/workflows/lie-visibility-stream.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lie-visibility-stream-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  native-and-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare verified shared sources and independent regressions
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m unittest discover -s tests -p 'test_lie_visibility_stream.py' -v
+          python tools/lie_wall19_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall19*.glsl gpu_compute/lie_visibility_stream_kernels.gd
+          python -m unittest discover -s tests -p 'test_lie_stage_kernels.py' -v
+          python tools/lie_wall17_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall17*.glsl gpu_compute/lie_stage_kernels.gd
+          python -m unittest discover -s tests -p 'test_lie_surface_queries.py' -v
+          python tools/lie_wall16_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall16_query.glsl gpu_compute/shaders/lie_witness_test.glsl
+          python -m unittest discover -s tests -p 'test_lie_active_visibility.py' -v
+          python -m unittest discover -s tests -p 'test_lie_light_field.py' -v
+          python -m unittest discover -s tests -p 'test_lie_area_reference.py' -v
+          python -m unittest discover -s tests -p 'test_lie_filter_reference.py' -v
+          python -m unittest discover -s tests -p 'test_lie_surface_light.py' -v
+          python -m unittest discover -s tests -p 'test_lie_asset_surface.py' -v
+          python -m unittest discover -s tests -p 'test_lie_persistent_reference.py' -v
+          python -m unittest discover -s tests -p 'test_lie_opaque_reference.py' -v
+          python -m unittest discover -s tests -p 'test_lie_asset*.py' -v
+          python -m unittest discover -s tests -p 'test_lie_brick02_capture.py' -v
+          python -m unittest discover -s tests -p 'test_lie_wall06*.py' -v
+          python -m unittest discover -s tests -p 'test_lie35*.py' -v
+          python -m unittest discover -s tests -p 'test_lie_wall05*.py' -v
+          python tools/lie_wall05_shader.py
+          python tools/lie_wall05_optical_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall05*.glsl
+          python tools/lie_wall07_shader.py
+          python tools/lie_light_field_shader.py
+          python tools/lie_surface_light_shader.py
+          python tools/lie_wall09_shader.py
+          python tools/lie_wall10_shader.py
+          python tools/lie_wall11_shader.py
+          python tools/lie_wall12_shader.py
+          python tools/lie_wall13_shader.py
+          python tools/lie_wall15_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall15_active.glsl gpu_compute/shaders/lie_active_trace_test.glsl
+          git diff --exit-code -- gpu_compute/shaders/lie_wall13_area.glsl gpu_compute/shaders/lie_area_field.glsl gpu_compute/shaders/lie_filter_test.glsl
+          python tools/lie_opaque_reference.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall12_material.glsl gpu_compute/shaders/lie_opaque_test.glsl
+          python tools/lie_persistent_reference.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall11_persistent.glsl gpu_compute/shaders/lie_persistent_visibility_test.glsl
+          python tools/lie_source_visibility_fixture.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall10_source.glsl gpu_compute/shaders/lie_source_visibility_test.glsl
+          python tools/lie_surface_reference.py
+          git diff --exit-code -- gpu_compute/shaders/lie_surface_light.glsl gpu_compute/shaders/lie_wall09_surface.glsl gpu_compute/shaders/lie_surface_test.glsl
+          git diff --exit-code -- gpu_compute/shaders/lie_light_field.glsl
+          python tools/lie_wall19_android_build.py --stage /tmp/lie-assets-ci
+          git diff --exit-code -- gpu_compute/shaders/lie_wall07_continuous.glsl gpu_compute/shaders/lie_asset_stencil_test.glsl
+      - name: Install native Godot and actual Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Import native source and command acceptance
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --editor --import --quit > assets-import.log 2>&1
+          set -o pipefail
+          timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall19_commands.gd 2>&1 | tee stream-command.log
+      - name: Exact GPU prefix queue acceptance
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          set -o pipefail
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_stream_queue_gpu.gd 2>&1 | tee stream-queue.log
+      - name: Real-bank stream images, work counters and paired timing
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          set -o pipefail
+          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_wall19_mobile.gd 2>&1 | tee wall19-mobile.log
+      - name: Accepted 1.4 and exact-ray regressions
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          set -o pipefail
+          timeout 600s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_wall17_mobile.gd 2>&1 | tee wall17-mobile.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_witness_gpu.gd 2>&1 | tee witness-gpu.log
+          python - <<'PY_CHECK'
+          from pathlib import Path
+          for name in ['assets-import.log','stream-command.log','stream-queue.log','wall19-mobile.log','wall17-mobile.log','witness-gpu.log']:
+            text=Path(name).read_text()
+            assert 'ERROR:' not in text and 'were leaked at exit' not in text,text[-15000:]
+          PY_CHECK
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: '12266719'
+          packages: 'platform-tools build-tools;36.0.0'
+          log-accepted-android-sdk-licenses: false
+      - name: Verified official Android template and SDK
+        run: |
+          test -x "$ANDROID_HOME/build-tools/36.0.0/apksigner"
+          curl -fL --retry 3 -o godot-templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
+          echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  godot-templates.tpz' | sha256sum -c -
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -j -q godot-templates.tpz templates/android_debug.apk -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+      - name: Export, normalize, align, sign and verify actual APK
+        run: |
+          keytool -genkeypair -keystore /tmp/lie-wall06-debug.keystore -storepass android -keypass android \
+            -alias androiddebugkey -dname 'CN=LIE Experimental Android,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
+          python tools/lie_wall19_android_build.py --stage /tmp/lie-assets-export \
+            --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" \
+            --keystore /tmp/lie-wall06-debug.keystore --output "$PWD/apk/LIE-Visibilidad-1.6.0.apk"
+          python - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          p=Path('apk/LIE-Visibilidad-1.6.0.apk');z=zipfile.ZipFile(p)
+          assert z.testzip() is None
+          cat=json.loads(z.read('assets/captures/liewall06/catalog.json'))
+          assert hashlib.sha256(z.read('assets/captures/liewall06/library.bin')).hexdigest()==cat['sha256']
+          assert 'assets/captures/liewall04/library.bin' not in z.namelist()
+          assert 'assets/captures/liewall05/library.bin' not in z.namelist()
+          manifest=json.loads(z.read('assets/captures/liewall06/asset-contract.json'))
+          assert manifest['bank_sha256']==cat['sha256']
+          order=json.loads(z.read('assets/captures/liewall06/visibility-order.json'))
+          assert order['source_bank_sha256']==cat['sha256']
+          raw=z.read('assets/captures/liewall06/visibility-order.bin')
+          assert len(raw)==order['bytes'] and hashlib.sha256(raw).hexdigest()==order['sha256']
+          assert not any('spatial-pages' in name for name in z.namelist())
+          group=json.loads(z.read('assets/captures/liewall06/light-groups.json'))
+          assert hashlib.sha256(z.read('assets/captures/liewall06/light-groups.bin')).hexdigest()==group['sha256']
+          proof=json.loads(z.read('assets/captures/liewall06/light-field.json'))
+          for meta in proof['sources'].values():
+            raw=z.read('assets/captures/liewall06/'+meta['file'])
+            assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
+          surface=json.loads(z.read('assets/captures/liewall06/surface-source.json'))
+          assert surface['source_bank_sha256']==cat['sha256']
+          for meta in surface['packets'].values():
+            raw=z.read('assets/captures/liewall06/'+meta['file'])
+            assert len(raw)==meta['bytes'] and hashlib.sha256(raw).hexdigest()==meta['sha256']
+          for n in ['sample-refs.bin','optics.bin','outgoing-csr.bin','shadow-caps.bin']:
+            data=z.read('assets/captures/liewall06/'+n)
+            proof=cat['wall05'].get(n,{})
+            expected=proof.get('sha256',cat['wall05']['reference_sha256'])
+            assert hashlib.sha256(data).hexdigest()==expected
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-visibility-stream-apk-and-native
+          path: |
+            assets-import.log
+            stream-command.log
+            stream-queue.log
+            wall19-mobile.log
+            wall17-mobile.log
+            witness-gpu.log
+            /tmp/lie-assets-ci/wall19-native.json
+            /tmp/lie-assets-ci/wall17-native.json
+            /tmp/lie-assets-ci/stream-queue-native.json
+            /tmp/lie-assets-ci/witness-native.json
+            /tmp/lie-assets-ci/captures/liewall06/visibility-order.json
+            apk/*.apk
+            apk/android-build.json
+          if-no-files-found: error

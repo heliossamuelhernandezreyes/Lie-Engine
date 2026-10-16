@@ -1,0 +1,16 @@
+// Stable lane order within a 64-entry spatial block; one global append per block.
+shared uint stream_prefix[64];
+shared uint stream_base;
+void lie_stream_append(bool selected,uint id,uint lane) {
+    stream_prefix[lane]=selected?1u:0u;barrier();
+    for(uint step=1u;step<64u;step*=2u) {
+        uint addend=lane>=step?stream_prefix[lane-step]:0u;barrier();
+        stream_prefix[lane]+=addend;barrier();
+    }
+    if(lane==63u) {
+        uint count=stream_prefix[63];stream_base=0u;
+        if(count>0u){stream_base=atomicAdd(STREAM_QUEUE.values[3],count);atomicMax(STREAM_QUEUE.values[0],(stream_base+count+63u)/64u);}
+    }
+    barrier();
+    if(selected)STREAM_QUEUE.values[4u+stream_base+stream_prefix[lane]-1u]=id;
+}
