@@ -103,7 +103,13 @@ func _ui() -> void:
 func agent_snapshot() -> Dictionary:
     var result: Dictionary=super.agent_snapshot();result["control_contract"]["booleans"].append("compact_shadows");return result
 
-func _exit_tree() -> void:hardware.release_counters()
+func _exit_tree() -> void:
+    hardware.release_counters();super._exit_tree()
+func _notification(what: int) -> void:
+    super._notification(what)
+    if what==NOTIFICATION_APPLICATION_PAUSED:
+        if benchmark_busy:_benchmark_cancelled=true
+        hardware.release_counters()
 func _stream_event(values: Dictionary,kind: String,mode: String,cycle: int,force: bool=false) -> Dictionary:
     var begin: int=Time.get_ticks_usec()
     var event: Dictionary=await super._stream_event(values,kind,mode,cycle,force)
