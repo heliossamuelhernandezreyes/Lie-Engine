@@ -1,0 +1,63 @@
+{
+  "schema": "lie-physical-observation/1",
+  "source": "user-pasted LIE 1.8 report; final hardware block and later report fields truncated",
+  "created_utc": "2026-10-16T15:37:29",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "app_version": "1.8.0-gpu-diagnostics",
+  "timed_header": {
+    "camera": {
+      "original_ms": 52.53,
+      "compact_ms": 52.72,
+      "compact_time_delta_percent": 0.36169807728916314,
+      "events_per_mode": 9
+    },
+    "light_power": {
+      "original_ms": 18.5,
+      "compact_ms": 18.8,
+      "compact_time_delta_percent": 1.6216216216216273,
+      "events_per_mode": 9
+    },
+    "light_position": {
+      "original_ms": 44.03,
+      "compact_ms": 44.52,
+      "compact_time_delta_percent": 1.1128775834658322,
+      "events_per_mode": 9
+    }
+  },
+  "cpu_control_p50_ms": 0.912,
+  "appearance_requested_bytes": 307543868,
+  "compact_view_extra_bytes": 16680224,
+  "configured_hardware_counters": 17,
+  "camera_samples": {
+    "reference": {
+      "active_cycles": "122379914",
+      "atomic_issues": "10803000",
+      "diverged_instructions_percent": 48.38409116982242
+    },
+    "compact_label_but_untrusted_interval": {
+      "active_cycles": "120011061",
+      "atomic_issues": "0",
+      "diverged_instructions_percent": 60.7979725860619
+    }
+  },
+  "zero_active_cycle_blocks_visible": [
+    "reference/light_power",
+    "reference/light_position",
+    "compact/light_power",
+    "compact/light_position (partial block shown)"
+  ],
+  "gpu_clock_readable": false,
+  "gpu_temperature_readable": false,
+  "thermal_policy_status_at_visible_boundaries": 0,
+  "scene": "not available in the supplied truncated text",
+  "interpretation": {
+    "compact_speed_gain_observed": false,
+    "statistical_regression_proven": false,
+    "hardware_phase_attribution_valid": false,
+    "confirmed_code_defect": "reader reused after stop() queued an unconsumed final dump",
+    "driver_defect_proven": false,
+    "whole_system_bandwidth_bottleneck_ruled_out": false,
+    "physical_patch_rerun_needed": true
+  }
+}

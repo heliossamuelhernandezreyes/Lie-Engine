@@ -22,6 +22,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+#include "interval_capture.hpp"
 using namespace godot;
 namespace {
 constexpr const char *LIB_SHA="378c7b59e2dae87cbbffb0ac9cf96ed13c939823";
@@ -64,10 +65,11 @@ Dictionary telemetry_data(){
 class LieGPUProbe: public RefCounted {
     GDCLASS(LieGPUProbe,RefCounted)
     std::unique_ptr<hwcpipe::sampler<>> sampler;
+    IntervalCapture<hwcpipe::sampler<>> capture;
     std::vector<hwcpipe_counter> counters;
     Dictionary state;
-    bool active=false;
     uint64_t start_ns=0;
+    uint64_t session_id=0;
 protected:
     static void _bind_methods(){
         ClassDB::bind_method(D_METHOD("probe"),&LieGPUProbe::probe);
@@ -98,30 +100,30 @@ public:
         state["available"]=true;state.erase("reason");return state.duplicate(true);
     }
     Dictionary begin(){
-        if(active)return unavailable("sampling_already_started");
-        if(!sampler)return unavailable("counter_sampler_not_ready");
-        auto error=sampler->start_sampling();if(error){state["available"]=false;state["reason"]=String(error.message().c_str());sampler.reset();return state.duplicate(true);}
-        active=true;
-        // Discard the initial interval so the retained sample follows this boundary.
-        error=sampler->sample_now();if(error){auto ignored=sampler->stop_sampling();(void)ignored;active=false;sampler.reset();state["available"]=false;state["reason"]=String(error.message().c_str());return state.duplicate(true);}
-        start_ns=now_ns();Dictionary result;result["available"]=true;result["host_start_ns"]=String::num_uint64(start_ns);return result;
+        if(capture.active())return unavailable("sampling_already_started");
+        // probe() creates a new handle/reader. A prior stop() leaves a final
+        // dump in its own queue, so reusing that sampler mislabels later data.
+        probe();if(!sampler)return state.duplicate(true);
+        auto error=capture.begin(std::move(sampler));
+        if(error){state["available"]=false;state["reason"]=String(error.message().c_str());return state.duplicate(true);}
+        ++session_id;start_ns=now_ns();Dictionary result;result["available"]=true;result["session_id"]=String::num_uint64(session_id);result["host_start_ns"]=String::num_uint64(start_ns);result["fresh_reader"]=true;return result;
     }
     Dictionary end(){
-        if(!active || !sampler)return unavailable("sampling_not_started");
-        auto error=sampler->sample_now();const auto finish=now_ns();Dictionary result;result["available"]=!error;result["host_start_ns"]=String::num_uint64(start_ns);result["host_end_ns"]=String::num_uint64(finish);result["wall_ms"]=double(finish-start_ns)/1e6;Dictionary values;
+        if(!capture.active())return unavailable("sampling_not_started");
+        auto error=capture.sample();const auto finish=now_ns();Dictionary result;result["available"]=!error;result["session_id"]=String::num_uint64(session_id);result["fresh_reader"]=true;result["host_start_ns"]=String::num_uint64(start_ns);result["host_end_ns"]=String::num_uint64(finish);result["wall_ms"]=double(finish-start_ns)/1e6;Dictionary values;
         if(error)result["reason"]=String(error.message().c_str());
         else {
             hwcpipe::counter_database db;
-            for(auto counter:counters){hwcpipe::counter_sample sample;auto read=sampler->get_counter_value(counter,sample);hwcpipe::counter_metadata meta{};auto described=db.describe_counter(counter,meta);if(described)continue;Dictionary row;row["unit"]=meta.units;row["available"]=!read;
+            for(auto counter:counters){hwcpipe::counter_sample sample;auto read=capture.get()->get_counter_value(counter,sample);hwcpipe::counter_metadata meta{};auto described=db.describe_counter(counter,meta);if(described)continue;Dictionary row;row["unit"]=meta.units;row["available"]=!read;
                 if(read)row["reason"]=String(read.message().c_str());
                 else {row["timestamp_ns"]=String::num_uint64(sample.timestamp);if(sample.type==hwcpipe::counter_sample::type::uint64){row["kind"]="uint64_decimal";row["value"]=String::num_uint64(sample.value.uint64);}else if(std::isfinite(sample.value.float64)){row["kind"]="float64";row["value"]=sample.value.float64;}else{row["available"]=false;row["reason"]="nonfinite derived value; possibly no activity";}}
                 values[meta.name]=row;
             }
         }
-        auto stopped=sampler->stop_sampling();active=false;if(stopped){result["available"]=false;result["stop_error"]=String(stopped.message().c_str());sampler.reset();}
-        result["counters"]=values;result["scope"]="HWCPipe interval after discarded baseline; whole-device data includes other apps and presentation; not per-dispatch. Kernel timestamp clock is not calibrated to Godot GPU timestamps.";return result;
+        auto stopped=capture.close();if(stopped){result["available"]=false;result["stop_error"]=String(stopped.message().c_str());}
+        result["counters"]=values;result["scope"]="Fresh HWCPipe reader per interval; own baseline discarded and final stop dump destroyed with its reader. Whole-device data includes other apps and presentation; not per-dispatch. Kernel clock is not calibrated to Godot GPU timestamps.";return result;
     }
-    void release_counters(){if(active && sampler){auto ignored=sampler->stop_sampling();(void)ignored;}active=false;sampler.reset();counters.clear();}
+    void release_counters(){auto ignored=capture.close();(void)ignored;sampler.reset();counters.clear();}
 };
 void initialize_probe(ModuleInitializationLevel level){if(level==MODULE_INITIALIZATION_LEVEL_SCENE)GDREGISTER_CLASS(LieGPUProbe);}
 void terminate_probe(ModuleInitializationLevel){}
