@@ -75,7 +75,7 @@ func _stage(list: int,stage: int,count: int) -> void:
 func cache_metrics() -> Dictionary:
     var result: Dictionary=super.cache_metrics();var bytes: int=0
     for length in _tile_lengths.values():bytes+=length
-    result["screen_tiles"]={"requested":screen_tiles,"effective":_effective_tiles(),"ready":_tile_sets.size()==6,"tile_size":8,"builds":tile_builds,"allocations":tile_allocations,"additional_requested_bytes":bytes,"reference_capacity":MAX_WORK*9,"scope":"exact per-screen-tile CSR; one pixel owner; unchanged source disks, depth ties and uint material sums; lists reused on light-only updates"};return result
+    result["screen_tiles"]={"requested":screen_tiles,"effective":_effective_tiles(),"ready":_tile_sets.size()==6,"tile_size":8,"shared_workgroup_bytes":2560,"strategy":"source-footprint reduction in shared memory","builds":tile_builds,"allocations":tile_allocations,"additional_requested_bytes":bytes,"reference_capacity":MAX_WORK*9,"scope":"exact per-screen-tile CSR; one pixel owner; unchanged source disks, depth ties and uint material sums; lists reused on light-only updates"};return result
 func _release() -> void:
     _free_tile_sets()
     for entry in _tile_pipelines.values():

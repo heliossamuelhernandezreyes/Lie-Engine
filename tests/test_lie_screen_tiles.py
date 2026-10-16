@@ -27,7 +27,9 @@ class ScreenTileContracts(unittest.TestCase):
         self.assertNotIn('atomicMin(depths',source)
         self.assertNotIn('atomicMin(winners',source)
         self.assertIn('bits==nearest',source)
-        self.assertIn('owner=min(owner,id)',source)
+        self.assertIn('atomicMin(lie_tile_owners[local_pixel],id)',source)
+        self.assertIn('shared uint lie_tile_depths[64]',source)
+        self.assertIn('shared uvec4 lie_tile_colors[64]',source)
         self.assertIn('source_visibility.values[id].y,0x80000000u',source)
 
     def test_integer_reduction_independent_of_list_order(self):

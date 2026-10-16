@@ -260,35 +260,51 @@ uvec2 lie_tile_dimensions(){return (uvec2(parameters.counts.zw)+7u)/8u;}
 
 uint lie_tile_start(uint tile){return tile_table.values[tile].z+tile_groups.values[tile/64u];}
 
-bool lie_tile_hit(Projection p,ivec2 q,out uint bits){
-    int bound=int(ceil(p.screen.w));ivec2 center=ivec2(floor(p.screen.xy));
-    if(any(lessThan(q,center-ivec2(bound))) || any(greaterThan(q,center+ivec2(bound))))return false;
-    if(appearance_control.words[1]!=0u){ivec2 row=lie_splat_row(p,center,q.y,bound);if(q.x<row.x || q.x>row.y)return false;}
-    if(!covered(p,vec2(q)+.5))return false;
-    float z=pixel_depth(p,vec2(q)+.5);if(z<=parameters.lens.z || isnan(z) || isinf(z))return false;
-    bits=floatBitsToUint(z);return true;
+
+shared uint lie_tile_depths[64];
+shared uint lie_tile_owners[64];
+shared uvec4 lie_tile_colors[64];
+shared uvec4 lie_tile_normals[64];
+// Source-owned work inside a screen-owned tile. Atomics target workgroup
+// memory; each final global pixel record still has exactly one writer.
+void lie_tile_raster(uint id,ivec2 origin,bool materials){
+    Projection p=projected.v[id];int bound=int(ceil(p.screen.w));
+    ivec2 center=ivec2(floor(p.screen.xy));bool tight=appearance_control.words[1]!=0u;
+    int ymin=max(center.y-bound,origin.y),ymax=min(min(center.y+bound,origin.y+7),parameters.counts.w-1);
+    vec4 material=materials?tile_materials.values[id]:vec4(0);
+    for(int y=ymin;y<=ymax;y++){
+        ivec2 interval=tight?lie_splat_row(p,center,y,bound):ivec2(center.x-bound,center.x+bound);
+        interval.x=max(interval.x,origin.x);interval.y=min(min(interval.y,origin.x+7),parameters.counts.z-1);
+        for(int x=interval.x;x<=interval.y;x++){
+            ivec2 q=ivec2(x,y);if(!covered(p,vec2(q)+.5))continue;
+            float z=pixel_depth(p,vec2(q)+.5);if(z<=parameters.lens.z || isnan(z) || isinf(z))continue;
+            uint bits=floatBitsToUint(z),local_pixel=uint(y-origin.y)*8u+uint(x-origin.x);
+            if(!materials){atomicMin(lie_tile_depths[local_pixel],bits);continue;}
+            uint nearest=lie_tile_depths[local_pixel];
+            if(bits==nearest){atomicMin(lie_tile_owners[local_pixel],id);atomicOr(source_visibility.values[id].y,0x80000000u);}
+            if(abs(z-uintBitsToFloat(nearest))>parameters.options.w)continue;
+            uint w=max(uint(round(256*exp(-2*footprint_distance(p,vec2(q)+.5)))),1u);
+            uvec3 c=uvec3(round(material.rgb*float(w))),n=uvec3(round((p.normal.xyz*.5+.5)*float(w)));
+            atomicAdd(lie_tile_colors[local_pixel].x,c.x);atomicAdd(lie_tile_colors[local_pixel].y,c.y);
+            atomicAdd(lie_tile_colors[local_pixel].z,c.z);atomicAdd(lie_tile_colors[local_pixel].w,w);
+            atomicAdd(lie_tile_normals[local_pixel].x,n.x);atomicAdd(lie_tile_normals[local_pixel].y,n.y);
+            atomicAdd(lie_tile_normals[local_pixel].z,n.z);atomicAdd(lie_tile_normals[local_pixel].w,uint(round(material.w*float(w))));
+        }
+    }
 }
 void main(){
-    uint tile=gl_WorkGroupID.x;uvec2 dims=lie_tile_dimensions();
-    ivec2 q=ivec2(tile%dims.x,tile/dims.x)*8+ivec2(gl_LocalInvocationID.x%8u,gl_LocalInvocationID.x/8u);
-    if(!inside(q))return;
-    uint pixel=uint(q.y*parameters.counts.z+q.x),count=tile_table.values[tile].x,start=lie_tile_start(tile);
-    uint nearest=0x7f7fffffu,owner=EMPTY;
-    for(uint k=0u;k<count;k++){
-        uint id=tile_refs.values[start+k],bits;Projection p=projected.v[id];
-        if(lie_tile_hit(p,q,bits))nearest=min(nearest,bits);
-    }
-    Accumulator a=Accumulator(uvec4(0),uvec4(0));
-    if(nearest!=0x7f7fffffu)for(uint k=0u;k<count;k++){
-        uint id=tile_refs.values[start+k],bits;Projection p=projected.v[id];
-        if(!lie_tile_hit(p,q,bits))continue;
-        if(bits==nearest){owner=min(owner,id);atomicOr(source_visibility.values[id].y,0x80000000u);}
-        if(abs(uintBitsToFloat(bits)-uintBitsToFloat(nearest))>parameters.options.w)continue;
-        vec4 material=tile_materials.values[id];
-        uint w=max(uint(round(256*exp(-2*footprint_distance(p,vec2(q)+.5)))),1u);
-        uvec3 c=uvec3(round(material.rgb*float(w))),n=uvec3(round((p.normal.xyz*.5+.5)*float(w)));
-        a.color_weight+=uvec4(c,w);
-        a.normal_roughness+=uvec4(n,uint(round(material.w*float(w))));
-    }
-    depths.v[pixel]=nearest;winners.v[pixel]=owner;accumulated.v[pixel]=a;
+    uint tile=gl_WorkGroupID.x,lane=gl_LocalInvocationID.x;uvec2 dims=lie_tile_dimensions();
+    uint count=tile_table.values[tile].x;if(count==0u)return;
+    uint start=lie_tile_start(tile);ivec2 origin=ivec2(tile%dims.x,tile/dims.x)*8;
+    lie_tile_depths[lane]=0x7f7fffffu;lie_tile_owners[lane]=EMPTY;
+    lie_tile_colors[lane]=uvec4(0);lie_tile_normals[lane]=uvec4(0);barrier();
+    for(uint k=lane;k<count;k+=64u)lie_tile_raster(tile_refs.values[start+k],origin,false);
+    barrier();
+    for(uint k=lane;k<count;k+=64u)lie_tile_raster(tile_refs.values[start+k],origin,true);
+    barrier();
+    ivec2 q=origin+ivec2(lane%8u,lane/8u);if(!inside(q))return;
+    uint pixel=uint(q.y*parameters.counts.z+q.x);
+    depths.v[pixel]=lie_tile_depths[lane];winners.v[pixel]=lie_tile_owners[lane];
+    accumulated.v[pixel].color_weight=lie_tile_colors[lane];
+    accumulated.v[pixel].normal_roughness=lie_tile_normals[lane];
 }
