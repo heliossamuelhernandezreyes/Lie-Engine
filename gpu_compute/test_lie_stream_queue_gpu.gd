@@ -1,5 +1,5 @@
 extends SceneTree
-const Shader=preload("res://shaders/lie_wall19_compact.glsl")
+const QueueShader=preload("res://shaders/lie_wall19_compact.glsl")
 var checks: int=0
 var failed: bool=false
 func _initialize() -> void:call_deferred("run")
@@ -11,7 +11,7 @@ func uniform(binding: int,rid: RID) -> RDUniform:
 func run() -> void:
     var rd: RenderingDevice=RenderingServer.create_local_rendering_device()
     if rd==null:printerr("Actual Vulkan required");quit(1);return
-    var shader: RID=rd.shader_create_from_spirv(Shader.get_spirv());var pipeline: RID=rd.compute_pipeline_create(shader);var evidence: Array=[]
+    var shader: RID=rd.shader_create_from_spirv(QueueShader.get_spirv());var pipeline: RID=rd.compute_pipeline_create(shader);var evidence: Array=[]
     for count in [1,63,64,65,130,535670]:
         for pattern in range(3):
             var params:=PackedByteArray();params.resize(256);params.encode_u32(80,count)

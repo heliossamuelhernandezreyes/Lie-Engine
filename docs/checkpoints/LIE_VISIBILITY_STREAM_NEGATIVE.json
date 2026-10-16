@@ -1,0 +1,14 @@
+{
+  "schema": "lie-stream-negative/1",
+  "attempts": [{
+    "commit": "0b8c46d25d0d7ceefe21babfa8ac1e63c119aee6",
+    "run_id": 38840658539,
+    "job_id": 116779736113,
+    "artifact_id": 12021645572,
+    "artifact_sha256": "d5e12df74bb3b9aeefbf4d6ca95f16da4ae2a51be15b8a633682b457e6eb853d",
+    "stage": "GPU queue test script parsing",
+    "error": "The member Shader shadows a native class",
+    "resolution": "Rename the test constant QueueShader and check every standalone new test script before retrying",
+    "scope": "13 command checks and source preparation passed; queue GPU and full images were not measured; no APK exported"
+  }]
+}
