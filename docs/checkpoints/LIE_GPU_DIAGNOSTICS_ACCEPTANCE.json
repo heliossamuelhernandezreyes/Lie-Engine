@@ -1,0 +1,169 @@
+{
+  "schema": "lie-gpu-diagnostics-acceptance/1",
+  "runtime_head": "039748811a659ce9e3e836db53a0c63abfdf1fbc",
+  "runtime_tree": "8a4e94d24db8decf8b790d6f2965502f45351ba0",
+  "ci_run": 38857488881,
+  "ci_job": 116832157542,
+  "artifact_id": 12028130681,
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "physical_android_tested": false,
+  "gpu_device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "requested_appearance_bytes": 307543868,
+  "checks": {
+    "compact_mobile": 91,
+    "compact_float64_gpu_oracle": 281,
+    "hardware_extension": 11,
+    "commands": 16,
+    "original_1_4_mobile": 73,
+    "original_witness_oracle": 281,
+    "tangent_bounds_oracle": 281,
+    "prefix_queue": 54,
+    "local_cpu_rig": 247,
+    "local_agent": 25,
+    "local_unbuilt_fallback": 1
+  },
+  "measured_events": 54,
+  "warmup_events": 60,
+  "paired_work_counts_equal": true,
+  "telemetry_boundaries": 12,
+  "hardware_status": {
+    "available": false,
+    "device_node": "/dev/mali0",
+    "godot_cpp_sha": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+    "libGPUCounters_sha": "378c7b59e2dae87cbbffb0ac9cf96ed13c939823",
+    "native_extension": true,
+    "os_error": "No such file or directory",
+    "reason": "Mali device node unavailable",
+    "scope": "whole-device counters, not exclusive to this process or a GPU pass"
+  },
+  "software_vulkan_gpu_ms": {
+    "camera": {
+      "reference": {
+        "max_ms": 306.43621299999995,
+        "p50_ms": 293.807565,
+        "p95_ms": 306.43621299999995,
+        "samples": 9
+      },
+      "compact": {
+        "max_ms": 328.87715,
+        "p50_ms": 290.97727,
+        "p95_ms": 328.87715,
+        "samples": 9
+      }
+    },
+    "light_power": {
+      "reference": {
+        "max_ms": 73.8572,
+        "p50_ms": 69.998256,
+        "p95_ms": 73.8572,
+        "samples": 9
+      },
+      "compact": {
+        "max_ms": 76.30899500000001,
+        "p50_ms": 66.594724,
+        "p95_ms": 76.30899500000001,
+        "samples": 9
+      }
+    },
+    "light_position": {
+      "reference": {
+        "max_ms": 183.16859800000003,
+        "p50_ms": 174.44048400000003,
+        "p95_ms": 183.16859800000003,
+        "samples": 9
+      },
+      "compact": {
+        "max_ms": 183.036807,
+        "p50_ms": 174.48255300000002,
+        "p95_ms": 183.036807,
+        "samples": 9
+      }
+    }
+  },
+  "apk": {
+    "schema": "lie-gpu-apk-proof/1",
+    "apk_sha256": "2f8efc414e8c4411212fd7eddc499e1095caa413979d1e7b5aab848070efedd7",
+    "apk_bytes": 73723342,
+    "native_library": "lib/arm64-v8a/liblie_gpu_probe.so",
+    "native_sha256": "edb3a325020845210da4aac54e368de7f4bdf7e992d21e5c10ba6add68960b02",
+    "pt_load_alignment": [
+      16384,
+      16384,
+      16384
+    ],
+    "bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "shadow_view": {
+      "schema": "lie-shadow-view/1",
+      "file": "shadow-view.bin",
+      "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+      "source_count": 521257,
+      "original_stride": 80,
+      "stride": 32,
+      "bytes": 16680224,
+      "sha256": "363a7718495f669144454f9819e254d0afa7530bfedc39a9d1d6d8a31d5f0733",
+      "scope": "first 32 original bytes per source ID; position/radius and normal/gray; no quantization, reorder, geometry or material change"
+    },
+    "physical_android_tested": false
+  },
+  "native_builds": [
+    {
+      "schema": "lie-native-probe-build/1",
+      "platform": "linux.x86_64",
+      "dependencies": {
+        "godot-cpp": {
+          "url": "https://github.com/godotengine/godot-cpp.git",
+          "sha": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77"
+        },
+        "libGPUCounters": {
+          "url": "https://github.com/ARM-software/libGPUCounters.git",
+          "sha": "378c7b59e2dae87cbbffb0ac9cf96ed13c939823"
+        }
+      },
+      "library_bytes": 3128472,
+      "library_sha256": "381f62da34fd7f1ac7dbf16b98686bf332f2331124c955a67861182fc29f4411",
+      "cmake": "cmake version 3.31.6",
+      "ndk": null,
+      "scope": "native build proof, not evidence of Mali counter access or speed"
+    },
+    {
+      "schema": "lie-native-probe-build/1",
+      "platform": "android.arm64",
+      "dependencies": {
+        "godot-cpp": {
+          "url": "https://github.com/godotengine/godot-cpp.git",
+          "sha": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77"
+        },
+        "libGPUCounters": {
+          "url": "https://github.com/ARM-software/libGPUCounters.git",
+          "sha": "378c7b59e2dae87cbbffb0ac9cf96ed13c939823"
+        }
+      },
+      "library_bytes": 2005392,
+      "library_sha256": "edb3a325020845210da4aac54e368de7f4bdf7e992d21e5c10ba6add68960b02",
+      "cmake": "cmake version 3.31.6",
+      "ndk": "/usr/local/lib/android/sdk/ndk/28.2.13676358",
+      "scope": "native build proof, not evidence of Mali counter access or speed"
+    }
+  ],
+  "native_json_sha256": "5dd070e73d67d6218252888104d6f20a50dce0a2c4e786b6d17fe8de02d14fae",
+  "preserved_integration_failures": {
+    "commit": "58452f0ff1acf6341c535ea12028726e1bfe6b12",
+    "runs": [
+      38857003585,
+      38857003403,
+      38857003487,
+      38857003375
+    ],
+    "reason": "active descriptor in an unbuilt ordinary checkout; corrected by installing descriptor only after native build",
+    "reclassified_as_pass": false
+  },
+  "limits": [
+    "llvmpipe correctness and timing only; no physical Mali speed claim",
+    "whole-device hardware counters unavailable on the validation host; no synthetic values",
+    "source view adds 16680224 resident GPU bytes; original bank retained",
+    "host callback timing is not GPU completion or input-to-photon latency",
+    "thermal state not controlled"
+  ],
+  "ci_native_json_sha256": "58fa03e9252d9419b4718c1ddeb7a42c327dd3162d78080d8ce5c92fd083d3c2",
+  "native_evidence_serialization": "complete CI JSON object; compact whitespace, data equality asserted; original byte identity retained separately"
+}

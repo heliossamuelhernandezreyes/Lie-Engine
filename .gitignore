@@ -2,6 +2,8 @@
 *.translation
 .DS_Store
 __pycache__/
+/gpu_compute/addons/lie_gpu_probe/bin/
+/gpu_compute/addons/lie_gpu_probe/lie_gpu_probe.gdextension
 *.py[cod]
 assets/captures/*
 !assets/captures/.gitkeep

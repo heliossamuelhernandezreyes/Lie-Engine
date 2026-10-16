@@ -1,0 +1,8 @@
+[configuration]
+entry_symbol = "lie_gpu_probe_init"
+compatibility_minimum = "4.5"
+reloadable = false
+
+[libraries]
+linux.x86_64 = "res://addons/lie_gpu_probe/bin/linux.x86_64/liblie_gpu_probe.so"
+android.arm64 = "res://addons/lie_gpu_probe/bin/android.arm64/liblie_gpu_probe.so"
