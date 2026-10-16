@@ -1,0 +1,34 @@
+{
+  "schema": "lie-spatial-pages-local-checks/1",
+  "runtime": "Godot 4.7.2.stable.official.ed1daf0bf",
+  "python_spatial_pages": {
+    "checks": 3,
+    "passed": true
+  },
+  "python_prior_stage_kernels": {
+    "checks": 3,
+    "passed": true
+  },
+  "page_commands": {
+    "checks": 12,
+    "passed": true
+  },
+  "changed_spirv": {
+    "shaders": 2,
+    "compile_errors": []
+  },
+  "cpu_rig": {
+    "checks": 247,
+    "passed": true
+  },
+  "cpu_agent": {
+    "checks": 25,
+    "passed": true
+  },
+  "physical_android_tested": false,
+  "environment_negative": {
+    "godot_version_exit": 139,
+    "cause": "Existing executable did not match retained official ZIP; exact restoration recovered version and checks",
+    "restored_binary_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e"
+  }
+}
