@@ -83,7 +83,9 @@ public:
         release_counters();state=unavailable("not_probed");state["native_extension"]=true;state["libGPUCounters_sha"]=LIB_SHA;state["godot_cpp_sha"]=CPP_SHA;state["device_node"]="/dev/mali0";state["scope"]="whole-device counters, not exclusive to this process or a GPU pass";
         struct stat info{};
         if(stat("/dev/mali0",&info)!=0){state["reason"]="Mali device node unavailable";state["os_error"]=String(std::strerror(errno));return state.duplicate(true);}
-        if(access("/dev/mali0",R_OK|W_OK)!=0){state["reason"]="Mali device node access denied";state["os_error"]=String(std::strerror(errno));return state.duplicate(true);}
+        // kbase handles in the pinned backend open O_RDONLY; do not demand
+        // write permission that the actual sampler does not require.
+        if(access("/dev/mali0",R_OK)!=0){state["reason"]="Mali device node read access denied";state["os_error"]=String(std::strerror(errno));return state.duplicate(true);}
         hwcpipe::gpu gpu(0);if(!gpu){state["reason"]="Driver/GPU probe failed; permissions or unsupported driver/product may prevent access";return state.duplicate(true);}
         state["shader_cores"]=static_cast<int64_t>(gpu.num_shader_cores());state["bus_width_bits"]=static_cast<int64_t>(gpu.bus_width());
         hwcpipe::sampler_config config(gpu);Array supported,unsupported;
