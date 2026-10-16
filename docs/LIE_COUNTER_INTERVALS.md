@@ -61,3 +61,5 @@ register pressure. No FPS improvement is claimed by this instrumentation fix.
 
 Sources: [pinned manual sampler](https://github.com/ARM-software/libGPUCounters/blob/378c7b59e2dae87cbbffb0ac9cf96ed13c939823/backend/device/include/device/hwcnt/sampler/manual.hpp)
 and [pinned public sampler](https://github.com/ARM-software/libGPUCounters/blob/378c7b59e2dae87cbbffb0ac9cf96ed13c939823/hwcpipe/include/hwcpipe/sampler.hpp).
+
+Completed build and validation: [acceptance](checkpoints/LIE_COUNTER_INTERVALS_ACCEPTANCE.md).

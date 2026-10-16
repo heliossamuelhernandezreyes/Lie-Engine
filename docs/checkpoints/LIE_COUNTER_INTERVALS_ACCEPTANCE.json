@@ -1,0 +1,151 @@
+{
+  "schema": "lie-counter-intervals-acceptance/1",
+  "runtime_head": "93d3cb304c60ef974e871b62868e1b7725436a18",
+  "runtime_tree": "80baa7d589cc5ff6e797dc41a02b90e66671b239",
+  "ci_run": 38927358596,
+  "ci_job": 117062205668,
+  "artifact_id": 12058101112,
+  "workflows_passed": 18,
+  "package": "org.lieengine.wallruntime.v181",
+  "version": "1.8.1-counter-intervals",
+  "checks": {
+    "interval_fifo_local": 33,
+    "interval_fifo_ctest": 1,
+    "hardware_report": 10,
+    "native_extension": 11,
+    "commands": 16,
+    "real_bank_image_depth_work": 91,
+    "compact_float64_oracle": 281,
+    "old_1_4_mobile": 73,
+    "old_witness_oracle": 281,
+    "old_tangent_oracle": 281,
+    "prefix_queue": 54,
+    "shadow_python_local": 3
+  },
+  "measured_events": 54,
+  "predefined_warmup_events": 60,
+  "exact_state_restored": true,
+  "paired_work_counters_equal": true,
+  "shader_equations_changed": false,
+  "hardware_profile_on_ci": {
+    "blocks": [],
+    "invalid_blocks": 0,
+    "measurement_available": false,
+    "scope": "separate untimed whole-device intervals; may include other apps, engine and presentation; not per-pass counters or input-to-photon latency",
+    "status": {
+      "available": false,
+      "device_node": "/dev/mali0",
+      "godot_cpp_sha": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+      "libGPUCounters_sha": "378c7b59e2dae87cbbffb0ac9cf96ed13c939823",
+      "native_extension": true,
+      "os_error": "No such file or directory",
+      "reason": "Mali device node unavailable",
+      "scope": "whole-device counters, not exclusive to this process or a GPU pass"
+    },
+    "telemetry": {
+      "gpu_frequency": {
+        "available": false,
+        "reason": "GPU devfreq frequency is not readable by this app"
+      },
+      "gpu_temperature": {
+        "available": false,
+        "reason": "No readable thermal zone explicitly named GPU/Mali",
+        "sensors": []
+      },
+      "host_monotonic_ns": "277472453140",
+      "thermal_status": {
+        "available": false,
+        "reason": "Android thermal status API is not available on this platform"
+      }
+    },
+    "valid_blocks": 0
+  },
+  "physical_android_patch_tested": false,
+  "native_json_sha256": "a3d32b9d83b76a5291250526bed9ea3a366b4db2b938dfe0e9c0ab729c727493",
+  "original_ci_json_sha256": "cd31bddd9c9a2b20dad98ab1e689cf669ecf304cdfb5d751fd4814ffc046780c",
+  "evidence_serialization": "complete CI JSON object; whitespace compacted, object equality checked",
+  "apk": {
+    "schema": "lie-gpu-apk-proof/1",
+    "apk_sha256": "da9c6f2422a2fcc2c6687c74f5611bc413728a21a118a0eaee34660fa03a608e",
+    "apk_bytes": 73731691,
+    "native_library": "lib/arm64-v8a/liblie_gpu_probe.so",
+    "native_sha256": "964d59fc46e533b178687adf780e5a338c6e9bf274a2f4bbc51e41a9585b02e2",
+    "pt_load_alignment": [
+      16384,
+      16384,
+      16384
+    ],
+    "bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "shadow_view": {
+      "schema": "lie-shadow-view/1",
+      "file": "shadow-view.bin",
+      "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+      "source_count": 521257,
+      "original_stride": 80,
+      "stride": 32,
+      "bytes": 16680224,
+      "sha256": "363a7718495f669144454f9819e254d0afa7530bfedc39a9d1d6d8a31d5f0733",
+      "scope": "first 32 original bytes per source ID; position/radius and normal/gray; no quantization, reorder, geometry or material change"
+    },
+    "physical_android_tested": false
+  },
+  "native_builds": [
+    {
+      "schema": "lie-native-probe-build/1",
+      "platform": "android.arm64",
+      "dependencies": {
+        "godot-cpp": {
+          "url": "https://github.com/godotengine/godot-cpp.git",
+          "sha": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77"
+        },
+        "libGPUCounters": {
+          "url": "https://github.com/ARM-software/libGPUCounters.git",
+          "sha": "378c7b59e2dae87cbbffb0ac9cf96ed13c939823"
+        }
+      },
+      "library_bytes": 2005904,
+      "library_sha256": "964d59fc46e533b178687adf780e5a338c6e9bf274a2f4bbc51e41a9585b02e2",
+      "cmake": "cmake version 3.31.6",
+      "ndk": "/usr/local/lib/android/sdk/ndk/28.2.13676358",
+      "scope": "native build proof, not evidence of Mali counter access or speed"
+    },
+    {
+      "schema": "lie-native-probe-build/1",
+      "platform": "linux.x86_64",
+      "dependencies": {
+        "godot-cpp": {
+          "url": "https://github.com/godotengine/godot-cpp.git",
+          "sha": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77"
+        },
+        "libGPUCounters": {
+          "url": "https://github.com/ARM-software/libGPUCounters.git",
+          "sha": "378c7b59e2dae87cbbffb0ac9cf96ed13c939823"
+        }
+      },
+      "library_bytes": 3128472,
+      "library_sha256": "570a224ec4000f1024f6780d01dd8a02516982401662c6fb476c3470ebd7e2b5",
+      "cmake": "cmake version 3.31.6",
+      "ndk": null,
+      "scope": "native build proof, not evidence of Mali counter access or speed"
+    }
+  ],
+  "preserved_physical_observation": "LIE18_PHYSICAL_OBSERVATION.json",
+  "preserved_local_failures": [
+    {
+      "kind": "fixture assertion",
+      "description": "nested-start lifetime was checked in the call full-expression before the temporary argument was destroyed; checking after the call fixed the fixture; production ownership code unchanged"
+    },
+    {
+      "kind": "invalid local ELF output",
+      "description": "first local linked library had a zero/invalid ELF header; re-linking the same compiled inputs into /tmp produced valid ELF bytes, then checked chunk copies loaded in actual Godot. CI independently built and loaded unmodified source. No hand-patched binary header."
+    }
+  ],
+  "limits": [
+    "Physical 1.8 compact-view test showed no useful speed gain; variance insufficient to prove regression",
+    "Old 1.8 hardware interval attribution is invalid; do not infer bandwidth or per-pass divergence from those rows",
+    "Fresh-interval ownership is verified by a synthetic FIFO fixture; this is not simulated GPU performance",
+    "CI host has no Mali; corrected sampler requires physical verification",
+    "Hardware counters cover the whole device; timestamp clocks remain uncalibrated",
+    "No FPS improvement is claimed for this capture/report hotfix"
+  ]
+}
