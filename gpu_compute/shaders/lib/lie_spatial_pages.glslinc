@@ -1,0 +1,53 @@
+// Immutable source-coordinate -> CSR pages. Pages never replace exact disks.
+layout(set=0,binding=37,std430) readonly buffer SpatialPages {uint words[];} spatial_pages;
+void lie_page_stat(uint slot) {if(query_memory.words[2]!=0u)atomicAdd(query_memory.words[20u+slot],1u);}
+vec3 lie_page_vec(uint at) {return uintBitsToFloat(uvec3(spatial_pages.words[at],spatial_pages.words[at+1u],spatial_pages.words[at+2u]));}
+float lie_page_trace(vec3 o,vec3 d,float minimum,float maximum,float early,uint root,uint skip,out uint blocker,out bool accepted) {
+    blocker=0xffffffffu;accepted=false;
+    if(root>=spatial_pages.words[3])return maximum;
+    uint index=spatial_pages.words[spatial_pages.words[4]+root];if(index==0u)return maximum;
+    uint at=spatial_pages.words[5]+(index-1u)*16u;
+    vec3 low=lie_page_vec(at),high=lie_page_vec(at+4u);
+    ivec3 dims=ivec3(spatial_pages.words[at+3u],spatial_pages.words[at+7u],spatial_pages.words[at+8u]);
+    if(any(lessThan(dims,ivec3(1))) || any(greaterThan(dims,ivec3(64))))return maximum;
+    vec3 width=(high-low)/vec3(dims);float enter=minimum,leave=maximum;
+    for(int axis=0;axis<3;axis++) {
+        if(abs(d[axis])<1e-20){if(o[axis]<low[axis] || o[axis]>high[axis]){accepted=true;return maximum;}}
+        else {float a=(low[axis]-o[axis])/d[axis],b=(high[axis]-o[axis])/d[axis];enter=max(enter,min(a,b));leave=min(leave,max(a,b));}
+    }
+    if(isnan(enter) || isnan(leave) || isinf(enter) || isinf(leave))return maximum;
+    if(enter>leave){accepted=true;return maximum;}
+    ivec3 cell=clamp(ivec3(floor((o+d*enter-low)/width)),ivec3(0),dims-1),step=ivec3(sign(d));
+    vec3 next=vec3(3.402823e38),increment=vec3(3.402823e38);
+    for(int axis=0;axis<3;axis++)if(abs(d[axis])>=1e-20) {
+        float edge=low[axis]+float(cell[axis]+(step[axis]>0?1:0))*width[axis];
+        next[axis]=max(enter,(edge-o[axis])/d[axis]);increment[axis]=abs(width[axis]/d[axis]);
+    }
+    lie_page_stat(0u);float nearest=maximum;
+    for(int iteration=0;iteration<196;iteration++) {
+        if(any(lessThan(cell,ivec3(0))) || any(greaterThanEqual(cell,dims))){accepted=true;return nearest;}
+        uint address=uint((cell.z*dims.y+cell.y)*dims.x+cell.x),base=spatial_pages.words[at+9u];
+        uint begin=spatial_pages.words[base+address],end=spatial_pages.words[base+address+1u];
+        // Bound pathological dense pages; fallback always traces the full ray.
+        if(end<begin || end-begin>256u || end>spatial_pages.words[at+11u])return maximum;
+        lie_page_stat(1u);
+        for(uint k=begin;k<end;k++) {
+            uint sid=spatial_pages.words[spatial_pages.words[at+10u]+k];if(sid==skip)continue;
+            lie_page_stat(2u);
+            vec4 source=lie_visibility_position_radius(sid);vec3 normal=lie_visibility_normal(sid);
+            float denominator=dot(normal,d);if(abs(denominator)<1e-8)continue;
+            float t=dot(normal,source.xyz-o)/denominator;if(t<=minimum || t>=nearest)continue;
+            vec3 delta=o+t*d-source.xyz;
+            if(dot(delta,delta)>source.w*source.w)continue;
+            nearest=t;blocker=sid;if(nearest<=early){accepted=true;return nearest;}
+        }
+        int axis=next.x<=next.y && next.x<=next.z?0:next.y<=next.z?1:2;
+        float boundary=next[axis];
+        if(isnan(boundary) || isinf(boundary))return maximum;
+        // The membership guard is wider than float32 cell-plane rounding.
+        float tolerance=2e-6*(1.+abs(boundary));
+        if(boundary>min(leave,nearest)+tolerance){accepted=true;return nearest;}
+        cell[axis]+=step[axis];next[axis]+=increment[axis];
+    }
+    return maximum; // Unresolved traversal: original BLAS is authoritative.
+}
