@@ -123,15 +123,17 @@ func _stream_event(values: Dictionary,kind: String,mode: String,cycle: int,force
     event["callback_wait_ms"]=float(Time.get_ticks_usec()-begin)/1000.
     event["callback_scope"]="command plus render callback and six-frame drain; not GPU completion or presentation"
     return event
+func _hardware_modes() -> Dictionary:
+    return {"reference":{"compact_shadows":false},"compact":{"compact_shadows":true}}
 func _measure_hardware(backup: Dictionary) -> Dictionary:
     hardware_status=hardware.probe()
     var result: Dictionary={"status":hardware_status.duplicate(true),"measurement_available":false,"valid_blocks":0,"invalid_blocks":0,"blocks":[],"telemetry":hardware.telemetry(),"scope":"separate untimed whole-device intervals; may include other apps, engine and presentation; not per-pass counters or input-to-photon latency"}
     if not hardware_status.get("available",false):hardware.release_counters();return result
-    for enabled in [false,true]:
-        var mode: String="compact" if enabled else "reference"
+    var modes: Dictionary=_hardware_modes()
+    for mode in modes:
         for kind in ["camera","light_power","light_position"]:
             if _benchmark_cancelled:break
-            var reset: Dictionary=backup.duplicate(true);reset["compact_shadows"]=enabled;reset["kernel_mode"]="split";reset["visibility_stream"]=false;reset["visibility_diagnostics"]=false
+            var reset: Dictionary=backup.duplicate(true);reset.merge(modes[mode],true);reset["kernel_mode"]="split";reset["visibility_stream"]=false;reset["visibility_diagnostics"]=false
             var setup: Dictionary=await _stream_event(reset,"hardware_setup",mode,-2,true)
             if setup.has("error"):result["error"]=setup["error"];hardware.release_counters();return result
             for trial in _diagnostic_trials(reset):
@@ -165,7 +167,7 @@ func _measure_hardware(backup: Dictionary) -> Dictionary:
             else:result["invalid_blocks"]+=1
             result["blocks"].append({"mode":mode,"kind":kind,"events":events,"sample":sample,"gpu_evidence":{"groups":gpu["groups"],"instrumented_gpu_ms":gpu_ms},"telemetry_before":before,"telemetry_after":hardware.telemetry()})
             if not sample.get("available",false):result["status"]["available"]=false;result["status"]["reason"]=sample.get("reason",sample.get("stop_error","sampling failed"));hardware.release_counters();return result
-    result["measurement_available"]=result["valid_blocks"]==6 and not _benchmark_cancelled
+    result["measurement_available"]=result["valid_blocks"]==modes.size()*3 and not _benchmark_cancelled
     hardware.release_counters();return result
 func _compact_hardware(profile: Dictionary) -> Dictionary:return HardwareReport.compact(profile)
 

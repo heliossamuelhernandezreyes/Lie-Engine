@@ -1,0 +1,27 @@
+{
+  "schema": "lie-physical-observation-subset/1",
+  "app_version": "1.8.1-counter-intervals",
+  "created_utc": "2026-10-16T16:24:54",
+  "source": "User-pasted report; truncated during compact light-power stage summary. This is a selected transcription, not the missing raw timestamp/frame history.",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "scene": {"internal_size":1080,"distance_factor":0.6,"camera_yaw":-76.88014526367184,"camera_elevation":5.725764499240451,"light_azimuth":-96.29,"light_power":1.0,"fill_power":0.32,"exposure":2.0,"energy_radius":false,"lighting_preset":"neutral","tight_bounds":false,"visibility_stream":false},
+  "timed_summary": [
+    {"kind":"camera","reference_p50_ms":55.016925,"compact_p50_ms":57.370004,"events_per_mode":9},
+    {"kind":"light_power","reference_p50_ms":19.403309,"compact_p50_ms":18.830078,"events_per_mode":9},
+    {"kind":"light_position","reference_p50_ms":46.808927,"compact_p50_ms_header_rounded":45.69,"events_per_mode":9}
+  ],
+  "reference_pass_p50_ms": {"camera":{"project":15.079155,"raster":15.415693,"recovery_build":6.161846,"surface_light":5.22},"light_power":{"surface_light":9.529847},"light_position":{"world_visibility":33.722078}},
+  "cpu_control_p50_ms":1.426,
+  "valid_blocks":6,
+  "invalid_blocks":0,
+  "hardware_intervals": [
+    {"mode":"reference","kind":"camera","session_id":"1","serials":[570,571,572],"gpu_active_cycles":"142848605","instrumented_gpu_ms":182.828627,"wall_ms":498.416846,"divergence_percent":52.461850853334646,"ls_util_percent":26.80554965764972,"alu_util_percent":20.98022936120897,"atomic_issues_cycles":"19172777","ls_external_bytes":921681216,"ls_l2_bytes":4059224320},
+    {"mode":"reference","kind":"light_power","session_id":"2","serials":[583,584,585],"gpu_active_cycles":"60560185","instrumented_gpu_ms":61.726465,"wall_ms":471.799923,"divergence_percent":18.20034945812572,"atomic_issues_cycles":"0"},
+    {"mode":"reference","kind":"light_position","session_id":"3","serials":[596,597,598],"gpu_active_cycles":"121100736","instrumented_gpu_ms":139.329003,"wall_ms":477.895461,"divergence_percent":63.00007702899539,"ls_util_percent":40.55732143936026,"alu_util_percent":27.14818601262916,"atomic_issues_cycles":"0","ls_external_bytes":919839936,"ls_l2_bytes":7304879360},
+    {"mode":"compact","kind":"camera","session_id":"4","serials":[609,610,611],"gpu_active_cycles":"140229597","instrumented_gpu_ms":182.225621,"wall_ms":446.627692,"divergence_percent":52.14156489920363,"atomic_issues_cycles":"19172269","ls_external_bytes":905558464,"ls_l2_bytes":4067689088},
+    {"mode":"compact","kind":"light_power","session_id":"5","serials":[622,623,624],"gpu_active_cycles":"64476889","instrumented_gpu_ms":53.521925,"wall_ms":424.994769,"divergence_percent":18.07184329485198,"atomic_issues_cycles":"0"},
+    {"mode":"compact","kind":"light_position","session_id":"6","serials":[635,636,637],"gpu_active_cycles":"116941318","instrumented_gpu_ms":132.815624,"wall_ms":511.894154,"divergence_percent":61.51951512047884,"ls_util_percent":41.72968098973612,"alu_util_percent":28.114350445789377,"atomic_issues_cycles":"0","ls_external_bytes":776893888,"ls_l2_bytes":7173949056}
+  ],
+  "limits": ["Whole-device separate untimed intervals; not per-dispatch or exclusive to LIE", "Independent timestamp corroboration is workload-presence evidence, not calibrated clocks", "GPU frequency/temperature unreadable; Android thermal policy 0 is not measured GPU temperature", "External bus stall rate zero does not rule out dependent reads, cache latency or shader stalls", "Divergent-instruction percentage is not percent of FPS lost", "No statistical or sustained speedup established by nine samples; retain compact layout OFF by default"]
+}
