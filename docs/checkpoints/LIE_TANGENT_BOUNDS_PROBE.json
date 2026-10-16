@@ -1,0 +1,14 @@
+{
+  "schema": "lie-tangent-bounds-probe/1",
+  "scope": "offline float64 BLAS probe only; one source master; fixed random source IDs and light; no TLAS, no display, no Vulkan or Android timing; original topology/order/disks",
+  "candidates": 1200,
+  "launched": 598,
+  "reference_nodes": 34252,
+  "tight_nodes": 22274,
+  "reference_disks": 26021,
+  "tight_disks": 5311,
+  "max_visibility_difference": 0,
+  "differences": [],
+  "nodes": 131070,
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+}
