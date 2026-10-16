@@ -1,0 +1,713 @@
+{
+  "schema": "lie-tangent-bounds-acceptance/1",
+  "runtime_commit": "7fcd5b0157c554cd76bc96cd46ed4d1a236b860d",
+  "ci_run_id": 38849878435,
+  "ci_job_id": 116808512152,
+  "ci_workflows_passed": 18,
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "physical_android_tested": false,
+  "checks": {
+    "commands": 13,
+    "queue_gpu": 54,
+    "wall20_gpu": 68,
+    "previous_wall17_gpu": 73,
+    "original_witness_oracle_gpu": 281,
+    "refitted_witness_oracle_gpu": 281
+  },
+  "local_checks": {
+    "schema": "lie-tangent-bounds-local/1",
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "godot_binary_bytes": 146414384,
+    "godot_binary_sha256": "8d106cbe6144c2dc7e881d61d2429c1a8a76e6b22ef48bd5e48dcf934953f71e",
+    "python": {
+      "tangent_bounds": 4,
+      "visibility_stream": 3,
+      "source_surface": 5
+    },
+    "command_checks": 13,
+    "standalone_parse_checks": 2,
+    "cpu_rig_checks": 247,
+    "agent_checks": 25,
+    "import_errors": 0,
+    "scope": "Local correctness and parse checks only. Local staging used capture packets from the SHA-verified 1.6 APK. Native Vulkan/export CI uses clean authoring stage; no Android timing is established here.",
+    "environment_issue": "Initial system unzip produced truncated ELF (111673344 bytes); source ZIP passed CRC, restored full 146414384-byte executable with chunked writes and byte equality before any accepted Godot checks."
+  },
+  "bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "bounds_packet": {
+    "schema": "lie-tangent-bounds/1",
+    "file": "tangent-bounds.bin",
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "original_nodes_sha256": "5b5295d22f6e1a7d4d063fe1d4d473b34b58046940f3a439a82e1deeec1a3775",
+    "original_leaves_sha256": "9382bc31da50053b439dcb164cece4aea5b1ddfdd0ac0905004b8d4669e592ea",
+    "original_scene_sha256": "f361b3507989fc829e44248bdbe4e983b3897c780b493974563d70fc8918b50c",
+    "bytes": 4194240,
+    "sha256": "b50febcba59328a401a66628e58bc3f0f63134f7d4d0e694cd976df1ef08603c",
+    "nodes": 131070,
+    "guard": "32 * float32_epsilon * (1 + abs(source_position) + radius), outward rounded",
+    "scope": "refitted original topology; same leaves, source IDs, primitive equations and TLAS; numerical image equivalence still requires Vulkan acceptance"
+  },
+  "images": {
+    "area/LOD/continuity/resize/queue/box paths preserve output": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "moved light preserves original visibility 0.01": {
+      "iou": 1.0,
+      "mae": 2.1800076293765576e-11,
+      "max": 2.0983861759305e-07
+    },
+    "moved light preserves original visibility 0.1": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "moved light preserves original visibility 1.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "moved light preserves original visibility 8.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "refit composes with separately instrumented stream": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "shipping matches accepted 1.4": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "tight bounds preserve original image -52.655622406": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "tight bounds preserve original image -7.963168335": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "tight bounds preserve original image 150.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "tight bounds preserve original image 80.0": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    }
+  },
+  "depth": "Exact depth passed for tested initial/camera and option comparisons",
+  "events": 54,
+  "warmup": 60,
+  "timestamp_rows": 1050,
+  "restored": true,
+  "paired_summary": [
+    {
+      "cpu": {
+        "max_ms": 0.489,
+        "p50_ms": 0.472,
+        "p95_ms": 0.489,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 421.187357,
+        "p50_ms": 392.1757500000001,
+        "p95_ms": 421.187357,
+        "samples": 9
+      },
+      "kind": "camera",
+      "mode": "reference",
+      "passes": {
+        "clear": {
+          "p50_ms": 4.314762,
+          "p95_ms": 5.032739,
+          "samples": 9
+        },
+        "fused_base": {
+          "p50_ms": 24.076441,
+          "p95_ms": 28.040002,
+          "samples": 9
+        },
+        "material_filter": {
+          "p50_ms": 39.818173,
+          "p95_ms": 41.960173,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.879984,
+          "p95_ms": 7.009058,
+          "samples": 9
+        },
+        "project": {
+          "p50_ms": 49.070953,
+          "p95_ms": 54.815421,
+          "samples": 9
+        },
+        "raster": {
+          "p50_ms": 62.06342,
+          "p95_ms": 67.773424,
+          "samples": 9
+        },
+        "recovery_build": {
+          "p50_ms": 106.903202,
+          "p95_ms": 114.951412,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 51.721818,
+          "p95_ms": 58.004079,
+          "samples": 9
+        },
+        "surface_select": {
+          "p50_ms": 0.290263,
+          "p95_ms": 0.33037,
+          "samples": 9
+        },
+        "visibility_compact": {
+          "p50_ms": 3.617156,
+          "p95_ms": 3.711648,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.96116,
+          "p95_ms": 1.316603,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.18015,
+          "p95_ms": 0.216436,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 43.238037,
+          "p95_ms": 63.094425,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.658,
+        "p50_ms": 0.626,
+        "p95_ms": 0.658,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 103.109917,
+        "p50_ms": 94.591597,
+        "p95_ms": 103.109917,
+        "samples": 9
+      },
+      "kind": "light_power",
+      "mode": "reference",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 24.660959,
+          "p95_ms": 29.395079,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.450627,
+          "p95_ms": 7.871363,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 7.842591,
+          "p95_ms": 9.762723,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 51.929403,
+          "p95_ms": 56.483878,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.945009,
+          "p95_ms": 0.95937,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.162241,
+          "p95_ms": 0.209991,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 2.800403,
+          "p95_ms": 3.489051,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.682,
+        "p50_ms": 0.619,
+        "p95_ms": 0.682,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 259.880888,
+        "p50_ms": 248.39089199999998,
+        "p95_ms": 259.880888,
+        "samples": 9
+      },
+      "kind": "light_position",
+      "mode": "reference",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 24.611946,
+          "p95_ms": 29.122579,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.814267,
+          "p95_ms": 6.787113,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 8.151986,
+          "p95_ms": 9.533206,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 51.999681,
+          "p95_ms": 56.687528,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.382664,
+          "p95_ms": 1.445386,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.164494,
+          "p95_ms": 0.207959,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 154.600155,
+          "p95_ms": 159.242722,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.539,
+        "p50_ms": 0.483,
+        "p95_ms": 0.539,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 406.847011,
+        "p50_ms": 387.7734919999999,
+        "p95_ms": 406.847011,
+        "samples": 9
+      },
+      "kind": "camera",
+      "mode": "tight",
+      "passes": {
+        "clear": {
+          "p50_ms": 4.396835,
+          "p95_ms": 5.481505,
+          "samples": 9
+        },
+        "fused_base": {
+          "p50_ms": 24.681908,
+          "p95_ms": 32.555631,
+          "samples": 9
+        },
+        "material_filter": {
+          "p50_ms": 36.715051,
+          "p95_ms": 45.773701,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.336617,
+          "p95_ms": 5.741809,
+          "samples": 9
+        },
+        "project": {
+          "p50_ms": 48.439956,
+          "p95_ms": 53.047653,
+          "samples": 9
+        },
+        "raster": {
+          "p50_ms": 60.018154,
+          "p95_ms": 68.652648,
+          "samples": 9
+        },
+        "recovery_build": {
+          "p50_ms": 110.102623,
+          "p95_ms": 114.677962,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 51.714892,
+          "p95_ms": 58.817703,
+          "samples": 9
+        },
+        "surface_select": {
+          "p50_ms": 0.292002,
+          "p95_ms": 0.330838,
+          "samples": 9
+        },
+        "visibility_compact": {
+          "p50_ms": 3.618047,
+          "p95_ms": 3.867374,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.965073,
+          "p95_ms": 1.08963,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.183143,
+          "p95_ms": 0.206998,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 35.369676,
+          "p95_ms": 49.471647,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.678,
+        "p50_ms": 0.625,
+        "p95_ms": 0.678,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 107.857111,
+        "p50_ms": 97.428507,
+        "p95_ms": 107.857111,
+        "samples": 9
+      },
+      "kind": "light_power",
+      "mode": "tight",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 25.359566,
+          "p95_ms": 28.890835,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.358087,
+          "p95_ms": 6.217536,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 9.758584,
+          "p95_ms": 12.159833,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 51.904958,
+          "p95_ms": 56.547339,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.928398,
+          "p95_ms": 1.342066,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.156733,
+          "p95_ms": 0.197273,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 3.338369,
+          "p95_ms": 3.9343,
+          "samples": 9
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.675,
+        "p50_ms": 0.642,
+        "p95_ms": 0.675,
+        "samples": 9
+      },
+      "gpu": {
+        "max_ms": 214.747087,
+        "p50_ms": 202.979612,
+        "p95_ms": 214.747087,
+        "samples": 9
+      },
+      "kind": "light_position",
+      "mode": "tight",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 24.568059,
+          "p95_ms": 29.316237,
+          "samples": 9
+        },
+        "output": {
+          "p50_ms": 5.28974,
+          "p95_ms": 7.458009,
+          "samples": 9
+        },
+        "recovery_reuse": {
+          "p50_ms": 7.938098,
+          "p95_ms": 10.205684,
+          "samples": 9
+        },
+        "surface_light": {
+          "p50_ms": 52.073974,
+          "p95_ms": 64.091898,
+          "samples": 9
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.394071,
+          "p95_ms": 1.458889,
+          "samples": 9
+        },
+        "visibility_keys": {
+          "p50_ms": 0.171838,
+          "p95_ms": 0.209861,
+          "samples": 9
+        },
+        "world_visibility": {
+          "p50_ms": 109.362927,
+          "p95_ms": 111.918167,
+          "samples": 9
+        }
+      }
+    }
+  ],
+  "work": [
+    {
+      "light_azimuth": -16.0,
+      "reference": {
+        "available": true,
+        "backface_or_disabled": 2508,
+        "blas_nodes": 4761134,
+        "cache_hits": 77593,
+        "disk_tests": 2096797,
+        "eligible": 155186,
+        "instrumented": true,
+        "scene_nodes": 2010583,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 72192,
+        "witness_hits": 2893
+      },
+      "tight": {
+        "available": true,
+        "backface_or_disabled": 2508,
+        "blas_nodes": 3555624,
+        "cache_hits": 77593,
+        "disk_tests": 639807,
+        "eligible": 155186,
+        "instrumented": true,
+        "scene_nodes": 2010583,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 72192,
+        "witness_hits": 2893
+      },
+      "node_reduction_percent": 25.319808264165633,
+      "disk_reduction_percent": 69.48645958573958
+    },
+    {
+      "light_azimuth": -32.0,
+      "reference": {
+        "available": true,
+        "backface_or_disabled": 2787,
+        "blas_nodes": 4813943,
+        "cache_hits": 77593,
+        "disk_tests": 2150503,
+        "eligible": 155186,
+        "instrumented": true,
+        "scene_nodes": 1997611,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 71877,
+        "witness_hits": 2929
+      },
+      "tight": {
+        "available": true,
+        "backface_or_disabled": 2787,
+        "blas_nodes": 3599863,
+        "cache_hits": 77593,
+        "disk_tests": 662864,
+        "eligible": 155186,
+        "instrumented": true,
+        "scene_nodes": 1997611,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 71877,
+        "witness_hits": 2929
+      },
+      "node_reduction_percent": 25.220074271756022,
+      "disk_reduction_percent": 69.17632758475575
+    },
+    {
+      "light_azimuth": -24.0,
+      "reference": {
+        "available": true,
+        "backface_or_disabled": 2606,
+        "blas_nodes": 4740290,
+        "cache_hits": 77593,
+        "disk_tests": 2097482,
+        "eligible": 155186,
+        "instrumented": true,
+        "scene_nodes": 1992569,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 71332,
+        "witness_hits": 3655
+      },
+      "tight": {
+        "available": true,
+        "backface_or_disabled": 2606,
+        "blas_nodes": 3536242,
+        "cache_hits": 77593,
+        "disk_tests": 635644,
+        "eligible": 155186,
+        "instrumented": true,
+        "scene_nodes": 1992569,
+        "scope": "last stream solve; explicit 32-byte GPU counter read outside timed events",
+        "unresolved_queries": 71332,
+        "witness_hits": 3655
+      },
+      "node_reduction_percent": 25.400302513137383,
+      "disk_reduction_percent": 69.69490083824319
+    }
+  ],
+  "appearance_requested_bytes": 290863644,
+  "artifact": {
+    "id": 12024911543,
+    "zip_bytes": 60180021,
+    "zip_sha256": "a001268cd67942818efc8f81b1eda9db29f23c032971e159c6b87c7b2a5d8bff",
+    "apk_filename": "LIE-Limites-1.7.0.apk",
+    "apk_bytes": 61792918,
+    "apk_sha256": "ee97373b137cae3348e948604256ef45825bfcc9260aa3d5e702d0a9504edd84",
+    "package": "org.lieengine.wallruntime.v170",
+    "version": "1.7.0-tangent-bounds",
+    "official_godot_template_sha256": "f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011",
+    "aligned_signed_verified_ci": true,
+    "zip_and_bank_and_bounds_verified_locally": true
+  },
+  "full_native_sha256": "1502625119febe492a4b5902731d09b4e206bea1b40ba7010e737f6dc3862491",
+  "full_native_chars": 657631,
+  "limits": "Paired software Vulkan timing only; no maximum/sustained phone FPS, no absolute timing comparison across machines/builds. Local recovered original-node/leaf packets and clean CI original-node/leaf packets have distinct hashes; each refit is bound to its own exact original topology and source bank. Use within-run OFF/ON comparison on the physical Mali. Reference mode remains the startup default.",
+  "ci_runs": [
+    {
+      "id": 38849878403,
+      "name": "LIE-11 coded sprite light transport",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878613,
+      "name": "LIE-27 spherical regions and face",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878440,
+      "name": "LIE-26 anatomical rig",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878419,
+      "name": "LIE-14 rigid masters and perception boxes",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878485,
+      "name": "LIE-15 Arcont robot and compact camera reconstruction",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878389,
+      "name": "LIE-12 captured grayscale material and node lighting",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878402,
+      "name": "LIE runtime lighting and shared samples",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878369,
+      "name": "LIE-20 captured human, invisible deformation and skin",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878456,
+      "name": "LIE-22 shared eyes and modular destruction",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878481,
+      "name": "LIE-21 human quality versus Cycles and LIE-20",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878387,
+      "name": "LIE-17 contrast-guided edges and measured filter cost",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878449,
+      "name": "LIE-13 finite secondary radii and dielectric sprites",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878498,
+      "name": "LIE-23 integrated eyes and continuous captured eyelids",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878405,
+      "name": "LIE-18 workshop, shared agent API and GPU transport",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878441,
+      "name": "LIE-16 stable capture quality and measured consumer cost",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878409,
+      "name": "LIE-24 captured facial construction and compatible modules",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878415,
+      "name": "LIE-01 native acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 38849878435,
+      "name": "LIE tangent-disk bounds and unchanged exact traversal",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ]
+}
