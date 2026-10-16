@@ -26,6 +26,9 @@ def build(cache,platform,ndk=None):
         args += [f'-DCMAKE_TOOLCHAIN_FILE={ndk}/build/cmake/android.toolchain.cmake','-DANDROID_ABI=arm64-v8a','-DANDROID_PLATFORM=android-26','-DANDROID_STL=c++_static','-DGODOTCPP_PLATFORM=android','-DGODOTCPP_ARCH=arm64']
     run(args);run(['cmake','--build',build_dir,'-j','4'])
     output=dest/'bin'/platform/'liblie_gpu_probe.so';output.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(build_dir/'liblie_gpu_probe.so',output)
+    # Activate only after a real native build. An ordinary source checkout must
+    # remain usable by laboratories which do not build this optional module.
+    shutil.copy2(ROOT/'native/hardware_probe/lie_gpu_probe.gdextension.in',dest/'lie_gpu_probe.gdextension')
     licenses=dest/'licenses';licenses.mkdir(exist_ok=True)
     for name,path in paths.items():
         source=next((path/n for n in ['LICENSE','LICENSE.txt','LICENSE.md'] if (path/n).exists()),None)

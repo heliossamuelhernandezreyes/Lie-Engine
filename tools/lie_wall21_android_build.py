@@ -5,6 +5,7 @@ import lie_wall20_android_build as previous
 from lie_shadow_view import prepare,prepare_reference
 ROOT=Path(__file__).resolve().parents[1]
 def stage_project(destination):
+    if not (ROOT/'gpu_compute/addons/lie_gpu_probe/lie_gpu_probe.gdextension').is_file():raise ValueError('Build the native diagnostics before staging LIE 1.8')
     report=previous.stage_project(destination);order=prepare();source=ROOT/'gpu_compute'
     shutil.copy2(prepare_reference(),destination/'fixtures/compact-shadow-reference.json')
     for name in ['shadow-view.bin','shadow-view.json']:shutil.copy2(source/'captures/liewall06'/name,destination/'captures/liewall06'/name)

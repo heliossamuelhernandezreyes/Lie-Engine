@@ -89,6 +89,13 @@ Local first-build failures were binding-profile OS omission and a stale CMake
 configuration; the revised profile built and loaded successfully in a fresh build
 directory. No failed physical or GPU timing has been discarded.
 
+The first full-repository regression run exposed an integration failure: tracking
+an active GDExtension descriptor made unrelated source-only laboratories try to
+load an unbuilt binary. The descriptor now lives as a template outside the Godot
+project and is installed only after a successful native build. A plain checkout
+therefore does not activate the optional module; staging 1.8 requires its real
+build. The failed run is retained in GitHub Actions, not reclassified as a pass.
+
 Further architecture experiments depend on the evidence: native rasterization
 for compute splat atomics, finer shader/register partitioning, and cached
 per-light radiometric bases remain separate proposals, not implemented claims.
