@@ -1,0 +1,970 @@
+{
+  "schema": "lie-screen-tiles-acceptance/1",
+  "runtime_head": "550db23479c691495ce73bb18ff45eed3ac57cd4",
+  "runtime_tree": "bf1057d7e06dd226bcac4d0502ac662996a9fdd6",
+  "ci_run": 38937423752,
+  "ci_job": 117096314274,
+  "workflows_passed": 19,
+  "artifact_id": 12061564450,
+  "artifact_sha256": "87842f22d2dd7d99be37692ebdcd093383d03aa2b7185e7c6524a5279e7a5bfa",
+  "package": "org.lieengine.wallruntime.v190",
+  "version": "1.9.0-screen-tiles",
+  "checks": {
+    "real_bank": 89,
+    "tile_prefix_vulkan": 12,
+    "commands_and_complete_events": 19,
+    "previous_compact_real_bank": 91,
+    "previous_1_4": 73,
+    "original_witness_oracle": 281,
+    "tangent_oracle": 281,
+    "compact_oracle": 281,
+    "previous_queue": 54,
+    "hardware_report": 10,
+    "native_extension": 11,
+    "previous_commands": 16,
+    "targeted_python_local": 17,
+    "previous_diagnostic_local": 9,
+    "shader_imports_local": 6,
+    "independent_timestamp_validation": {
+      "measured_serials": 144,
+      "mode_kind_percentiles": 12,
+      "balanced_rounds": 4
+    }
+  },
+  "measured_events": 144,
+  "warmup_events": 160,
+  "restored": true,
+  "tested_rgb_max_error": 0.0,
+  "exact_depth_owner_material": true,
+  "software_device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "timing_summary": [
+    {
+      "cpu": {
+        "max_ms": 0.52,
+        "p50_ms": 0.492,
+        "p95_ms": 0.52,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 705.4469530000001,
+        "p50_ms": 579.7934029999999,
+        "p95_ms": 705.4469530000001,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "combined",
+      "passes": {
+        "clear": {
+          "p50_ms": 3.726328,
+          "p95_ms": 6.391417,
+          "samples": 12
+        },
+        "fused_base": {
+          "p50_ms": 50.433971,
+          "p95_ms": 58.883655,
+          "samples": 12
+        },
+        "material_filter": {
+          "p50_ms": 48.460605,
+          "p95_ms": 61.225218,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.668239,
+          "p95_ms": 9.715902,
+          "samples": 12
+        },
+        "recovery_build": {
+          "p50_ms": 68.438981,
+          "p95_ms": 75.730269,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 75.678872,
+          "p95_ms": 107.771425,
+          "samples": 12
+        },
+        "surface_select": {
+          "p50_ms": 0.347848,
+          "p95_ms": 0.403095,
+          "samples": 12
+        },
+        "tile_fill": {
+          "p50_ms": 10.814961,
+          "p95_ms": 11.376445,
+          "samples": 12
+        },
+        "tile_groups": {
+          "p50_ms": 0.13475,
+          "p95_ms": 0.164299,
+          "samples": 12
+        },
+        "tile_project": {
+          "p50_ms": 19.897049,
+          "p95_ms": 23.262072,
+          "samples": 12
+        },
+        "tile_reset": {
+          "p50_ms": 0.053359,
+          "p95_ms": 0.111113,
+          "samples": 12
+        },
+        "tile_resolve": {
+          "p50_ms": 272.321772,
+          "p95_ms": 296.616413,
+          "samples": 12
+        },
+        "tile_scan": {
+          "p50_ms": 0.651457,
+          "p95_ms": 1.00184,
+          "samples": 12
+        },
+        "visibility_compact": {
+          "p50_ms": 4.534382,
+          "p95_ms": 5.532541,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.884248,
+          "p95_ms": 1.190066,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.161924,
+          "p95_ms": 0.194501,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 13.229792,
+          "p95_ms": 61.690466,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 2.152,
+        "p50_ms": 0.628,
+        "p95_ms": 2.152,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 164.42808000000002,
+        "p50_ms": 150.698343,
+        "p95_ms": 164.42808000000002,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "combined",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 47.574726,
+          "p95_ms": 51.754818,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.658768,
+          "p95_ms": 9.991088,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 11.679203,
+          "p95_ms": 16.699591,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 76.458115,
+          "p95_ms": 91.786685,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.116923,
+          "p95_ms": 1.569391,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.151542,
+          "p95_ms": 0.203675,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 2.42519,
+          "p95_ms": 2.57252,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.694,
+        "p50_ms": 0.63,
+        "p95_ms": 0.694,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 273.53307900000004,
+        "p50_ms": 260.57254800000004,
+        "p95_ms": 273.53307900000004,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "combined",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 43.865195,
+          "p95_ms": 50.510883,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.793811,
+          "p95_ms": 13.690019,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 12.002713,
+          "p95_ms": 14.20782,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 84.640959,
+          "p95_ms": 86.474129,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.163054,
+          "p95_ms": 1.663192,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.151936,
+          "p95_ms": 0.194505,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 110.544348,
+          "p95_ms": 119.550096,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.558,
+        "p50_ms": 0.473,
+        "p95_ms": 0.558,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 578.751644,
+        "p50_ms": 419.40462600000006,
+        "p95_ms": 578.751644,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "reference",
+      "passes": {
+        "clear": {
+          "p50_ms": 3.642332,
+          "p95_ms": 4.827923,
+          "samples": 12
+        },
+        "fused_base": {
+          "p50_ms": 47.323837,
+          "p95_ms": 59.380626,
+          "samples": 12
+        },
+        "material_filter": {
+          "p50_ms": 48.223186,
+          "p95_ms": 62.950563,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.999359,
+          "p95_ms": 10.95037,
+          "samples": 12
+        },
+        "project": {
+          "p50_ms": 66.140084,
+          "p95_ms": 75.751789,
+          "samples": 12
+        },
+        "raster": {
+          "p50_ms": 82.064762,
+          "p95_ms": 91.294631,
+          "samples": 12
+        },
+        "recovery_build": {
+          "p50_ms": 65.86105,
+          "p95_ms": 73.228642,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 85.06318,
+          "p95_ms": 105.54965,
+          "samples": 12
+        },
+        "surface_select": {
+          "p50_ms": 0.316178,
+          "p95_ms": 0.346614,
+          "samples": 12
+        },
+        "visibility_compact": {
+          "p50_ms": 4.612971,
+          "p95_ms": 5.687159,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.879036,
+          "p95_ms": 1.14291,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.155276,
+          "p95_ms": 0.219489,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 19.419814,
+          "p95_ms": 99.50148,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.67,
+        "p50_ms": 0.632,
+        "p95_ms": 0.67,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 161.100073,
+        "p50_ms": 157.474099,
+        "p95_ms": 161.100073,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "reference",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 47.442804,
+          "p95_ms": 50.467277,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 8.210968,
+          "p95_ms": 9.939065,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 11.87001,
+          "p95_ms": 15.713955,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 84.832957,
+          "p95_ms": 87.683993,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.918382,
+          "p95_ms": 1.640568,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.148502,
+          "p95_ms": 0.173433,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 2.485685,
+          "p95_ms": 2.633704,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.655,
+        "p50_ms": 0.622,
+        "p95_ms": 0.655,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 380.020733,
+        "p50_ms": 353.16550900000004,
+        "p95_ms": 380.020733,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "reference",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 47.314654,
+          "p95_ms": 50.143658,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.819586,
+          "p95_ms": 10.216308,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 11.539152,
+          "p95_ms": 12.203966,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 85.928539,
+          "p95_ms": 87.983618,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.195327,
+          "p95_ms": 2.561717,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.152446,
+          "p95_ms": 0.173636,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 198.988003,
+          "p95_ms": 226.600961,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.525,
+        "p50_ms": 0.473,
+        "p95_ms": 0.525,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 742.455317,
+        "p50_ms": 574.96334,
+        "p95_ms": 742.455317,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "tiles",
+      "passes": {
+        "clear": {
+          "p50_ms": 3.727214,
+          "p95_ms": 5.475057,
+          "samples": 12
+        },
+        "fused_base": {
+          "p50_ms": 50.357079,
+          "p95_ms": 58.868196,
+          "samples": 12
+        },
+        "material_filter": {
+          "p50_ms": 48.22038,
+          "p95_ms": 60.616456,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.755337,
+          "p95_ms": 8.862976,
+          "samples": 12
+        },
+        "recovery_build": {
+          "p50_ms": 68.949666,
+          "p95_ms": 84.01244,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 85.038043,
+          "p95_ms": 106.406035,
+          "samples": 12
+        },
+        "surface_select": {
+          "p50_ms": 0.331794,
+          "p95_ms": 0.373643,
+          "samples": 12
+        },
+        "tile_fill": {
+          "p50_ms": 11.036626,
+          "p95_ms": 15.850968,
+          "samples": 12
+        },
+        "tile_groups": {
+          "p50_ms": 0.144693,
+          "p95_ms": 0.1789,
+          "samples": 12
+        },
+        "tile_project": {
+          "p50_ms": 19.599987,
+          "p95_ms": 21.010698,
+          "samples": 12
+        },
+        "tile_reset": {
+          "p50_ms": 0.061055,
+          "p95_ms": 0.086345,
+          "samples": 12
+        },
+        "tile_resolve": {
+          "p50_ms": 278.263054,
+          "p95_ms": 297.435581,
+          "samples": 12
+        },
+        "tile_scan": {
+          "p50_ms": 0.672266,
+          "p95_ms": 1.005508,
+          "samples": 12
+        },
+        "visibility_compact": {
+          "p50_ms": 4.434516,
+          "p95_ms": 5.676645,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.858692,
+          "p95_ms": 0.951366,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.14758,
+          "p95_ms": 0.182076,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 19.161176,
+          "p95_ms": 99.590504,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.74,
+        "p50_ms": 0.615,
+        "p95_ms": 0.74,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 158.862244,
+        "p50_ms": 154.028393,
+        "p95_ms": 158.862244,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "tiles",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 47.280541,
+          "p95_ms": 51.398767,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.660584,
+          "p95_ms": 11.74945,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 11.78009,
+          "p95_ms": 13.271594,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 84.713365,
+          "p95_ms": 87.258777,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.020965,
+          "p95_ms": 1.252773,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.164454,
+          "p95_ms": 0.200393,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 2.139795,
+          "p95_ms": 3.458218,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 1.525,
+        "p50_ms": 0.626,
+        "p95_ms": 1.525,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 396.790224,
+        "p50_ms": 346.016454,
+        "p95_ms": 396.790224,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "tiles",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 47.583639,
+          "p95_ms": 51.147513,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.949181,
+          "p95_ms": 9.576678,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 11.810475,
+          "p95_ms": 16.099707,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 85.296342,
+          "p95_ms": 91.090601,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.461489,
+          "p95_ms": 1.756239,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.162118,
+          "p95_ms": 0.290186,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 196.317464,
+          "p95_ms": 239.298368,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.542,
+        "p50_ms": 0.483,
+        "p95_ms": 0.542,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 527.7207070000001,
+        "p50_ms": 419.10619800000006,
+        "p95_ms": 527.7207070000001,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "tight",
+      "passes": {
+        "clear": {
+          "p50_ms": 4.231521,
+          "p95_ms": 5.545631,
+          "samples": 12
+        },
+        "fused_base": {
+          "p50_ms": 50.717544,
+          "p95_ms": 57.819878,
+          "samples": 12
+        },
+        "material_filter": {
+          "p50_ms": 48.099377,
+          "p95_ms": 60.87867,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.905548,
+          "p95_ms": 11.965876,
+          "samples": 12
+        },
+        "project": {
+          "p50_ms": 66.03388,
+          "p95_ms": 76.058582,
+          "samples": 12
+        },
+        "raster": {
+          "p50_ms": 81.399782,
+          "p95_ms": 90.875108,
+          "samples": 12
+        },
+        "recovery_build": {
+          "p50_ms": 66.398919,
+          "p95_ms": 75.827892,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 85.149341,
+          "p95_ms": 107.04447,
+          "samples": 12
+        },
+        "surface_select": {
+          "p50_ms": 0.333365,
+          "p95_ms": 0.355331,
+          "samples": 12
+        },
+        "visibility_compact": {
+          "p50_ms": 4.574994,
+          "p95_ms": 5.574334,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.896742,
+          "p95_ms": 1.224286,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.171591,
+          "p95_ms": 0.200873,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 13.545609,
+          "p95_ms": 62.294909,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.676,
+        "p50_ms": 0.645,
+        "p95_ms": 0.676,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 163.12663700000002,
+        "p50_ms": 151.165667,
+        "p95_ms": 163.12663700000002,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "tight",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 47.509527,
+          "p95_ms": 50.377448,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.914066,
+          "p95_ms": 10.411014,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 11.695811,
+          "p95_ms": 13.850401,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 84.738756,
+          "p95_ms": 87.812223,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 0.874229,
+          "p95_ms": 1.513996,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.159616,
+          "p95_ms": 0.204224,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 2.349152,
+          "p95_ms": 3.192924,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.664,
+        "p50_ms": 0.638,
+        "p95_ms": 0.664,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 283.87144299999994,
+        "p50_ms": 263.617323,
+        "p95_ms": 283.87144299999994,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "tight",
+      "passes": {
+        "fused_base": {
+          "p50_ms": 47.46722,
+          "p95_ms": 50.951716,
+          "samples": 12
+        },
+        "output": {
+          "p50_ms": 7.910777,
+          "p95_ms": 12.125839,
+          "samples": 12
+        },
+        "recovery_reuse": {
+          "p50_ms": 11.748548,
+          "p95_ms": 13.82889,
+          "samples": 12
+        },
+        "surface_light": {
+          "p50_ms": 85.266445,
+          "p95_ms": 91.32191,
+          "samples": 12
+        },
+        "visibility_invalidate": {
+          "p50_ms": 1.442003,
+          "p95_ms": 2.609861,
+          "samples": 12
+        },
+        "visibility_keys": {
+          "p50_ms": 0.160819,
+          "p95_ms": 0.201363,
+          "samples": 12
+        },
+        "world_visibility": {
+          "p50_ms": 113.771553,
+          "p95_ms": 121.14451,
+          "samples": 12
+        }
+      }
+    }
+  ],
+  "separate_work_probes": [
+    {
+      "light_azimuth": -82.0,
+      "blas_nodes_before": 4043227,
+      "blas_nodes_after": 2971943,
+      "disk_tests_before": 2160565,
+      "disk_tests_after": 681476,
+      "blas_reduction_percent": 26.495766871362903,
+      "disk_reduction_percent": 68.45843564067732
+    },
+    {
+      "light_azimuth": -98.0,
+      "blas_nodes_before": 3815047,
+      "blas_nodes_after": 2606993,
+      "disk_tests_before": 2941569,
+      "disk_tests_after": 853474,
+      "blas_reduction_percent": 31.66550765953866,
+      "disk_reduction_percent": 70.98575624097208
+    },
+    {
+      "light_azimuth": -90.0,
+      "blas_nodes_before": 4187494,
+      "blas_nodes_after": 3011676,
+      "disk_tests_before": 2605764,
+      "disk_tests_after": 833582,
+      "blas_reduction_percent": 28.07927605388808,
+      "disk_reduction_percent": 68.01007305343079
+    }
+  ],
+  "appearance_requested_bytes": 346836612,
+  "extra_tile_rid_bytes": 39292744,
+  "workgroup_shared_bytes": 2560,
+  "hardware_profile_on_ci": {
+    "blocks": [],
+    "invalid_blocks": 0,
+    "measurement_available": false,
+    "scope": "separate untimed whole-device intervals; may include other apps, engine and presentation; not per-pass counters or input-to-photon latency",
+    "status": {
+      "available": false,
+      "device_node": "/dev/mali0",
+      "godot_cpp_sha": "e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77",
+      "libGPUCounters_sha": "378c7b59e2dae87cbbffb0ac9cf96ed13c939823",
+      "native_extension": true,
+      "os_error": "No such file or directory",
+      "reason": "Mali device node unavailable",
+      "scope": "whole-device counters, not exclusive to this process or a GPU pass"
+    },
+    "telemetry": {
+      "gpu_frequency": {
+        "available": false,
+        "reason": "GPU devfreq frequency is not readable by this app"
+      },
+      "gpu_temperature": {
+        "available": false,
+        "reason": "No readable thermal zone explicitly named GPU/Mali",
+        "sensors": []
+      },
+      "host_monotonic_ns": "351033932676",
+      "thermal_status": {
+        "available": false,
+        "reason": "Android thermal status API is not available on this platform"
+      }
+    },
+    "valid_blocks": 0
+  },
+  "physical_android_tested": false,
+  "native_data_raw_sha256": "071a27d260bebd985496aaef4bce3ba6af939c41982f5db5be1bd7bc105ae963",
+  "native_data_factored_sha256": "48cb7a3d37af9b614ab720d2f19878127087e74cf8c49f77b7efe95dbea7d912",
+  "evidence_encoding": "only comparison.passes.rows[].context is interned into comparison.passes.contexts; expansion verified object-equal to complete raw evidence",
+  "apk": {
+    "schema": "lie-gpu-apk-proof/1",
+    "apk_sha256": "4c6801b55fe45991f44e85cd6b7d0b58f8a5d55f4b638ba57331c9a531f7fe51",
+    "apk_bytes": 73782867,
+    "native_library": "lib/arm64-v8a/liblie_gpu_probe.so",
+    "native_sha256": "964d59fc46e533b178687adf780e5a338c6e9bf274a2f4bbc51e41a9585b02e2",
+    "pt_load_alignment": [
+      16384,
+      16384,
+      16384
+    ],
+    "bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "shadow_view": {
+      "schema": "lie-shadow-view/1",
+      "file": "shadow-view.bin",
+      "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+      "source_count": 521257,
+      "original_stride": 80,
+      "stride": 32,
+      "bytes": 16680224,
+      "sha256": "363a7718495f669144454f9819e254d0afa7530bfedc39a9d1d6d8a31d5f0733",
+      "scope": "first 32 original bytes per source ID; position/radius and normal/gray; no quantization, reorder, geometry or material change"
+    },
+    "physical_android_tested": false
+  },
+  "packaged_shader_resources": [
+    {
+      "mode": "gather",
+      "resource": "assets/.godot/imported/lie_wall22_resolve.glsl-dadabc4bbc035c41c1b233cbb4d37f25.res",
+      "sha256": "5079ba0e88fc4d9c8503d1d366bc7d61a8d183ca585789f26aab36ee33e4018d",
+      "bytes": 23460
+    },
+    {
+      "mode": "shared",
+      "resource": "assets/.godot/imported/lie_wall22_resolve.glsl-dadabc4bbc035c41c1b233cbb4d37f25.res",
+      "sha256": "65aaee0ef471f32b2197996e1bb8fccb3f3c989f4e8c0d63d8f1db5696b6abc0",
+      "bytes": 25676
+    }
+  ],
+  "packaged_spirv_check": {
+    "gather": {
+      "bytecode_bytes": 22536,
+      "error": ""
+    },
+    "shared": {
+      "bytecode_bytes": 24752,
+      "error": ""
+    }
+  },
+  "image_sha256": "e16c5cde74ead5408a227d89ba6cea8e338b0d7a0ad34e30a18523a87155aa27",
+  "preserved_negative": "LIE_SCREEN_TILES_PIXEL_GATHER_NATIVE.json",
+  "limits": [
+    "Software Vulkan timing is not a prediction of physical Mali timing",
+    "Revised tiles regress software camera median 37.09 percent; remain experimental and startup OFF",
+    "Tight-only moved-light total improves 25.36 percent in this software run; physical result still pending",
+    "RID bytes exclude driver backing, workgroup allocation and measured PSS/VRAM",
+    "CI has no Mali; native counter configuration reports this explicitly",
+    "Power radiometric basis caching is not implemented by this change"
+  ],
+  "preserved_local_fixture_notes": [
+    "An initial packaging assertion used stale intermediate prototype SPIR-V length 22520. Retained actual first APK has 22536 (finite empty-depth sentinel); revised final APK has 24752 and was checked with actual Godot loading. The checker expectation was corrected; APK bytes unchanged.",
+    "A first local full-stage editor import exited 134 after completed import without shader errors. Isolated extension-free import of revised shaders exited 0; CI independently imported the full native extension and ran the actual Vulkan suites successfully."
+  ]
+}
