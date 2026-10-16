@@ -108,7 +108,7 @@ is a separate follow-up: it needs a source-superposition and invalidation
 contract through the full transport before skipping surface shading. It is
 not implemented or claimed by this coverage experiment.
 
-Completed native/APK results will be recorded in the acceptance checkpoint.
+Completed native/APK results: [acceptance](checkpoints/LIE_SCREEN_TILES_ACCEPTANCE.md).
 
 
 ## Preserved first candidate: pixel gather regression
@@ -141,3 +141,17 @@ The first APK SHA256 was
 `7444e25758081c764666561fa1db3bc8c71ac502d40728c8880771b392c6ff8b`.
 It is not the final APK. The regression motivated the shared-memory reduction;
 that revised implementation requires its own native acceptance.
+
+
+## Mali memory interpretation
+
+For Mali, compute shared storage means cached system RAM with workgroup-sharing
+semantics. The kernel uses it for an actual reduction across threads. Its
+performance hypothesis is less repeated footprint work and confined ownership;
+barriers, allocation and atomic instructions still cost. The logical 2,560-byte
+declaration is not a measurement of dedicated on-chip tile storage or driver
+backing allocation. Arm recommends sharing computation and keeping this storage
+small; physical profiling determines whether this tradeoff helps.
+
+Primary sources: [Arm GPU Best Practices 3.4, section 9.3](https://documentation-service.arm.com/static/67a62b17091bfc3e0a947695)
+and [Mali Offline Compiler 8.6, resource usage](https://documentation-service.arm.com/static/674866c827eda361ad4dc590).
