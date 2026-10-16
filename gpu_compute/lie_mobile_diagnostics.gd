@@ -1,6 +1,6 @@
 extends RefCounted
 ## Pure reduction of real timestamp rows. Never estimates GPU work from FPS.
-const TITLES={"clear":"Preparación", "project":"Proyección", "raster":"Profundidad y cobertura", "material_filter":"Filtro de material", "coarse_light":"Iluminación base", "fused_base":"Iluminación y composición", "compose":"Composición", "recovery_build":"Reconstrucción de huecos", "recovery_reuse":"Recuperación reutilizada", "surface_light":"Material, relieve y sombras", "visibility_keys":"Claves de sombras", "visibility_invalidate":"Invalidación de sombras", "source_visibility":"Visibilidad 3D", "world_visibility":"Visibilidad 3D", "visibility_compact":"Superficies visibles", "filter_recovery_clear":"Preparación del filtro", "output":"Salida"}
+const TITLES={"tile_reset":"Preparación de bloques","tile_project":"Proyección y conteo","tile_scan":"Índices locales","tile_groups":"Índices globales","tile_fill":"Listas de muestras","tile_resolve":"Resolución por bloques","clear":"Preparación", "project":"Proyección", "raster":"Profundidad y cobertura", "material_filter":"Filtro de material", "coarse_light":"Iluminación base", "fused_base":"Iluminación y composición", "compose":"Composición", "recovery_build":"Reconstrucción de huecos", "recovery_reuse":"Recuperación reutilizada", "surface_light":"Material, relieve y sombras", "visibility_keys":"Claves de sombras", "visibility_invalidate":"Invalidación de sombras", "source_visibility":"Visibilidad 3D", "world_visibility":"Visibilidad 3D", "visibility_compact":"Superficies visibles", "filter_recovery_clear":"Preparación del filtro", "output":"Salida"}
 static func percentiles(values: Array) -> Dictionary:
     if values.is_empty():return {"samples":0}
     var ordered: Array=values.duplicate();ordered.sort();var n: int=ordered.size()
@@ -21,7 +21,9 @@ static func summarize(profile: Dictionary, minimum_serial: int=0, event_kinds: D
         # All accepted solves end with output. Incomplete asynchronous rows are
         # retained in the raw report but excluded from sums and rankings.
         if not passes.has("output"):continue
-        if context.get("event_kind")=="geometry" and not passes.has_all(["clear","project","raster"]):continue
+        if context.get("event_kind")=="geometry":
+            var required: Array=["clear","tile_reset","tile_project","tile_scan","tile_groups","tile_fill","tile_resolve"] if context.get("screen_tiles",false) else ["clear","project","raster"]
+            if not passes.has_all(required):continue
         var key: String=JSON.stringify(context,"",true,true)
         if not groups.has(key):groups[key]={"context":context,"serials":[],"pass_samples":{},"totals":[]}
         var group: Dictionary=groups[key];var total: float=0.

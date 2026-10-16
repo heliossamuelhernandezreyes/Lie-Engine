@@ -48,8 +48,8 @@ func run() -> void:
         if not lab.benchmark_busy:break
     var diagnostic: Dictionary=lab._comparison_report
     check(not lab.benchmark_busy and diagnostic.get("error","missing")=="" and diagnostic.get("restored",false) and lab.state==backup,"four-mode completion and exact scene restoration")
-    check(diagnostic.get("events",[]).size()==108 and diagnostic.get("warmup_events",[]).size()==120 and diagnostic.get("summary",[]).size()==12,"108 measured and 120 separately retained warm-up events")
-    for group in diagnostic.get("summary",[]):check(group["gpu"]["samples"]==9 and group["cpu"]["samples"]==9,"nine complete events per isolated mode/kind")
+    check(diagnostic.get("events",[]).size()==144 and diagnostic.get("warmup_events",[]).size()==160 and diagnostic.get("summary",[]).size()==12,"144 measured and 160 separately retained warm-up events")
+    for group in diagnostic.get("summary",[]):check(group["gpu"]["samples"]==12 and group["cpu"]["samples"]==12,"twelve complete events per isolated mode/kind")
     var portable: Dictionary=lab._portable_report(lab._build_report());check(JSON.stringify(portable).to_utf8_buffer().size()<32768 and portable["kernel_comparison"]["scene"]==backup,"matrix evidence fits copied report")
     check(diagnostic.get("work_diagnostic",[]).size()==6,"six separate work probes for original/tight bounds")
     var frames: int=lab.effect.frame_count;await settle(12)

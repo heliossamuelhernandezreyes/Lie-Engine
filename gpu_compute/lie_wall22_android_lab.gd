@@ -19,12 +19,12 @@ func _mode_state(backup: Dictionary,mode: String) -> Dictionary:
 func _run_comparison(quick: bool) -> void:
     hardware.release_counters();hardware_profile={}
     var backup: Dictionary=state.duplicate(true);var events: Array=[];var warmup: Array=[];var all_events: Array=[];var rows: Array=[];var seen: Dictionary={};var boundaries: Array=[];var error: String=""
-    var rounds: int=1 if quick else 3;var modes: Array=TILE_MODES.keys()
-    # Forward/reverse order gives each mode the same mean slot in each pair
-    # of rounds. All setup and nine warm-up events stay separately classified.
+    var rounds: int=1 if quick else 4;var modes: Array=TILE_MODES.keys()
+    # Four rotations place every mode in each block slot exactly once.
+    # Setup and all nine warm-up events stay separately classified.
     for cycle in range(rounds):
-        var order: Array=modes.duplicate()
-        if cycle%2==1:order.reverse()
+        var order: Array=[]
+        for offset in range(modes.size()):order.append(modes[(cycle+offset)%modes.size()])
         for mode in order:
             if _benchmark_cancelled or error!="":break
             var reset: Dictionary=_mode_state(backup,mode)
@@ -62,7 +62,7 @@ func _run_comparison(quick: bool) -> void:
     if not _benchmark_cancelled and error=="":hardware_profile=await _measure_hardware(backup)
     hardware.release_counters()
     var restore: Dictionary=_benchmark_set_values(backup)
-    _comparison_report={"schema":"lie-screen-tile-comparison/1","scene":backup,"rounds":rounds,"modes":TILE_MODES,"events":events,"warmup_events":warmup,"warmup_summary":warmup_summary,"summary":summary,"passes":{"rows":rows},"work_diagnostic":work,"hardware_profile":hardware_profile,"telemetry_boundaries":boundaries,"expected_events":rounds*36,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Four isolated modes with identical scene and original 80-byte source bank. Forward/reverse block order; initial geometry and nine fixed warm-ups separately retained per block. All measured events and spikes retained; no timed GPU readbacks or hardware sampling. Separate work probes compare bounds through the same stream kernel. Separate whole-device counters compare reference/combined; not per-pass. Thermal/frequency uncontrolled. Display FPS includes cached images."}
+    _comparison_report={"schema":"lie-screen-tile-comparison/1","scene":backup,"rounds":rounds,"modes":TILE_MODES,"events":events,"warmup_events":warmup,"warmup_summary":warmup_summary,"summary":summary,"passes":{"rows":rows},"work_diagnostic":work,"hardware_profile":hardware_profile,"telemetry_boundaries":boundaries,"expected_events":rounds*36,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Four isolated modes with identical scene and original 80-byte source bank. Four rotated rounds balance block slots; initial geometry and nine fixed warm-ups separately retained per block. All measured events and spikes retained; no timed GPU readbacks or hardware sampling. Separate work probes compare bounds through the same stream kernel. Separate whole-device counters compare reference/combined; not per-pass. Thermal/frequency uncontrolled. Display FPS includes cached images."}
     _persist_report("user://lie-screen-tiles-last.json",_comparison_report);benchmark_busy=false
     if _benchmark_status!=null:_benchmark_status.text="Comparación cancelada; estado restaurado" if _benchmark_cancelled else "Comparación terminada; pulsa Informe" if error=="" else "Comparación incompleta: "+error
 func _hardware_modes() -> Dictionary:
@@ -112,6 +112,7 @@ func _report_header(report: Dictionary) -> String:
                 if group["kind"]==kind and group["mode"]==mode:text+="\n%s: %.2f ms · %d eventos" % [TILE_LABELS[mode],group["gpu"]["p50_ms"],group["gpu"]["samples"]]
     var profile: Dictionary=comparison.get("hardware_profile",{})
     text+="\n\nContadores: %d/6 intervalos corroborados" % int(profile.get("valid_blocks",0))
+    if not profile.get("status",{}).get("available",false):text+=" · "+str(profile.get("status",{}).get("reason","no disponibles"))
     return text+"\nMisma escena. Calentamiento separado; todos los picos conservados.\n\n"
 func _ui() -> void:
     super._ui();_check(status.get_parent(),"screen_tiles","Cobertura por bloques de pantalla")

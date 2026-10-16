@@ -64,11 +64,10 @@ All use the original 80-byte bank and split kernels, with stream scheduling
 and compact shadows disabled in clean timing. This separates two hypotheses;
 the combined mode checks interaction. Startup retains the accepted reference.
 
-Three rounds retain 108 measured events, nine per mode/event kind, plus 120
+Four rounds retain 144 measured events, twelve per mode/event kind, plus 160
 predefined warm-up events (initial geometry and all nine trial events before
-each block). Forward/reverse block order reduces drift confounding in paired
-rounds but is not a thermally controlled experiment or perfectly balanced at
-three rounds. No sample is dropped after seeing its duration. All passes,
+each block). Four rotations put each mode in each block slot once. This distributes
+order drift but is not a thermally controlled experiment. No sample is dropped after seeing its duration. All passes,
 including tile construction, count in the instrumented GPU total. CPU command
 cost excludes GPU completion and is not added to overlapping whole-frame time.
 

@@ -1,4 +1,5 @@
 extends SceneTree
+const Diagnostics=preload("res://lie_mobile_diagnostics.gd")
 var checks: int=0
 var failed: bool=false
 func _initialize() -> void:call_deferred("run")
@@ -6,6 +7,14 @@ func check(ok: bool,label: String) -> void:
     checks+=1
     if not ok:failed=true;printerr("SCREEN COMMAND FAIL ",label)
 func run() -> void:
+    var rows: Array=[]
+    for name in ["clear","tile_reset","tile_project","tile_scan","tile_groups","tile_fill","tile_resolve","output"]:rows.append({"serial":1,"pass":name,"gpu_ns":1000000,"context":{"event_kind":"geometry","screen_tiles":true}})
+    var summary: Dictionary=Diagnostics.summarize({"rows":rows})
+    check(summary["groups"].size()==1 and summary["groups"][0]["total_instrumented_gpu"]["p50_ms"]==8.,"complete tile events count all disjoint work once")
+    rows.remove_at(4);check(not Diagnostics.summarize({"rows":rows})["available"],"missing tile prefix cannot masquerade as complete geometry")
+    rows.clear()
+    for name in ["clear","project","raster","output"]:rows.append({"serial":2,"pass":name,"gpu_ns":1000000,"context":{"event_kind":"geometry","screen_tiles":false}})
+    check(Diagnostics.summarize({"rows":rows})["groups"].size()==1,"accepted reference completeness unchanged")
     var lab=load("res://lie_wall22_android_lab.tscn").instantiate();root.add_child(lab);await process_frame
     check(lab.effect.capture_loaded and not lab.state["screen_tiles"],"verified bank and reference default")
     var original: Dictionary=lab.state.duplicate(true);var revision: int=lab.revision
