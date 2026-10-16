@@ -75,6 +75,9 @@ timings, scene, work counters, hardware results and telemetry availability.
 
 ## Validation and interpretation
 
+Completed results, exact runtime/APK identities and preserved failures are in
+[the acceptance record](checkpoints/LIE_GPU_DIAGNOSTICS_ACCEPTANCE.md).
+
 Python checks verify exact bytes and generated shader equations. Actual Vulkan
 acceptance uses the attributed real bank, compares images/depth for camera,
 light displacement, area, LOD, continuity, resize, queue and box options, checks
