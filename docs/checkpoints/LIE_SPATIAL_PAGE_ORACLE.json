@@ -1,0 +1,107 @@
+{
+  "cases": {
+    "dense_page_fallback": {
+      "bvh_max_difference": 0.0,
+      "cells": 0,
+      "disk_tests": 0,
+      "fallbacks": 1,
+      "oracle_max_error": 0.0,
+      "page_rays": 1,
+      "queries": 1
+    },
+    "flat": {
+      "bvh_max_difference": 0.0,
+      "cells": 6,
+      "disk_tests": 273,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 3,
+      "queries": 3
+    },
+    "hidden_step": {
+      "bvh_max_difference": 0.0,
+      "cells": 6,
+      "disk_tests": 207,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 3,
+      "queries": 3
+    },
+    "nonuniform_scale": {
+      "bvh_max_difference": 0.0,
+      "cells": 6,
+      "disk_tests": 207,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 3,
+      "queries": 3
+    },
+    "opening": {
+      "bvh_max_difference": 0.0,
+      "cells": 6,
+      "disk_tests": 63,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 3,
+      "queries": 3
+    },
+    "random_two_roots_affine": {
+      "bvh_max_difference": 0.0,
+      "cells": 660,
+      "disk_tests": 2889,
+      "fallbacks": 0,
+      "oracle_max_error": 1.172783041458736e-06,
+      "page_rays": 304,
+      "queries": 256
+    },
+    "range": {
+      "bvh_max_difference": 0.0,
+      "cells": 15,
+      "disk_tests": 189,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 3,
+      "queries": 3
+    },
+    "reverse": {
+      "bvh_max_difference": 0.0,
+      "cells": 12,
+      "disk_tests": 525,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 3,
+      "queries": 3
+    },
+    "rotation": {
+      "bvh_max_difference": 0.0,
+      "cells": 6,
+      "disk_tests": 207,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 3,
+      "queries": 3
+    },
+    "same_master_other_instance": {
+      "bvh_max_difference": 0.0,
+      "cells": 2,
+      "disk_tests": 1,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 2,
+      "queries": 1
+    },
+    "slope": {
+      "bvh_max_difference": 0.0,
+      "cells": 0,
+      "disk_tests": 0,
+      "fallbacks": 0,
+      "oracle_max_error": 0.0,
+      "page_rays": 0,
+      "queries": 3
+    }
+  },
+  "checks": 588,
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "failed": false,
+  "physical_android_tested": false
+}

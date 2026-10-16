@@ -1,0 +1,107 @@
+{
+  "schema": "lie-spatial-page-acceptance/1",
+  "runtime_commit": "e0f26bd45dea736c51eb005c2bc9316159269db7",
+  "runtime_tree": "fa887bd04232712a07a45cfedf5387dbfe268887",
+  "run_id": 38828005634,
+  "job_id": 116739905911,
+  "artifact_id": 12016008653,
+  "artifact_sha256": "a0739b05c7f64ae49b3d59874e5c602595dfa77402013759a317e675722efc96",
+  "apk": {
+    "name": "LIE-Paginas-1.5.0.apk",
+    "bytes": 60263351,
+    "sha256": "5413ea091e79de500dceafb25f9ecd461cf8a8e69d1f2948273dc39d4bad7d9e",
+    "package": "org.lieengine.wallruntime.v150",
+    "version_code": 15
+  },
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "spatial_page_sha256": "5dfe9c6a8cbd7ec5cbefed83fbc8fe01c710bdc96dbae9d5a0e2ba766bffdcfb",
+  "physical_android_tested": false,
+  "native_device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "native_checks": 58,
+  "oracle_checks": 588,
+  "measured_events": 54,
+  "warmup_events": 60,
+  "timestamp_rows": 1050,
+  "internal_size": 1080,
+  "requested_appearance_bytes": 284812312,
+  "paired": {
+    "camera": {
+      "off_gpu": {
+        "max_ms": 413.75686899999994,
+        "p50_ms": 403.68313500000005,
+        "p95_ms": 413.75686899999994,
+        "samples": 9
+      },
+      "on_gpu": {
+        "max_ms": 419.21306799999996,
+        "p50_ms": 405.19784599999997,
+        "p95_ms": 419.21306799999996,
+        "samples": 9
+      },
+      "median_change_percent": 0.37522275980141906,
+      "off_visibility": {
+        "p50_ms": 8.151281,
+        "p95_ms": 15.097071,
+        "samples": 9
+      },
+      "on_visibility": {
+        "p50_ms": 11.47171,
+        "p95_ms": 19.699083,
+        "samples": 9
+      }
+    },
+    "light_power": {
+      "off_gpu": {
+        "max_ms": 120.546313,
+        "p50_ms": 115.614322,
+        "p95_ms": 120.546313,
+        "samples": 9
+      },
+      "on_gpu": {
+        "max_ms": 124.92988500000001,
+        "p50_ms": 115.335512,
+        "p95_ms": 124.92988500000001,
+        "samples": 9
+      },
+      "median_change_percent": -0.24115524372491093,
+      "off_visibility": {
+        "p50_ms": 2.235841,
+        "p95_ms": 2.463086,
+        "samples": 9
+      },
+      "on_visibility": {
+        "p50_ms": 1.872079,
+        "p95_ms": 2.837794,
+        "samples": 9
+      }
+    },
+    "light_position": {
+      "off_gpu": {
+        "max_ms": 183.60769399999998,
+        "p50_ms": 167.387997,
+        "p95_ms": 183.60769399999998,
+        "samples": 9
+      },
+      "on_gpu": {
+        "max_ms": 183.049997,
+        "p50_ms": 170.718316,
+        "p95_ms": 183.049997,
+        "samples": 9
+      },
+      "median_change_percent": 1.989580531273094,
+      "off_visibility": {
+        "p50_ms": 53.004434,
+        "p95_ms": 69.258938,
+        "samples": 9
+      },
+      "on_visibility": {
+        "p50_ms": 59.233923,
+        "p95_ms": 70.30662,
+        "samples": 9
+      }
+    }
+  },
+  "negative": "No demonstrated acceleration on this software device: page-on light-position total GPU p50 is 1.99% higher and visibility p50 is 11.75% higher. Mali speed unmeasured; retain OFF route and paired phone measurement. No observations discarded.",
+  "triggered_workflows": 19,
+  "all_triggered_workflows_passed": true
+}
