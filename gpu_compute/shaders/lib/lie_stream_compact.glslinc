@@ -1,0 +1,17 @@
+// Portable 64-lane ballot: no optional subgroup capability is assumed.
+// Three barriers instead of the shared prefix scan's thirteen barriers.
+shared uint stream_masks[2];
+shared uint stream_base;
+void lie_stream_append(bool selected,uint id,uint lane) {
+    if(lane<2u)stream_masks[lane]=0u;barrier();
+    if(selected)atomicOr(stream_masks[lane/32u],1u<<(lane%32u));barrier();
+    uvec2 votes=uvec2(stream_masks[0],stream_masks[1]);
+    uint lower=(1u<<(lane%32u))-1u;
+    uint rank=uint(bitCount(votes[lane/32u]&lower))+(lane>=32u?uint(bitCount(votes.x)):0u);
+    if(lane==0u) {
+        uint count=uint(bitCount(votes.x)+bitCount(votes.y));stream_base=0u;
+        if(count>0u){stream_base=atomicAdd(STREAM_QUEUE.values[3],count);atomicMax(STREAM_QUEUE.values[0],(stream_base+count+63u)/64u);}
+    }
+    barrier();
+    if(selected)STREAM_QUEUE.values[4u+stream_base+rank]=id;
+}
