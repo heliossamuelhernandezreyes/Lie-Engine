@@ -75,3 +75,26 @@ preparar el proyecto con `lie_wall23_android_build.py` y usar Godot 4.7.2 para
 `LIE_RESPONSE_QUICK=1` reduce solamente la matriz a una ronda. No elimina
 comprobaciones visuales ni picos. La compilación de Android y las regresiones
 anteriores continúan en `.github/workflows/lie-gpu-diagnostics.yml`.
+
+## Nueva ejecución tras recuperar las fuentes
+
+La nueva ejecución pasó 118 comprobaciones Vulkan del consumidor, 374 del
+campo (15 escenarios), 33 de comandos, 19 de comandos de bloques y 18 tests
+Python. Conservó 144 eventos medidos y 160 de calentamiento. Se recalcularon
+independientemente los p50/p95 CPU y GPU de los doce grupos y coincidieron.
+Los JSON `LIE_POWER_RESPONSE_RECOVERED_NATIVE.json` y
+`LIE_POWER_RESPONSE_RECOVERED_FIELD.json` contienen la evidencia nueva completa.
+
+| Cambio | Referencia | Respuesta | Medición global | Envío ligero |
+|---|---:|---:|---:|---:|
+| Cámara (p50 ms) | 210.133508 | 220.185896 | 215.357384 | 208.474629 |
+| Potencia (p50 ms) | 71.538764 | 40.255919 | 65.155666 | 40.311567 |
+| Posición (p50 ms) | 109.915602 | 113.715884 | 105.492023 | 112.155500 |
+
+Esta repetición confirma la corrección visual y una respuesta reutilizada
+más barata, pero muestra variación considerable de tiempo: el modo global
+solo redujo el p50 de potencia un 8,9% aquí, frente a la reducción cercana al
+50% de la ejecución histórica. Se conservaron todos los picos. No justifica
+extrapolar una ganancia fija, modificar los valores predeterminados a partir
+de un solo ensayo o predecir FPS del teléfono. Cámara sigue sin un salto de
+rendimiento. El máximo error HDR escalado de los pares fue 8,4134e-7.
