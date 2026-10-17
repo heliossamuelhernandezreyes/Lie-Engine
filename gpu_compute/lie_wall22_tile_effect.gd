@@ -52,14 +52,14 @@ func set_screen_tiles(enabled: bool) -> void:
 func _effective_tiles() -> bool:return _gpu_tiles and query_supported and _gpu_kernel_mode=="split" and _tile_sets.size()==6
 func _tile_dispatch(list: int,key: String,count: int,flags: int=0,indirect: int=-1,groups: bool=false) -> void:
     var label: String="tile_"+key
-    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"begin"))
+    _pass_timestamp(label,"begin")
     _rd.compute_list_bind_compute_pipeline(list,_tile_pipelines[key]["pipeline"])
     _rd.compute_list_bind_uniform_set(list,_tile_sets[key],0)
     _rd.compute_list_set_push_constant(list,PackedInt32Array([0,2,_coverage_mode,flags]).to_byte_array(),16)
     if indirect>=0:_rd.compute_list_dispatch_indirect(list,_buffers[indirect],0)
     else:_rd.compute_list_dispatch(list,count if groups else maxi(1,ceili(float(count)/64.)),1,1)
-    _rd.compute_list_add_barrier(list)
-    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"end"))
+    _pass_barrier(list)
+    _pass_timestamp(label,"end")
 func _dispatch_kernel(list: int,stage: int,count: int,name: String,flags: int=0,indirect: int=-1) -> void:
     if not _effective_tiles() or stage not in [2,3]:super._dispatch_kernel(list,stage,count,name,flags,indirect);return
     var tiles: int=_tile_dimensions.x*_tile_dimensions.y

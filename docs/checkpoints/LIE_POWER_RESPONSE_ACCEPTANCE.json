@@ -1,0 +1,36 @@
+{
+  "schema": "lie-power-response-acceptance/1",
+  "tested_code_commit": "914ef7e87153b6d97f2271f86bb7f87451fa81d8",
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "gpu": "llvmpipe LLVM 20.1.2 (software Vulkan)",
+  "physical_android_tested": false,
+  "checks": {
+    "consumer_gpu": 118,
+    "field_gpu": 374,
+    "field_scenarios": 15,
+    "response_commands": 33,
+    "screen_commands": 19,
+    "python": 18,
+    "measured_events": 144,
+    "warmup_events": 160,
+    "cpu_gpu_percentiles_independently_recomputed_groups": 12
+  },
+  "failed": false,
+  "artifacts": {
+    "LIE_POWER_RESPONSE_RECOVERED_NATIVE.json": {
+      "bytes": 1178996,
+      "sha256": "25dd7214ee547dbc15a7803c2f6efd4a476194a54ef8515255cfe3c99c1f4417"
+    },
+    "LIE_POWER_RESPONSE_RECOVERED_FIELD.json": {
+      "bytes": 6991,
+      "sha256": "898c74679140fb6ff74a2cf44a99fd808a2dc9e87a9f3378fbf4ac3d5fee82b4"
+    }
+  },
+  "android_ci": {
+    "run_id": 39004558974,
+    "code_commit": "914ef7e87153b6d97f2271f86bb7f87451fa81d8",
+    "status_at_recording": "in_progress",
+    "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/39004558974"
+  },
+  "scope": "New execution after source recovery, not the unavailable historical raw evidence. All measured samples and spikes retained. Software Vulkan is not physical Mali performance."
+}

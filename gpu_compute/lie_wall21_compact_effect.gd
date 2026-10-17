@@ -61,7 +61,7 @@ func set_compact_shadows(enabled: bool) -> void:
 func _effective_compact() -> bool:return _gpu_compact and query_supported and _gpu_kernel_mode=="split"
 func _dispatch_kernel(list: int,stage: int,count: int,name: String,flags: int=0,indirect: int=-1) -> void:
     if stage!=11 or not _effective_compact():super._dispatch_kernel(list,stage,count,name,flags,indirect);return
-    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,name,"begin"))
+    _pass_timestamp(name,"begin")
     _rd.compute_list_bind_compute_pipeline(list,_compact_pipelines["visibility"]["pipeline"])
     _rd.compute_list_bind_uniform_set(list,_compact_sets["visibility"+str(_gpu_tight_bounds)],0)
     _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,_coverage_mode,flags]).to_byte_array(),16)
@@ -69,16 +69,16 @@ func _dispatch_kernel(list: int,stage: int,count: int,name: String,flags: int=0,
     else:
         var groups: int=ceili(float(count)/64.);var gx: int=mini(groups,65535)
         _rd.compute_list_dispatch(list,gx,ceili(float(groups)/float(gx)),1)
-    _rd.compute_list_add_barrier(list);_rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,name,"end"))
+    _pass_barrier(list);_pass_timestamp(name,"end")
 func _stream_dispatch(list: int,key: String,count: int,label: String,light: int=0,flags: int=0,indirect: RID=RID()) -> void:
     if key not in ["prepare","trace"] or not _effective_compact():super._stream_dispatch(list,key,count,label,light,flags,indirect);return
-    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"begin"))
+    _pass_timestamp(label,"begin")
     var entry: Dictionary=_compact_pipelines[key];var pipeline: RID=entry["instrumented"] if _gpu_diagnostics else entry["pipeline"]
     _rd.compute_list_bind_compute_pipeline(list,pipeline);_rd.compute_list_bind_uniform_set(list,_compact_sets[key+str(_gpu_tight_bounds)],0)
     _rd.compute_list_set_push_constant(list,PackedInt32Array([0,2,light,flags]).to_byte_array(),16)
     if indirect.is_valid():_rd.compute_list_dispatch_indirect(list,indirect,0)
     else:_rd.compute_list_dispatch(list,maxi(1,ceili(float(count)/64.)),1,1)
-    _rd.compute_list_add_barrier(list);_rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"end"))
+    _pass_barrier(list);_pass_timestamp(label,"end")
 func _stage(list: int,stage: int,count: int) -> void:
     _measured_options["compact_shadows"]=_effective_compact();super._stage(list,stage,count)
 func cache_metrics() -> Dictionary:

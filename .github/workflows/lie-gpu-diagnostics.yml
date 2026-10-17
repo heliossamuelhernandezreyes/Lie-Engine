@@ -1,7 +1,7 @@
-name: LIE screen tiles, bounds and hardware diagnostics
+name: LIE power response, submission and GPU diagnostics
 on:
   pull_request:
-    paths: ["gpu_compute/*wall22*", "gpu_compute/lie_screen_tile_kernels.gd", "gpu_compute/test_lie_screen_tiles_gpu.gd", "gpu_compute/shaders/lie_wall22*.glsl", "tools/lie_wall22*", "tests/test_lie_screen_tiles.py", "native/hardware_probe/**", "gpu_compute/addons/lie_gpu_probe/**", "gpu_compute/*wall21*", "gpu_compute/lie_hardware_diagnostics.gd", "gpu_compute/lie_shared_shadow_view.gd", "gpu_compute/lie_shadow_view_kernels.gd", "gpu_compute/shaders/lie_wall21*.glsl", "gpu_compute/shaders/lie_compact_shadow_test.glsl", "gpu_compute/test_lie_compact_reference_gpu.gd", "gpu_compute/test_lie_hardware_probe.gd", "gpu_compute/lie_hardware_report.gd", "gpu_compute/test_lie_hardware_report.gd", "tools/lie_hardware_build.py", "tools/lie_shadow_view.py", "tools/lie_wall21*", "tools/lie_gpu_apk_verify.py", "tests/test_lie_shadow_view.py", "gpu_compute/*wall20*", "gpu_compute/lie_shared_tangent_bounds.gd", "gpu_compute/test_lie_tangent_reference_gpu.gd", "tools/lie_tangent_bounds.py", "tools/lie_wall20*", "tests/test_lie_tangent_bounds.py", ".github/workflows/lie-gpu-diagnostics.yml"]
+    paths: ["gpu_compute/*wall23*", "gpu_compute/*power_response*", "gpu_compute/shaders/lie_wall23*.glsl", "gpu_compute/lie_area_light_transport.gd", "gpu_compute/lie_mobile_diagnostics.gd", "tools/lie_wall23*", "tools/lie_runtime_android_build.py", "tests/test_lie_power_response.py", "tests/test_lie_android_extension_inputs.py", "gpu_compute/*wall22*", "gpu_compute/lie_screen_tile_kernels.gd", "gpu_compute/test_lie_screen_tiles_gpu.gd", "gpu_compute/shaders/lie_wall22*.glsl", "tools/lie_wall22*", "tests/test_lie_screen_tiles.py", "native/hardware_probe/**", "gpu_compute/addons/lie_gpu_probe/**", "gpu_compute/*wall21*", "gpu_compute/lie_hardware_diagnostics.gd", "gpu_compute/lie_shared_shadow_view.gd", "gpu_compute/lie_shadow_view_kernels.gd", "gpu_compute/shaders/lie_wall21*.glsl", "gpu_compute/shaders/lie_compact_shadow_test.glsl", "gpu_compute/test_lie_compact_reference_gpu.gd", "gpu_compute/test_lie_hardware_probe.gd", "gpu_compute/lie_hardware_report.gd", "gpu_compute/test_lie_hardware_report.gd", "tools/lie_hardware_build.py", "tools/lie_shadow_view.py", "tools/lie_wall21*", "tools/lie_gpu_apk_verify.py", "tests/test_lie_shadow_view.py", "gpu_compute/*wall20*", "gpu_compute/lie_shared_tangent_bounds.gd", "gpu_compute/test_lie_tangent_reference_gpu.gd", "tools/lie_tangent_bounds.py", "tools/lie_wall20*", "tests/test_lie_tangent_bounds.py", ".github/workflows/lie-gpu-diagnostics.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,6 +20,10 @@ jobs:
       - name: Prepare verified shared sources and independent regressions
         run: |
           python -m pip install -r requirements-ci.txt
+          python -m unittest discover -s tests -p 'test_lie_power_response.py' -v
+          python -m unittest discover -s tests -p 'test_lie_android_extension_inputs.py' -v
+          python tools/lie_wall23_shader.py
+          git diff --exit-code -- gpu_compute/shaders/lie_wall23*.glsl gpu_compute/lie_power_response_kernels.gd
           python -m unittest discover -s tests -p 'test_lie_screen_tiles.py' -v
           python tools/lie_wall22_shader.py
           git diff --exit-code -- gpu_compute/shaders/lie_wall22*.glsl gpu_compute/lie_screen_tile_kernels.gd
@@ -72,7 +76,7 @@ jobs:
           python tools/lie_surface_reference.py
           git diff --exit-code -- gpu_compute/shaders/lie_surface_light.glsl gpu_compute/shaders/lie_wall09_surface.glsl gpu_compute/shaders/lie_surface_test.glsl
           git diff --exit-code -- gpu_compute/shaders/lie_light_field.glsl
-          python tools/lie_wall22_android_build.py --stage /tmp/lie-assets-ci
+          python tools/lie_wall23_android_build.py --stage /tmp/lie-assets-ci
           git diff --exit-code -- gpu_compute/shaders/lie_wall07_continuous.glsl gpu_compute/shaders/lie_asset_stencil_test.glsl
       - name: Install native Godot and actual Vulkan
         run: |
@@ -93,6 +97,14 @@ jobs:
           timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_hardware_report.gd 2>&1 | tee hardware-report.log
           timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_hardware_probe.gd 2>&1 | tee hardware-probe.log
           timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall21_commands.gd 2>&1 | tee stream-command.log
+      - name: Response commands, independent field and actual cached HDR acceptance
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          set -o pipefail
+          timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-assets-ci --script res://test_lie_wall23_commands.gd 2>&1 | tee response-command.log
+          timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_light_field_gpu.gd 2>&1 | tee field-source.log
+          timeout 1200s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_wall23_mobile.gd 2>&1 | tee wall23-mobile.log
       - name: Screen command and actual Vulkan CSR acceptance
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
@@ -129,7 +141,7 @@ jobs:
           timeout 300s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-assets-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_compact_reference_gpu.gd 2>&1 | tee compact-reference.log
           python - <<'PY_CHECK'
           from pathlib import Path
-          for name in ['screen-command.log','screen-prefix.log','wall22-mobile.log','native-probe-build.log','hardware-probe.log','hardware-report.log','compact-reference.log','assets-import.log','stream-command.log','stream-queue.log','wall21-mobile.log','wall17-mobile.log','witness-gpu.log','tangent-reference.log']:
+          for name in ['response-command.log','field-source.log','wall23-mobile.log','screen-command.log','screen-prefix.log','wall22-mobile.log','native-probe-build.log','hardware-probe.log','hardware-report.log','compact-reference.log','assets-import.log','stream-command.log','stream-queue.log','wall21-mobile.log','wall17-mobile.log','witness-gpu.log','tangent-reference.log']:
             text=Path(name).read_text()
             assert 'ERROR:' not in text and 'were leaked at exit' not in text,text[-15000:]
           PY_CHECK
@@ -156,13 +168,13 @@ jobs:
         run: |
           keytool -genkeypair -keystore /tmp/lie-wall06-debug.keystore -storepass android -keypass android \
             -alias androiddebugkey -dname 'CN=LIE Experimental Android,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
-          python tools/lie_wall22_android_build.py --stage /tmp/lie-assets-export \
+          python tools/lie_wall23_android_build.py --stage /tmp/lie-assets-export \
             --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" \
-            --keystore /tmp/lie-wall06-debug.keystore --output "$PWD/apk/LIE-Bloques-1.9.0.apk"
+            --keystore /tmp/lie-wall06-debug.keystore --output "$PWD/apk/LIE-Respuesta-2.0.0.apk"
           python - <<'PY'
           import hashlib,json,zipfile
           from pathlib import Path
-          p=Path('apk/LIE-Bloques-1.9.0.apk');z=zipfile.ZipFile(p)
+          p=Path('apk/LIE-Respuesta-2.0.0.apk');z=zipfile.ZipFile(p)
           assert z.testzip() is None
           cat=json.loads(z.read('assets/captures/liewall06/catalog.json'))
           assert hashlib.sha256(z.read('assets/captures/liewall06/library.bin')).hexdigest()==cat['sha256']
@@ -196,12 +208,17 @@ jobs:
             assert hashlib.sha256(data).hexdigest()==expected
           PY
       - name: Verify native ELF, compact bytes and bundled licenses
-        run: python tools/lie_gpu_apk_verify.py apk/LIE-Bloques-1.9.0.apk
+        run: python tools/lie_gpu_apk_verify.py apk/LIE-Respuesta-2.0.0.apk
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lie-screen-tiles-apk-and-native
+          name: lie-power-response-apk-and-native
           path: |
+            response-command.log
+            field-source.log
+            wall23-mobile.log
+            /tmp/lie-assets-ci/wall23-native.json
+            /tmp/lie-assets-ci/wall12-power-response.png
             screen-command.log
             screen-prefix.log
             wall22-mobile.log

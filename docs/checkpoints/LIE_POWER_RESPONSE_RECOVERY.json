@@ -1,0 +1,84 @@
+{
+  "schema": "lie-power-response-source-recovery/1",
+  "apk": {
+    "filename": "LIE-Respuesta-2.0.0.apk",
+    "bytes": 73825168,
+    "sha256": "82b6faf6144ae7cc1def89aed12543aedb03721949dd34d4798b40333b154264",
+    "package": "org.lieengine.wallruntime.v200",
+    "version": "2.0.0-power-response"
+  },
+  "source_base": "f3c1255cb0a0110f8832a084a106936f188012de",
+  "gdre_version": "2.7.4",
+  "decompilation": {
+    "scripts": 92,
+    "failed": 0
+  },
+  "script_checks": [
+    {
+      "path": "gpu_compute/lie_wall17_kernel_effect.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "902b6d97786f3036bc13f5fec73df88ebe3740475350cf98f228348bd24fc063"
+    },
+    {
+      "path": "gpu_compute/lie_wall19_stream_effect.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "79cd3e0cc0ca86da37c408b33edaf2bc2bd96881355a1217fbf2ad2d8deb6af1"
+    },
+    {
+      "path": "gpu_compute/lie_wall21_compact_effect.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "2568ea4f67e089fe88c9c0a00ed0bbe925b329480460e68b07d3fd26a072ef96"
+    },
+    {
+      "path": "gpu_compute/lie_wall22_tile_effect.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "1a7ff155d7f2e982ac6d85b6128be71b6c65d1b098b95417aa26b02192309e20"
+    },
+    {
+      "path": "gpu_compute/lie_area_light_transport.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "cdf9b2c30670ef1b64e61132f94158c4fee2cb5fbcc19c5cec7a037b602eba21"
+    },
+    {
+      "path": "gpu_compute/lie_mobile_diagnostics.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "5c3d69ef7b5ec5df256cd453a9844f3cb456a1fa9b90843eb55929e7bc0d0604"
+    },
+    {
+      "path": "gpu_compute/lie_wall23_response_effect.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "0805d975d99ff7739b036b118632ec12c284bf9323bab3652fc7704cf7503a5b"
+    },
+    {
+      "path": "gpu_compute/lie_wall23_android_lab.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "6e075be2679c140f47ac07e37b7b38884a699d56856fe5ada4e3ef9f705880ca"
+    },
+    {
+      "path": "gpu_compute/lie_power_response_policy.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "ddca02b1144e75b5785a70346e40c928d690bcb35d0ef75f4d25288e6de2f1b5"
+    },
+    {
+      "path": "gpu_compute/lie_power_response_kernels.gd",
+      "decompiled_nonblank_lines_equal": true,
+      "canonical_sha256": "e4db3907b80db44a0fe41e7124470eeb37c1725ae90f87d51a4fcd117c070aa9"
+    }
+  ],
+  "shader_spirv": [
+    {
+      "path": "gpu_compute/shaders/lie_wall23_capture.glsl",
+      "bytes": 51900,
+      "sha256": "41fb07f6e69c952eb0b8510744332b5b91618be3218742e3f0ca902cb860b599",
+      "equal_to_delivered_apk": true
+    },
+    {
+      "path": "gpu_compute/shaders/lie_wall23_reuse.glsl",
+      "bytes": 6568,
+      "sha256": "93b8e69f5c5a9a5ec3fab0cfc7ae270346f5ff19a9f94d1d1283155bb62ed87f",
+      "equal_to_delivered_apk": true
+    }
+  ],
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "scope": "Runtime recovered from the already delivered APK after temporary checkout cleanup. Script comparison is decompile/recompile/decompile with blank lines/trailing whitespace ignored; GLSL compiles to identical SPIR-V bytes. Python build tools, tests and documentation were reconstructed separately and are not claimed to be the lost originals. Original full raw test histories are unavailable; new executions are recorded separately."
+}

@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 import re
 import shutil
+import struct
 import subprocess
 import tempfile
 from lie_android_manifest import normalize_apk
@@ -107,7 +108,21 @@ def stage_project(destination: Path) -> dict:
         +(ROOT/'assets/material_masters/mortar/hero/real_masonry_joint/material_manifest.json').read_text())
     return {'files':sorted(copied),'wall_sha256':catalog['sha256'],'wall_bytes':catalog['bytes']}
 
+def verify_android_extensions(stage: Path) -> None:
+    """Reject missing or invalid declared ARM64 libraries before Godot export."""
+    for descriptor in stage.rglob('*.gdextension'):
+        for name in re.findall(r'^android\.arm64\s*=\s*"res://([^"]+)"',descriptor.read_text(),re.M):
+            path=stage/name
+            if not path.is_file():raise ValueError('Missing Android extension '+name)
+            raw=path.read_bytes()
+            if len(raw)<64 or raw[:6]!=b'\x7fELF\x02\x01' or struct.unpack_from('<H',raw,18)[0]!=183:
+                raise ValueError('Invalid Android ARM64 extension '+name)
+            proof=path.with_name('build.json')
+            if proof.is_file() and json.loads(proof.read_text()).get('library_sha256')!=hashlib.sha256(raw).hexdigest():
+                raise ValueError('Android extension hash mismatch '+name)
+
 def export(stage: Path,godot: Path,sdk: Path,keystore: Path,output: Path) -> dict:
+    verify_android_extensions(stage)
     output.parent.mkdir(parents=True,exist_ok=True)
     env=os.environ.copy()
     env.update(GODOT_ANDROID_KEYSTORE_DEBUG_PATH=str(keystore.resolve()),GODOT_ANDROID_KEYSTORE_DEBUG_USER='androiddebugkey',GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD='android')
@@ -123,6 +138,9 @@ def export(stage: Path,godot: Path,sdk: Path,keystore: Path,output: Path) -> dic
     with (output.parent/'android-build.log').open('w') as log:
         subprocess.run([str(godot),'--headless','--path',str(stage),'--editor','--import','--quit'],env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
         subprocess.run([str(godot),'--headless','--path',str(stage),'--export-debug','LIE Wall Android',str(raw)],env=env,stdout=log,stderr=subprocess.STDOUT,check=True)
+        log.flush()
+        if re.search(r'^(?:SCRIPT )?ERROR:',(output.parent/'android-build.log').read_text(),re.M):
+            raise ValueError('Godot export reported errors; APK not accepted')
         modified=normalize_apk(raw,normalized)
         subprocess.run([str(bt/'zipalign'),'-f','-P','16','4',str(normalized),str(aligned)],stdout=log,stderr=subprocess.STDOUT,check=True)
         subprocess.run([str(bt/'apksigner'),'sign','--ks',str(keystore),'--ks-pass','pass:android','--ks-key-alias','androiddebugkey',str(aligned)],stdout=log,stderr=subprocess.STDOUT,check=True)
