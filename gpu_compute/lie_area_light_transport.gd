@@ -34,6 +34,14 @@ func _extra_transport_uniforms() -> Array[RDUniform]:
     _emission_rid=_rd.storage_buffer_create(128,_emission_bytes);allocation_bytes+=128
     result.append(_uniform(26,_emission_rid));return result
 func emission_descriptors_rid() -> RID:return _emission_rid if gpu_ready else RID()
+func direct_response_inputs() -> Dictionary:
+    # Render-thread snapshot of resident inputs, never a GPU buffer read.
+    # Packed arrays stay immutable until the next publication.
+    var signature: Dictionary=_resident_transport.duplicate()
+    signature.erase(1)
+    signature["emission"]=_emission_bytes
+    signature["field_options"]=[_gpu_optics,_gpu_separate,_direct_enabled,scan_shadow_caps]
+    return {"lights":_resident_transport.get(1,PackedByteArray()),"signature":signature}
 func _release_gpu() -> void:
     super._release_gpu()
     if _emission_rid.is_valid():_rd.free_rid(_emission_rid)

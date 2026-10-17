@@ -58,8 +58,12 @@ func _stage(list: int,stage: int,count: int) -> void:
     _measured_options["occlusion_witnesses"]=_gpu_witnesses and query_supported and _gpu_kernel_mode!="legacy"
     var context: Dictionary=_measured_options.duplicate();context["internal_size"]=render_size;context["event_kind"]=_profile_event_kind
     pass_profile.set_context(frame_count+1,context)
+func _pass_timestamp(name: String,edge: String) -> void:
+    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,name,edge))
+func _pass_barrier(list: int) -> void:
+    _rd.compute_list_add_barrier(list)
 func _dispatch_kernel(list: int,stage: int,count: int,name: String,flags: int=0,indirect: int=-1) -> void:
-    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,name,"begin"))
+    _pass_timestamp(name,"begin")
     if query_supported and _kernels_ready and _gpu_kernel_mode!="monolithic":
         var key: int=0 if _gpu_kernel_mode=="legacy" else stage
         _rd.compute_list_bind_compute_pipeline(list,_kernels[key]["pipeline"])
@@ -71,8 +75,8 @@ func _dispatch_kernel(list: int,stage: int,count: int,name: String,flags: int=0,
     else:
         var groups: int=ceili(float(count)/64.);var gx: int=mini(groups,65535)
         _rd.compute_list_dispatch(list,gx,ceili(float(groups)/float(gx)),1)
-    _rd.compute_list_add_barrier(list)
-    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,name,"end"))
+    _pass_barrier(list)
+    _pass_timestamp(name,"end")
 func _extra_stage(list: int,stage: int,count: int,name: String) -> void:
     _dispatch_kernel(list,stage,count,name)
 func _timed_stage(list: int,stage: int,count: int,name: String) -> void:

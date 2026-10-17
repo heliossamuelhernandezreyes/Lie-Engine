@@ -75,14 +75,14 @@ func _render_callback(type: int,data: RenderData) -> void:
     if not next.is_empty():_order_offset=_stream_document["levels"][next["jobs"].decode_u32(4)]["offset"]
     super._render_callback(type,data)
 func _stream_dispatch(list: int,key: String,count: int,label: String,light: int=0,flags: int=0,indirect: RID=RID()) -> void:
-    _rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"begin"))
+    _pass_timestamp(label,"begin")
     var entry: Dictionary=_stream_pipelines[key]
     var pipeline: RID=entry.get("instrumented",entry["pipeline"]) if _gpu_diagnostics else entry["pipeline"]
     _rd.compute_list_bind_compute_pipeline(list,pipeline);_rd.compute_list_bind_uniform_set(list,_stream_sets[key],0)
     _rd.compute_list_set_push_constant(list,PackedInt32Array([0,2,light,flags]).to_byte_array(),16)
     if indirect.is_valid():_rd.compute_list_dispatch_indirect(list,indirect,0)
     else:_rd.compute_list_dispatch(list,maxi(1,ceili(float(count)/64.)),1,1)
-    _rd.compute_list_add_barrier(list);_rd.capture_timestamp(pass_profile.marker(get_instance_id(),frame_count+1,label,"end"))
+    _pass_barrier(list);_pass_timestamp(label,"end")
 func _dispatch_kernel(list: int,stage: int,count: int,name: String,flags: int=0,indirect: int=-1) -> void:
     if stage==16 and _effective_stream():_stream_dispatch(list,"mark",count,name);return
     super._dispatch_kernel(list,stage,count,name,flags,indirect)
