@@ -1,0 +1,32 @@
+{
+  "schema": "lie-user-mali-baseline/1",
+  "origin": "User-pasted partial LIE 2.0 report in this conversation; not a measurement made in this implementation session",
+  "app_version": "2.0.0-power-response",
+  "created_utc": "2026-10-19T03:45:40",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "internal_size": 1080,
+  "output_size": 720,
+  "events_per_kind_and_mode": 12,
+  "gpu_p50_ms": {
+    "camera": {
+      "reference": 59.79,
+      "response": 60.22,
+      "whole": 60.36,
+      "lean": 59.94
+    },
+    "light_power": {
+      "reference": 20.0,
+      "response": 12.25,
+      "whole": 12.35,
+      "lean": 12.36
+    },
+    "light_position": {
+      "reference": 39.41,
+      "response": 40.46,
+      "whole": 40.13,
+      "lean": 38.54
+    }
+  },
+  "scope": "Whole appearance interval, cache builds and spikes retained according to supplied header. Full source report was truncated; do not infer missing per-event samples or scene fields."
+}

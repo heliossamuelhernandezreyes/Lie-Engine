@@ -9,6 +9,9 @@ func _initialize() -> void:call_deferred("run")
 func run() -> void:
     var hardware:=Hardware.new();var status: Dictionary=hardware.probe()
     check(ClassDB.class_exists("LieGPUProbe") and status.get("native_extension",false),"actual GDExtension loaded in Godot")
+    var native: Object = ClassDB.instantiate("LieGPUProbe")
+    var formats: Dictionary = native.vulkan_format_support(0,0)
+    check(not formats.get("available",true) and formats.has("reason"),"missing Vulkan handles rejected before querying driver")
     check(status.get("libGPUCounters_sha")=="378c7b59e2dae87cbbffb0ac9cf96ed13c939823","pinned counter backend")
     check(status.get("godot_cpp_sha")=="e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77","pinned binding backend")
     # CI deliberately has no Mali device. Missing hardware must be explicit.

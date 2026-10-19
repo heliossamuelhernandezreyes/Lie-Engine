@@ -1,0 +1,38 @@
+{
+  "schema": "lie-gpu-apk-proof/1",
+  "apk_sha256": "2808338528756147d0885b3c5333acab357a8ea7ae323823bbbe0640aa8e7c7c",
+  "apk_bytes": 73988290,
+  "native_library": "lib/arm64-v8a/liblie_gpu_probe.so",
+  "native_sha256": "99f175a104376245c91be9c94500bb7599df143e1cf16ed2c12ac6ed7dc5faee",
+  "pt_load_alignment": [
+    16384,
+    16384,
+    16384
+  ],
+  "bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "shadow_view": {
+    "schema": "lie-shadow-view/1",
+    "file": "shadow-view.bin",
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "source_count": 521257,
+    "original_stride": 80,
+    "stride": 32,
+    "bytes": 16680224,
+    "sha256": "363a7718495f669144454f9819e254d0afa7530bfedc39a9d1d6d8a31d5f0733",
+    "scope": "first 32 original bytes per source ID; position/radius and normal/gray; no quantization, reorder, geometry or material change"
+  },
+  "physical_android_tested": false,
+  "package": "org.lieengine.wallruntime.v210",
+  "version": "2.1.0-camera-render",
+  "version_code": 22,
+  "godot": "4.7.2.stable.official.ed1daf0bf",
+  "native_checks": {
+    "camera_vulkan": 76,
+    "camera_commands": 31,
+    "hardware_probe": 12,
+    "rig": 247,
+    "agent": 25,
+    "python_regressions": 60
+  },
+  "scope": "local signed APK verification; software Vulkan correctness; physical Mali not tested"
+}
