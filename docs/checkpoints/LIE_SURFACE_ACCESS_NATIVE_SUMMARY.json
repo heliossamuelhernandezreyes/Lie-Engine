@@ -1,0 +1,2206 @@
+{
+  "schema": "lie-surface-access-native-summary/1",
+  "code_commit": "7659034987c64d161b887d10441fb74e0c82fdc9",
+  "ci_run": 39325937081,
+  "artifact_id": 12223380979,
+  "physical_android_24_tested": false,
+  "device_scope": "CI software Vulkan; execution and image checks, not Mali performance",
+  "checks": 134,
+  "failed": false,
+  "quality": [
+    {
+      "backend": "surface",
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 12.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9790471934659021,
+        "mae": 0.016962658849033235,
+        "max": 0.6036477088928223
+      }
+    },
+    {
+      "backend": "regions",
+      "baseline_quality": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 12.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9790471934659021,
+        "mae": 0.016962658849033235,
+        "max": 0.6036477088928223
+      }
+    },
+    {
+      "backend": "envelope",
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 12.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9829107561711158,
+        "mae": 0.015891568330198964,
+        "max": 0.6036477088928223
+      }
+    },
+    {
+      "backend": "surface",
+      "pose": {
+        "camera_elevation": 3.6678,
+        "camera_yaw": -71.4,
+        "distance_factor": 0.6
+      },
+      "reference_quality": {
+        "iou": 0.9911543656703494,
+        "mae": 0.03506255592920158,
+        "max": 0.6515577435493469
+      }
+    },
+    {
+      "backend": "regions",
+      "baseline_quality": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "pose": {
+        "camera_elevation": 3.6678,
+        "camera_yaw": -71.4,
+        "distance_factor": 0.6
+      },
+      "reference_quality": {
+        "iou": 0.9911543656703494,
+        "mae": 0.03506255592920158,
+        "max": 0.6515577435493469
+      }
+    },
+    {
+      "backend": "envelope",
+      "pose": {
+        "camera_elevation": 3.6678,
+        "camera_yaw": -71.4,
+        "distance_factor": 0.6
+      },
+      "reference_quality": {
+        "iou": 0.9923838010371878,
+        "mae": 0.0337571489521581,
+        "max": 0.6515577435493469
+      }
+    },
+    {
+      "backend": "surface",
+      "pose": {
+        "camera_elevation": -0.0774,
+        "camera_yaw": -63.7914,
+        "distance_factor": 0.61
+      },
+      "reference_quality": {
+        "iou": 0.9927675297891843,
+        "mae": 0.036609611792670214,
+        "max": 0.651552677154541
+      }
+    },
+    {
+      "backend": "regions",
+      "baseline_quality": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "pose": {
+        "camera_elevation": -0.0774,
+        "camera_yaw": -63.7914,
+        "distance_factor": 0.61
+      },
+      "reference_quality": {
+        "iou": 0.9927675297891843,
+        "mae": 0.036609611792670214,
+        "max": 0.651552677154541
+      }
+    },
+    {
+      "backend": "envelope",
+      "pose": {
+        "camera_elevation": -0.0774,
+        "camera_yaw": -63.7914,
+        "distance_factor": 0.61
+      },
+      "reference_quality": {
+        "iou": 0.9936993892703463,
+        "mae": 0.03514603319340351,
+        "max": 0.651552677154541
+      }
+    },
+    {
+      "backend": "surface",
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 80.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9784194013397778,
+        "mae": 0.005445000095336235,
+        "max": 0.6183684887364507
+      }
+    },
+    {
+      "backend": "regions",
+      "baseline_quality": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 80.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9784194013397778,
+        "mae": 0.005445000095336235,
+        "max": 0.6183684887364507
+      }
+    },
+    {
+      "backend": "envelope",
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 80.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9824903548564887,
+        "mae": 0.005066070784180673,
+        "max": 0.5927034380147234
+      }
+    },
+    {
+      "backend": "surface",
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 160.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9681223371880706,
+        "mae": 0.005589138611262253,
+        "max": 0.8528261780738831
+      }
+    },
+    {
+      "backend": "regions",
+      "baseline_quality": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 160.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9681223371880706,
+        "mae": 0.005589138611262253,
+        "max": 0.8528261780738831
+      }
+    },
+    {
+      "backend": "envelope",
+      "pose": {
+        "camera_elevation": 9.0,
+        "camera_yaw": 160.0,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9822875328067351,
+        "mae": 0.0051162258409583,
+        "max": 0.8862389326095581
+      }
+    },
+    {
+      "backend": "surface",
+      "pose": {
+        "camera_elevation": -7.2227,
+        "camera_yaw": -39.5088,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9766014960168194,
+        "mae": 0.014938509198924666,
+        "max": 0.6623632311820984
+      }
+    },
+    {
+      "backend": "regions",
+      "baseline_quality": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "pose": {
+        "camera_elevation": -7.2227,
+        "camera_yaw": -39.5088,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9766014960168194,
+        "mae": 0.014938509198924666,
+        "max": 0.6623632311820984
+      }
+    },
+    {
+      "backend": "envelope",
+      "pose": {
+        "camera_elevation": -7.2227,
+        "camera_yaw": -39.5088,
+        "distance_factor": 1.0
+      },
+      "reference_quality": {
+        "iou": 0.9837837837837838,
+        "mae": 0.014167115387413338,
+        "max": 0.6623632311820984
+      }
+    },
+    {
+      "backend": "surface",
+      "pose": {
+        "camera_elevation": 70.0,
+        "camera_yaw": 35.0,
+        "distance_factor": 0.6
+      },
+      "reference_quality": {
+        "iou": 0.9918833386457812,
+        "mae": 0.023009088891889583,
+        "max": 0.6165942936204374
+      }
+    },
+    {
+      "backend": "regions",
+      "baseline_quality": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "pose": {
+        "camera_elevation": 70.0,
+        "camera_yaw": 35.0,
+        "distance_factor": 0.6
+      },
+      "reference_quality": {
+        "iou": 0.9918833386457812,
+        "mae": 0.023009088891889583,
+        "max": 0.6165942936204374
+      }
+    },
+    {
+      "backend": "envelope",
+      "pose": {
+        "camera_elevation": 70.0,
+        "camera_yaw": 35.0,
+        "distance_factor": 0.6
+      },
+      "reference_quality": {
+        "iou": 0.9909156108056418,
+        "mae": 0.02096172310561323,
+        "max": 0.6157763181254268
+      }
+    }
+  ],
+  "summary": [
+    {
+      "cpu": {
+        "max_ms": 0.582,
+        "p50_ms": 0.548,
+        "p95_ms": 0.582,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 147.476159,
+        "p50_ms": 136.888531,
+        "p95_ms": 147.476159,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "surface_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 136.888531,
+          "p95_ms": 147.476159,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.75,
+        "p50_ms": 0.722,
+        "p95_ms": 0.75,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 49.918796,
+        "p50_ms": 43.397004,
+        "p95_ms": 49.918796,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "surface_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 43.397004,
+          "p95_ms": 49.918796,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.761,
+        "p50_ms": 0.724,
+        "p95_ms": 0.761,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 93.256518,
+        "p50_ms": 89.171188,
+        "p95_ms": 93.256518,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "surface_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 89.171188,
+          "p95_ms": 93.256518,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.602,
+        "p50_ms": 0.529,
+        "p95_ms": 0.602,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 126.147069,
+        "p50_ms": 115.404166,
+        "p95_ms": 126.147069,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "regions_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 115.404166,
+          "p95_ms": 126.147069,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.812,
+        "p50_ms": 0.719,
+        "p95_ms": 0.812,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 47.847249,
+        "p50_ms": 42.112349,
+        "p95_ms": 47.847249,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "regions_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 42.112349,
+          "p95_ms": 47.847249,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.776,
+        "p50_ms": 0.72,
+        "p95_ms": 0.776,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 93.754922,
+        "p50_ms": 85.92487,
+        "p95_ms": 93.754922,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "regions_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 85.92487,
+          "p95_ms": 93.754922,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.606,
+        "p50_ms": 0.532,
+        "p95_ms": 0.606,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 200.996477,
+        "p50_ms": 192.114299,
+        "p95_ms": 200.996477,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "envelope_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 192.114299,
+          "p95_ms": 200.996477,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.797,
+        "p50_ms": 0.71,
+        "p95_ms": 0.797,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 49.137434,
+        "p50_ms": 45.251325,
+        "p95_ms": 49.137434,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "envelope_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 45.251325,
+          "p95_ms": 49.137434,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.729,
+        "p50_ms": 0.686,
+        "p95_ms": 0.729,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 952.462779,
+        "p50_ms": 921.384096,
+        "p95_ms": 952.462779,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "envelope_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 921.384096,
+          "p95_ms": 952.462779,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.59,
+        "p50_ms": 0.526,
+        "p95_ms": 0.59,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 296.489162,
+        "p50_ms": 279.542471,
+        "p95_ms": 296.489162,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 279.542471,
+          "p95_ms": 296.489162,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.762,
+        "p50_ms": 0.704,
+        "p95_ms": 0.762,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 92.872108,
+        "p50_ms": 87.868388,
+        "p95_ms": 92.872108,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 87.868388,
+          "p95_ms": 92.872108,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.744,
+        "p50_ms": 0.708,
+        "p95_ms": 0.744,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 142.437648,
+        "p50_ms": 133.947624,
+        "p95_ms": 142.437648,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 133.947624,
+          "p95_ms": 142.437648,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.575,
+        "p50_ms": 0.54,
+        "p95_ms": 0.575,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 252.20285,
+        "p50_ms": 238.537808,
+        "p95_ms": 252.20285,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 238.537808,
+          "p95_ms": 252.20285,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.775,
+        "p50_ms": 0.719,
+        "p95_ms": 0.775,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 95.424432,
+        "p50_ms": 86.215477,
+        "p95_ms": 95.424432,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 86.215477,
+          "p95_ms": 95.424432,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.767,
+        "p50_ms": 0.724,
+        "p95_ms": 0.767,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 134.373295,
+        "p50_ms": 129.564604,
+        "p95_ms": 134.373295,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 129.564604,
+          "p95_ms": 134.373295,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.581,
+        "p50_ms": 0.525,
+        "p95_ms": 0.581,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 254.076173,
+        "p50_ms": 248.963027,
+        "p95_ms": 254.076173,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "envelope_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 248.963027,
+          "p95_ms": 254.076173,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.756,
+        "p50_ms": 0.705,
+        "p95_ms": 0.756,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 98.903437,
+        "p50_ms": 86.47063,
+        "p95_ms": 98.903437,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "envelope_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 86.47063,
+          "p95_ms": 98.903437,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.779,
+        "p50_ms": 0.693,
+        "p95_ms": 0.779,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 982.548594,
+        "p50_ms": 971.785442,
+        "p95_ms": 982.548594,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "envelope_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 971.785442,
+          "p95_ms": 982.548594,
+          "samples": 12
+        }
+      }
+    }
+  ],
+  "stage_summary": [
+    {
+      "kind": "camera",
+      "mode": "envelope_1080",
+      "passes": {
+        "output": {
+          "max_ms": 5.596774,
+          "p50_ms": 5.51673,
+          "p95_ms": 5.596774,
+          "samples": 3
+        },
+        "primary": {
+          "max_ms": 163.219671,
+          "p50_ms": 163.079667,
+          "p95_ms": 163.219671,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 81.525952,
+          "p50_ms": 81.015247,
+          "p95_ms": 81.525952,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.3987219999999638,
+        "p50_ms": 0.35811499999996954,
+        "p95_ms": 0.3987219999999638,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 250.007074,
+        "p50_ms": 248.417748,
+        "p95_ms": 250.007074,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_power",
+      "mode": "envelope_1080",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.22092,
+          "p50_ms": 0.184623,
+          "p95_ms": 0.22092,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 6.966901,
+          "p50_ms": 5.833358,
+          "p95_ms": 6.966901,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 86.383781,
+          "p50_ms": 80.7125,
+          "p95_ms": 86.383781,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.36419999999998254,
+        "p50_ms": 0.3018949999999876,
+        "p95_ms": 0.36419999999998254,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 92.5029,
+        "p50_ms": 88.204713,
+        "p95_ms": 92.5029,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_position",
+      "mode": "envelope_1080",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.153767,
+          "p50_ms": 0.149379,
+          "p95_ms": 0.153767,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 7.900763,
+          "p50_ms": 6.743638,
+          "p95_ms": 7.900763,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 82.241073,
+          "p50_ms": 80.795729,
+          "p95_ms": 82.241073,
+          "samples": 3
+        },
+        "shadow_maps": {
+          "max_ms": 887.433955,
+          "p50_ms": 880.495005,
+          "p95_ms": 887.433955,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.2656160000000227,
+        "p50_ms": 0.23376999999993586,
+        "p95_ms": 0.2656160000000227,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 975.100638,
+        "p50_ms": 968.459799,
+        "p95_ms": 975.100638,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "camera",
+      "mode": "surface_720",
+      "passes": {
+        "output": {
+          "max_ms": 4.680225,
+          "p50_ms": 4.363144,
+          "p95_ms": 4.680225,
+          "samples": 3
+        },
+        "primary": {
+          "max_ms": 100.331062,
+          "p50_ms": 94.802089,
+          "p95_ms": 100.331062,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 41.396981,
+          "p50_ms": 37.117537,
+          "p95_ms": 41.396981,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.2967689999999834,
+        "p50_ms": 0.2798909999999921,
+        "p95_ms": 0.2967689999999834,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 142.091634,
+        "p50_ms": 141.176064,
+        "p95_ms": 142.091634,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_power",
+      "mode": "surface_720",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.198781,
+          "p50_ms": 0.190172,
+          "p95_ms": 0.198781,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 4.724084,
+          "p50_ms": 4.383019,
+          "p95_ms": 4.724084,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 36.765247,
+          "p50_ms": 36.705974,
+          "p95_ms": 36.765247,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.3653860000000009,
+        "p50_ms": 0.35687700000000433,
+        "p95_ms": 0.3653860000000009,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 41.965036,
+        "p50_ms": 41.695315,
+        "p95_ms": 41.965036,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_position",
+      "mode": "surface_720",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.153688,
+          "p50_ms": 0.14963,
+          "p95_ms": 0.153688,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 4.415046,
+          "p50_ms": 4.347523,
+          "p95_ms": 4.415046,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 39.996418,
+          "p50_ms": 36.85331,
+          "p95_ms": 39.996418,
+          "samples": 3
+        },
+        "shadow_maps": {
+          "max_ms": 48.268191,
+          "p50_ms": 48.267843,
+          "p95_ms": 48.268191,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.32581899999998143,
+        "p50_ms": 0.3137880000000166,
+        "p95_ms": 0.32581899999998143,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 93.07926,
+        "p50_ms": 89.650156,
+        "p95_ms": 93.07926,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "camera",
+      "mode": "regions_720",
+      "passes": {
+        "output": {
+          "max_ms": 6.382961,
+          "p50_ms": 5.22626,
+          "p95_ms": 6.382961,
+          "samples": 3
+        },
+        "primary": {
+          "max_ms": 77.931153,
+          "p50_ms": 74.701202,
+          "p95_ms": 77.931153,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 42.252573,
+          "p50_ms": 37.416371,
+          "p95_ms": 42.252573,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.2937349999999981,
+        "p50_ms": 0.2713300000000203,
+        "p95_ms": 0.2937349999999981,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 120.25839,
+        "p50_ms": 117.086102,
+        "p95_ms": 120.25839,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_power",
+      "mode": "regions_720",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.191097,
+          "p50_ms": 0.183658,
+          "p95_ms": 0.191097,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 5.709866,
+          "p50_ms": 5.597997,
+          "p95_ms": 5.709866,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 42.158003,
+          "p50_ms": 38.060391,
+          "p95_ms": 42.158003,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.3351459999999946,
+        "p50_ms": 0.3260649999999998,
+        "p95_ms": 0.3351459999999946,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 48.354597,
+        "p50_ms": 44.168111,
+        "p95_ms": 48.354597,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_position",
+      "mode": "regions_720",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.211249,
+          "p50_ms": 0.162413,
+          "p95_ms": 0.211249,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 5.187903,
+          "p50_ms": 5.05855,
+          "p95_ms": 5.187903,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 41.503587,
+          "p50_ms": 41.467743,
+          "p95_ms": 41.503587,
+          "samples": 3
+        },
+        "shadow_maps": {
+          "max_ms": 45.893884,
+          "p50_ms": 42.593887,
+          "p95_ms": 45.893884,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.30280899999999633,
+        "p50_ms": 0.2942199999999957,
+        "p95_ms": 0.30280899999999633,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 92.244792,
+        "p50_ms": 88.913135,
+        "p95_ms": 92.244792,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "camera",
+      "mode": "envelope_720",
+      "passes": {
+        "output": {
+          "max_ms": 5.770949,
+          "p50_ms": 4.552336,
+          "p95_ms": 5.770949,
+          "samples": 3
+        },
+        "primary": {
+          "max_ms": 153.265246,
+          "p50_ms": 152.054366,
+          "p95_ms": 153.265246,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 41.1207,
+          "p50_ms": 40.666705,
+          "p95_ms": 41.1207,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.34919300000001385,
+        "p50_ms": 0.3314470000000256,
+        "p95_ms": 0.34919300000001385,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 197.532508,
+        "p50_ms": 194.612992,
+        "p95_ms": 197.532508,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_power",
+      "mode": "envelope_720",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.238897,
+          "p50_ms": 0.21985,
+          "p95_ms": 0.238897,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 6.135119,
+          "p50_ms": 4.697513,
+          "p95_ms": 6.135119,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 43.352793,
+          "p50_ms": 41.082838,
+          "p95_ms": 43.352793,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.3698999999999941,
+        "p50_ms": 0.31609399999999965,
+        "p95_ms": 0.3698999999999941,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 50.077662,
+        "p50_ms": 46.284064,
+        "p95_ms": 50.077662,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_position",
+      "mode": "envelope_720",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.188445,
+          "p50_ms": 0.164916,
+          "p95_ms": 0.188445,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 5.529655,
+          "p50_ms": 4.95451,
+          "p95_ms": 5.529655,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 37.282621,
+          "p50_ms": 36.327317,
+          "p95_ms": 37.282621,
+          "samples": 3
+        },
+        "shadow_maps": {
+          "max_ms": 893.524003,
+          "p50_ms": 874.407209,
+          "p95_ms": 893.524003,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.31483600000012757,
+        "p50_ms": 0.26806999999996606,
+        "p95_ms": 0.31483600000012757,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 936.175753,
+        "p50_ms": 916.720696,
+        "p95_ms": 936.175753,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "camera",
+      "mode": "surface_1080",
+      "passes": {
+        "output": {
+          "max_ms": 6.96141,
+          "p50_ms": 5.734451,
+          "p95_ms": 6.96141,
+          "samples": 3
+        },
+        "primary": {
+          "max_ms": 204.725191,
+          "p50_ms": 191.337207,
+          "p95_ms": 204.725191,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 81.107761,
+          "p50_ms": 80.554857,
+          "p95_ms": 81.107761,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.3600110000000427,
+        "p50_ms": 0.31839800000000196,
+        "p95_ms": 0.3600110000000427,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 290.966517,
+        "p50_ms": 277.016418,
+        "p95_ms": 290.966517,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_power",
+      "mode": "surface_1080",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.201075,
+          "p50_ms": 0.200314,
+          "p95_ms": 0.201075,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 7.572829,
+          "p50_ms": 5.502559,
+          "p95_ms": 7.572829,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 84.931256,
+          "p50_ms": 80.874521,
+          "p95_ms": 84.931256,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.35678500000000213,
+        "p50_ms": 0.33634899999998424,
+        "p95_ms": 0.35678500000000213,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 93.025804,
+        "p50_ms": 86.913743,
+        "p95_ms": 93.025804,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_position",
+      "mode": "surface_1080",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.197668,
+          "p50_ms": 0.177691,
+          "p95_ms": 0.197668,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 6.29983,
+          "p50_ms": 5.578169,
+          "p95_ms": 6.29983,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 86.610484,
+          "p50_ms": 81.147364,
+          "p95_ms": 86.610484,
+          "samples": 3
+        },
+        "shadow_maps": {
+          "max_ms": 47.903707,
+          "p50_ms": 47.627566,
+          "p95_ms": 47.903707,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.33055799999999635,
+        "p50_ms": 0.32566600000001245,
+        "p95_ms": 0.33055799999999635,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 135.329483,
+        "p50_ms": 135.157466,
+        "p95_ms": 135.329483,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "camera",
+      "mode": "regions_1080",
+      "passes": {
+        "output": {
+          "max_ms": 6.50512,
+          "p50_ms": 5.718019,
+          "p95_ms": 6.50512,
+          "samples": 3
+        },
+        "primary": {
+          "max_ms": 159.088517,
+          "p50_ms": 151.708433,
+          "p95_ms": 159.088517,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 84.606172,
+          "p50_ms": 83.970163,
+          "p95_ms": 84.606172,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.3650629999999637,
+        "p50_ms": 0.3624189999999885,
+        "p95_ms": 0.3650629999999637,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 246.06553,
+        "p50_ms": 241.761678,
+        "p95_ms": 246.06553,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_power",
+      "mode": "regions_1080",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.202097,
+          "p50_ms": 0.178318,
+          "p95_ms": 0.202097,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 6.606729,
+          "p50_ms": 5.561876,
+          "p95_ms": 6.606729,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 88.406212,
+          "p50_ms": 82.586581,
+          "p95_ms": 88.406212,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.32417200000000435,
+        "p50_ms": 0.32295799999999986,
+        "p95_ms": 0.32417200000000435,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 94.428935,
+        "p50_ms": 89.694586,
+        "p95_ms": 94.428935,
+        "samples": 3
+      }
+    },
+    {
+      "kind": "light_position",
+      "mode": "regions_1080",
+      "passes": {
+        "node_response": {
+          "max_ms": 0.172114,
+          "p50_ms": 0.166199,
+          "p95_ms": 0.172114,
+          "samples": 3
+        },
+        "output": {
+          "max_ms": 8.23494,
+          "p50_ms": 7.044765,
+          "p95_ms": 8.23494,
+          "samples": 3
+        },
+        "shading": {
+          "max_ms": 81.245765,
+          "p50_ms": 80.327164,
+          "p95_ms": 81.245765,
+          "samples": 3
+        },
+        "shadow_maps": {
+          "max_ms": 46.100912,
+          "p50_ms": 45.015436,
+          "p95_ms": 46.100912,
+          "samples": 3
+        }
+      },
+      "unattributed_gpu": {
+        "max_ms": 0.3007070000000027,
+        "p50_ms": 0.2893799999999942,
+        "p95_ms": 0.3007070000000027,
+        "samples": 3
+      },
+      "whole_instrumented_gpu": {
+        "max_ms": 133.268083,
+        "p50_ms": 131.981399,
+        "p95_ms": 133.268083,
+        "samples": 3
+      }
+    }
+  ],
+  "warmup_summary": [
+    {
+      "cpu": {
+        "max_ms": 0.644,
+        "p50_ms": 0.644,
+        "p95_ms": 0.644,
+        "samples": 1
+      },
+      "gpu": {
+        "max_ms": 358.355773,
+        "p50_ms": 358.355773,
+        "p95_ms": 358.355773,
+        "samples": 1
+      },
+      "kind": "initial_geometry",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 358.355773,
+          "p95_ms": 358.355773,
+          "samples": 1
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 7.614,
+        "p50_ms": 7.614,
+        "p95_ms": 7.614,
+        "samples": 1
+      },
+      "gpu": {
+        "max_ms": 342.968838,
+        "p50_ms": 342.968838,
+        "p95_ms": 342.968838,
+        "samples": 1
+      },
+      "kind": "initial_geometry",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 342.968838,
+          "p95_ms": 342.968838,
+          "samples": 1
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 5.568,
+        "p50_ms": 5.28,
+        "p95_ms": 5.568,
+        "samples": 4
+      },
+      "gpu": {
+        "max_ms": 267.04582,
+        "p50_ms": 221.014659,
+        "p95_ms": 267.04582,
+        "samples": 4
+      },
+      "kind": "initial_geometry",
+      "mode": "surface_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 221.014659,
+          "p95_ms": 267.04582,
+          "samples": 4
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.591,
+        "p50_ms": 0.54,
+        "p95_ms": 0.591,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 142.426508,
+        "p50_ms": 134.734263,
+        "p95_ms": 142.426508,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "surface_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 134.734263,
+          "p95_ms": 142.426508,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.766,
+        "p50_ms": 0.696,
+        "p95_ms": 0.766,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 46.422923,
+        "p50_ms": 41.927785,
+        "p95_ms": 46.422923,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "surface_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 41.927785,
+          "p95_ms": 46.422923,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.775,
+        "p50_ms": 0.73,
+        "p95_ms": 0.775,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 97.177781,
+        "p50_ms": 89.833212,
+        "p95_ms": 97.177781,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "surface_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 89.833212,
+          "p95_ms": 97.177781,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.659,
+        "p50_ms": 0.577,
+        "p95_ms": 0.659,
+        "samples": 4
+      },
+      "gpu": {
+        "max_ms": 199.553858,
+        "p50_ms": 191.976774,
+        "p95_ms": 199.553858,
+        "samples": 4
+      },
+      "kind": "initial_geometry",
+      "mode": "regions_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 191.976774,
+          "p95_ms": 199.553858,
+          "samples": 4
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.608,
+        "p50_ms": 0.535,
+        "p95_ms": 0.608,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 122.567875,
+        "p50_ms": 118.011183,
+        "p95_ms": 122.567875,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "regions_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 118.011183,
+          "p95_ms": 122.567875,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.747,
+        "p50_ms": 0.713,
+        "p95_ms": 0.747,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 58.978092,
+        "p50_ms": 42.911184,
+        "p95_ms": 58.978092,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "regions_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 42.911184,
+          "p95_ms": 58.978092,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.754,
+        "p50_ms": 0.728,
+        "p95_ms": 0.754,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 94.804211,
+        "p50_ms": 87.367324,
+        "p95_ms": 94.804211,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "regions_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 87.367324,
+          "p95_ms": 94.804211,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.648,
+        "p50_ms": 0.603,
+        "p95_ms": 0.648,
+        "samples": 4
+      },
+      "gpu": {
+        "max_ms": 2061.455502,
+        "p50_ms": 2056.442667,
+        "p95_ms": 2061.455502,
+        "samples": 4
+      },
+      "kind": "initial_geometry",
+      "mode": "envelope_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 2056.442667,
+          "p95_ms": 2061.455502,
+          "samples": 4
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.575,
+        "p50_ms": 0.517,
+        "p95_ms": 0.575,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 200.781059,
+        "p50_ms": 193.343935,
+        "p95_ms": 200.781059,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "envelope_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 193.343935,
+          "p95_ms": 200.781059,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.761,
+        "p50_ms": 0.711,
+        "p95_ms": 0.761,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 47.935848,
+        "p50_ms": 42.448056,
+        "p95_ms": 47.935848,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "envelope_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 42.448056,
+          "p95_ms": 47.935848,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.816,
+        "p50_ms": 0.726,
+        "p95_ms": 0.816,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 942.876498,
+        "p50_ms": 922.029609,
+        "p95_ms": 942.876498,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "envelope_720",
+      "passes": {
+        "solve": {
+          "p50_ms": 922.029609,
+          "p95_ms": 942.876498,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 7.583,
+        "p50_ms": 7.236,
+        "p95_ms": 7.583,
+        "samples": 3
+      },
+      "gpu": {
+        "max_ms": 367.594093,
+        "p50_ms": 367.458614,
+        "p95_ms": 367.594093,
+        "samples": 3
+      },
+      "kind": "initial_geometry",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 367.458614,
+          "p95_ms": 367.594093,
+          "samples": 3
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.569,
+        "p50_ms": 0.553,
+        "p95_ms": 0.569,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 294.755506,
+        "p50_ms": 279.039516,
+        "p95_ms": 294.755506,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 279.039516,
+          "p95_ms": 294.755506,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.736,
+        "p50_ms": 0.698,
+        "p95_ms": 0.736,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 95.745008,
+        "p50_ms": 86.682708,
+        "p95_ms": 95.745008,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 86.682708,
+          "p95_ms": 95.745008,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.753,
+        "p50_ms": 0.716,
+        "p95_ms": 0.753,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 143.588759,
+        "p50_ms": 135.126441,
+        "p95_ms": 143.588759,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "surface_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 135.126441,
+          "p95_ms": 143.588759,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.62,
+        "p50_ms": 0.609,
+        "p95_ms": 0.62,
+        "samples": 3
+      },
+      "gpu": {
+        "max_ms": 317.449904,
+        "p50_ms": 312.265221,
+        "p95_ms": 317.449904,
+        "samples": 3
+      },
+      "kind": "initial_geometry",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 312.265221,
+          "p95_ms": 317.449904,
+          "samples": 3
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.575,
+        "p50_ms": 0.534,
+        "p95_ms": 0.575,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 258.373184,
+        "p50_ms": 240.191313,
+        "p95_ms": 258.373184,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 240.191313,
+          "p95_ms": 258.373184,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.867,
+        "p50_ms": 0.723,
+        "p95_ms": 0.867,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 100.272466,
+        "p50_ms": 88.617417,
+        "p95_ms": 100.272466,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 88.617417,
+          "p95_ms": 100.272466,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.741,
+        "p50_ms": 0.706,
+        "p95_ms": 0.741,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 143.450474,
+        "p50_ms": 131.045778,
+        "p95_ms": 143.450474,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "regions_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 131.045778,
+          "p95_ms": 143.450474,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.669,
+        "p50_ms": 0.565,
+        "p95_ms": 0.669,
+        "samples": 4
+      },
+      "gpu": {
+        "max_ms": 2141.058997,
+        "p50_ms": 2103.210727,
+        "p95_ms": 2141.058997,
+        "samples": 4
+      },
+      "kind": "initial_geometry",
+      "mode": "envelope_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 2103.210727,
+          "p95_ms": 2141.058997,
+          "samples": 4
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.576,
+        "p50_ms": 0.535,
+        "p95_ms": 0.576,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 259.964486,
+        "p50_ms": 249.297539,
+        "p95_ms": 259.964486,
+        "samples": 12
+      },
+      "kind": "camera",
+      "mode": "envelope_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 249.297539,
+          "p95_ms": 259.964486,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.825,
+        "p50_ms": 0.714,
+        "p95_ms": 0.825,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 91.334019,
+        "p50_ms": 88.792515,
+        "p95_ms": 91.334019,
+        "samples": 12
+      },
+      "kind": "light_power",
+      "mode": "envelope_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 88.792515,
+          "p95_ms": 91.334019,
+          "samples": 12
+        }
+      }
+    },
+    {
+      "cpu": {
+        "max_ms": 0.749,
+        "p50_ms": 0.706,
+        "p95_ms": 0.749,
+        "samples": 12
+      },
+      "gpu": {
+        "max_ms": 994.327411,
+        "p50_ms": 970.603428,
+        "p95_ms": 994.327411,
+        "samples": 12
+      },
+      "kind": "light_position",
+      "mode": "envelope_1080",
+      "passes": {
+        "solve": {
+          "p50_ms": 970.603428,
+          "p95_ms": 994.327411,
+          "samples": 12
+        }
+      }
+    }
+  ],
+  "measured_events": 216,
+  "initial_warmup_events": 240,
+  "measured_stage_events": 54,
+  "initial_stage_warmup_events": 60,
+  "actual_image_and_state_restored": true,
+  "apk": {
+    "apk_bytes": 78687275,
+    "apk_sha256": "5b50aec4cfbef67d6e60ac449e32c07cfb1bded297e088155dbca8ddfb3507c0",
+    "zip_bytes": 78687982,
+    "zip_sha256": "7945cdd1d85acbe46d2e4cb588af18cd3b74c8ea7b0ecd054d3eea31eb8d2516",
+    "compiled_gdc_count": 109,
+    "signing_scheme_ids": [
+      1896449818,
+      4031998144,
+      1114793335
+    ],
+    "native_libraries": [
+      {
+        "path": "lib/arm64-v8a/libc++_shared.so",
+        "load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "path": "lib/arm64-v8a/libgodot_android.so",
+        "load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "path": "lib/arm64-v8a/liblie_gpu_probe.so",
+        "load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      }
+    ]
+  },
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "compiled_access": {
+    "schema": "lie-surface-access/1",
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "source_packets": {
+      "depth.bin": {
+        "bytes": 17367040,
+        "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+      },
+      "normal.bin": {
+        "bytes": 34734080,
+        "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+      },
+      "color.bin": {
+        "bytes": 34734080,
+        "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+      }
+    },
+    "region_size": 8,
+    "region_width": 128,
+    "region_height": 138,
+    "region_rects": [
+      [
+        0,
+        0,
+        8,
+        13
+      ],
+      [
+        0,
+        13,
+        8,
+        13
+      ],
+      [
+        0,
+        26,
+        24,
+        13
+      ],
+      [
+        0,
+        39,
+        24,
+        13
+      ],
+      [
+        0,
+        52,
+        24,
+        8
+      ],
+      [
+        0,
+        60,
+        24,
+        8
+      ],
+      [
+        0,
+        68,
+        29,
+        3
+      ],
+      [
+        0,
+        71,
+        29,
+        3
+      ],
+      [
+        0,
+        74,
+        128,
+        3
+      ],
+      [
+        0,
+        77,
+        128,
+        3
+      ],
+      [
+        0,
+        80,
+        128,
+        29
+      ],
+      [
+        0,
+        109,
+        128,
+        29
+      ]
+    ],
+    "envelope_groups": [
+      {
+        "first_quad": 0,
+        "quads": 4114,
+        "triangles": 8228
+      },
+      {
+        "first_quad": 4114,
+        "quads": 11832,
+        "triangles": 23664
+      }
+    ],
+    "envelope_refine_error_m": 0.003,
+    "envelope_max_step_cells": 32,
+    "envelope_layers_per_direction": 1,
+    "envelope_cell_center_max_error_m": 0.0029987625312060118,
+    "envelope_quad_stride": 48,
+    "packets": {
+      "regions.bin": {
+        "bytes": 282624,
+        "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+      },
+      "envelope.bin": {
+        "bytes": 765408,
+        "sha256": "8d17685bcccc805c68f73b301ae453d8e85cdb77649822cd837a7ee434b94714"
+      }
+    },
+    "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh"
+  },
+  "other_acceptance": {
+    "python": 18,
+    "commands": 20,
+    "rig": 247,
+    "persistent_agent": 25,
+    "native_probe": 12,
+    "shared_transport_gpu": 374,
+    "shared_transport_cases": 15,
+    "ci_workflows_passed": 18
+  },
+  "raw_measurement_file": {
+    "path": "docs/checkpoints/LIE_SURFACE_ACCESS_NATIVE.json.gz",
+    "bytes": 91020,
+    "sha256": "558645db3382c3c299af1b7c207129e2c92e3a8b7afa682e2afdca840c7cc80a",
+    "json_bytes": 3552501,
+    "json_sha256": "20defdad2f61565c2eeeffb868966ede261b38fe48e88bd79e17a0216cba6dbe"
+  }
+}

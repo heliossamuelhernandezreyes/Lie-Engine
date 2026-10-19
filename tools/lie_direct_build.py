@@ -3,12 +3,14 @@ import argparse,json,re,shutil
 from pathlib import Path
 import lie_renderer_audit_build as previous
 from lie_direct_surface import compile_fields,BANK_SHA
+from lie_direct_access import compile_access
 ROOT=Path(__file__).resolve().parents[1]
 
 def stage_project(destination):
     report=previous.stage_project(destination);source=ROOT/'gpu_compute'
     field=source/'captures/liewall06/direct'
     if not (field/'surface.json').exists():compile_fields()
+    compile_access(field)
     proof=json.loads((field/'surface.json').read_text())
     if proof['source_bank_sha256']!=BANK_SHA:raise ValueError('Compiled field source identity')
     shutil.copytree(field,destination/'captures/liewall06/direct',dirs_exist_ok=True)
@@ -16,10 +18,10 @@ def stage_project(destination):
         for path in source.glob(pattern):
             target=destination/path.relative_to(source);target.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(path,target)
     project=destination/'project.godot';text=project.read_text()
-    for key,value in {'config/name':'"LIE Superficie directa 2.3"','config/version':'"2.3.0"','run/main_scene':'"res://lie_direct_lab.tscn"'}.items():text=previous.config_key(text,key,value)
+    for key,value in {'config/name':'"LIE Acceso a superficie 2.4"','config/version':'"2.4.0"','run/main_scene':'"res://lie_direct_lab.tscn"'}.items():text=previous.config_key(text,key,value)
     project.write_text(text)
     preset=destination/'export_presets.cfg';text=preset.read_text()
-    for key,value in {'version/code':'24','version/name':'"2.3.0-direct-surface"','package/unique_name':'"org.lieengine.wallruntime.v230"','package/name':'"LIE Superficie directa 2.3"'}.items():text=previous.config_key(text,key,value)
+    for key,value in {'version/code':'25','version/name':'"2.4.0-surface-access"','package/unique_name':'"org.lieengine.wallruntime.v240"','package/name':'"LIE Acceso a superficie 2.4"'}.items():text=previous.config_key(text,key,value)
     line=re.search(r'^include_filter="([^"]*)"$',text,re.M)
     text=previous.config_key(text,'include_filter','"'+line[1]+',captures/liewall06/direct/*.bin,captures/liewall06/direct/*.json"')
     preset.write_text(text)
@@ -34,6 +36,6 @@ if __name__=='__main__':
     if args.output:
         import lie_runtime_android_build as base
         report.update(base.export(args.stage.resolve(),args.godot.resolve(),args.sdk.resolve(),args.keystore.resolve(),args.output.resolve()))
-        report.update(package='org.lieengine.wallruntime.v230',version='2.3.0-direct-surface')
+        report.update(package='org.lieengine.wallruntime.v240',version='2.4.0-surface-access')
         (args.output.parent/'android-build.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report,indent=2))

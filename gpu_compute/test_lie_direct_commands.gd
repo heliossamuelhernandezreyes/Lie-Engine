@@ -8,7 +8,7 @@ func check(ok: bool, label: String) -> void:
 func run() -> void:
     var lab = load("res://lie_direct_lab.tscn").instantiate(); root.add_child(lab); await process_frame
     check(lab.effect.capture_loaded,"attributed bank")
-    for mode in ["reference","surface"]:
+    for mode in ["reference","surface","regions","envelope"]:
         check(lab.command({"op":"set_values","values":{"direct_backend":mode}})["ok"],"existing validated command selects "+mode)
         check(lab.state["direct_backend"]==mode and lab.effect.direct_backend==mode,"control and consumer agree")
     var backup: Dictionary = lab.state.duplicate(true); var revision: int = lab.revision
@@ -20,5 +20,10 @@ func run() -> void:
     lab.command({"op":"benchmark_cancel"})
     for i in range(60): await process_frame
     check(not lab.benchmark_busy and lab.state==backup,"cancel restores exact state")
+    check(lab.command({"op":"compare_kernels","quick":true})["ok"],"second comparison accepted")
+    for i in range(3): await process_frame
+    lab.command({"op":"benchmark_cancel"})
+    for i in range(60): await process_frame
+    check(not lab.benchmark_busy and lab.state==backup,"mid-event cancellation restores without timing a failed event")
     lab.queue_free(); await process_frame
     print("DIRECT COMMAND ",checks," ","FAIL" if failed else "PASS"); quit(1 if failed else 0)

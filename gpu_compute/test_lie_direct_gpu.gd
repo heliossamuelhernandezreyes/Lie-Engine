@@ -1,6 +1,6 @@
 extends "res://test_lie_wall12_mobile.gd"
 func run() -> void:
-    var lab = load("res://lie_direct_lab.tscn").instantiate(); root.add_child(lab); await settle(24)
+    var lab = load("res://lie_direct_lab.tscn").instantiate(); root.add_child(lab); lab.command({"op":"set_values","values":{"direct_backend":"surface"}}); await settle(24)
     check(lab.effect.gpu_ready and lab.transport.gpu_ready,"shared reference and transport ready")
     if not lab.effect.gpu_ready: printerr(lab.effect.failure); quit(1); return
     check(lab.effect.effective_direct_backend=="surface" and lab.effect.direct_renderer!=null,"actual native layered path ready")
@@ -77,7 +77,7 @@ func run() -> void:
             await process_frame
             if not lab.benchmark_busy: break
         check(not lab.benchmark_busy and lab._comparison_report.get("error","missing")=="" and lab.state==backup,"comparison completes and restores")
-        check(lab._comparison_report.get("summary",[]).size()==9,"all nine mode/change groups timed")
+        check(lab._comparison_report.get("summary",[]).size()==18,"all 18 mode/change groups timed")
         for group in lab._comparison_report.get("summary",[]): check(group["gpu"]["samples"]==(3 if quick else 12),"all outer GPU intervals retained")
         await settle()
         same(restored,await capture(lab.effect),"rotated benchmark restores the actual native image")
