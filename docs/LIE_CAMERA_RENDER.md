@@ -103,16 +103,16 @@ Final software camera results, 12 whole-interval events per mode:
 
 | Mode | p50 ms | p95 ms |
 | --- | ---: | ---: |
-| Compute 1080 | 139.40 | 220.91 |
-| Compute 810 | 90.20 | 129.23 |
-| Compute 720 | 78.65 | 115.04 |
-| Graphics 1080 | 393.53 | 444.19 |
+| Compute 1080 | 133.32 | 182.73 |
+| Compute 810 | 90.15 | 135.62 |
+| Compute 720 | 79.46 | 161.51 |
+| Graphics 1080 | 424.19 | 491.78 |
 
-720 is about 1.77× faster in this software run, with image differences.
+720 is about 1.68× faster in this software run, with image differences.
 Graphics is slower, so it remains off by default. The test scene after the
 grazing/alternate-access cases is recorded in the JSON; these numbers do not
 reproduce the full, truncated phone scene and must not be converted into a Mali
-FPS prediction. Final acceptance: 76 Vulkan checks, 31 camera command checks,
+FPS prediction. Final acceptance: 76 Vulkan checks, 33 camera command checks,
 12 native-probe checks, 247 rig checks, 25 agent checks and 60 Python regressions.
 
 Acceptance compares the accepted 2.0 consumer against new compute1080, tests
@@ -132,6 +132,16 @@ evidence is preserved as `checkpoints/LIE_CAMERA_RENDER_FIRST_NATIVE.json`.
 The final context includes the backend; every supported group must have the
 complete event count. The software timing result for graphics is also retained
 even though it is slower.
+
+An intermediate JSON-control correction also failed acceptance: integral JSON
+numbers were still compared by the array's strict Variant type, and adding an
+empty `values` member changed non-value command dispatch. That failed native
+run is retained in `checkpoints/LIE_CAMERA_RENDER_WIRE_FAILURE.json`. The final
+policy accepts only supported exact integral numeric values, canonicalizes
+resolution state to integers, and preserves non-value requests. The command
+suite now covers the actual JSON parse/control path. Partial graphics resource
+creation is cleaned up before retry; a final quick Vulkan run repeats all
+correctness cases after that cleanup change.
 
 Reproduce with:
 

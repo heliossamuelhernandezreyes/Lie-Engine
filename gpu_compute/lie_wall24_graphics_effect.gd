@@ -50,6 +50,18 @@ func _free_graphics_sets() -> void:
 		if rid.is_valid() and _rd.uniform_set_is_valid(rid): _rd.free_rid(rid)
 	_graphics_sets.clear()
 
+func _free_graphics_pipelines() -> void:
+	_free_graphics_sets()
+	for entry in _graphics_pipelines.values():
+		for rid in [entry["pipeline"], entry["shader"]]:
+			if rid.is_valid(): _rd.free_rid(rid)
+	_graphics_pipelines.clear()
+
+func _graphics_pipeline_failure(message: String) -> bool:
+	graphics_failure = message
+	_free_graphics_pipelines()
+	return false
+
 func _free_graphics_images() -> void:
 	_free_graphics_sets()
 	for rid in _graphics_frames.values():
@@ -102,20 +114,23 @@ func _ensure_graphics() -> bool:
 		_graphics_frames["depth"] = _rd.framebuffer_create([_graphics_images[45]])
 		_graphics_frames["material"] = _rd.framebuffer_create([_graphics_images[46], _graphics_images[47]])
 		for rid in _graphics_frames.values():
-			if not _rd.framebuffer_is_valid(rid): graphics_failure = "Graphics framebuffer"; return false
+			if not _rd.framebuffer_is_valid(rid): graphics_failure = "Graphics framebuffer"; _free_graphics_images(); return false
 	if not _graphics_sampler.is_valid():
 		var sampler := RDSamplerState.new()
 		sampler.min_filter = RenderingDevice.SAMPLER_FILTER_NEAREST; sampler.mag_filter = RenderingDevice.SAMPLER_FILTER_NEAREST
 		_graphics_sampler = _rd.sampler_create(sampler)
+		if not _graphics_sampler.is_valid(): graphics_failure = "Graphics sampler allocation"; return false
 	if not _graphics_args.is_valid():
 		_graphics_args = _rd.storage_buffer_create(32, PackedByteArray(), RenderingDevice.STORAGE_BUFFER_USAGE_DISPATCH_INDIRECT)
+		if not _graphics_args.is_valid(): graphics_failure = "Graphics indirect-buffer allocation"; return false
 		allocation_bytes += 32
 	if _graphics_pipelines.is_empty():
 		for key in GraphicsKernels.SHADERS:
 			var spirv: RDShaderSPIRV = GraphicsKernels.SHADERS[key].get_spirv()
 			for stage in [RenderingDevice.SHADER_STAGE_COMPUTE, RenderingDevice.SHADER_STAGE_VERTEX, RenderingDevice.SHADER_STAGE_FRAGMENT]:
-				if spirv.get_stage_compile_error(stage) != "": graphics_failure = spirv.get_stage_compile_error(stage); return false
+				if spirv.get_stage_compile_error(stage) != "": return _graphics_pipeline_failure(spirv.get_stage_compile_error(stage))
 			var shader: RID = _rd.shader_create_from_spirv(spirv)
+			if not shader.is_valid(): return _graphics_pipeline_failure("Graphics shader " + key)
 			var pipeline: RID
 			if key in ["depth", "material"]:
 				var raster := RDPipelineRasterizationState.new(); raster.cull_mode = RenderingDevice.POLYGON_CULL_DISABLED
@@ -131,7 +146,7 @@ func _ensure_graphics() -> bool:
 				pipeline = _rd.render_pipeline_create(shader, _rd.framebuffer_get_format(_graphics_frames[key]), -1, RenderingDevice.RENDER_PRIMITIVE_TRIANGLES, raster, RDPipelineMultisampleState.new(), RDPipelineDepthStencilState.new(), blend)
 			else: pipeline = _rd.compute_pipeline_create(shader)
 			_graphics_pipelines[key] = {"shader": shader, "pipeline": pipeline}
-			if not pipeline.is_valid(): graphics_failure = "Float32 graphics blend pipeline " + key; return false
+			if not pipeline.is_valid(): return _graphics_pipeline_failure("Float32 graphics blend pipeline " + key)
 	if _graphics_sets.is_empty():
 		var handles: Dictionary = _buffers.duplicate(); handles[48] = _graphics_args
 		for key in GraphicsKernels.SHADERS:
@@ -139,7 +154,7 @@ func _ensure_graphics() -> bool:
 			for binding in GraphicsKernels.BINDINGS[key]: uniforms.append(_graphics_uniform(binding, handles))
 			var rid: RID = _rd.uniform_set_create(uniforms, _graphics_pipelines[key]["shader"], 0)
 			_graphics_sets[key] = rid
-			if not rid.is_valid(): graphics_failure = "Graphics descriptor set " + key; return false
+			if not rid.is_valid(): return _graphics_pipeline_failure("Graphics descriptor set " + key)
 	graphics_failure = ""; return true
 
 func _graphics_compute(list: int, key: String, count: int, flags: int, indirect: int = -1) -> void:
@@ -207,10 +222,7 @@ func camera_raster_signature() -> Dictionary:
 
 func _release() -> void:
 	_free_graphics_images()
-	for entry in _graphics_pipelines.values():
-		for rid in [entry["pipeline"], entry["shader"]]:
-			if rid.is_valid(): _rd.free_rid(rid)
-	_graphics_pipelines.clear()
+	_free_graphics_pipelines()
 	if _graphics_sampler.is_valid(): _rd.free_rid(_graphics_sampler)
 	if _graphics_args.is_valid(): _rd.free_rid(_graphics_args); allocation_bytes -= 32
 	_graphics_sampler = RID(); _graphics_args = RID()

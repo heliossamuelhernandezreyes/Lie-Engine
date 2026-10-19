@@ -1,6 +1,6 @@
 {
   "schema": "lie-gpu-apk-proof/1",
-  "apk_sha256": "2808338528756147d0885b3c5333acab357a8ea7ae323823bbbe0640aa8e7c7c",
+  "apk_sha256": "29235a6bc10a1bf32361fe4c691ba9cb6882a529bd1cd0ea405d03672a5ba9ee",
   "apk_bytes": 73988290,
   "native_library": "lib/arm64-v8a/liblie_gpu_probe.so",
   "native_sha256": "99f175a104376245c91be9c94500bb7599df143e1cf16ed2c12ac6ed7dc5faee",
@@ -27,12 +27,14 @@
   "version_code": 22,
   "godot": "4.7.2.stable.official.ed1daf0bf",
   "native_checks": {
-    "camera_vulkan": 76,
-    "camera_commands": 31,
+    "camera_vulkan_full": 76,
+    "camera_vulkan_final_quick": 76,
+    "camera_commands": 33,
+    "packaged_script_commands": 33,
     "hardware_probe": 12,
     "rig": 247,
     "agent": 25,
     "python_regressions": 60
   },
-  "scope": "local signed APK verification; software Vulkan correctness; physical Mali not tested"
+  "scope": "local signed APK verification; software Vulkan correctness; packaged GDC controls tested on host with a Linux native module; physical Mali not tested"
 }

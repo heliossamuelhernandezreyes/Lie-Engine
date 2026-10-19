@@ -37,12 +37,15 @@ func command(request: Variant) -> Dictionary:
 	if request is Dictionary and request.get("values", {}) is Dictionary:
 		var error: String = CameraPolicy.valid_values(request.get("values", {}))
 		if error != "": return {"ok": false, "error": error, "revision": revision}
+		if request.get("values", {}).has("internal_resolution"):
+			request = request.duplicate(true)
+			request["values"] = CameraPolicy.canonical_values(request["values"])
 	return super.command(request)
 
 func _benchmark_set_values(values: Dictionary) -> Dictionary:
 	var error: String = CameraPolicy.valid_values(values)
 	if error != "": return {"ok": false, "error": error, "revision": revision}
-	return super._benchmark_set_values(values)
+	return super._benchmark_set_values(CameraPolicy.canonical_values(values))
 
 func _stream_event(values: Dictionary, kind: String, mode: String, cycle: int, force: bool = false) -> Dictionary:
 	var event: Dictionary = await super._stream_event(values, kind, mode, cycle, force)
