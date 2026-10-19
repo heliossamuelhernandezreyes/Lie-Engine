@@ -1,7 +1,7 @@
-name: LIE direct captured surface
+name: LIE surface access alternatives
 on:
   pull_request:
-    paths: ["gpu_compute/lie_direct*", "gpu_compute/test_lie_direct*", "gpu_compute/shaders/lie_direct*", "tools/lie_direct*", "tests/test_lie_direct_surface.py", ".github/workflows/lie-direct-surface.yml", "gpu_compute/*renderer_audit*", "gpu_compute/*renderer_census*", "gpu_compute/shaders/lie_renderer_census*.glsl", "gpu_compute/lie_wall05_shared_effect.gd", "tools/lie_renderer*", "tests/test_lie_renderer_audit.py", ".github/workflows/lie-renderer-audit.yml"]
+    paths: ["gpu_compute/lie_direct*", "gpu_compute/test_lie_direct*", "gpu_compute/shaders/lie_direct*", "tools/lie_direct*", "tests/test_lie_direct_surface.py", "tests/test_lie_direct_access.py", ".github/workflows/lie-direct-surface.yml", "gpu_compute/*renderer_audit*", "gpu_compute/*renderer_census*", "gpu_compute/shaders/lie_renderer_census*.glsl", "gpu_compute/lie_wall05_shared_effect.gd", "tools/lie_renderer*", "tests/test_lie_renderer_audit.py", ".github/workflows/lie-renderer-audit.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,10 +20,11 @@ jobs:
         run: |
           python -m pip install -r requirements-ci.txt
           python -m unittest discover -s tests -p 'test_lie_direct_surface.py' -v
+          python -m unittest discover -s tests -p 'test_lie_direct_access.py' -v
           python -m unittest discover -s tests -p 'test_lie_camera_render.py' -v
           python -m unittest discover -s tests -p 'test_lie_power_response.py' -v
           python -m unittest discover -s tests -p 'test_lie_android_extension_inputs.py' -v
-          python tools/lie_direct_shaders.py
+          python tools/lie_direct_access_shaders.py
           git diff --exit-code -- gpu_compute/shaders/lie_direct*.glsl
           python tools/lie_direct_build.py --stage /tmp/lie-direct-ci
       - name: Install Godot 4.7.2 and software Vulkan
@@ -46,9 +47,10 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: "1"
           LIE_DIRECT_COMPARE: "1"
           LIE_DIRECT_FULL: "1"
+          LIE_ACCESS_FULL: "1"
         run: |
           set -o pipefail
-          timeout 1200s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-direct-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_direct_gpu.gd 2>&1 | tee renderer-audit.log
+          timeout 1800s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-direct-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_direct_access_gpu.gd 2>&1 | tee renderer-audit.log
           python - <<'PY'
           from pathlib import Path
           for p in Path('.').glob('*.log'):
@@ -74,11 +76,11 @@ jobs:
       - name: Export, align, sign and verify camera experiment APK
         run: |
           keytool -genkeypair -keystore /tmp/lie-audit-debug.keystore -storepass android -keypass android -alias androiddebugkey -dname 'CN=LIE Renderer Audit,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
-          python tools/lie_direct_build.py --stage /tmp/lie-direct-export --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" --keystore /tmp/lie-audit-debug.keystore --output "$PWD/apk/LIE-Superficie-2.3.0.apk"
+          python tools/lie_direct_build.py --stage /tmp/lie-direct-export --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" --keystore /tmp/lie-audit-debug.keystore --output "$PWD/apk/LIE-Acceso-2.4.0.apk"
           python - <<'PY'
           import hashlib,json,zipfile
           from pathlib import Path
-          p=Path('apk/LIE-Superficie-2.3.0.apk')
+          p=Path('apk/LIE-Acceso-2.4.0.apk')
           with zipfile.ZipFile(p) as z:
               assert z.testzip() is None
               bank=z.read('assets/captures/liewall06/library.bin')
@@ -88,17 +90,22 @@ jobs:
               for name,entry in field['packets'].items():
                   raw=z.read('assets/captures/liewall06/direct/'+name)
                   assert len(raw)==entry['bytes'] and hashlib.sha256(raw).hexdigest()==entry['sha256']
+              access=json.loads(z.read('assets/captures/liewall06/direct/access.json'))
+              assert access['source_bank_sha256']==field['source_bank_sha256']
+              for name,entry in access['packets'].items():
+                  raw=z.read('assets/captures/liewall06/direct/'+name)
+                  assert len(raw)==entry['bytes'] and hashlib.sha256(raw).hexdigest()==entry['sha256']
               assert b'lie_direct_lab.tscn' in z.read('assets/project.binary')
           report=json.loads(Path('apk/android-build.json').read_text())
-          assert report['package']=='org.lieengine.wallruntime.v230' and report['version']=='2.3.0-direct-surface'
+          assert report['package']=='org.lieengine.wallruntime.v240' and report['version']=='2.4.0-surface-access'
           PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lie-direct-surface-apk-and-evidence
+          name: lie-surface-access-apk-and-evidence
           path: |
             apk/
             *.log
-            /tmp/lie-direct-ci/direct-surface-native.json
-            /tmp/lie-direct-ci/wall12-direct-*.png
+            /tmp/lie-direct-ci/direct-access-native.json
+            /tmp/lie-direct-ci/wall12-access-*.png
             gpu_compute/addons/lie_gpu_probe/bin/*/build.json
