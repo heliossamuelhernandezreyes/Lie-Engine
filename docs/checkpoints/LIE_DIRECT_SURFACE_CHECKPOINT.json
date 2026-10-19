@@ -19,7 +19,7 @@
   },
   "atlas_requested_bytes": 86835200,
   "validation": {
-    "checks": 36,
+    "checks": 37,
     "failed": false,
     "quality": [
       {
@@ -96,11 +96,13 @@
     "physical_android_tested": false
   },
   "comparison": {
-    "events": 27,
-    "warmup_events": 30,
+    "events": 108,
+    "warmup_events": 120,
     "groups": 9,
     "software_vulkan": true,
-    "physical_fps_inferred": false
+    "physical_fps_inferred": false,
+    "rounds": 4,
+    "samples_per_group": 12
   },
   "python_contract_checks": 4,
   "gdscript_command_checks": 14,
@@ -116,6 +118,10 @@
     {
       "failure": "depth-only descriptor reflection retained bindings 3/4",
       "correction": "supply the shared surface shader ABI to depth-only passes"
+    },
+    {
+      "failure": "same-size return through a different reference resolution reused a native descriptor whose output texture had been replaced",
+      "correction": "key the native binding lifetime by all borrowed RIDs, not only dimensions; require actual restored-image equality after four rotated cycles"
     }
   ],
   "limitations": [

@@ -78,7 +78,7 @@ The first real Vulkan experiment FAILED coverage: IoU 0.80 frontal and 0.51
 oblique. Adding sub-ULP increments to a multi-metre eye distance could stall
 cell traversal. Rebase at box entry and use metric cell progress; do not
 remove this correction or reduce validation to a mocked image. The corrected
-four initial views reached IoU 0.9681–0.9861. This is silhouette agreement,
+four initial views reached IoU 0.9681–0.9861. Seven views, including the physical-report poses, reached IoU 0.9681–0.9919. This is silhouette agreement,
 not proof of equivalent materials or realistic animation.
 
 The benchmark alternates reference1080, surface1080 and separately labelled
@@ -96,3 +96,11 @@ images. A measured speedup, acceptable fine shadows and stable coverage are
 required before selecting this architecture for production or removing the
 reference renderer. Godot can submit this native path; changing engines is
 not a prerequisite for testing the architectural hypothesis.
+
+The four-cycle test retained 108 measured and 120 warmup events (12 samples
+per mode/change group), and 37 checks passed with no Vulkan/script errors.
+A negative full-cycle run exposed stale descriptors after returning through
+another resolution: matching dimensions did not imply the same output RID.
+The native binding now includes every borrowed RID in its lifetime key, and
+the test requires equality of the actual restored native image after all
+rotated modes, not only restored UI state and complete timestamps.

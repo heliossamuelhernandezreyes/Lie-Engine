@@ -71,13 +71,16 @@ func run() -> void:
     check(lab.effect.frame_count==frames,"idle image cache")
     var backup: Dictionary = lab.state.duplicate(true)
     if OS.get_environment("LIE_DIRECT_COMPARE")=="1":
-        check(lab.command({"op":"compare_kernels","quick":true})["ok"],"paired comparison accepted")
+        var quick: bool = OS.get_environment("LIE_DIRECT_FULL") != "1"
+        check(lab.command({"op":"compare_kernels","quick":quick})["ok"],"paired comparison accepted")
         for i in range(30000):
             await process_frame
             if not lab.benchmark_busy: break
         check(not lab.benchmark_busy and lab._comparison_report.get("error","missing")=="" and lab.state==backup,"comparison completes and restores")
         check(lab._comparison_report.get("summary",[]).size()==9,"all nine mode/change groups timed")
-        for group in lab._comparison_report.get("summary",[]): check(group["gpu"]["samples"]==3,"all outer GPU intervals retained")
+        for group in lab._comparison_report.get("summary",[]): check(group["gpu"]["samples"]==(3 if quick else 12),"all outer GPU intervals retained")
+        await settle()
+        same(restored,await capture(lab.effect),"rotated benchmark restores the actual native image")
     var portable: Dictionary = lab._portable_report(lab._build_report())
     check(portable["cache"]["direct_surface"]["effective_backend"]=="surface","portable report identifies actual renderer")
     report.merge({"checks":checks,"failed":failed,"quality":quality,"hits":hits,"cache":moved,"physical_android_tested":false,"comparison":lab._comparison_report})
