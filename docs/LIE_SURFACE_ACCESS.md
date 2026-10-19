@@ -114,3 +114,23 @@ Physical image/motion acceptance and the new on-phone report are still needed
 before choosing an alternative or making a 60/120 FPS claim. Changing Godot is
 not part of this experiment; the representational workload is being isolated
 first.
+
+## Final software acceptance
+
+Runtime/compiler commit `7659034987c64d161b887d10441fb74e0c82fdc9`,
+[CI run 39325937081](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/39325937081):
+134 Vulkan checks, seven views and all 216 main plus 54 diagnostic measured
+GPU events passed. Main warm-up/initial work retained 240 events; diagnostic
+warm-up/initial work retained 60. Region versus walking output had maximum
+RGB difference zero in all seven views. Envelope versus original-source
+silhouette IoU was at least 0.9822; this is not image equivalence.
+
+The same code passed 18 Python checks, 20 command checks (including mid-event
+cancellation), 247 rig checks, 25 persistent-agent checks, 12 native-probe
+checks and 374 GPU transport checks in 15 cases. All 18 CI workflows passed.
+The signed ARM64 APK, bank, derived packets, compiled GDScripts, both signing
+schemes and 16-KiB native segment alignment were verified. Full compressed raw
+measurement JSON and a readable summary are retained in
+`checkpoints/LIE_SURFACE_ACCESS_NATIVE.json.gz` and
+`checkpoints/LIE_SURFACE_ACCESS_NATIVE_SUMMARY.json`. No physical 2.4 Mali
+performance or motion-quality acceptance is claimed.

@@ -176,7 +176,7 @@
       },
       "envelope.bin": {
         "bytes": 765408,
-        "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+        "sha256": "8d17685bcccc805c68f73b301ae453d8e85cdb77649822cd837a7ee434b94714"
       }
     },
     "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh"
@@ -201,7 +201,7 @@
     }
   ],
   "validation": {
-    "status": "in_progress",
+    "status": "accepted_experimental_software_vulkan",
     "physical_android_24_tested": false,
     "first_three_view_gpu_checks": 47,
     "first_three_view_gpu_failed": false,
@@ -218,13 +218,62 @@
     "command_checks": 20,
     "shared_transport_gpu_checks": 374,
     "shared_transport_gpu_cases": 15,
-    "final_candidate_ci": "pending",
+    "final_candidate_ci": "success",
     "final_three_view_checks": 47,
     "final_three_view_failed": false,
     "final_three_view_envelope_iou": [
       0.9829107561711158,
       0.9923838010371878,
       0.9936993892703463
+    ],
+    "code_commit": "7659034987c64d161b887d10441fb74e0c82fdc9",
+    "ci_run": 39325937081,
+    "gpu_checks": 134,
+    "gpu_failed": false,
+    "main_events": 216,
+    "warmup_events": 240,
+    "stage_events": 54,
+    "stage_warmup_events": 60,
+    "ci_workflows_passed": 18,
+    "envelope_iou_min": 0.9822875328067351
+  },
+  "delivery": {
+    "apk_bytes": 78687275,
+    "apk_sha256": "5b50aec4cfbef67d6e60ac449e32c07cfb1bded297e088155dbca8ddfb3507c0",
+    "zip_bytes": 78687982,
+    "zip_sha256": "7945cdd1d85acbe46d2e4cb588af18cd3b74c8ea7b0ecd054d3eea31eb8d2516",
+    "compiled_gdc_count": 109,
+    "signing_scheme_ids": [
+      1896449818,
+      4031998144,
+      1114793335
+    ],
+    "native_libraries": [
+      {
+        "path": "lib/arm64-v8a/libc++_shared.so",
+        "load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "path": "lib/arm64-v8a/libgodot_android.so",
+        "load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "path": "lib/arm64-v8a/liblie_gpu_probe.so",
+        "load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      }
     ]
-  }
+  },
+  "evidence": "docs/checkpoints/LIE_SURFACE_ACCESS_NATIVE_SUMMARY.json"
 }
