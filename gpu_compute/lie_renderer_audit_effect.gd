@@ -86,7 +86,9 @@ func _render_callback(type: int, data: RenderData) -> void:
 	if frame_count != before:
 		_audit_dispatches = _next_dispatches.duplicate(true)
 		var context: Dictionary = {"event_kind": _profile_event_kind, "internal_size": render_size, "audit_mode": _gpu_audit_mode, "census": _census, "stage_timestamps": _gpu_stage_timestamps, "power_response": _gpu_response}
-		solve_profile.set_context(frame_count, context); pass_profile.set_context(frame_count, context)
+		pass_profile.set_context(frame_count, context)
+		context["timing_scope"] = "whole_appearance"
+		solve_profile.set_context(frame_count, context)
 
 func reset_census() -> void:
 	RenderingServer.call_on_render_thread(func():

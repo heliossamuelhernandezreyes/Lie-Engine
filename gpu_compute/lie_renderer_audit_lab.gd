@@ -92,6 +92,9 @@ func _run_comparison(quick: bool) -> void:
 	if not _benchmark_cancelled and error == "":
 		for event in events:
 			if not timed.has(int(event["serial"])): error = "Missing whole GPU timestamp for serial " + str(event["serial"]); break
+		if summary.size() != modes.size() * 3: error = "Incomplete causal summary groups"
+		for group in summary:
+			if group["gpu"].get("samples", 0) != rounds * 3: error = "Incomplete causal summary samples"
 	var work: Dictionary = {}
 	if not _benchmark_cancelled and error == "": work = await _measure_census(backup)
 	if work.has("error") and error == "": error = str(work["error"])

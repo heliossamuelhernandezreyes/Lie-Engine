@@ -1,0 +1,41 @@
+{
+  "schema": "lie-renderer-causal-checkpoint/1",
+  "source_commit": "c05d7fc519dd35df41b3364fbc260880d1a7af1d",
+  "device": "llvmpipe LLVM 20.1.2; software Vulkan, not physical Android",
+  "first_attempt": {
+    "checks": 61,
+    "failed": true,
+    "recorded_events": 63,
+    "whole_timestamp_rows": 133,
+    "summary_groups": 0,
+    "failure": "Missing timing_scope in replacement solve context made the existing summarizer reject solve-only events. All raw timestamps remained; the acceptance correctly failed the empty summary.",
+    "clear_regression": "Original 720 dispatch reproduced 17270 stale flags; production-domain dispatch cleared all 535670 references at 1080->720->720; moved-light images matched fresh visibility.",
+    "census_parity": "Output and exact depth/owner/eight-channel material matched original kernels.",
+    "counts_cold_full": {
+      "base_node_evaluations": 1551834,
+      "blas_nodes": 7806028,
+      "disk_tests": 1407289,
+      "full_shadow_traversals": 156309,
+      "local_light_evaluations": 357048,
+      "material_contributions": 273000,
+      "project_active": 349094,
+      "project_candidates": 7337076,
+      "raster_candidates": 7337076,
+      "recovery_overflow": 0,
+      "recovery_records": 3651,
+      "refined_group_nodes": 1584654,
+      "refined_light_node_evaluations": 1447032,
+      "refined_pixels": 178524,
+      "scene_nodes": 4280498,
+      "selected_blocks": 7554,
+      "selected_sample_invocations": 483446,
+      "shadow_cache_hits": 0,
+      "source_light_pairs": 161094,
+      "unique_active_winners": 80547,
+      "witness_attempts": 0,
+      "witness_hits": 0
+    }
+  },
+  "correction": "Retain whole_appearance timing scope only on the solve profile; keep separate stage contexts. Require every causal group and its samples, in addition to raw event timestamps.",
+  "acceptance": "pending rerun; no Mali performance improvement claimed"
+}
