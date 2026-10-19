@@ -1,0 +1,99 @@
+name: LIE causal renderer diagnosis
+on:
+  pull_request:
+    paths: ["gpu_compute/*renderer_audit*", "gpu_compute/*renderer_census*", "gpu_compute/shaders/lie_renderer_census*.glsl", "gpu_compute/lie_wall05_shared_effect.gd", "tools/lie_renderer*", "tests/test_lie_renderer_audit.py", ".github/workflows/lie-renderer-audit.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lie-renderer-audit-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  native-and-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pinned native capability and counter module
+        run: python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform linux.x86_64 > native-build.log 2>&1
+      - name: Independent contracts and verified attributed bank
+        run: |
+          python -m pip install -r requirements-ci.txt
+          python -m unittest discover -s tests -p 'test_lie_renderer_audit.py' -v
+          python -m unittest discover -s tests -p 'test_lie_camera_render.py' -v
+          python -m unittest discover -s tests -p 'test_lie_power_response.py' -v
+          python -m unittest discover -s tests -p 'test_lie_android_extension_inputs.py' -v
+          python tools/lie_renderer_census.py
+          git diff --exit-code -- gpu_compute/shaders/lie_renderer_census*.glsl gpu_compute/lie_renderer_census_kernels.gd
+          python tools/lie_renderer_audit_build.py --stage /tmp/lie-audit-ci
+      - name: Install Godot 4.7.2 and software Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Import, command transactions, native probe and CPU acceptance
+        run: |
+          set -o pipefail
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-audit-ci --editor --import --quit > import.log 2>&1
+          for script in test_lie_renderer_audit_commands.gd test_lie_wall24_commands.gd test_lie_hardware_probe.gd test_lie26_rig.gd workshop/test_lie_agent_session.gd; do
+            timeout 60s godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-audit-ci --script "res://$script" 2>&1 | tee "$(basename "$script" .gd).log"
+          done
+      - name: Actual Vulkan parity, reference-tail clear and causal comparison
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          set -o pipefail
+          timeout 1200s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-audit-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_renderer_audit_gpu.gd 2>&1 | tee renderer-audit.log
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('.').glob('*.log'):
+              text=p.read_text()
+              assert 'ERROR:' not in text and 'were leaked at exit' not in text,(str(p),text[-15000:])
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: '12266719'
+          packages: 'platform-tools build-tools;36.0.0 ndk;28.2.13676358'
+          log-accepted-android-sdk-licenses: false
+      - name: ARM64 module and verified official Android template
+        run: |
+          python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform android.arm64 --ndk "$ANDROID_HOME/ndk/28.2.13676358" > native-android-build.log 2>&1
+          curl -fL --retry 3 -o godot-templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
+          echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  godot-templates.tpz' | sha256sum -c -
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -j -q godot-templates.tpz templates/android_debug.apk -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+      - name: Export, align, sign and verify camera experiment APK
+        run: |
+          keytool -genkeypair -keystore /tmp/lie-audit-debug.keystore -storepass android -keypass android -alias androiddebugkey -dname 'CN=LIE Renderer Audit,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
+          python tools/lie_renderer_audit_build.py --stage /tmp/lie-audit-export --godot "$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64" --sdk "$ANDROID_HOME" --keystore /tmp/lie-audit-debug.keystore --output "$PWD/apk/LIE-Diagnostico-2.2.0.apk"
+          python - <<'PY'
+          import hashlib,json,zipfile
+          from pathlib import Path
+          p=Path('apk/LIE-Diagnostico-2.2.0.apk')
+          with zipfile.ZipFile(p) as z:
+              assert z.testzip() is None
+              bank=z.read('assets/captures/liewall06/library.bin')
+              assert len(bank)==41700560 and hashlib.sha256(bank).hexdigest()=='ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340'
+              assert 'lib/arm64-v8a/liblie_gpu_probe.so' in z.namelist()
+              assert b'lie_renderer_audit_lab.tscn' in z.read('assets/project.binary')
+          report=json.loads(Path('apk/android-build.json').read_text())
+          assert report['package']=='org.lieengine.wallruntime.v220' and report['version']=='2.2.0-causal-audit'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-renderer-audit-apk-and-evidence
+          path: |
+            apk/
+            *.log
+            /tmp/lie-audit-ci/renderer-audit-native.json
+            /tmp/lie-audit-ci/wall12-camera-*.png
+            /tmp/lie-audit-ci/wall12-graphics-*.png
+            gpu_compute/addons/lie_gpu_probe/bin/*/build.json

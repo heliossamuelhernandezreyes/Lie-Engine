@@ -119,7 +119,8 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.capture_timestamp(_profile_marker("begin"))
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     if rebuild:
-        for stage in [1,2,3]:_stage(list,stage,work if stage in [2,3] else maxi(render_size*render_size,512*512))
+        # Clear has both a pixel domain and a source-reference domain.
+        for stage in [1,2,3]:_stage(list,stage,work if stage in [2,3] else maxi(work,maxi(render_size*render_size,512*512)))
         geometry_rebuilds+=1
     if rebuild or _shade_dirty:
         _stage(list,4,render_size*render_size);_stage(list,6,render_size*render_size)
