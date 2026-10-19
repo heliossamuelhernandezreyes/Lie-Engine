@@ -130,5 +130,102 @@
     "old reference allocations retained for A/B",
     "Mali performance and user visual acceptance not yet measured"
   ],
-  "apk": null
+  "apk": {
+    "file": "LIE-Superficie-2.3.0.apk",
+    "bytes": 78382988,
+    "sha256": "bd98ace7c886c1b2bce28655ec41e3f36c716932b9637828023b1082ed6675bb",
+    "package": "org.lieengine.wallruntime.v230",
+    "version_code": 24,
+    "version_name": "2.3.0-direct-surface",
+    "runtime_commit": "cdaad4beef5164b9eff836ba9da5db460ff378a5",
+    "ci_run": 39249759608,
+    "artifact_id": 12184744926,
+    "signature_schemes": [
+      "v2",
+      "v3"
+    ],
+    "native_pt_load_alignment": 16384,
+    "compiled_gdc_resources": 109,
+    "compiled_apk_host_command_checks": 14,
+    "physical_android_tested": false
+  },
+  "ci_validation": {
+    "checks": 37,
+    "failed": false,
+    "quality": [
+      {
+        "quality": {
+          "iou": 0.9790471934659021,
+          "mae": 0.016962658849033235,
+          "max": 0.6036477088928223
+        },
+        "yaw": 12.0
+      },
+      {
+        "quality": {
+          "iou": 0.9861266624791764,
+          "mae": 0.008384249115064853,
+          "max": 0.5934905409812927
+        },
+        "yaw": -71.4
+      },
+      {
+        "quality": {
+          "iou": 0.9784194013397778,
+          "mae": 0.005445000095336235,
+          "max": 0.6183684887364507
+        },
+        "yaw": 80.0
+      },
+      {
+        "quality": {
+          "iou": 0.9681223371880706,
+          "mae": 0.005589138611262253,
+          "max": 0.8528261780738831
+        },
+        "yaw": 160.0
+      },
+      {
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "quality": {
+          "iou": 0.9766014960168194,
+          "mae": 0.014938509198924666,
+          "max": 0.6623632311820984
+        }
+      },
+      {
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "quality": {
+          "iou": 0.9911543656703494,
+          "mae": 0.03506255592920158,
+          "max": 0.6515577435493469
+        }
+      },
+      {
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "quality": {
+          "iou": 0.9918833386457812,
+          "mae": 0.023009088891889583,
+          "max": 0.6165942936204374
+        }
+      }
+    ],
+    "source_superposition_linear_max": 1.066364347934723e-06,
+    "measured_events": 108,
+    "warmup_events": 120
+  },
+  "shared_field_float64_gpu_checks": 374,
+  "shared_field_cases": 15
 }
