@@ -1,0 +1,93 @@
+{
+  "schema": "lie-physical-comparison-transcription/1",
+  "origin": "User-pasted complete compact LIE 2.1 report, 2026-10-19; selected fields transcribed, not raw per-event timestamp history",
+  "app_version": "2.1.0-camera-render",
+  "created_utc": "2026-10-19T08:30:29",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "physical_android": true,
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "samples_per_mode_kind": 12,
+  "rounds": 4,
+  "requested_events": 144,
+  "expected_events": 108,
+  "recorded_events": 108,
+  "warmup_recorded_events": 121,
+  "error": "",
+  "restored": true,
+  "scene_subset": {
+    "camera_yaw": -39.508764648437506,
+    "camera_elevation": -7.222679773966471,
+    "distance_factor": 1.0,
+    "light_azimuth": -91.76,
+    "light_power": 1.0,
+    "fill_power": 0.32,
+    "lighting_preset": "neutral",
+    "internal_resolution": 1080,
+    "output_size": 720,
+    "surface_queries": true,
+    "active_visibility": true,
+    "world_contacts": true,
+    "surface_filter": true,
+    "power_response": true,
+    "kernel_mode": "split",
+    "stage_timestamps": false,
+    "area_lights": false,
+    "contact_steps": 12
+  },
+  "gpu_summary_ms": {
+    "camera": {
+      "reference_1080": {
+        "p50": 44.661233,
+        "p95": 52.832848
+      },
+      "compute_810": {
+        "p50": 37.37654,
+        "p95": 44.262771
+      },
+      "compute_720": {
+        "p50": 33.931617,
+        "p95": 40.104848
+      }
+    },
+    "light_power": {
+      "reference_1080": {
+        "p50": 10.746769,
+        "p95": 20.520617
+      },
+      "compute_810": {
+        "p50": 6.628692,
+        "p95": 13.286462
+      },
+      "compute_720": {
+        "p50": 4.818846,
+        "p95": 10.235693
+      }
+    },
+    "light_position": {
+      "reference_1080": {
+        "p50": 40.253463,
+        "p95": 45.175771
+      },
+      "compute_810": {
+        "p50": 29.417463,
+        "p95": 33.93054
+      },
+      "compute_720": {
+        "p50": 27.605848,
+        "p95": 34.458848
+      }
+    }
+  },
+  "graphics": {
+    "r32_float_blend": false,
+    "rgba32_float_blend": false,
+    "r32_optimal_features": 121987,
+    "rgba32_optimal_features": 121987,
+    "builds": 0,
+    "allocations": 0,
+    "skipped_reason": "GPU does not expose required float32 attachment blending"
+  },
+  "hardware_counters": "not_probed",
+  "scope": "Whole appearance GPU intervals. No attribution of current time to individual stages. Display FPS includes cached images. No same-scene cross-version speed claim."
+}
