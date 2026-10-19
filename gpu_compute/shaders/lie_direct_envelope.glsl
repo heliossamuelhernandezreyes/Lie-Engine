@@ -30,7 +30,7 @@ void main(){
     vec3 point=p.lo.xyz;
     point[axes.x]=mix(p.lo[axes.x],p.hi[axes.x],capture_cell.x/float(rect.z));
     point[axes.y]=mix(p.lo[axes.y],p.hi[axes.y],capture_cell.y/float(rect.w));
-    point[axis]=(face%2==0)?p.hi[axis]-q.depth[corner]:p.lo[axis]+q.depth[corner];
+    point[axis]=(face%2==0)?p.hi[axis]-(corner==0?q.depth.x:corner==1?q.depth.y:corner==2?q.depth.z:q.depth.w):p.lo[axis]+(corner==0?q.depth.x:corner==1?q.depth.y:corner==2?q.depth.z:q.depth.w);
     world_point=(p.world*vec4(point,1)).xyz;face_layer=q.meta.xy;
     View v=views.v[push.value.x];gl_Position=clip_point(world_point,v);
     // Cull the opposite directional sheet before rasterization. All six
@@ -67,7 +67,7 @@ layout(location=2) out vec4 out_color;
 
 void main(){
     ivec4 rect=faces.rect[face_layer.x];ivec2 cell=clamp(ivec2(floor(capture_cell)),ivec2(0),rect.zw-1)+rect.xy;
-    if(texelFetch(depth_field,cell,0)[face_layer.y]<0.)discard;
+    if(texelFetch(depth_field,cell,0).r<0.)discard;
     Proxy p=proxies.p[proxy_id];
     vec4 n=texelFetch(normal_field,ivec3(cell,int(face_layer.y)),0);
     vec4 c=texelFetch(color_field,ivec3(cell,int(face_layer.y)),0);

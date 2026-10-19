@@ -20,5 +20,10 @@ func run() -> void:
     lab.command({"op":"benchmark_cancel"})
     for i in range(60): await process_frame
     check(not lab.benchmark_busy and lab.state==backup,"cancel restores exact state")
+    check(lab.command({"op":"compare_kernels","quick":true})["ok"],"second comparison accepted")
+    for i in range(3): await process_frame
+    lab.command({"op":"benchmark_cancel"})
+    for i in range(60): await process_frame
+    check(not lab.benchmark_busy and lab.state==backup,"mid-event cancellation restores without timing a failed event")
     lab.queue_free(); await process_frame
     print("DIRECT COMMAND ",checks," ","FAIL" if failed else "PASS"); quit(1 if failed else 0)

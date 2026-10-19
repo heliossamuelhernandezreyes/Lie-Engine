@@ -68,6 +68,12 @@ func _access_stage_summary(events: Array, rows: Array, whole: Array) -> Array:
         result.append({"mode":group["mode"],"kind":group["kind"],"passes":passes,"whole_instrumented_gpu":Diagnostics.percentiles(group["whole"]),"unattributed_gpu":Diagnostics.percentiles(group["residual"])})
     return result
 
+func _access_whole_summary(rows: Array, events: Array) -> Array:
+    var valid: Array = []
+    for event in events:
+        if event.has("serial"): valid.append(event)
+    return _stream_summary(rows,valid)
+
 func _run_comparison(quick: bool) -> void:
     hardware.release_counters(); hardware_profile = {}
     var backup: Dictionary = state.duplicate(true); var events: Array = []; var warmup: Array = []; var all_events: Array = []
@@ -112,7 +118,7 @@ func _run_comparison(quick: bool) -> void:
     for i in range(8): await get_tree().process_frame
     _comparison_collect(all_events,rows,seen); _comparison_collect(stage_all,stage_whole,stage_whole_seen); _access_collect_stages(stage_all,stage_rows,stage_seen)
     var restore: Dictionary = _benchmark_set_values(backup)
-    _comparison_report = {"schema":"lie-surface-access-comparison/1","scene":backup,"rounds":rounds,"modes":DIRECT_MODES,"events":events,"warmup_events":warmup,"warmup_summary":_stream_summary(rows,warmup),"summary":_stream_summary(rows,events),"passes":{"rows":rows},"stage_events":stage_events,"stage_warmup_events":stage_warmup,"stage_summary":_access_stage_summary(stage_events,stage_rows,stage_whole),"stages":{"rows":stage_rows,"whole_rows":stage_whole},"expected_stage_events":54,"expected_events":rounds*54,"requested_events":rounds*54,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Three executable representations at both 1080 and 720, same 720 output, material atlas, transport and lighting. Recorrido is the 2.3 representation in the common consumer. Regions are conservative; envelope uses approximate first-layer capture geometry and full-resolution coverage/material lookup. Main whole intervals have no inner stage marks. Stages are a separate diagnostic with independently retained whole intervals. Do not add stage medians to whole time. Bank/atlas uploads and shared transport separately scoped; cold blocks and warm-up retained."}
+    _comparison_report = {"schema":"lie-surface-access-comparison/1","scene":backup,"rounds":rounds,"modes":DIRECT_MODES,"events":events,"warmup_events":warmup,"warmup_summary":_access_whole_summary(rows,warmup),"summary":_access_whole_summary(rows,events),"passes":{"rows":rows},"stage_events":stage_events,"stage_warmup_events":stage_warmup,"stage_summary":_access_stage_summary(stage_events,stage_rows,stage_whole),"stages":{"rows":stage_rows,"whole_rows":stage_whole},"expected_stage_events":54,"expected_events":rounds*54,"requested_events":rounds*54,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Three executable representations at both 1080 and 720, same 720 output, material atlas, transport and lighting. Recorrido is the 2.3 representation in the common consumer. Regions are conservative; envelope uses approximate first-layer capture geometry and full-resolution coverage/material lookup. Main whole intervals have no inner stage marks. Stages are a separate diagnostic with independently retained whole intervals. Do not add stage medians to whole time. Bank/atlas uploads and shared transport separately scoped; cold blocks and warm-up retained."}
     _persist_report("user://lie-surface-access-last.json",_comparison_report); benchmark_busy = false
     if _benchmark_status!=null: _benchmark_status.text = "Comparación terminada · pulsa Informe" if error=="" else "Comparación incompleta: "+error
 
@@ -133,7 +139,7 @@ func _portable_report(report: Dictionary) -> Dictionary:
         compact["recorded_stage_events"] = report["kernel_comparison"]["stage_events"].size()
         compact["stage_warmup_recorded_events"] = report["kernel_comparison"]["stage_warmup_events"].size()
         result["kernel_comparison"] = compact
-    result["copy_scope"] = "Different compiled surface representation. Full events and warmup in lie-direct-surface-last.json; identical-resolution pair explicitly labelled."
+    result["copy_scope"] = "Three representations at both resolutions. Full events in lie-surface-access-last.json; main whole intervals and instrumented stage diagnostic are separate."
     return result
 
 func _report_header(report: Dictionary) -> String:
@@ -154,7 +160,7 @@ func _report_header(report: Dictionary) -> String:
 func _ui() -> void:
     super._ui()
     var box: Node = status.get_parent(); _label(box,"ACCESO A SUPERFICIE",19)
-    _label(box,"Experimental · capas de captura y sombras desde la luz",15)
+    _label(box,"Envolvente: geometría aproximada; pueden cambiar bordes y sombras",15)
     var select := OptionButton.new()
     for entry in [["Recorrido (2.3)","surface"],["Regiones","regions"],["Envolvente experimental","envelope"],["Referencia discos","reference"]]:
         select.add_item(entry[0]); select.set_item_metadata(select.item_count-1,entry[1])
@@ -184,7 +190,7 @@ func _process(delta: float) -> void:
     _direct_status_clock = 0.
     if _diagnostic_label != null: _diagnostic_label.text = Diagnostics.brief(Diagnostics.summarize(effect.solve_profile.snapshot()))
     if status != null and effect.effective_direct_backend in ["surface","regions","envelope"]:
-        status.text = "%s · experimental\nInterior: %d × %d · salida: %d × %d\nImágenes actualizadas: %d" % [effect.effective_direct_backend,effect.render_size,effect.render_size,effect.output_size,effect.output_size,effect.frame_count]
+        status.text = "%s · experimental\nInterior: %d × %d · salida: %d × %d\nImágenes actualizadas: %d" % [{"surface":"Recorrido","regions":"Regiones","envelope":"Envolvente"}.get(effect.effective_direct_backend,effect.effective_direct_backend),effect.render_size,effect.render_size,effect.output_size,effect.output_size,effect.frame_count]
     if status != null and effect.direct_failure != "": status.text += "\nSuperficie no disponible: " + effect.direct_failure
 
 func _refresh() -> void:

@@ -1,8 +1,8 @@
 """Offline access alternatives derived only from the accepted layered captures.
 
-Regions conservatively enclose every occupied layer. The envelope is an
-explicit approximation: adaptive planar quads, split at holes/owner boundaries,
-with a recorded cell-centre depth-error bound. It is not the captured source mesh.
+Regions conservatively enclose every occupied layer. The envelope uses coarse
+front-layer patches refined at large depth error and a full-resolution coverage
+mask in its fragment shader. It is not the captured source mesh.
 """
 import argparse
 import hashlib
@@ -13,6 +13,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[1]
 REGION_SIZE = 8
+ENVELOPE_MAX_STEP = 32
 
 
 def region_bounds(depth, block=REGION_SIZE):
@@ -123,7 +124,7 @@ def coarse_envelope(depth, face, step=4):
     return b''.join(quads),worst
 
 
-def compile_access(root=None, tolerance=.0008):
+def compile_access(root=None):
     root = Path(root or ROOT/'gpu_compute/captures/liewall06/direct')
     proof = json.loads((root/'surface.json').read_text())
     # Refuse mismatched inputs rather than silently compiling a stale field.
@@ -142,7 +143,7 @@ def compile_access(root=None, tolerance=.0008):
             d=depth[y:y+fh,x:x+fw]
             b=region_bounds(d); bounds.append(b)
             rects.append([0,offset,b.shape[1],b.shape[0]]); offset+=b.shape[0]
-            mesh,error=coarse_envelope(d[...,0],face_index,4)
+            mesh,error=coarse_envelope(d[...,0],face_index,ENVELOPE_MAX_STEP)
             packets.append(mesh);qcount+=len(mesh)//48;worst=max(worst,error)
         groups.append({'first_quad':start,'quads':qcount-start,'triangles':(qcount-start)*2})
     width=max(b.shape[1] for b in bounds)
@@ -153,7 +154,7 @@ def compile_access(root=None, tolerance=.0008):
     meta={'schema':'lie-surface-access/1','source_bank_sha256':proof['source_bank_sha256'],
           'source_packets':proof['packets'],'region_size':REGION_SIZE,'region_width':width,
           'region_height':offset,'region_rects':rects,'envelope_groups':groups,
-          'envelope_max_step_cells':4,'envelope_layers_per_direction':1,'envelope_cell_center_max_error_m':worst,
+          'envelope_refine_error_m':.003,'envelope_max_step_cells':ENVELOPE_MAX_STEP,'envelope_layers_per_direction':1,'envelope_cell_center_max_error_m':worst,
           'envelope_quad_stride':48,'packets':{},
           'scope':'conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh'}
     for name,data in blobs.items():
@@ -163,5 +164,5 @@ def compile_access(root=None, tolerance=.0008):
 
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--root',type=Path);p.add_argument('--tolerance',type=float,default=.0008)
-    a=p.parse_args();print(json.dumps(compile_access(a.root,a.tolerance),indent=2))
+    p=argparse.ArgumentParser();p.add_argument('--root',type=Path)
+    a=p.parse_args();print(json.dumps(compile_access(a.root),indent=2))

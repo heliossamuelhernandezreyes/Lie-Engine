@@ -47,4 +47,17 @@ class AccessTests(unittest.TestCase):
             q=struct.unpack_from('<8f4I',mesh,off)
             self.assertEqual(q[8:10],(6,0));self.assertTrue(np.isfinite(q[:8]).all())
 
+    def test_native_envelope_flat_field_and_explicit_coverage_mask(self):
+        d=np.ones((9,13),np.float32)*.2;d[2:5,3:7]=-1
+        mesh,error=m.coarse_envelope(d,10)
+        self.assertLess(error,.000001)
+        touched=np.zeros_like(d,dtype=bool)
+        for off in range(0,len(mesh),48):
+            q=struct.unpack_from('<8f4I',mesh,off);x0,y0,x1,y1=map(int,q[:4])
+            touched[y0:y1,x0:x1]=True
+            self.assertTrue((d[y0:y1,x0:x1]>=0).any())
+            self.assertEqual(q[8:10],(10,0))
+        # Coarse patches may span holes; runtime must apply original coverage.
+        np.testing.assert_array_equal(touched & (d>=0),d>=0)
+
 if __name__=='__main__':unittest.main()

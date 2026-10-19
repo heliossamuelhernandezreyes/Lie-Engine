@@ -1,0 +1,230 @@
+{
+  "schema": "lie-surface-access-checkpoint/1",
+  "base_commit": "3d95ddc8201793570681c43ca85af023bc3e37c5",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "physical_baseline": {
+    "app_version": "2.3.0-direct-surface",
+    "created_utc": "2026-10-19T20:01:13",
+    "device": "2412DPC0AG",
+    "gpu": "Mali-G720 MC7",
+    "source": "user-pasted physical Android report",
+    "samples_per_group": 12,
+    "camera_ms": {
+      "reference1080": [
+        63.477772,
+        68.387464
+      ],
+      "surface1080": [
+        45.590694,
+        58.310157
+      ],
+      "surface720": [
+        32.110771,
+        35.375925
+      ]
+    },
+    "light_power_ms": {
+      "reference1080": [
+        12.071,
+        24.538694
+      ],
+      "surface1080": [
+        10.058231,
+        10.876077
+      ],
+      "surface720": [
+        4.722384,
+        5.961615
+      ]
+    },
+    "light_position_ms": {
+      "reference1080": [
+        36.282463,
+        40.587387
+      ],
+      "surface1080": [
+        19.587,
+        24.240617
+      ],
+      "surface720": [
+        19.985232,
+        21.54854
+      ]
+    },
+    "timing_values": [
+      "p50",
+      "p95"
+    ],
+    "appearance_requested_bytes": 562963892,
+    "display_fps_includes_cached_images": true
+  },
+  "compiled_access": {
+    "schema": "lie-surface-access/1",
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "source_packets": {
+      "depth.bin": {
+        "bytes": 17367040,
+        "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+      },
+      "normal.bin": {
+        "bytes": 34734080,
+        "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+      },
+      "color.bin": {
+        "bytes": 34734080,
+        "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+      }
+    },
+    "region_size": 8,
+    "region_width": 128,
+    "region_height": 138,
+    "region_rects": [
+      [
+        0,
+        0,
+        8,
+        13
+      ],
+      [
+        0,
+        13,
+        8,
+        13
+      ],
+      [
+        0,
+        26,
+        24,
+        13
+      ],
+      [
+        0,
+        39,
+        24,
+        13
+      ],
+      [
+        0,
+        52,
+        24,
+        8
+      ],
+      [
+        0,
+        60,
+        24,
+        8
+      ],
+      [
+        0,
+        68,
+        29,
+        3
+      ],
+      [
+        0,
+        71,
+        29,
+        3
+      ],
+      [
+        0,
+        74,
+        128,
+        3
+      ],
+      [
+        0,
+        77,
+        128,
+        3
+      ],
+      [
+        0,
+        80,
+        128,
+        29
+      ],
+      [
+        0,
+        109,
+        128,
+        29
+      ]
+    ],
+    "envelope_groups": [
+      {
+        "first_quad": 0,
+        "quads": 4114,
+        "triangles": 8228
+      },
+      {
+        "first_quad": 4114,
+        "quads": 11832,
+        "triangles": 23664
+      }
+    ],
+    "envelope_refine_error_m": 0.003,
+    "envelope_max_step_cells": 32,
+    "envelope_layers_per_direction": 1,
+    "envelope_cell_center_max_error_m": 0.0029987625312060118,
+    "envelope_quad_stride": 48,
+    "packets": {
+      "regions.bin": {
+        "bytes": 282624,
+        "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+      },
+      "envelope.bin": {
+        "bytes": 765408,
+        "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+      }
+    },
+    "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh"
+  },
+  "negative_experiments": [
+    {
+      "candidate": "four-layer strict adaptive envelope",
+      "brick_master_triangles": 249364,
+      "mortar_triangles": 75620,
+      "scene_submitted_triangles": 24014564,
+      "decision": "rejected as lightweight alternative before GPU acceptance"
+    },
+    {
+      "candidate": "unrefined coarse depth envelope",
+      "maximum_cell_centre_error_m": 1.400020807981491,
+      "decision": "refine large discontinuities to 3mm cell-centre error; this does not certify image/ray error"
+    },
+    {
+      "candidate": "front-layer four-cell maximum envelope",
+      "scene_submitted_triangles": 1420308,
+      "decision": "same cell-centre refinement bound with up-to-32-cell patches lowers submitted count to 813552; final coverage must be revalidated"
+    }
+  ],
+  "validation": {
+    "status": "in_progress",
+    "physical_android_24_tested": false,
+    "first_three_view_gpu_checks": 47,
+    "first_three_view_gpu_failed": false,
+    "region_image_max_error": 0.0,
+    "scope": "software Vulkan execution, not physical performance",
+    "local_complete_draft_checks": 134,
+    "local_complete_draft_failed": false,
+    "local_main_events": 216,
+    "local_warmup_events": 240,
+    "local_stage_events": 54,
+    "local_stage_warmup_events": 60,
+    "cpu_rig_checks": 247,
+    "cpu_agent_checks": 25,
+    "command_checks": 20,
+    "shared_transport_gpu_checks": 374,
+    "shared_transport_gpu_cases": 15,
+    "final_candidate_ci": "pending",
+    "final_three_view_checks": 47,
+    "final_three_view_failed": false,
+    "final_three_view_envelope_iou": [
+      0.9829107561711158,
+      0.9923838010371878,
+      0.9936993892703463
+    ]
+  }
+}
