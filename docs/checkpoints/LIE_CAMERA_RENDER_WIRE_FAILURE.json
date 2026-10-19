@@ -1,0 +1,1039 @@
+{
+  "cache": {
+    "active_work": {
+      "enabled": true,
+      "gpu_indirect_dispatch": true,
+      "precomputed_ray_boxes": true,
+      "queue_builds": 15,
+      "queue_capacity": 750000,
+      "queue_requested_bytes": 3000016,
+      "scope": "unique final pixel winners; reused on light-only updates; unchanged captured primitive tests"
+    },
+    "appearance": {
+      "bounded_raster": true,
+      "dielectric_f0": 0.04,
+      "material_response": true,
+      "normal_filtering": true,
+      "scope": "opaque nonmetal direct GGX/Smith + attenuated diffuse; indirect field unchanged"
+    },
+    "asset_contract": {
+      "assets": 3,
+      "ok": true,
+      "source_identity": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+    },
+    "brick_instances": 96,
+    "brick_master_count": 1,
+    "camera_render": {
+      "effective_backend": "compute",
+      "failure": "",
+      "format_support": {
+        "available": true,
+        "r32_float_blend": true,
+        "r32_optimal_features": 122247,
+        "rgba32_float_blend": true,
+        "rgba32_optimal_features": 56707,
+        "scope": "read-only Vulkan format capabilities of the active RenderingDevice; no hardware-counter permissions required"
+      },
+      "graphics_allocations": 3,
+      "graphics_builds": 5,
+      "graphics_requested_bytes": 32,
+      "internal_size": 1080,
+      "output_size": 720,
+      "requested_backend": "compute",
+      "scope": "original opaque disk coverage and source IDs; two auxiliary triangles per captured footprint; hardware float32 MIN/ADD; owner/visibility atomics retained; integer blend equivalence requires sums below 2^24; GPU precision guard read only during explicit diagnostics; experimental"
+    },
+    "compact_shadows": {
+      "additional_resident_bytes": 16680224,
+      "effective": false,
+      "ready": true,
+      "requested": false,
+      "scope": "extra shared immutable view; exact original position/radius/normal bits and IDs; original bank retained; actual bandwidth gain must be measured",
+      "sha256": "363a7718495f669144454f9819e254d0afa7530bfedc39a9d1d6d8a31d5f0733",
+      "shadow_stride_bytes": 32,
+      "source_stride_bytes": 80
+    },
+    "configuration_packets": {
+      "builds": 1,
+      "reuses": 16
+    },
+    "continuous_light": true,
+    "geometry_rebuilds": 15,
+    "internal_size": 1080,
+    "kernels": {
+      "dedicated_count": 18,
+      "effective_mode": "split",
+      "extra_surface_buffer_bytes": 0,
+      "ready": true,
+      "requested_mode": "split",
+      "scope": "independent stage entry points and reachable helpers; exact original equations; real 1.2 and 1.3 comparison binaries",
+      "set_builds": 9
+    },
+    "lighting_resolves": 15,
+    "output_resolves": 15,
+    "persistent_visibility": {
+      "active_groups": 8418,
+      "allocation_count": 1,
+      "block_access": false,
+      "block_table_bytes": 97632,
+      "diagnostics": false,
+      "enabled": true,
+      "padding": 3082,
+      "reference_entries": 772097,
+      "scope": "stable source-reference/instance identity; camera independent; per-light position and metric invalidation",
+      "shared": {
+        "allocations_total": 2,
+        "domains": 1,
+        "references": 1,
+        "resident_bytes": 9265420,
+        "scope": "source-reference/instance identity and scene; light positions validated on GPU"
+      }
+    },
+    "power_response": {
+      "allocations": 0,
+      "builds": 0,
+      "enabled": true,
+      "physical_lights": 0,
+      "requested_bytes": 0,
+      "reuses": 0,
+      "scope": "lazy per-pixel/per-light direct detail; coarse/indirect transport recomputed unchanged; scalar power only; camera, position, material and options invalidate",
+      "valid": false
+    },
+    "recovery_builds": 15,
+    "recovery_capacity": 65536,
+    "recovery_reuses": 0,
+    "reference_bytes": 3088388,
+    "screen_tiles": {
+      "additional_requested_bytes": 39292744,
+      "allocations": 18,
+      "builds": 0,
+      "effective": false,
+      "ready": true,
+      "reference_capacity": 6750000,
+      "requested": false,
+      "scope": "exact per-screen-tile CSR; one pixel owner; unchanged source disks, depth ties and uint material sums; lists reused on light-only updates",
+      "shared_workgroup_bytes": 2560,
+      "strategy": "source-footprint reduction in shared memory",
+      "tile_size": 8
+    },
+    "source_bank_bytes": 41700560,
+    "source_surface": {
+      "cache_bytes": 6000000,
+      "camera_independent_occluders": true,
+      "continuity": true,
+      "receiver_queries": "once per winning source patch/light; recovered pixels reuse witnessed source",
+      "scene_bytes": 13184,
+      "shared_visibility": {
+        "groups": 1,
+        "references": 1,
+        "scope": "immutable source visibility; scene hierarchy and writable caches excluded",
+        "shared_blas_bytes": 5943064,
+        "uploads_total": 2
+      },
+      "source_geometry": "captured tangent disks, shared master IDs",
+      "visibility_precision": "8 bits per light; eighth light 7 bits",
+      "visibility_uploads": 1,
+      "world_contacts": true
+    },
+    "submission": {
+      "lean_barriers": false,
+      "lean_transitions": 0,
+      "scope": "same dependency boundaries; omit restoration of state immediately rebound by every dispatch; whole appearance interval retained",
+      "stage_timestamps": false
+    },
+    "surface_light": {
+      "bias_m": 0.0003,
+      "contacts": true,
+      "detail": true,
+      "reach_m": 0.025,
+      "recovery_surface_bytes": 2097152,
+      "steps": 12
+    },
+    "surface_pipeline": {
+      "additional_full_frame_bytes": 0,
+      "filtered": true,
+      "fused": true,
+      "material_builds": 15,
+      "material_packet_bytes_per_pixel": 16,
+      "material_reuses": 0
+    },
+    "surface_queries": {
+      "bounds_builds": 1,
+      "enabled": false,
+      "occlusion_witnesses": true,
+      "required_storage_buffers": 32,
+      "scope": "resident world centers/normal intervals; 16-block parents; exact captured-disk blocking witnesses; below 32 storage descriptors use the accepted 1.2 shader",
+      "selections": 10,
+      "storage_buffer_limit": 1000000,
+      "supported": true,
+      "witness_bytes": 24707360,
+      "world_plan": {
+        "builds": 1,
+        "reuses": 112,
+        "scope": "source domain + instance assembly + geometry recipe + schedule; camera/light independent"
+      }
+    },
+    "tangent_bounds": {
+      "bytes": 4194240,
+      "effective": true,
+      "ready": true,
+      "requested": true,
+      "scope": "refitted bounds only; unchanged original topology, leaves, TLAS, kernels and disk intersections",
+      "sha256": "e8cd762b428a36911521913e09ed9ee219cbda700c8396aac6f89fa38b8e022b"
+    },
+    "visibility_stream": {
+      "effective": false,
+      "order_bytes": 3088388,
+      "ready": true,
+      "requested": false,
+      "scope": "spatially ordered final winners; separate per-light cache/witness and exact BLAS kernels; 1.5 page traversal absent; original disks and shadow equations",
+      "set_builds": 9,
+      "trace_queue_bytes": 3000016
+    }
+  },
+  "checks": 64,
+  "comparison": {},
+  "compute1080 preserves accepted 2.0": {
+    "iou": 1.0,
+    "mae": 0.0,
+    "max": 0.0
+  },
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "events": {
+    "compute_11": {
+      "frame": 11,
+      "internal_size": 810,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 11,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "compute_13": {
+      "frame": 13,
+      "internal_size": 720,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 13,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "compute_5": {
+      "frame": 5,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 1,
+        "per_light_invalidations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 5,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "compute_7": {
+      "frame": 7,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 1,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 7,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "compute_9": {
+      "frame": 9,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 9,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "graphics_10": {
+      "frame": 10,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 10,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "graphics_12": {
+      "frame": 12,
+      "internal_size": 810,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 12,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "graphics_14": {
+      "frame": 14,
+      "internal_size": 720,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 14,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "graphics_6": {
+      "frame": 6,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 1,
+        "per_light_invalidations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 6,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "graphics_8": {
+      "frame": 8,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 2,
+        "per_light_invalidations": [
+          2,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 8,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "reference_1080": {
+      "frame": 1,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 255,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 1,
+        "per_light_invalidations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 1,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "resolution_1080": {
+      "frame": 5,
+      "internal_size": 1080,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 1,
+        "per_light_invalidations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 5,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "resolution_720": {
+      "frame": 3,
+      "internal_size": 720,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 1,
+        "per_light_invalidations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 3,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "resolution_810": {
+      "frame": 2,
+      "internal_size": 810,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 1,
+        "per_light_invalidations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 2,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    },
+    "resolution_900": {
+      "frame": 4,
+      "internal_size": 900,
+      "visibility": {
+        "dirty_lights": 0,
+        "hits": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "instrumented": false,
+        "invalidation_count": 1,
+        "per_light_invalidations": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "prepare_count": 4,
+        "queries": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "zero_power_skips": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "work": 535670
+    }
+  },
+  "failed": true,
+  "hardware footprint image 11": {
+    "iou": 1.0,
+    "mae": 0.0,
+    "max": 0.0
+  },
+  "hardware footprint image 13": {
+    "iou": 1.0,
+    "mae": 0.0,
+    "max": 0.0
+  },
+  "hardware footprint image 15": {
+    "iou": 1.0,
+    "mae": 0.0,
+    "max": 0.0
+  },
+  "hardware footprint image 7": {
+    "iou": 1.0,
+    "mae": 0.0,
+    "max": 0.0
+  },
+  "hardware footprint image 9": {
+    "iou": 1.0,
+    "mae": 0.0,
+    "max": 0.0
+  },
+  "physical_android_tested": false,
+  "quality": [
+    {
+      "internal_size": 810,
+      "relative_to_1080": {
+        "iou": 0.98658756770699,
+        "mae": 0.006164896782837112,
+        "max": 0.6036477088928223
+      },
+      "requested_bytes": 299763388
+    },
+    {
+      "internal_size": 720,
+      "relative_to_1080": {
+        "iou": 0.9839391691394659,
+        "mae": 0.010182342342166936,
+        "max": 0.6318397000432014
+      },
+      "requested_bytes": 287057980
+    },
+    {
+      "internal_size": 900,
+      "relative_to_1080": {
+        "iou": 0.991203286738307,
+        "mae": 0.005426595817335387,
+        "max": 0.6153954863548279
+      },
+      "requested_bytes": 313960176
+    },
+    {
+      "internal_size": 1080,
+      "relative_to_1080": {
+        "iou": 1.0,
+        "mae": 0.0,
+        "max": 0.0
+      },
+      "requested_bytes": 346836612
+    }
+  ],
+  "resolution roundtrip exact original output": {
+    "iou": 1.0,
+    "mae": 0.0,
+    "max": 0.0
+  },
+  "unsupported_format_comparison": {}
+}

@@ -10,6 +10,10 @@ persistent native session, shared controls and separately saved capture bank.
 [Checkpoint and next face investigation](docs/checkpoints/LIE27_CONTINUATION.md)
 preserve results, limitations and the practical shading diagnosis.
 
+The separate Android [camera rendering experiment, LIE 2.1](docs/LIE_CAMERA_RENDER.md)
+adds explicit internal resolutions and an experimental graphics footprint path.
+Its software Vulkan results are not measurements of the physical Mali-G720.
+
 ## LIE-27 · articulaciones esféricas, párpados y expresiones
 
 El laboratorio añade zonas esféricas con influencia suave, 30 segmentos de

@@ -1,0 +1,49 @@
+{
+  "schema": "lie-renderer-static-audit/1",
+  "audited_commit": "2decee6c97c69e49549d479eb122537774f2a9fc",
+  "kind": "source/catalog analysis; not a GPU execution",
+  "lod0_references_before_selection": 535670,
+  "lod_counts_before_selection": [
+    535670,
+    181896,
+    54531
+  ],
+  "source_record_bytes": 80,
+  "projected_record_bytes": 96,
+  "full_lod_projected_record_bytes_if_all_dispatched": 51424320,
+  "material_uint_atomic_adds_per_accepted_contribution": 8,
+  "warm_geometry_dispatch_stages_under_report_options": [
+    1,
+    17,
+    2,
+    3,
+    16,
+    14,
+    4,
+    8,
+    13,
+    12,
+    11,
+    10,
+    7
+  ],
+  "cold_bounds_extra_stages": [
+    18,
+    19
+  ],
+  "clear_capacity_counterexample": {
+    "source_work": 535670,
+    "internal_size": 720,
+    "dispatch_work_items": 518400,
+    "actual_rounded_invocations": 518400,
+    "source_slots_not_visited": 17270,
+    "shader": "gpu_compute/shaders/lie_wall17_stage_01.glsl",
+    "caller": "gpu_compute/lie_wall05_shared_effect.gd",
+    "verdict": "Definite dispatch coverage shortfall. Stale-tail impact on visibility/queue results requires a targeted Vulkan/device regression; not claimed to explain total GPU time."
+  },
+  "limits": [
+    "Selected source count, actual contribution overdraw and memory traffic are not measured by this static audit.",
+    "Earlier Mali visibility timings are historical, not current LIE 2.1 per-stage timings.",
+    "No renderer change or performance improvement is claimed by this audit."
+  ]
+}

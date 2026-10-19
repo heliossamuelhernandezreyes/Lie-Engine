@@ -77,10 +77,37 @@ protected:
         ClassDB::bind_method(D_METHOD("end"),&LieGPUProbe::end);
         ClassDB::bind_method(D_METHOD("release_counters"),&LieGPUProbe::release_counters);
         ClassDB::bind_method(D_METHOD("telemetry"),&LieGPUProbe::telemetry);
+        ClassDB::bind_method(D_METHOD("vulkan_format_support","instance","physical_device"),&LieGPUProbe::vulkan_format_support);
     }
 public:
     ~LieGPUProbe(){release_counters();}
     Dictionary telemetry(){return telemetry_data();}
+    Dictionary vulkan_format_support(int64_t instance,int64_t physical_device){
+        if(!instance || !physical_device)return unavailable("Vulkan handles unavailable");
+        // Public Vulkan 1.0 ABI (VkFormatProperties), not engine-private data.
+        // Handles are borrowed from the current RenderingDevice on its render
+        // thread. Query immediately; never retain or destroy either handle.
+        struct FormatProperties {uint32_t linear,optimal,buffer;};
+        using GetProc=void*(*)(void*,const char*);
+        using Query=void(*)(void*,int32_t,FormatProperties*);
+#ifdef __ANDROID__
+        void *library=dlopen("libvulkan.so",RTLD_NOW|RTLD_LOCAL);
+#else
+        void *library=dlopen("libvulkan.so.1",RTLD_NOW|RTLD_LOCAL);
+#endif
+        if(!library)return unavailable("Vulkan loader unavailable");
+        auto get_proc=reinterpret_cast<GetProc>(dlsym(library,"vkGetInstanceProcAddr"));
+        auto query=get_proc?reinterpret_cast<Query>(get_proc(reinterpret_cast<void*>(instance),"vkGetPhysicalDeviceFormatProperties")):nullptr;
+        if(!query){dlclose(library);return unavailable("Vulkan format query unavailable");}
+        FormatProperties r32{},rgba32{};
+        query(reinterpret_cast<void*>(physical_device),100,&r32); // VK_FORMAT_R32_SFLOAT
+        query(reinterpret_cast<void*>(physical_device),109,&rgba32); // VK_FORMAT_R32G32B32A32_SFLOAT
+        dlclose(library);
+        constexpr uint32_t COLOR_ATTACHMENT_BLEND_BIT=0x00000100;
+        Dictionary d;d["available"]=true;d["r32_float_blend"]=(r32.optimal&COLOR_ATTACHMENT_BLEND_BIT)!=0;d["rgba32_float_blend"]=(rgba32.optimal&COLOR_ATTACHMENT_BLEND_BIT)!=0;
+        d["r32_optimal_features"]=static_cast<int64_t>(r32.optimal);d["rgba32_optimal_features"]=static_cast<int64_t>(rgba32.optimal);
+        d["scope"]="read-only Vulkan format capabilities of the active RenderingDevice; no hardware-counter permissions required";return d;
+    }
     Dictionary probe(){
         release_counters();state=unavailable("not_probed");state["native_extension"]=true;state["libGPUCounters_sha"]=LIB_SHA;state["godot_cpp_sha"]=CPP_SHA;state["device_node"]="/dev/mali0";state["scope"]="whole-device counters, not exclusive to this process or a GPU pass";
         struct stat info{};
