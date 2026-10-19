@@ -50,6 +50,10 @@ caso: 252 eventos medidos. El modo rápido usa una ronda: 63 eventos. Cada caso
 conserva además una preparación fría y nueve eventos de calentamiento: 280 o
 70, respectivamente. La clasificación se fija antes de ejecutar.
 
+«Fría» significa reconstrucción de geometría forzada y reinicio de visibilidad
+e indicios privados. El banco, los límites del mundo y pipelines pueden seguir
+residentes; no se confunde con un arranque frío completo de la aplicación.
+
 | Caso | Trabajo GPU conservado | Uso del resultado |
 | --- | --- | --- |
 | Salida residente | Solo resolve/salida de la imagen interna ya residente | Suelo del último paso del consumidor; no es el coste total de Godot |
@@ -88,6 +92,9 @@ escena/BLAS y pruebas de disco. También se leen ganadores únicos, bloques
 seleccionados y registros/desbordamientos de recuperación existentes. Estos
 últimos describen la geometría residente en cambios de luz.
 
+`disk_tests` cuenta candidatos de hojas BLAS después de excluir la propia
+muestra; las pruebas de indicios se registran aparte como `witness_attempts`.
+
 Son conteos lógicos uint32, no transacciones DRAM, rayos de hardware o
 instrucciones. No se instrumentan lecturas de vecinos de recuperación. Una
 cifra que exceda uint32 puede desbordarse; no se certifican cargas arbitrarias.
@@ -123,3 +130,11 @@ kernels instrumentados, conteos no vacíos y coherentes, borrado del dominio,
 despachos de las ablaciones, todos los tiempos exteriores, restauración e
 informe copiable. El workflow construye además el módulo ARM64 y APK firmado.
 Software Vulkan comprueba ejecución/corrección; no mide rendimiento del Mali.
+
+La aceptación de cuatro rondas pasó 190 comprobaciones, con 252 eventos
+medidos, 280 de preparación, 21 grupos completos de 12 muestras y 10 capturas
+de censo independientes. Los controles pasaron 26 comprobaciones del nuevo
+diagnóstico, 33 de resolución, 247 del rig y 25 de la sesión del agente.
+`checkpoints/LIE_RENDERER_CAUSAL_CHECKPOINT.json` conserva el primer fallo de
+agregación, su corrección y la evidencia posterior. No hay medición física de
+esta versión en el Mali todavía.

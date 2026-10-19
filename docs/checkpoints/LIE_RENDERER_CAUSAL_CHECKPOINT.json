@@ -37,5 +37,81 @@
     }
   },
   "correction": "Retain whole_appearance timing scope only on the solve profile; keep separate stage contexts. Require every causal group and its samples, in addition to raw event timestamps.",
-  "acceptance": "pending rerun; no Mali performance improvement claimed"
+  "acceptance": "Software Vulkan acceptance passed; physical Mali measurements pending.",
+  "quick_acceptance": {
+    "source_commit": "84816e8f20b9e67e7f3384d3b7d7a71d05795957",
+    "checks": 82,
+    "failed": false,
+    "rounds": 1,
+    "measured_events": 63,
+    "warmup_events": 70,
+    "groups": 21,
+    "samples_per_group": 3,
+    "separate_census_events": 10,
+    "godot": "4.7.2.stable.official.ed1daf0bf",
+    "device": "llvmpipe LLVM 20.1.2",
+    "physical_android_tested": false
+  },
+  "cpu_acceptance": {
+    "audit_commands": 26,
+    "camera_commands": 33,
+    "rig": 247,
+    "agent_session": 25,
+    "logs_no_errors_or_leaks": true
+  },
+  "full_acceptance": {
+    "source_commit": "84816e8f20b9e67e7f3384d3b7d7a71d05795957",
+    "checks": 190,
+    "failed": false,
+    "rounds": 4,
+    "measured_events": 252,
+    "warmup_events": 280,
+    "groups": 21,
+    "samples_per_group": 12,
+    "census_events": 10,
+    "restored": true,
+    "error": "",
+    "driver": "test_lie_renderer_audit_gpu.gd parametrized to quick=false, 252 measured events, 280 warmup events, 12 samples/group",
+    "driver_sha256": "c6cb531e7bdd244992b109d9b9e64b4e2b569e42d124cc3ede4e381c2b34f00c",
+    "logs_no_errors_or_leaks": true,
+    "physical_android_tested": false
+  },
+  "query_scope_notes": [
+    "Cold geometry means forced geometry rebuild and reset private visibility/hints; resident bank, world bounds and pipelines can be reused. It is not cold application startup.",
+    "Census covers the appearance consumer; shared coarse/indirect transport remains separately reported.",
+    "BLAS disk_tests exclude the separately counted witness attempts."
+  ],
+  "ci": {
+    "run_id": 39233391441,
+    "source_commit": "84816e8f20b9e67e7f3384d3b7d7a71d05795957",
+    "conclusion": "success",
+    "workflow": "LIE causal renderer diagnosis",
+    "artifact_id": 12177218415,
+    "scope": "Native Linux and Android ARM64, import/commands/CPU acceptance, actual software Vulkan parity/causal tests, official-template APK export, alignment and signing verification."
+  },
+  "apk": {
+    "filename": "LIE-Diagnostico-2.2.0.apk",
+    "bytes": 74088470,
+    "sha256": "5a51f8dac200d1bd7faea0136466fb5f19a9ff9965094c134a1623eb8c1f7462",
+    "source_commit": "84816e8f20b9e67e7f3384d3b7d7a71d05795957",
+    "package": "org.lieengine.wallruntime.v220",
+    "version_code": 23,
+    "version": "2.2.0-causal-audit",
+    "signatures_verified": [
+      "v2",
+      "v3"
+    ],
+    "native_pt_load_alignment": [
+      16384,
+      16384,
+      16384
+    ],
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "physical_android_tested": false,
+    "compiled_script_acceptance": {
+      "checks": 26,
+      "passed": true,
+      "scope": "APK assets extracted unchanged; native Linux probe supplied for host loading; only command test harness added. No Android-device performance claim."
+    }
+  }
 }
