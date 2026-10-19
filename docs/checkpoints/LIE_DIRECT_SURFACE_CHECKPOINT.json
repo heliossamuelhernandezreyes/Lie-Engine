@@ -1,0 +1,128 @@
+{
+  "schema": "lie-direct-surface-checkpoint/1",
+  "base_commit": "e80a106220b12bf17030cd3cbd92dacd13b963db",
+  "architecture": "compiled shared six-face/four-layer captured surface, native opaque depth, per-light cube maps, per-node/per-light irradiance table, unified composition",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "atlas_packets": {
+    "depth.bin": {
+      "bytes": 17367040,
+      "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+    },
+    "normal.bin": {
+      "bytes": 34734080,
+      "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+    },
+    "color.bin": {
+      "bytes": 34734080,
+      "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+    }
+  },
+  "atlas_requested_bytes": 86835200,
+  "validation": {
+    "checks": 36,
+    "failed": false,
+    "quality": [
+      {
+        "quality": {
+          "iou": 0.9790471934659021,
+          "mae": 0.016962658849033235,
+          "max": 0.6036477088928223
+        },
+        "yaw": 12.0
+      },
+      {
+        "quality": {
+          "iou": 0.9861266624791764,
+          "mae": 0.008384249115064853,
+          "max": 0.5934905409812927
+        },
+        "yaw": -71.4
+      },
+      {
+        "quality": {
+          "iou": 0.9784194013397778,
+          "mae": 0.005445000095336235,
+          "max": 0.6183684887364507
+        },
+        "yaw": 80.0
+      },
+      {
+        "quality": {
+          "iou": 0.9681223371880706,
+          "mae": 0.005589138611262253,
+          "max": 0.8528261780738831
+        },
+        "yaw": 160.0
+      },
+      {
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "quality": {
+          "iou": 0.9766014960168194,
+          "mae": 0.014938509198924666,
+          "max": 0.6623632311820984
+        }
+      },
+      {
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "quality": {
+          "iou": 0.9911543656703494,
+          "mae": 0.03506255592920158,
+          "max": 0.6515577435493469
+        }
+      },
+      {
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "quality": {
+          "iou": 0.9918833386457812,
+          "mae": 0.023009088891889583,
+          "max": 0.6165942936204374
+        }
+      }
+    ],
+    "source_superposition_linear_max": 1.066364347934723e-06,
+    "hits": 172966,
+    "physical_android_tested": false
+  },
+  "comparison": {
+    "events": 27,
+    "warmup_events": 30,
+    "groups": 9,
+    "software_vulkan": true,
+    "physical_fps_inferred": false
+  },
+  "python_contract_checks": 4,
+  "gdscript_command_checks": 14,
+  "rig_checks": 247,
+  "agent_checks": 25,
+  "negative_experiments": [
+    {
+      "failure": "cell traversal stalls when a sub-ULP progress increment is added to a multi-metre eye distance",
+      "front_iou": 0.79992545657846,
+      "oblique_iou": 0.51081066287153,
+      "correction": "rebase at box entry; metric cell progress"
+    },
+    {
+      "failure": "depth-only descriptor reflection retained bindings 3/4",
+      "correction": "supply the shared surface shader ABI to depth-only passes"
+    }
+  ],
+  "limitations": [
+    "finite four-layer surface representation, complete master differs from sparse instance subsets",
+    "short original contact shadows replaced by biased finite light-space visibility",
+    "old reference allocations retained for A/B",
+    "Mali performance and user visual acceptance not yet measured"
+  ],
+  "apk": null
+}
