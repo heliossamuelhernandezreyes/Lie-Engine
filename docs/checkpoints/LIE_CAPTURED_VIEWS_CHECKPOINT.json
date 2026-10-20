@@ -1,0 +1,1296 @@
+{
+  "schema": "lie-captured-views-checkpoint/1",
+  "runtime_commit": "2836e6b941ae638f4788fe6c28755e7b8bfdc581",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "local_vulkan": {
+    "device": "llvmpipe (software Vulkan, not Mali)",
+    "checks": 148,
+    "failed": false,
+    "main_events": 216,
+    "stage_events": 54,
+    "main_groups": 18,
+    "fixed_view_quality": [
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 12.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9790471934659021,
+          "mae": 0.016962658849033235,
+          "max": 0.6036477088928223
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9850578770837011,
+          "mae": 0.004684025560426303,
+          "max": 0.5732417286083091
+        },
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 12.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9738554785503142,
+          "mae": 0.018451864684631517,
+          "max": 0.6036477088928223
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 12.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9733849263930746,
+          "mae": 0.022731333316011033,
+          "max": 0.6389684975147247
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9911543656703494,
+          "mae": 0.03506255592920158,
+          "max": 0.6515577435493469
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9780482383016561,
+          "mae": 0.018167607284811503,
+          "max": 0.6196421980857849
+        },
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9775615443876099,
+          "mae": 0.03559821809048801,
+          "max": 0.6515577435493469
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.8675395083557507,
+          "mae": 0.06803617887266157,
+          "max": 0.6906320452690125
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": -0.0774,
+          "camera_yaw": -63.7914,
+          "distance_factor": 0.61
+        },
+        "reference_quality": {
+          "iou": 0.9927675297891843,
+          "mae": 0.036609611792670214,
+          "max": 0.651552677154541
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9847609604690262,
+          "mae": 0.01700256270209097,
+          "max": 0.606246829032898
+        },
+        "pose": {
+          "camera_elevation": -0.0774,
+          "camera_yaw": -63.7914,
+          "distance_factor": 0.61
+        },
+        "reference_quality": {
+          "iou": 0.9820796491881745,
+          "mae": 0.03844010848597955,
+          "max": 0.651552677154541
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": -0.0774,
+          "camera_yaw": -63.7914,
+          "distance_factor": 0.61
+        },
+        "reference_quality": {
+          "iou": 0.90082550445516,
+          "mae": 0.06936258107073533,
+          "max": 0.6940733194351196
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 80.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9784194013397778,
+          "mae": 0.005445000095336235,
+          "max": 0.6183684887364507
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9688401119001506,
+          "mae": 0.0028088846580519486,
+          "max": 0.5567893981933594
+        },
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 80.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9600458559782609,
+          "mae": 0.004889150542848983,
+          "max": 0.569072961807251
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 80.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9563507169140972,
+          "mae": 0.00562332599470851,
+          "max": 0.5961771111469716
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 160.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9681223371880706,
+          "mae": 0.005589138611262253,
+          "max": 0.8528261780738831
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9729872812964039,
+          "mae": 0.001521608438696226,
+          "max": 0.8253139853477478
+        },
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 160.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9688510659885601,
+          "mae": 0.005041137134927492,
+          "max": 0.8495845794677734
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 160.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9057488997926045,
+          "mae": 0.005851561864270756,
+          "max": 0.8495845794677734
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9766014960168194,
+          "mae": 0.014938509198924666,
+          "max": 0.6623632311820984
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9865995431331752,
+          "mae": 0.005374370387597733,
+          "max": 0.6085368394851685
+        },
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9751487924917019,
+          "mae": 0.016065952696235737,
+          "max": 0.6623632311820984
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.8847146012969429,
+          "mae": 0.028645358128046753,
+          "max": 0.6866573095321655
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9918833386457812,
+          "mae": 0.023009088891889583,
+          "max": 0.6165942936204374
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9893935055266021,
+          "mae": 0.009906625792624113,
+          "max": 0.5922755002975464
+        },
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9841756288734962,
+          "mae": 0.021211353187160064,
+          "max": 0.6173838702961802
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9742886097858143,
+          "mae": 0.02500695595285112,
+          "max": 0.6292254119471181
+        }
+      }
+    ],
+    "motion": [
+      {
+        "quality": {
+          "iou": 0.9627871121467492,
+          "mae": 0.014389468261280385,
+          "max": 0.5748839974403381
+        },
+        "yaw": -78.0
+      },
+      {
+        "quality": {
+          "iou": 0.9679900921713864,
+          "mae": 0.016047114807987987,
+          "max": 0.5731648434884846
+        },
+        "regions_frame_delta": {
+          "iou": 0.8298739665793873,
+          "mae": 0.030095104484361333,
+          "max": 0.6015943288803101
+        },
+        "views_frame_delta": {
+          "iou": 0.8203494250711313,
+          "mae": 0.02944061096801697,
+          "max": 0.6210653921589255
+        },
+        "yaw": -76.0
+      },
+      {
+        "quality": {
+          "iou": 0.9693487707428038,
+          "mae": 0.017317065664093963,
+          "max": 0.5772046446800232
+        },
+        "regions_frame_delta": {
+          "iou": 0.8485475426448235,
+          "mae": 0.0333186026876957,
+          "max": 0.5980138808954507
+        },
+        "views_frame_delta": {
+          "iou": 0.8404446270625635,
+          "mae": 0.03206599421355947,
+          "max": 0.6110147191211581
+        },
+        "yaw": -74.0
+      },
+      {
+        "quality": {
+          "iou": 0.9753552847515625,
+          "mae": 0.017988957462819175,
+          "max": 0.5852664113044739
+        },
+        "regions_frame_delta": {
+          "iou": 0.8891626447062,
+          "mae": 0.03589078650514913,
+          "max": 0.5837158332578838
+        },
+        "views_frame_delta": {
+          "iou": 0.878750980311223,
+          "mae": 0.034502388755554704,
+          "max": 0.6145567470230162
+        },
+        "yaw": -72.0
+      },
+      {
+        "quality": {
+          "iou": 0.9780831329440055,
+          "mae": 0.018688411413127905,
+          "max": 0.5885086059570312
+        },
+        "regions_frame_delta": {
+          "iou": 0.9160097310662962,
+          "mae": 0.03805110711784924,
+          "max": 0.5901003945618868
+        },
+        "views_frame_delta": {
+          "iou": 0.9095689672653045,
+          "mae": 0.03674675312708065,
+          "max": 0.6197207570075989
+        },
+        "yaw": -70.0
+      },
+      {
+        "quality": {
+          "iou": 0.9812901308377625,
+          "mae": 0.018216903843771847,
+          "max": 0.6141608357429504
+        },
+        "regions_frame_delta": {
+          "iou": 0.9412718296367254,
+          "mae": 0.037998090047269346,
+          "max": 0.5993865132331848
+        },
+        "views_frame_delta": {
+          "iou": 0.9329907753711233,
+          "mae": 0.03713996097018336,
+          "max": 0.6233401894569397
+        },
+        "yaw": -68.0
+      },
+      {
+        "quality": {
+          "iou": 0.9819264031371451,
+          "mae": 0.018092873436411448,
+          "max": 0.628782331943512
+        },
+        "regions_frame_delta": {
+          "iou": 0.9550932861228381,
+          "mae": 0.03723593197603193,
+          "max": 0.5924209356307983
+        },
+        "views_frame_delta": {
+          "iou": 0.9479043154556736,
+          "mae": 0.0367444550004025,
+          "max": 0.636997401714325
+        },
+        "yaw": -66.0
+      },
+      {
+        "quality": {
+          "iou": 0.9828065864542733,
+          "mae": 0.017330966942607877,
+          "max": 0.6340341567993164
+        },
+        "regions_frame_delta": {
+          "iou": 0.9595023310987889,
+          "mae": 0.03536656350070079,
+          "max": 0.6074865460395813
+        },
+        "views_frame_delta": {
+          "iou": 0.9501655802279778,
+          "mae": 0.03548009776290063,
+          "max": 0.6314138770103455
+        },
+        "yaw": -64.0
+      },
+      {
+        "quality": {
+          "iou": 0.974579475185031,
+          "mae": 0.009330244093500637,
+          "max": 0.6207616329193115
+        },
+        "yaw": 10.0
+      },
+      {
+        "quality": {
+          "iou": 0.9712799420858078,
+          "mae": 0.010250373281418727,
+          "max": 0.6191467046737671
+        },
+        "regions_frame_delta": {
+          "iou": 0.9898183257369745,
+          "mae": 0.022975887980151273,
+          "max": 0.6464386582374573
+        },
+        "views_frame_delta": {
+          "iou": 0.9750306840098968,
+          "mae": 0.02510908627766173,
+          "max": 0.6292374730110168
+        },
+        "yaw": 12.0
+      },
+      {
+        "quality": {
+          "iou": 0.9718835642752862,
+          "mae": 0.01049515357290264,
+          "max": 0.6170231699943542
+        },
+        "regions_frame_delta": {
+          "iou": 0.9893250468983296,
+          "mae": 0.023509088015549462,
+          "max": 0.6326099038124084
+        },
+        "views_frame_delta": {
+          "iou": 0.9759480337078652,
+          "mae": 0.025531596698258816,
+          "max": 0.6295104622840881
+        },
+        "yaw": 14.0
+      },
+      {
+        "quality": {
+          "iou": 0.9721019320453032,
+          "mae": 0.01088909736120621,
+          "max": 0.6378698348999023
+        },
+        "regions_frame_delta": {
+          "iou": 0.9889387164062948,
+          "mae": 0.02421429988781445,
+          "max": 0.6378698348999023
+        },
+        "views_frame_delta": {
+          "iou": 0.977018221545905,
+          "mae": 0.02604944459733641,
+          "max": 0.6207104325294495
+        },
+        "yaw": 16.0
+      },
+      {
+        "quality": {
+          "iou": 0.9698473477960198,
+          "mae": 0.011601095956915757,
+          "max": 0.6302156448364258
+        },
+        "regions_frame_delta": {
+          "iou": 0.988202960100498,
+          "mae": 0.024850157381895437,
+          "max": 0.6218016743659973
+        },
+        "views_frame_delta": {
+          "iou": 0.9730003638064549,
+          "mae": 0.02711001009778484,
+          "max": 0.6207104325294495
+        },
+        "yaw": 18.0
+      },
+      {
+        "quality": {
+          "iou": 0.9710191327510693,
+          "mae": 0.011868301325813763,
+          "max": 0.6284120678901672
+        },
+        "regions_frame_delta": {
+          "iou": 0.9875695626398424,
+          "mae": 0.02565479359952862,
+          "max": 0.6178514361381531
+        },
+        "views_frame_delta": {
+          "iou": 0.9753389191017668,
+          "mae": 0.027511196347862733,
+          "max": 0.6488757133483887
+        },
+        "yaw": 20.0
+      }
+    ]
+  },
+  "captured_views": {
+    "masters": [
+      {
+        "height": 1137.0,
+        "max_capture_size": 192.0,
+        "valid_pixels": 867700.0,
+        "views": 64.0,
+        "width": 2048.0
+      },
+      {
+        "height": 3071.0,
+        "max_capture_size": 512.0,
+        "valid_pixels": 193404.0,
+        "views": 64.0,
+        "width": 4096.0
+      }
+    ],
+    "metadata_stride": 80.0,
+    "packets": {
+      "views-0.bin": {
+        "bytes": 18628608.0,
+        "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+      },
+      "views-1.bin": {
+        "bytes": 100630528.0,
+        "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+      },
+      "views-meta.bin": {
+        "bytes": 10240.0,
+        "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+      }
+    },
+    "runtime": {
+      "angular_candidates": 3.0,
+      "shadow_backend": "regions",
+      "source_cell_walk": false,
+      "source_refinements": 2.0,
+      "view_depth_steps": 3.0
+    },
+    "schema": "lie-captured-views/1",
+    "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "spec": {
+      "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+      "grid": 8.0,
+      "sizes": [
+        192.0,
+        512.0
+      ],
+      "source_packets": {
+        "color.bin": {
+          "bytes": 34734080.0,
+          "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+        },
+        "depth.bin": {
+          "bytes": 17367040.0,
+          "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+        },
+        "normal.bin": {
+          "bytes": 34734080.0,
+          "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+        }
+      }
+    }
+  },
+  "physical_android_measured": false,
+  "simple_control_quality_accepted": false,
+  "scope": "Execution/ownership/cache/source gates pass. Adjusted captures retain approximate coverage; simple one-query control visibly deforms near views and is diagnostic only. No physical FPS claim.",
+  "additional_resource_lifetime_acceptance": {
+    "checks": 9,
+    "failed": false,
+    "scope": "Additional real Vulkan resource-lifetime acceptance of runtime 2836e6b941ae638f4788fe6c28755e7b8bfdc581; not a physical performance result",
+    "views restores actual image after 720/1080/backend roundtrip": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    },
+    "views_fast restores actual image after 720/1080/backend roundtrip": {
+      "iou": 1.0,
+      "mae": 0.0,
+      "max": 0.0
+    }
+  },
+  "local_acceptance": {
+    "python_contracts": 22,
+    "direct_commands_original": 20,
+    "direct_commands_views": 20,
+    "cpu_rig": 247,
+    "agent_session": 25,
+    "native_probe": 12,
+    "shared_field_gpu_checks": 374,
+    "shared_field_gpu_cases": 15
+  },
+  "native_evidence": {
+    "path": "LIE_CAPTURED_VIEWS_NATIVE.json.gz",
+    "uncompressed_bytes": 5248576,
+    "uncompressed_sha256": "e5cd44aee2c20d8093bc2fcd4649dc5bbdaa9c0ba89854ba5d3418a4e2b1f1e2"
+  },
+  "ci": {
+    "runtime_commit": "2836e6b941ae638f4788fe6c28755e7b8bfdc581",
+    "workflow_run_id": 39371606348,
+    "artifact_id": 12242222027,
+    "workflow_count": 18,
+    "all_workflows_passed": true,
+    "native_checks": 148,
+    "main_events": 216,
+    "stage_events": 54,
+    "quality": [
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 12.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9790471934659021,
+          "mae": 0.016962658849033235,
+          "max": 0.6036477088928223
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9850578770837011,
+          "mae": 0.004684025560426303,
+          "max": 0.5732417286083091
+        },
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 12.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9738554785503142,
+          "mae": 0.018451864684631517,
+          "max": 0.6036477088928223
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 12.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9733849263930746,
+          "mae": 0.022731333316011033,
+          "max": 0.6389684975147247
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9911543656703494,
+          "mae": 0.03506255592920158,
+          "max": 0.6515577435493469
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9780482383016561,
+          "mae": 0.018167607284811503,
+          "max": 0.6196421980857849
+        },
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9775615443876099,
+          "mae": 0.03559821809048801,
+          "max": 0.6515577435493469
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 3.6678,
+          "camera_yaw": -71.4,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.8675395083557507,
+          "mae": 0.06803617887266157,
+          "max": 0.6906320452690125
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": -0.0774,
+          "camera_yaw": -63.7914,
+          "distance_factor": 0.61
+        },
+        "reference_quality": {
+          "iou": 0.9927675297891843,
+          "mae": 0.036609611792670214,
+          "max": 0.651552677154541
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9847609604690262,
+          "mae": 0.01700256270209097,
+          "max": 0.606246829032898
+        },
+        "pose": {
+          "camera_elevation": -0.0774,
+          "camera_yaw": -63.7914,
+          "distance_factor": 0.61
+        },
+        "reference_quality": {
+          "iou": 0.9820796491881745,
+          "mae": 0.03844010848597955,
+          "max": 0.651552677154541
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": -0.0774,
+          "camera_yaw": -63.7914,
+          "distance_factor": 0.61
+        },
+        "reference_quality": {
+          "iou": 0.90082550445516,
+          "mae": 0.06936258107073533,
+          "max": 0.6940733194351196
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 80.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9784194013397778,
+          "mae": 0.005445000095336235,
+          "max": 0.6183684887364507
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9688401119001506,
+          "mae": 0.0028088846580519486,
+          "max": 0.5567893981933594
+        },
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 80.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9600458559782609,
+          "mae": 0.004889150542848983,
+          "max": 0.569072961807251
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 80.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9563507169140972,
+          "mae": 0.00562332599470851,
+          "max": 0.5961771111469716
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 160.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9681223371880706,
+          "mae": 0.005589138611262253,
+          "max": 0.8528261780738831
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9729872812964039,
+          "mae": 0.001521608438696226,
+          "max": 0.8253139853477478
+        },
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 160.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9688510659885601,
+          "mae": 0.005041137134927492,
+          "max": 0.8495845794677734
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 9.0,
+          "camera_yaw": 160.0,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9057488997926045,
+          "mae": 0.005851561864270756,
+          "max": 0.8495845794677734
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9766014960168194,
+          "mae": 0.014938509198924666,
+          "max": 0.6623632311820984
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9865995431331752,
+          "mae": 0.005374370387597733,
+          "max": 0.6085368394851685
+        },
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.9751487924917019,
+          "mae": 0.016065952696235737,
+          "max": 0.6623632311820984
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": -7.2227,
+          "camera_yaw": -39.5088,
+          "distance_factor": 1.0
+        },
+        "reference_quality": {
+          "iou": 0.8847146012969429,
+          "mae": 0.028645358128046753,
+          "max": 0.6866573095321655
+        }
+      },
+      {
+        "backend": "regions",
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9918833386457812,
+          "mae": 0.023009088891889583,
+          "max": 0.6165942936204374
+        }
+      },
+      {
+        "backend": "views",
+        "baseline_quality": {
+          "iou": 0.9893935055266021,
+          "mae": 0.009906625792624113,
+          "max": 0.5922755002975464
+        },
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9841756288734962,
+          "mae": 0.021211353187160064,
+          "max": 0.6173838702961802
+        }
+      },
+      {
+        "backend": "views_fast",
+        "pose": {
+          "camera_elevation": 70.0,
+          "camera_yaw": 35.0,
+          "distance_factor": 0.6
+        },
+        "reference_quality": {
+          "iou": 0.9742886097858143,
+          "mae": 0.02500695595285112,
+          "max": 0.6292254119471181
+        }
+      }
+    ],
+    "motion": [
+      {
+        "quality": {
+          "iou": 0.9627871121467492,
+          "mae": 0.014389468261280385,
+          "max": 0.5748839974403381
+        },
+        "yaw": -78.0
+      },
+      {
+        "quality": {
+          "iou": 0.9679900921713864,
+          "mae": 0.016047114807987987,
+          "max": 0.5731648434884846
+        },
+        "regions_frame_delta": {
+          "iou": 0.8298739665793873,
+          "mae": 0.030095104484361333,
+          "max": 0.6015943288803101
+        },
+        "views_frame_delta": {
+          "iou": 0.8203494250711313,
+          "mae": 0.02944061096801697,
+          "max": 0.6210653921589255
+        },
+        "yaw": -76.0
+      },
+      {
+        "quality": {
+          "iou": 0.9693487707428038,
+          "mae": 0.017317065664093963,
+          "max": 0.5772046446800232
+        },
+        "regions_frame_delta": {
+          "iou": 0.8485475426448235,
+          "mae": 0.0333186026876957,
+          "max": 0.5980138808954507
+        },
+        "views_frame_delta": {
+          "iou": 0.8404446270625635,
+          "mae": 0.03206599421355947,
+          "max": 0.6110147191211581
+        },
+        "yaw": -74.0
+      },
+      {
+        "quality": {
+          "iou": 0.9753552847515625,
+          "mae": 0.017988957462819175,
+          "max": 0.5852664113044739
+        },
+        "regions_frame_delta": {
+          "iou": 0.8891626447062,
+          "mae": 0.03589078650514913,
+          "max": 0.5837158332578838
+        },
+        "views_frame_delta": {
+          "iou": 0.878750980311223,
+          "mae": 0.034502388755554704,
+          "max": 0.6145567470230162
+        },
+        "yaw": -72.0
+      },
+      {
+        "quality": {
+          "iou": 0.9780831329440055,
+          "mae": 0.018688411413127905,
+          "max": 0.5885086059570312
+        },
+        "regions_frame_delta": {
+          "iou": 0.9160097310662962,
+          "mae": 0.03805110711784924,
+          "max": 0.5901003945618868
+        },
+        "views_frame_delta": {
+          "iou": 0.9095689672653045,
+          "mae": 0.03674675312708065,
+          "max": 0.6197207570075989
+        },
+        "yaw": -70.0
+      },
+      {
+        "quality": {
+          "iou": 0.9812901308377625,
+          "mae": 0.018216903843771847,
+          "max": 0.6141608357429504
+        },
+        "regions_frame_delta": {
+          "iou": 0.9412718296367254,
+          "mae": 0.037998090047269346,
+          "max": 0.5993865132331848
+        },
+        "views_frame_delta": {
+          "iou": 0.9329907753711233,
+          "mae": 0.03713996097018336,
+          "max": 0.6233401894569397
+        },
+        "yaw": -68.0
+      },
+      {
+        "quality": {
+          "iou": 0.9819264031371451,
+          "mae": 0.018092873436411448,
+          "max": 0.628782331943512
+        },
+        "regions_frame_delta": {
+          "iou": 0.9550932861228381,
+          "mae": 0.03723593197603193,
+          "max": 0.5924209356307983
+        },
+        "views_frame_delta": {
+          "iou": 0.9479043154556736,
+          "mae": 0.0367444550004025,
+          "max": 0.636997401714325
+        },
+        "yaw": -66.0
+      },
+      {
+        "quality": {
+          "iou": 0.9828065864542733,
+          "mae": 0.017330966942607877,
+          "max": 0.6340341567993164
+        },
+        "regions_frame_delta": {
+          "iou": 0.9595023310987889,
+          "mae": 0.03536656350070079,
+          "max": 0.6074865460395813
+        },
+        "views_frame_delta": {
+          "iou": 0.9501655802279778,
+          "mae": 0.03548009776290063,
+          "max": 0.6314138770103455
+        },
+        "yaw": -64.0
+      },
+      {
+        "quality": {
+          "iou": 0.974579475185031,
+          "mae": 0.009330244093500637,
+          "max": 0.6207616329193115
+        },
+        "yaw": 10.0
+      },
+      {
+        "quality": {
+          "iou": 0.9712799420858078,
+          "mae": 0.010250373281418727,
+          "max": 0.6191467046737671
+        },
+        "regions_frame_delta": {
+          "iou": 0.9898183257369745,
+          "mae": 0.022975887980151273,
+          "max": 0.6464386582374573
+        },
+        "views_frame_delta": {
+          "iou": 0.9750306840098968,
+          "mae": 0.02510908627766173,
+          "max": 0.6292374730110168
+        },
+        "yaw": 12.0
+      },
+      {
+        "quality": {
+          "iou": 0.9718835642752862,
+          "mae": 0.01049515357290264,
+          "max": 0.6170231699943542
+        },
+        "regions_frame_delta": {
+          "iou": 0.9893250468983296,
+          "mae": 0.023509088015549462,
+          "max": 0.6326099038124084
+        },
+        "views_frame_delta": {
+          "iou": 0.9759480337078652,
+          "mae": 0.025531596698258816,
+          "max": 0.6295104622840881
+        },
+        "yaw": 14.0
+      },
+      {
+        "quality": {
+          "iou": 0.9721019320453032,
+          "mae": 0.01088909736120621,
+          "max": 0.6378698348999023
+        },
+        "regions_frame_delta": {
+          "iou": 0.9889387164062948,
+          "mae": 0.02421429988781445,
+          "max": 0.6378698348999023
+        },
+        "views_frame_delta": {
+          "iou": 0.977018221545905,
+          "mae": 0.02604944459733641,
+          "max": 0.6207104325294495
+        },
+        "yaw": 16.0
+      },
+      {
+        "quality": {
+          "iou": 0.9698473477960198,
+          "mae": 0.011601095956915757,
+          "max": 0.6302156448364258
+        },
+        "regions_frame_delta": {
+          "iou": 0.988202960100498,
+          "mae": 0.024850157381895437,
+          "max": 0.6218016743659973
+        },
+        "views_frame_delta": {
+          "iou": 0.9730003638064549,
+          "mae": 0.02711001009778484,
+          "max": 0.6207104325294495
+        },
+        "yaw": 18.0
+      },
+      {
+        "quality": {
+          "iou": 0.9710191327510693,
+          "mae": 0.011868301325813763,
+          "max": 0.6284120678901672
+        },
+        "regions_frame_delta": {
+          "iou": 0.9875695626398424,
+          "mae": 0.02565479359952862,
+          "max": 0.6178514361381531
+        },
+        "views_frame_delta": {
+          "iou": 0.9753389191017668,
+          "mae": 0.027511196347862733,
+          "max": 0.6488757133483887
+        },
+        "yaw": 20.0
+      }
+    ],
+    "captured_views": {
+      "masters": [
+        {
+          "height": 1137.0,
+          "max_capture_size": 192.0,
+          "valid_pixels": 867700.0,
+          "views": 64.0,
+          "width": 2048.0
+        },
+        {
+          "height": 3071.0,
+          "max_capture_size": 512.0,
+          "valid_pixels": 193404.0,
+          "views": 64.0,
+          "width": 4096.0
+        }
+      ],
+      "metadata_stride": 80.0,
+      "packets": {
+        "views-0.bin": {
+          "bytes": 18628608.0,
+          "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+        },
+        "views-1.bin": {
+          "bytes": 100630528.0,
+          "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+        },
+        "views-meta.bin": {
+          "bytes": 10240.0,
+          "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+        }
+      },
+      "runtime": {
+        "angular_candidates": 3.0,
+        "shadow_backend": "regions",
+        "source_cell_walk": false,
+        "source_refinements": 2.0,
+        "view_depth_steps": 3.0
+      },
+      "schema": "lie-captured-views/1",
+      "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+      "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+      "spec": {
+        "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+        "grid": 8.0,
+        "sizes": [
+          192.0,
+          512.0
+        ],
+        "source_packets": {
+          "color.bin": {
+            "bytes": 34734080.0,
+            "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+          },
+          "depth.bin": {
+            "bytes": 17367040.0,
+            "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+          },
+          "normal.bin": {
+            "bytes": 34734080.0,
+            "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+          }
+        }
+      }
+    }
+  },
+  "android_delivery": {
+    "apk_bytes": 85192913,
+    "apk_sha256": "e6af19560fb7183eab71c85411867ebe2e7cc84e8df7d84fd131ce83e7c87212",
+    "runtime_commit": "2836e6b941ae638f4788fe6c28755e7b8bfdc581",
+    "package": "org.lieengine.wallruntime.v250",
+    "version": "2.5.0-captured-views",
+    "artifact_id": 12242222027,
+    "artifact_sha256": "388bba709bd6cfbf458e9054ce2b61c0f2f55299f2b20dc413da211821f9579a",
+    "ci_native_checks": 148,
+    "all_packets_and_crc_valid": true,
+    "all_arm64_pt_load_at_least_16384": true,
+    "zip_bytes": 85193916,
+    "zip_sha256": "728e779e4f56d1f15057c822c547325d1fd6157498fad4e339e4b20ccfe68a96",
+    "signature_v2": true,
+    "signature_v3": true,
+    "manifest_package_verified": true
+  },
+  "ci_native_evidence": {
+    "path": "LIE_CAPTURED_VIEWS_CI_NATIVE.json.gz",
+    "uncompressed_bytes": 5249157,
+    "uncompressed_sha256": "e707bca834671800581a90e48ccfe31a6b259534b36f160bdf826932205ca2aa"
+  }
+}

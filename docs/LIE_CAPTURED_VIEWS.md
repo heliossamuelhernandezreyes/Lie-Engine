@@ -113,3 +113,24 @@ Design references:
 This experiment is not a reproduction of either implementation and does not
 inherit their speed or quality results. Godot replacement is not needed to
 test whether moving visibility into the asset removes the measured workload.
+
+## Recorded execution gate
+
+Runtime commit `2836e6b941ae638f4788fe6c28755e7b8bfdc581` passed 148 local
+attributed-bank Vulkan execution/comparison checks and an additional nine
+actual resource-replacement checks. The common light field passed 374 checks
+in 15 scenarios. CPU rig (247), agent session (25), probe (12), both original
+and new command transactions (20 each), and 22 relevant Python contracts pass.
+The additional lifetime script is `test_lie_direct_views_lifetime.gd`; it runs
+against the same staged runtime without changing its production modules.
+
+In the seven local fixed views, adjusted/source silhouette IoU ranges from
+0.9600 to 0.9842. The simple control falls to 0.8675 in a near-wall view and is
+not accepted for visual quality. These numbers do not certify texture fidelity
+or temporal stability. All 216 main and 54 stage events were retained.
+
+Local evidence and its limits are retained in
+`checkpoints/LIE_CAPTURED_VIEWS_CHECKPOINT.json` and the complete compressed
+`checkpoints/LIE_CAPTURED_VIEWS_NATIVE.json.gz`. Software timings remain marked
+as software results. Signed Android delivery and CI identities are recorded
+in the checkpoint after successful verification.
