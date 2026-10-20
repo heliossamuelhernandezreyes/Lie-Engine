@@ -1,8 +1,8 @@
 extends "res://lie_wall24_android_lab.gd"
 const DirectEffect = preload("res://lie_direct_effect.gd")
-const DIRECT_MODES = {"regions_1080":{"internal_resolution":1080,"direct_backend":"regions"},"views_1080":{"internal_resolution":1080,"direct_backend":"views"},"regions_720":{"internal_resolution":720,"direct_backend":"regions"},"views_720":{"internal_resolution":720,"direct_backend":"views"}}
+const DIRECT_MODES = {"regions_1080":{"internal_resolution":1080,"direct_backend":"regions"},"views_1080":{"internal_resolution":1080,"direct_backend":"views"},"views_fast_1080":{"internal_resolution":1080,"direct_backend":"views_fast"},"regions_720":{"internal_resolution":720,"direct_backend":"regions"},"views_720":{"internal_resolution":720,"direct_backend":"views"},"views_fast_720":{"internal_resolution":720,"direct_backend":"views_fast"}}
 var _direct_status_clock: float = 0.
-const DIRECT_LABELS = {"regions_1080":"Regiones 1080","views_1080":"Vistas 1080","regions_720":"Regiones 720","views_720":"Vistas 720"}
+const DIRECT_LABELS = {"regions_1080":"Regiones 1080","views_1080":"Vistas ajustadas 1080","views_fast_1080":"Vistas simples 1080","regions_720":"Regiones 720","views_720":"Vistas ajustadas 720","views_fast_720":"Vistas simples 720"}
 
 func _ready() -> void:
     state["direct_backend"] = "views"
@@ -17,12 +17,12 @@ func _apply() -> void:
 func command(request: Variant) -> Dictionary:
     if request is Dictionary and request.get("values",{}) is Dictionary:
         var values: Dictionary = request.get("values",{})
-        if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views"]:
+        if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views","views_fast"]:
             return {"ok":false,"error":"direct_backend","revision":revision}
     return super.command(request)
 
 func _benchmark_set_values(values: Dictionary) -> Dictionary:
-    if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views"]: return {"ok":false,"error":"direct_backend","revision":revision}
+    if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views","views_fast"]: return {"ok":false,"error":"direct_backend","revision":revision}
     return super._benchmark_set_values(values)
 
 func _stream_event(values: Dictionary, kind: String, mode: String, cycle: int, force: bool = false) -> Dictionary:
@@ -118,7 +118,7 @@ func _run_comparison(quick: bool) -> void:
     for i in range(8): await get_tree().process_frame
     _comparison_collect(all_events,rows,seen); _comparison_collect(stage_all,stage_whole,stage_whole_seen); _access_collect_stages(stage_all,stage_rows,stage_seen)
     var restore: Dictionary = _benchmark_set_values(backup)
-    _comparison_report = {"schema":"lie-captured-views-comparison/1","scene":backup,"rounds":rounds,"modes":DIRECT_MODES,"events":events,"warmup_events":warmup,"warmup_summary":_access_whole_summary(rows,warmup),"summary":_access_whole_summary(rows,events),"passes":{"rows":rows},"stage_events":stage_events,"stage_warmup_events":stage_warmup,"stage_summary":_access_stage_summary(stage_events,stage_rows,stage_whole),"stages":{"rows":stage_rows,"whole_rows":stage_whole},"expected_stage_events":36,"expected_events":rounds*36,"requested_events":rounds*36,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Two executable representations at 1080 and 720 with the same 720 output, full-resolution original material atlas, transport and lighting. Regions is the accepted 2.4 baseline; views are offline visibility captures with three fixed angular candidates, three depth projections and two source refinements. Both use identical regions shadow maps. Captured views are approximate; no timed readbacks or hidden fallback. Main whole intervals have no inner stage marks. Stages are a separate diagnostic with independently retained whole intervals. Do not add stage medians to whole time. Bank/atlas uploads and shared transport separately scoped; cold blocks and warm-up retained."}
+    _comparison_report = {"schema":"lie-captured-views-comparison/1","scene":backup,"rounds":rounds,"modes":DIRECT_MODES,"events":events,"warmup_events":warmup,"warmup_summary":_access_whole_summary(rows,warmup),"summary":_access_whole_summary(rows,events),"passes":{"rows":rows},"stage_events":stage_events,"stage_warmup_events":stage_warmup,"stage_summary":_access_stage_summary(stage_events,stage_rows,stage_whole),"stages":{"rows":stage_rows,"whole_rows":stage_whole},"expected_stage_events":modes.size()*9,"expected_events":rounds*modes.size()*9,"requested_events":rounds*modes.size()*9,"cancelled":_benchmark_cancelled,"error":error,"restored":restore["ok"] and state==backup,"scope":"Three executable representations at 1080 and 720 with the same 720 output, full-resolution original material atlas, transport and lighting. Regions is the accepted 2.4 baseline; views are offline visibility captures with three fixed angular candidates, three depth projections and two source refinements. Both use identical regions shadow maps. Simple views use one reference-depth sample without refinement as a precision/cost control. Both captured modes are approximate; no timed readbacks or hidden fallback. Main whole intervals have no inner stage marks. Stages are a separate diagnostic with independently retained whole intervals. Do not add stage medians to whole time. Bank/atlas uploads and shared transport separately scoped; cold blocks and warm-up retained."}
     _persist_report("user://lie-captured-views-last.json",_comparison_report); benchmark_busy = false
     if _benchmark_status!=null: _benchmark_status.text = "Comparación terminada · pulsa Informe" if error=="" else "Comparación incompleta: "+error
 
@@ -139,7 +139,7 @@ func _portable_report(report: Dictionary) -> Dictionary:
         compact["recorded_stage_events"] = report["kernel_comparison"]["stage_events"].size()
         compact["stage_warmup_recorded_events"] = report["kernel_comparison"]["stage_warmup_events"].size()
         result["kernel_comparison"] = compact
-    result["copy_scope"] = "Two representations at both resolutions with identical shadow backend. Full events in lie-captured-views-last.json; main whole intervals and instrumented stage diagnostic are separate."
+    result["copy_scope"] = "Three representations at both resolutions with identical shadow backend. Full events in lie-captured-views-last.json; main whole intervals and instrumented stage diagnostic are separate."
     return result
 
 func _report_header(report: Dictionary) -> String:
@@ -162,7 +162,7 @@ func _ui() -> void:
     var box: Node = status.get_parent(); _label(box,"VISTAS CAPTURADAS",19)
     _label(box,"Vistas: aproximación de profundidad; compara bordes y movimiento",15)
     var select := OptionButton.new()
-    for entry in [["Vistas capturadas experimental","views"],["Regiones (2.4)","regions"],["Referencia discos","reference"]]:
+    for entry in [["Vistas ajustadas experimental","views"],["Vistas simples sin ajuste","views_fast"],["Regiones (2.4)","regions"],["Referencia discos","reference"]]:
         select.add_item(entry[0]); select.set_item_metadata(select.item_count-1,entry[1])
     select.item_selected.connect(func(index: int): command({"op":"set_values","values":{"direct_backend":select.get_item_metadata(index)}}))
     box.add_child(select); controls["direct_backend"] = select
@@ -179,7 +179,7 @@ func _ui() -> void:
 
 func agent_snapshot() -> Dictionary:
     var result: Dictionary = super.agent_snapshot()
-    result["control_contract"]["direct_backends"] = ["reference","regions","views"]
+    result["control_contract"]["direct_backends"] = ["reference","regions","views","views_fast"]
     result["control_contract"]["comparison_modes"] = DIRECT_MODES
     return result
 
@@ -189,8 +189,8 @@ func _process(delta: float) -> void:
     if _direct_status_clock < 1. or effect == null: return
     _direct_status_clock = 0.
     if _diagnostic_label != null: _diagnostic_label.text = Diagnostics.brief(Diagnostics.summarize(effect.solve_profile.snapshot()))
-    if status != null and effect.effective_direct_backend in ["regions","views"]:
-        status.text = "%s · experimental\nInterior: %d × %d · salida: %d × %d\nImágenes actualizadas: %d" % [{"regions":"Regiones","views":"Vistas capturadas"}.get(effect.effective_direct_backend,effect.effective_direct_backend),effect.render_size,effect.render_size,effect.output_size,effect.output_size,effect.frame_count]
+    if status != null and effect.effective_direct_backend in ["regions","views","views_fast"]:
+        status.text = "%s · experimental\nInterior: %d × %d · salida: %d × %d\nImágenes actualizadas: %d" % [{"regions":"Regiones","views":"Vistas ajustadas","views_fast":"Vistas simples"}.get(effect.effective_direct_backend,effect.effective_direct_backend),effect.render_size,effect.render_size,effect.output_size,effect.output_size,effect.frame_count]
     if status != null and effect.direct_failure != "": status.text += "\nSuperficie no disponible: " + effect.direct_failure
 
 func _refresh() -> void:

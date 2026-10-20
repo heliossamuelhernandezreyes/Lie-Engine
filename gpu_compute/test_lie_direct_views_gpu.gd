@@ -46,12 +46,12 @@ func run() -> void:
         lab.command({"op":"set_values","values":values}); await settle()
         var reference: Dictionary = await capture(lab.effect); save_material(reference,"views-reference-"+str(index))
         var baseline: Dictionary = {}
-        for mode in ["regions","views"]:
+        for mode in ["regions","views","views_fast"]:
             lab.command({"op":"set_values","values":{"direct_backend":mode}}); await settle()
             var actual: Dictionary = await capture(lab.effect); save_material(actual,"views-"+mode+"-"+str(index))
             var q: Dictionary = comparison(reference["color"],actual["color"])
             quality.append({"pose":poses[index],"backend":mode,"reference_quality":q}); print("VIEWS QUALITY ",index," ",mode," ",q)
-            check(q["iou"]>.95,mode+" silhouette against attributed source, view "+str(index))
+            if mode!="views_fast": check(q["iou"]>.95,mode+" silhouette against attributed source, view "+str(index))
             var world: PackedFloat32Array = actual["native_surface"]["surface_world"]; var valid: bool = true; var hits: int = 0
             for i in range(0,world.size(),4):
                 for c in range(4): valid=valid and is_finite(world[i+c])
@@ -70,7 +70,7 @@ func run() -> void:
         for yaw in [-78.,-76.,-74.,-72.,-70.,-68.,-66.,-64.,10.,12.,14.,16.,18.,20.]:
             if absf(yaw-previous_yaw)>5.: last_regions.clear(); last_views.clear()
             var pair: Dictionary = {}
-            for mode in ["regions","views"]:
+            for mode in ["regions","views","views_fast"]:
                 lab.command({"op":"set_values","values":{"direct_backend":mode,"camera_yaw":yaw,"camera_elevation":4.4461,"distance_factor":.6}}); await settle()
                 var frame: Dictionary = await capture(lab.effect)
                 pair[mode] = frame["color"]
@@ -84,20 +84,20 @@ func run() -> void:
             check(delta["iou"]>.95,"moving camera retains coverage at "+str(yaw))
             last_regions = pair["regions"]; last_views = pair["views"]
             previous_yaw = yaw; motion_index += 1
-    for mode in ["regions","views"]: await validate_lifetime(lab,mode)
+    for mode in ["regions","views","views_fast"]: await validate_lifetime(lab,mode)
     lab.command({"op":"set_values","values":{"direct_backend":"regions","camera_yaw":-63.7914,"camera_elevation":-.0774,"distance_factor":.61}}); await settle()
     var restored: Dictionary = await capture(lab.effect); var backup: Dictionary = lab.state.duplicate(true)
     if OS.get_environment("LIE_DIRECT_COMPARE")=="1":
         var quick: bool = OS.get_environment("LIE_DIRECT_FULL")!="1"
-        check(lab.command({"op":"compare_kernels","quick":quick})["ok"],"actual four-mode benchmark accepted")
+        check(lab.command({"op":"compare_kernels","quick":quick})["ok"],"actual six-mode benchmark accepted")
         for i in range(90000):
             await process_frame
             if not lab.benchmark_busy: break
         var result: Dictionary = lab._comparison_report
         check(not lab.benchmark_busy and result.get("error","missing")=="" and lab.state==backup,"comparison completes and restores state")
-        check(result.get("summary",[]).size()==12,"all 12 representation/resolution/change groups timed")
+        check(result.get("summary",[]).size()==18,"all 18 representation/resolution/change groups timed")
         for group in result.get("summary",[]): check(group["gpu"]["samples"]==(3 if quick else 12),"every whole GPU event retained")
-        check(result.get("stage_events",[]).size()==36 and result.get("stage_summary",[]).size()==12,"separate stage diagnostic is complete")
+        check(result.get("stage_events",[]).size()==54 and result.get("stage_summary",[]).size()==18,"separate stage diagnostic is complete")
         for group in result.get("stage_summary",[]):
             check(group["whole_instrumented_gpu"]["samples"]==3 and group["passes"].has("shading") and group["passes"].has("output"),"stage rows joined to independent outer serials")
             check(group["unattributed_gpu"].get("p50_ms",-10.)>-.01,"per-event stage sum does not double count whole interval")

@@ -45,11 +45,19 @@ Early rejection can reduce these counts. Total work still depends on projected
 box overlap and the number of visible instances; this is not constant total
 scene cost. Shader depth writes and cutout coverage also remain.
 
-The nearest valid candidate supplies depth and material. Views are NOT blended
+A second **Vistas simples** program is a deliberate minimum-work control. It
+selects one angular reference and fetches exactly one captured depth plus the
+original normal/material texels. It does no reprojection correction or original
+source-depth refinement. Its geometry can therefore shift, jump, leave holes
+or occlude the wrong object under camera changes. It is not image-equivalent
+and has no near-camera accuracy acceptance claim; quality differences are
+retained alongside timings. It uses the same lighting and regions shadows.
+
+In **Vistas ajustadas**, the nearest valid candidate supplies depth and material. Views are NOT blended
 across incompatible owners, and three candidates do not constitute a guarantee
 of continuous or exact view interpolation. Fixed reprojection can select a
 wrong or missing surface near discontinuities, thin features and grazing views.
-Full-resolution material lookup does not recover visibility lost in a capture.
+Full-resolution material lookup does not recover visibility lost in a capture. The simple control samples the original material cell identified by the coarse capture and can also lose fine texture sampling fidelity.
 
 Shadows independently use the same `regions` backend in both compared modes.
 That path still performs cell queries, and a moved light still builds six
@@ -60,10 +68,10 @@ mapping remain common to isolate the visibility change.
 ## Comparison and acceptance
 
 `lie_direct_views_lab.tscn` exposes **Vistas capturadas**, **Regiones (2.4)**
-and the source-disk reference using the existing transactional command API.
-`Comparar GPU` pairs regions/views at both 1080 and 720 with the same 720 output.
-Four rotated rounds retain 144 main measured events and all initial/warm-up
-events. A separate inner-mark diagnostic retains 36 measured events. Each
+**Vistas simples** and the source-disk reference using the existing transactional command API.
+`Comparar GPU` pairs regions/adjusted views/simple views at both 1080 and 720 with the same 720 output.
+Four rotated rounds retain 216 main measured events and all initial/warm-up
+events. A separate inner-mark diagnostic retains 54 measured events. Each
 main mode/change group has 12 observations; each stage group has three.
 No timing readbacks or silent backend substitution are allowed.
 
@@ -76,7 +84,7 @@ and old source resources remain resident in this laboratory.
 
 Tests cover the angular address, integer provenance, independently expected
 near/far visibility and real empty space. Actual attributed-bank Vulkan checks
-compare seven fixed cameras and two moving-camera sequences, preserve PNGs and
+compare seven fixed cameras and two moving-camera sequences (the simple control records its approximation without passing the adjusted mode's coverage gate), preserve PNGs and
 RGB/coverage differences, test original owner ranges, source superposition,
 source removal, cache/fresh equality, per-light invalidation, idle and actual
 post-benchmark image restoration through resolution changes.

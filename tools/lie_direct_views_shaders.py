@@ -22,6 +22,7 @@ void select_captures(Proxy p,vec3 eye){
 }
 '''
 FRAGMENT = '''
+const bool DIRECT_CAPTURE=false;
 layout(set=0,binding=2) uniform sampler2D depth_field;
 layout(set=0,binding=3) uniform sampler2DArray normal_field;
 layout(set=0,binding=4) uniform sampler2DArray color_field;
@@ -42,7 +43,7 @@ bool capture_hit(Proxy p,vec3 eye,vec3 ray,int id,float entry,float exit,
     float t=-origin/denom;uvec2 record=uvec2(0);
     // Exactly three depth projections, independent of source density and
     // empty distance. A failed projection does not invoke the old renderer.
-    for(int correction=0;correction<3;correction++){
+    for(int correction=0;correction<(DIRECT_CAPTURE?1:3);correction++){
         vec3 point=eye+ray*t-c.center.xyz;
         vec2 uv=vec2(dot(point,c.right.xyz)/c.right.w,dot(point,c.up.xyz)/c.up.w)*.5+.5;
         if(any(lessThan(uv,vec2(0)))||any(greaterThanEqual(uv,vec2(1))))return false;
@@ -54,6 +55,12 @@ bool capture_hit(Proxy p,vec3 eye,vec3 ray,int id,float entry,float exit,
     uint code=record.y-1u;int face=int((code>>21u)&15u),layer=int((code>>25u)&3u),axis=(face%6)/2;
     ivec2 axes=axis==0?ivec2(1,2):axis==1?ivec2(0,2):ivec2(0,1);
     ivec4 rect=faces.rect[face];ivec2 cell=ivec2(int(code&1023u),int((code>>10u)&2047u));
+    if(DIRECT_CAPTURE){
+        if(t<entry-1e-5||t>exit+1e-5)return false;
+        n=texelFetch(normal_field,ivec3(cell,layer),0);
+        if(dot(n.xyz,-ray)<.02)return false;
+        color=texelFetch(color_field,ivec3(cell,layer),0);hit=eye+ray*t;return true;
+    }
     if(abs(ray[axis])<.02)return false;
     // Follow the baked provenance into the ORIGINAL full-resolution field.
     // Two refinements are a fixed budget, not a cell traversal or binary search.
@@ -87,8 +94,9 @@ bool surface_hit(Proxy p,vec3 eye,vec3 ray,out vec3 hit,out vec4 n,out vec4 colo
     // Rebase before depth refinement to avoid far-eye float32 cancellation.
     eye+=ray*max(entry,0.);exit-=max(entry,0.);
     bool found=false;float best=1e30;
-    for(int candidate=0;candidate<3;candidate++){
+    for(int candidate=0;candidate<(DIRECT_CAPTURE?1:3);candidate++){
         int id=candidate==0?capture_ids.x:candidate==1?capture_ids.y:capture_ids.z;
+        if(DIRECT_CAPTURE)id=capture_weights.x>=capture_weights.y&&capture_weights.x>=capture_weights.z?capture_ids.x:capture_weights.y>=capture_weights.z?capture_ids.y:capture_ids.z;
         vec3 point;vec4 nn,cc;
         if(!capture_hit(p,eye,ray,id,0.,exit,point,nn,cc))continue;
         float t=dot(point-eye,ray);
@@ -108,6 +116,8 @@ layout(location=2) out vec4 out_color;
     body = '''out_world=vec4(world,n.w+p.material.z+1.);
     out_normal=vec4(normalize(transpose(mat3(p.local))*n.xyz),clamp(c.a+p.material.y,.2,.95));
     out_color=vec4(clamp(c.rgb*p.material.x,vec3(0),vec3(1)),1.);'''
-    (ROOT / 'lie_direct_views.glsl').write_text('#[vertex]\n#version 450\n' + base.COMMON + vertex + '\n#[fragment]\n#version 450\n' + base.COMMON + META + FRAGMENT + outputs + base.MAIN.replace('SURFACE_OUTPUT', body))
+    shader = '#[vertex]\n#version 450\n' + base.COMMON + vertex + '\n#[fragment]\n#version 450\n' + base.COMMON + META + FRAGMENT + outputs + base.MAIN.replace('SURFACE_OUTPUT', body)
+    (ROOT / 'lie_direct_views.glsl').write_text(shader)
+    (ROOT / 'lie_direct_views_fast.glsl').write_text(shader.replace('const bool DIRECT_CAPTURE=false;', 'const bool DIRECT_CAPTURE=true;'))
 
 if __name__ == '__main__': build()
