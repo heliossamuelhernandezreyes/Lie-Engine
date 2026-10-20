@@ -17,7 +17,7 @@ var _last_direct_event: Dictionary = {}
 var native_stages = PassProfile.new()
 
 func set_direct_backend(value: String) -> bool:
-    if value not in ["reference","surface","regions","envelope"]: return false
+    if value not in ["reference","surface","regions","envelope","views"]: return false
     if value == direct_backend: return true
     direct_backend = value
     if gpu_ready: RenderingServer.call_on_render_thread(func():
@@ -103,10 +103,17 @@ func cache_metrics() -> Dictionary:
         result["direct_surface"]["access"] = access
         result["direct_surface"]["submitted_triangles"] = int(access["envelope_groups"][0]["triangles"])*96+int(access["envelope_groups"][1]["triangles"]) if effective_direct_backend=="envelope" else 1164
         result["direct_surface"]["fragment_depth_search"] = effective_direct_backend in ["surface","regions"]
+        result["direct_surface"]["captured_views"] = direct_renderer.views_proof
+        result["direct_surface"]["shadow_backend"] = "regions" if effective_direct_backend=="views" else effective_direct_backend
+        result["direct_surface"]["bounded_view_queries"] = effective_direct_backend=="views"
+        result["direct_surface"]["surface_cell_walk"] = effective_direct_backend in ["surface","regions"]
+        result["direct_surface"]["fixed_depth_reprojection"] = effective_direct_backend=="views"
+        if effective_direct_backend=="views":
+            result["direct_surface"]["query_budget_per_proxy_fragment"] = {"view_depth_texels":9,"source_depth_texels":6,"attribute_texels":6,"runtime_source_projection_dispatches":0}
     return result
 
 func _capture() -> void:
-    if effective_direct_backend not in ["surface","regions","envelope"] or direct_renderer == null: super._capture(); return
+    if effective_direct_backend not in ["surface","regions","envelope","views"] or direct_renderer == null: super._capture(); return
     _collect_profile()
     var native: Dictionary = direct_renderer.capture()
     var result: Dictionary = {"color":_rd.texture_get_data(output_rid,0).to_float32_array(),"depth":native["native_depth"].to_byte_array().to_int32_array(),"output_size":output_size,"internal_size":render_size,"asset_uploads":asset_uploads,"allocation_bytes":allocation_bytes+direct_renderer.requested_bytes,"frames":frame_count,"sample_invocations":0,"instances":97,"device":_rd.get_device_name(),"profile":_profiles.duplicate(),"library_bytes":_samples.size(),"cache":cache_metrics(),"whole_appearance":solve_profile.snapshot(),"native_surface":native,"recovered_pixels":0,"recovery_overflow":0}
