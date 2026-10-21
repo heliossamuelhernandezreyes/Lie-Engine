@@ -14,6 +14,11 @@ The separate Android [camera rendering experiment, LIE 2.1](docs/LIE_CAMERA_REND
 adds explicit internal resolutions and an experimental graphics footprint path.
 Its software Vulkan results are not measurements of the physical Mali-G720.
 
+The Android [captured-view architecture experiment, LIE 2.5](docs/LIE_CAPTURED_VIEWS.md)
+moves self-visibility into offline reference captures and compares a bounded
+depth-corrected consumer with a deliberately approximate one-sample control.
+Physical Mali performance remains to be measured.
+
 ## LIE-27 · articulaciones esféricas, párpados y expresiones
 
 El laboratorio añade zonas esféricas con influencia suave, 30 segmentos de

@@ -4,6 +4,7 @@ from pathlib import Path
 import lie_renderer_audit_build as previous
 from lie_direct_surface import compile_fields,BANK_SHA
 from lie_direct_access import compile_access
+from lie_direct_views import compile_views
 ROOT=Path(__file__).resolve().parents[1]
 
 def stage_project(destination):
@@ -11,6 +12,7 @@ def stage_project(destination):
     field=source/'captures/liewall06/direct'
     if not (field/'surface.json').exists():compile_fields()
     compile_access(field)
+    compile_views(field)
     proof=json.loads((field/'surface.json').read_text())
     if proof['source_bank_sha256']!=BANK_SHA:raise ValueError('Compiled field source identity')
     shutil.copytree(field,destination/'captures/liewall06/direct',dirs_exist_ok=True)

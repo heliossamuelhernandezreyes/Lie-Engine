@@ -8,10 +8,13 @@ const RegionsShader = preload("res://shaders/lie_direct_regions.glsl")
 const RegionsShadowShader = preload("res://shaders/lie_direct_regions_shadow.glsl")
 const EnvelopeShader = preload("res://shaders/lie_direct_envelope.glsl")
 const EnvelopeShadowShader = preload("res://shaders/lie_direct_envelope_shadow.glsl")
+const ViewsShader = preload("res://shaders/lie_direct_views.glsl")
+const ViewsFastShader = preload("res://shaders/lie_direct_views_fast.glsl")
 const SHADOW_SIZE: int = 512
 var failure: String = ""
 var proof: Dictionary = {}
 var access_proof: Dictionary = {}
+var views_proof: Dictionary = {}
 var _draw_sets: Dictionary = {}
 var _backend: String = ""
 var requested_bytes: int = 0
@@ -64,7 +67,7 @@ func _texture(format: int, width: int, height: int, usage: int, layers: int = 1,
     if layers > 1: f.texture_type = RenderingDevice.TEXTURE_TYPE_2D_ARRAY; f.array_layers = layers
     var rid: RID = _rd.texture_create(f, RDTextureView.new(), data)
     _textures.append(rid)
-    requested_bytes += width * height * layers * (16 if format == RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT else 8 if format == RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT else 4)
+    requested_bytes += width * height * layers * (16 if format == RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT else 8 if format in [RenderingDevice.DATA_FORMAT_R16G16B16A16_SFLOAT,RenderingDevice.DATA_FORMAT_R32G32_UINT] else 4)
     if not rid.is_valid(): failure = "Native surface texture allocation"
     return rid
 
@@ -128,6 +131,20 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
         for value in rect: region_rects.append(int(value))
     var region_rectangles: RID = _buffer(region_rects.to_byte_array())
     var envelope: RID = _buffer(FileAccess.get_file_as_bytes(root + "envelope.bin"))
+    var captured: Variant = JSON.parse_string(FileAccess.get_file_as_string(root + "views.json"))
+    if not captured is Dictionary or captured.get("schema") != "lie-captured-views/1" or captured.get("source_bank_sha256") != proof["source_bank_sha256"] or captured.get("spec",{}).get("source_packets") != proof["packets"]:
+        failure = "Missing or incompatible view-visible captures"; return false
+    views_proof = captured
+    for name in views_proof["packets"]:
+        var declaration: Dictionary = views_proof["packets"][name]
+        if FileAccess.get_sha256(root+name) != declaration["sha256"] or FileAccess.get_file_as_bytes(root+name).size() != int(declaration["bytes"]):
+            failure = "Captured view packet identity: "+name; return false
+    var capture_meta: RID = _buffer(FileAccess.get_file_as_bytes(root+"views-meta.bin"))
+    var captured_views: Array[RID] = []
+    for master in range(2):
+        var description: Dictionary = views_proof["masters"][master]
+        captured_views.append(_texture(RenderingDevice.DATA_FORMAT_R32G32_UINT,int(description["width"]),int(description["height"]),sample_usage,1,[FileAccess.get_file_as_bytes(root+"views-"+str(master)+".bin")]))
+    if failure != "": return false
     _view_packet.resize((1+6*_lights)*80); _views = _buffer(_view_packet)
     var options := PackedByteArray(); options.resize(32); _options = _buffer(options)
     var node_data := PackedByteArray(); node_data.resize(1024*(1+_lights)*16); _nodes = _buffer(node_data)
@@ -144,7 +161,7 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
     for layer in range(_lights*6):
         var slice: RID = _rd.texture_create_shared_from_slice(RDTextureView.new(),_shadows,layer,0)
         var frame: RID = _rd.framebuffer_create([slice]); _frames.append(frame); _shadow_frames.append(frame)
-    var files: Dictionary = {"surface":SurfaceShader,"shadow":ShadowShader,"regions":RegionsShader,"regions_shadow":RegionsShadowShader,"envelope":EnvelopeShader,"envelope_shadow":EnvelopeShadowShader,"light":LightShader}
+    var files: Dictionary = {"surface":SurfaceShader,"shadow":ShadowShader,"regions":RegionsShader,"regions_shadow":RegionsShadowShader,"envelope":EnvelopeShader,"envelope_shadow":EnvelopeShadowShader,"views":ViewsShader,"views_fast":ViewsFastShader,"light":LightShader}
     for key in files:
         var file: RDShaderFile = files[key]
         var spirv: RDShaderSPIRV = file.get_spirv()
@@ -156,10 +173,10 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
             var raster := RDPipelineRasterizationState.new(); raster.cull_mode = RenderingDevice.POLYGON_CULL_DISABLED
             var depth_state := RDPipelineDepthStencilState.new(); depth_state.enable_depth_test = true; depth_state.enable_depth_write = true; depth_state.depth_compare_operator = RenderingDevice.COMPARE_OP_LESS
             var blend := RDPipelineColorBlendState.new(); var attachments: Array[RDPipelineColorBlendStateAttachment] = []
-            if key in ["surface","regions","envelope"]:
+            if key in ["surface","regions","envelope","views","views_fast"]:
                 for i in range(3): attachments.append(RDPipelineColorBlendStateAttachment.new())
             blend.attachments = attachments
-            pipeline = _rd.render_pipeline_create(shader,_rd.framebuffer_get_format(_primary_frame if key in ["surface","regions","envelope"] else _shadow_frames[0]),-1,RenderingDevice.RENDER_PRIMITIVE_TRIANGLES,raster,RDPipelineMultisampleState.new(),depth_state,blend)
+            pipeline = _rd.render_pipeline_create(shader,_rd.framebuffer_get_format(_primary_frame if key in ["surface","regions","envelope","views","views_fast"] else _shadow_frames[0]),-1,RenderingDevice.RENDER_PRIMITIVE_TRIANGLES,raster,RDPipelineMultisampleState.new(),depth_state,blend)
         _programs[key] = {"shader":shader,"pipeline":pipeline}
         if not pipeline.is_valid(): failure = "Native opaque pipeline: " + key; return false
     var uniforms: Array[RDUniform] = [_uniform(0,proxies),_uniform(1,_views),_uniform(2,atlas["depth"],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(3,atlas["normal"],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(4,atlas["color"],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(5,rectangles)]
@@ -176,6 +193,14 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
         var set: RID = _rd.uniform_set_create(extra,_programs[key]["shader"],0)
         if not set.is_valid(): failure = "Access descriptors: " + key; return false
         _draw_sets[key] = set; _sets.append(set)
+    var capture_uniforms: Array[RDUniform] = uniforms.duplicate()
+    capture_uniforms.append(_uniform(9,capture_meta))
+    capture_uniforms.append(_uniform(10,captured_views[0],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE))
+    capture_uniforms.append(_uniform(11,captured_views[1],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE))
+    for key in ["views","views_fast"]:
+        var capture_set: RID = _rd.uniform_set_create(capture_uniforms,_programs[key]["shader"],0)
+        if not capture_set.is_valid(): failure = "Captured view descriptors: "+key; return false
+        _draw_sets[key] = capture_set; _sets.append(capture_set)
     var group_buffer: RID = light_groups
     var light_uniforms: Array[RDUniform] = [_uniform(0,_world,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(1,_normal,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(2,_color,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(3,_shadows,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(4,output,RenderingDevice.UNIFORM_TYPE_IMAGE),_uniform(5,transport.output_rid,RenderingDevice.UNIFORM_TYPE_IMAGE),_uniform(6,transport.material_codes_rid()),_uniform(7,transport.surface_light_codes_rid()),_uniform(8,group_buffer),_uniform(9,_views),_uniform(10,_nodes),_uniform(11,transport.emission_descriptors_rid()),_uniform(12,_options)]
     _light_set = _rd.uniform_set_create(light_uniforms,_programs["light"]["shader"],0); _sets.append(_light_set)
@@ -190,7 +215,7 @@ func _view(at: int, eye: Vector3, right: Vector3, up: Vector3, forward: Vector3,
     for i in range(80): _view_packet[at*80+i] = bytes[i]
 
 func _draw(key: String, frame: RID, view: int) -> void:
-    var clear: PackedColorArray = [Color(0,0,0,0),Color(0,0,0,0),Color(0,0,0,0)] if key in ["surface","regions","envelope"] else []
+    var clear: PackedColorArray = [Color(0,0,0,0),Color(0,0,0,0),Color(0,0,0,0)] if key in ["surface","regions","envelope","views","views_fast"] else []
     var list: int = _rd.draw_list_begin(frame,RenderingDevice.DRAW_CLEAR_ALL,clear,1.)
     _rd.draw_list_bind_render_pipeline(list,_programs[key]["pipeline"])
     _rd.draw_list_bind_uniform_set(list,_draw_sets[key],0)
@@ -237,7 +262,9 @@ func render(parameters: PackedByteArray, transport: CompositorEffect, shadows: b
         _stamp(profile,owner,serial,"shadow_maps","begin")
         for light in changed_lights:
             for face in range(6):
-                var index: int = light*6+face; _draw("shadow" if backend=="surface" else backend+"_shadow",_shadow_frames[index],1+index)
+                var index: int = light*6+face
+                var shadow_backend: String = "regions_shadow" if backend in ["views","views_fast"] else "shadow" if backend=="surface" else backend+"_shadow"
+                _draw(shadow_backend,_shadow_frames[index],1+index)
         shadow_builds += 1; shadow_light_builds += changed_lights.size()
         _stamp(profile,owner,serial,"shadow_maps","end")
     if transport.frame_count != _transport_serial or force:

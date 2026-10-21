@@ -1,0 +1,26 @@
+{
+  "schema": "lie-user-physical-summary/1",
+  "source": "User-pasted LIE 2.4 report; portable header and partial JSON, not the full raw event file",
+  "created_utc": "2026-10-20T02:00:18",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "app_version": "2.4.0-surface-access",
+  "main_samples_per_group": 12,
+  "recorded_main_events": 216,
+  "recorded_separate_stage_events": 54,
+  "main_gpu_ms": {
+    "surface_1080": {"camera": [51.94, 60.90], "light_power": [10.34, 10.72], "light_position": [19.57, 27.70]},
+    "regions_1080": {"camera": [41.65, 49.19], "light_power": [10.13, 12.40], "light_position": [18.63, 22.58]},
+    "envelope_1080": {"camera": [29.96, 33.16], "light_power": [9.99, 10.50], "light_position": [62.07, 71.97]},
+    "surface_720": {"camera": [36.40, 54.06], "light_power": [5.34, 6.07], "light_position": [17.08, 25.18]},
+    "regions_720": {"camera": [30.12, 33.14], "light_power": [5.30, 7.29], "light_position": [16.69, 20.88]},
+    "envelope_720": {"camera": [26.75, 34.58], "light_power": [5.35, 5.92], "light_position": [60.00, 63.29]}
+  },
+  "main_array_order": ["p50_ms", "p95_ms"],
+  "separate_stage_examples_ms": {
+    "regions_720_camera": {"primary": 25.994232, "shading": 1.395461, "output": 1.182384, "whole_instrumented": 28.715155},
+    "envelope_720_camera": {"primary": 23.870770, "shading": 1.903077, "output": 1.232000, "whole_instrumented": 27.468925},
+    "envelope_720_light_position": {"shadow_maps": 61.271003, "node_response": 0.045308, "shading": 1.620308, "output": 1.200000, "whole_instrumented": 64.474157}
+  },
+  "scope": "Changed-image whole GPU appearance; display FPS includes reused images. Stage examples are separately collected medians, not additive components of main medians. No counters/frequency/temperature evidence establishes a particular hardware-unit bottleneck. Different scene poses across prior releases prevent direct version-to-version attribution."
+}

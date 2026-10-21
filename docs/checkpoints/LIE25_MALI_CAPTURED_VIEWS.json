@@ -1,0 +1,90 @@
+{
+  "schema": "lie25-mali-header-summary/1",
+  "source": "User-supplied LIE 2.5 header; pasted JSON truncated; no raw event rows available in this checkpoint.",
+  "created_utc": "2026-10-21T12:14:53",
+  "device": "2412DPC0AG",
+  "gpu": "Mali-G720 MC7",
+  "samples_per_group": 12,
+  "output_size": 720,
+  "whole_appearance_gpu_ms": {
+    "camera": {
+      "regions_1080": {
+        "p50": 41.59,
+        "p95": 46.87
+      },
+      "views_1080": {
+        "p50": 27.77,
+        "p95": 30.12
+      },
+      "views_fast_1080": {
+        "p50": 15.09,
+        "p95": 17.54
+      },
+      "regions_720": {
+        "p50": 28.46,
+        "p95": 33.23
+      },
+      "views_720": {
+        "p50": 16.96,
+        "p95": 24.36
+      },
+      "views_fast_720": {
+        "p50": 7.3,
+        "p95": 8.03
+      }
+    },
+    "light_power": {
+      "regions_1080": {
+        "p50": 10.23,
+        "p95": 10.6
+      },
+      "views_1080": {
+        "p50": 10.17,
+        "p95": 10.89
+      },
+      "views_fast_1080": {
+        "p50": 10.48,
+        "p95": 10.82
+      },
+      "regions_720": {
+        "p50": 5.11,
+        "p95": 5.47
+      },
+      "views_720": {
+        "p50": 5.07,
+        "p95": 5.98
+      },
+      "views_fast_720": {
+        "p50": 5.29,
+        "p95": 5.65
+      }
+    },
+    "light_position": {
+      "regions_1080": {
+        "p50": 19.96,
+        "p95": 24.0
+      },
+      "views_1080": {
+        "p50": 19.01,
+        "p95": 25.86
+      },
+      "views_fast_1080": {
+        "p50": 20.14,
+        "p95": 24.35
+      },
+      "regions_720": {
+        "p50": 17.55,
+        "p95": 21.46
+      },
+      "views_720": {
+        "p50": 18.39,
+        "p95": 21.73
+      },
+      "views_fast_720": {
+        "p50": 17.36,
+        "p95": 21.56
+      }
+    }
+  },
+  "scope": "Physical phone measurements supplied by user; whole appearance interval, not display FPS or input-to-photon latency. Mode order rotated across four rounds. Inner stage timings are a separate diagnostic."
+}

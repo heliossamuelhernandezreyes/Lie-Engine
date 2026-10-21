@@ -1,0 +1,263 @@
+{
+  "schema": "lie25-phone-pose-diagnosis/1",
+  "production_runtime_commit": "2836e6b941ae638f4788fe6c28755e7b8bfdc581",
+  "device": "llvmpipe (LLVM 17.0.6, 256 bits)",
+  "state": {
+    "active_visibility": true,
+    "area_lights": false,
+    "area_size": 0.3,
+    "block_access": true,
+    "bounded_raster": true,
+    "camera_elevation": 2.0563994513617607,
+    "camera_yaw": -72.90939846038818,
+    "clay_absorption": 0.0,
+    "compact_shadows": false,
+    "contact_shadows": true,
+    "contact_steps": 12,
+    "continuous_light": true,
+    "coverage_enabled": true,
+    "cpu_reuse": true,
+    "direct_backend": "views",
+    "direct_shadow_proxies": true,
+    "distance_factor": 0.6,
+    "energy_radius": false,
+    "explode": 0.0,
+    "exposure": 2.0,
+    "fill_azimuth": 55.0,
+    "fill_enabled": true,
+    "fill_power": 0.32,
+    "fused_shading": true,
+    "internal_resolution": 720,
+    "kernel_mode": "split",
+    "key_enabled": true,
+    "lean_barriers": false,
+    "light_azimuth": -53.400000000000006,
+    "light_power": 1.0,
+    "lighting_preset": "neutral",
+    "master": "real_scan_wall",
+    "material_response": true,
+    "mode": "master",
+    "normal_filtering": true,
+    "occlusion_witnesses": true,
+    "optical_codes": true,
+    "persistent_visibility": true,
+    "power_response": true,
+    "precomputed_ray_boxes": true,
+    "quality_2x": false,
+    "raster_backend": "compute",
+    "roof": true,
+    "roughness_variation": 0.06,
+    "scan_shadows": true,
+    "screen_tiles": false,
+    "seed": 29.0,
+    "separate_lights": true,
+    "shadows": true,
+    "stage_timestamps": false,
+    "surface_continuity": true,
+    "surface_detail": true,
+    "surface_filter": true,
+    "surface_queries": true,
+    "tight_bounds": true,
+    "variation": 0.0,
+    "visibility_diagnostics": false,
+    "visibility_stream": false,
+    "world_contacts": true
+  },
+  "rows": {
+    "regions": {
+      "hits": 138812,
+      "baseline_coverage_iou": 1.0,
+      "baseline_hits_missing": 0,
+      "baseline_interior_hits_missing": 0,
+      "extra_hits": 0,
+      "overlap_different_instance": 0,
+      "same_instance_world_delta_mm_p50_p95": [
+        0.0,
+        0.0
+      ],
+      "dark_valid_hits": 42344,
+      "dark_valid_hits_lit_when_shadows_off": 20057,
+      "same_world_shadow_toggle": true,
+      "finite_world": true
+    },
+    "views": {
+      "hits": 133717,
+      "baseline_coverage_iou": 0.9431934858251098,
+      "baseline_hits_missing": 6531,
+      "baseline_interior_hits_missing": 2897,
+      "extra_hits": 1436,
+      "overlap_different_instance": 20272,
+      "same_instance_world_delta_mm_p50_p95": [
+        0.6075637936592102,
+        6.369839286804196
+      ],
+      "dark_valid_hits": 35514,
+      "dark_valid_hits_lit_when_shadows_off": 23649,
+      "same_world_shadow_toggle": true,
+      "finite_world": true
+    },
+    "views_fast": {
+      "hits": 109738,
+      "baseline_coverage_iou": 0.7598827452896318,
+      "baseline_hits_missing": 31493,
+      "baseline_interior_hits_missing": 25539,
+      "extra_hits": 2419,
+      "overlap_different_instance": 42482,
+      "same_instance_world_delta_mm_p50_p95": [
+        8.680437088012695,
+        45.358831024169895
+      ],
+      "dark_valid_hits": 44473,
+      "dark_valid_hits_lit_when_shadows_off": 37432,
+      "same_world_shadow_toggle": true,
+      "finite_world": true
+    }
+  },
+  "evidence": {
+    "regions-no-shadows.png": {
+      "bytes": 413068,
+      "sha256": "7ba9403e50d8d04cf44e77b52b91dc88f98db46ff1eab5b6440adc2e91412302"
+    },
+    "views-shadows-color.f16": {
+      "bytes": 4147200,
+      "sha256": "1b09d6c73d6abb92ac00a479d1b2423186a80521bf7198b1d3c0cbe4f040f64e"
+    },
+    "regions-shadows-color.f16": {
+      "bytes": 4147200,
+      "sha256": "b3ce1a3d5d1cd38416e4545c45bdf8ec8b9dd9870ab81f50239e64a048d7c4a6"
+    },
+    "views_fast-shadows-rgba.f32": {
+      "bytes": 8294400,
+      "sha256": "46be9062450d68d0b02aeb3d412727a13f414a92f234aa58bffe6c1a40a0f3ea"
+    },
+    "regions-shadows-depth.f32": {
+      "bytes": 2073600,
+      "sha256": "3673671392f5b40940243767452f926d7fcb439837ae00855d0665e4fdc83784"
+    },
+    "regions-shadows-rgba.f32": {
+      "bytes": 8294400,
+      "sha256": "87dd2c08b74b3f18c7b9b7bab030541e421138f1fb86e6e93e3ddafddc613389"
+    },
+    "views_fast-no-shadows-rgba.f32": {
+      "bytes": 8294400,
+      "sha256": "2bcaf36801de68f4668cb84c763e5d6691707274a65f42be98d14014f5e3a68b"
+    },
+    "views-shadows-depth.f32": {
+      "bytes": 2073600,
+      "sha256": "dfd18d1b10a66cb374b6b010264da35fff40df180045a52331f1e18f6eb58020"
+    },
+    "views-shadows-world.f32": {
+      "bytes": 8294400,
+      "sha256": "95e0c8b06c0e09745c6033aef6f28043807d3e9477633b9c0c0055476c457802"
+    },
+    "views_fast-no-shadows-world.f32": {
+      "bytes": 8294400,
+      "sha256": "cfe5b7bd77ebac49eff91633eec076faac0b0f3ce9894205bf0da13f9395b3a0"
+    },
+    "views_fast-shadows.png": {
+      "bytes": 275777,
+      "sha256": "8405e95c5e1506a818405da412e7d9597ba3a5f71278b53fcb7da49043bcd1c0"
+    },
+    "regions-no-shadows-depth.f32": {
+      "bytes": 2073600,
+      "sha256": "3673671392f5b40940243767452f926d7fcb439837ae00855d0665e4fdc83784"
+    },
+    "regions-no-shadows-rgba.f32": {
+      "bytes": 8294400,
+      "sha256": "7780653a73b0ca661f2d0265fd8afbc8736b7ed4a18d70170036353368a95ece"
+    },
+    "views-no-shadows-depth.f32": {
+      "bytes": 2073600,
+      "sha256": "dfd18d1b10a66cb374b6b010264da35fff40df180045a52331f1e18f6eb58020"
+    },
+    "views_fast-shadows-normal.f16": {
+      "bytes": 4147200,
+      "sha256": "ec6d9e15a60c347daced4ce4799a09072a8569b4e40bf6b3e5ffaccb1648e702"
+    },
+    "regions-shadows-normal.f16": {
+      "bytes": 4147200,
+      "sha256": "26ac377c7b910d2261293230289ad3a68bb5d48dbc023b617bc032dc987c5e49"
+    },
+    "views_fast-shadows-color.f16": {
+      "bytes": 4147200,
+      "sha256": "8900b47e4ad97e441437783003a44f14f796f62adadf8b71ebbdc698400e782d"
+    },
+    "views-shadows.png": {
+      "bytes": 379665,
+      "sha256": "741c0839b685bb426672fcf6ea25f8fc6022a0cbcde7a3c0169c99125d48bed0"
+    },
+    "views-shadows-rgba.f32": {
+      "bytes": 8294400,
+      "sha256": "f49609b5e045ac7e5694dcad8cd16e4d8b169cc40690b7aae2c338a289ac9ba3"
+    },
+    "views-no-shadows-world.f32": {
+      "bytes": 8294400,
+      "sha256": "95e0c8b06c0e09745c6033aef6f28043807d3e9477633b9c0c0055476c457802"
+    },
+    "views_fast-no-shadows.png": {
+      "bytes": 362028,
+      "sha256": "bcb0e2c8e512ea4d5845b0cfdb1f943a4356e708b2d028e0dfef972de3186dbe"
+    },
+    "views-no-shadows.png": {
+      "bytes": 403041,
+      "sha256": "ff9a1a0b7944e7b1acbbfc99385aab70ac113177d5a518d560394722f401c040"
+    },
+    "views-no-shadows-rgba.f32": {
+      "bytes": 8294400,
+      "sha256": "23c1dbd2aa7c9011827fe76653f6c6366203c35793a41901dce8a29afb003b2a"
+    },
+    "regions-no-shadows-normal.f16": {
+      "bytes": 4147200,
+      "sha256": "26ac377c7b910d2261293230289ad3a68bb5d48dbc023b617bc032dc987c5e49"
+    },
+    "views_fast-shadows-world.f32": {
+      "bytes": 8294400,
+      "sha256": "cfe5b7bd77ebac49eff91633eec076faac0b0f3ce9894205bf0da13f9395b3a0"
+    },
+    "views-shadows-normal.f16": {
+      "bytes": 4147200,
+      "sha256": "65e9c330841e6f7de0c589f7435b220c7fb3fef1ebf5f873fc48868579607a05"
+    },
+    "regions-no-shadows-world.f32": {
+      "bytes": 8294400,
+      "sha256": "03d1dbd6e73343d895678c78bcee561f81a01c3a4e02542a67b493e3520f8bac"
+    },
+    "views-no-shadows-normal.f16": {
+      "bytes": 4147200,
+      "sha256": "65e9c330841e6f7de0c589f7435b220c7fb3fef1ebf5f873fc48868579607a05"
+    },
+    "views_fast-shadows-depth.f32": {
+      "bytes": 2073600,
+      "sha256": "48c5c090d28d1e7f74a69cb0130978e6f5aff9c6765b09b390f4463d7b707697"
+    },
+    "regions-shadows.png": {
+      "bytes": 391754,
+      "sha256": "c07dda582a6f4315368b9212785b58470671618ed56ee7019865e51193debc18"
+    },
+    "regions-shadows-world.f32": {
+      "bytes": 8294400,
+      "sha256": "03d1dbd6e73343d895678c78bcee561f81a01c3a4e02542a67b493e3520f8bac"
+    },
+    "views-no-shadows-color.f16": {
+      "bytes": 4147200,
+      "sha256": "1b09d6c73d6abb92ac00a479d1b2423186a80521bf7198b1d3c0cbe4f040f64e"
+    },
+    "views_fast-no-shadows-depth.f32": {
+      "bytes": 2073600,
+      "sha256": "48c5c090d28d1e7f74a69cb0130978e6f5aff9c6765b09b390f4463d7b707697"
+    },
+    "regions-no-shadows-color.f16": {
+      "bytes": 4147200,
+      "sha256": "b3ce1a3d5d1cd38416e4545c45bdf8ec8b9dd9870ab81f50239e64a048d7c4a6"
+    },
+    "views_fast-no-shadows-normal.f16": {
+      "bytes": 4147200,
+      "sha256": "ec6d9e15a60c347daced4ce4799a09072a8569b4e40bf6b3e5ffaccb1648e702"
+    },
+    "views_fast-no-shadows-color.f16": {
+      "bytes": 4147200,
+      "sha256": "8900b47e4ad97e441437783003a44f14f796f62adadf8b71ebbdc698400e782d"
+    }
+  },
+  "scope": "Untimed software Vulkan reproduction; differences against regions, not source ground truth. A shadow toggle proves a lighting contribution, not that every dark pixel is shadow acne. Different-instance depth differences are not local surface error. Screenshot-time mode is not recorded on the phone screenshots."
+}
