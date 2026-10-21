@@ -8,7 +8,8 @@ is `checkpoints/LIE24_MALI_SURFACE_ACCESS.json`.
 
 This experiment changes the primary representation rather than adding another
 acceleration structure to the cell walk. It is an approximate relightable
-impostor. It is NOT an achieved physical-device performance improvement.
+impostor. The first physical phone report reduces camera appearance intervals,
+but also exposes near-camera visibility failures; see the diagnosis linked below.
 
 ## What moves out of the frame
 
@@ -134,3 +135,11 @@ Local evidence and its limits are retained in
 `checkpoints/LIE_CAPTURED_VIEWS_NATIVE.json.gz`. Software timings remain marked
 as software results. Signed Android delivery and CI identities are recorded
 in the checkpoint after successful verification.
+
+## First physical report and a new failing camera
+
+The 2026-10-21 phone report now demonstrates lower camera appearance cost on
+Mali, alongside severe simple-view deformation and adjusted-view coverage
+failure at the newly reported pose. See [the reproduced diagnosis](LIE25_PHONE_POSE_DIAGNOSIS.md).
+This supersedes the earlier absence of physical measurements; it does not
+establish acceptable near-camera image quality or continuous motion.
