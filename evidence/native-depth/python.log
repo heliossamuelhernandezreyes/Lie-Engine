@@ -1,0 +1,22 @@
+...........s.................................................VERIFIED REAL LIE-BRICK02 281000 samples fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb
+................LIE-ASSET: 3072 source triangles; 900 captured LIE samples; 2e08bf2cd5082c575ff0772f92291b2117f87fd67cc7554ab57b6d5f6f97fb01
+.LIE-BRICK02: 12 source triangles; 800 captured LIE samples; 750fb213e1374384d21bda3641050379ff53bb7a55913d0e54ef8f2621f6f1d8
+.......LIE-BRICK02: 3072 source triangles; 1420 captured LIE samples; f7c0640d5088154c1374418f84c563894d9e8fa13e96e33f43ceeadefc941b6d
+LIE-BRICK02: 3072 source triangles; 1420 captured LIE samples; f7c0640d5088154c1374418f84c563894d9e8fa13e96e33f43ceeadefc941b6d
+................................................................................................................REAL WALL04 CSR {"bytes": 24452, "dense_bytes": 3041536, "dense_sha256": "d07c447269826823d6ba37abf15f1432880bf5c44256e6d7f283659bd61baec2", "edges": 2618, "patches": 872, "schema": "lie-receiver-csr-f32/1", "sha256": "099fefb63ed17b4a90e66b677ed364ce7aa274f520087c4406d615060400894e", "source_order_preserved": true, "weights_requantized": false, "zero_threshold": 0}
+LIE-WALL01 verified CC BY real scanned source fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb bricks 96 nodes 577 samples 560866 SHA256 9446ac800318cc1967b09f8f1c59ddde3d76c95e877705e4f95a364e29d0c031
+....LIE-WALL01 CPU reference: energy conservative; 577 material nodes
+LIE-WALL01 verified CC BY real scanned source fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb bricks 96 nodes 865 samples 560866 SHA256 510cb9111da9fb8878f3a956288f3fe00c85a056a9e32397fe425c32ca4b0eb0
+..LIE-WALL02: 865 source-derived light nodes; 96 ray occluders; energy conservative
+LIE-WALL01 verified CC BY real scanned source fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb bricks 96 nodes 865 samples 560866 SHA256 510cb9111da9fb8878f3a956288f3fe00c85a056a9e32397fe425c32ca4b0eb0
+LIE-WALL01 verified CC BY real scanned source fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb bricks 96 nodes 865 samples 560866 SHA256 510cb9111da9fb8878f3a956288f3fe00c85a056a9e32397fe425c32ca4b0eb0
+LIE-WALL03 560866 samples, 872 material/light nodes, 8 mortar rows, fd86e723f0e6f0f4da17cab4d4ba8dbd105fe482d62b4057e99be592999ef5ba
+.........LIE-WALL03: authentic scanned brick bytes unchanged; 872 valid light codes; conservative.
+VERIFIED REAL LIE-BRICK02 281000 samples fb62584adbe1756357f17c5eb4a7470972d54c5e4ff55d3a6a53a265421c6ecb
+....WALL06 rigid orientation [0.1994715567687056, 0.057550523188470024, 0.10063374726698741] rotation deg 18.875863940534067
+......................
+----------------------------------------------------------------------
+Ran 238 tests in 35.808s
+
+OK (skipped=1)
+LIE-02 SURFACE MANIFEST PASS views=4 png=12 sha256=verified

@@ -10,11 +10,14 @@ const EnvelopeShader = preload("res://shaders/lie_direct_envelope.glsl")
 const EnvelopeShadowShader = preload("res://shaders/lie_direct_envelope_shadow.glsl")
 const ViewsShader = preload("res://shaders/lie_direct_views.glsl")
 const ViewsFastShader = preload("res://shaders/lie_direct_views_fast.glsl")
+const NativeShader = preload("res://shaders/lie_direct_native.glsl")
+const NativeShadowShader = preload("res://shaders/lie_direct_native_shadow.glsl")
 const SHADOW_SIZE: int = 512
 var failure: String = ""
 var proof: Dictionary = {}
 var access_proof: Dictionary = {}
 var views_proof: Dictionary = {}
+var native_proof: Dictionary = {}
 var _draw_sets: Dictionary = {}
 var _backend: String = ""
 var requested_bytes: int = 0
@@ -131,6 +134,15 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
         for value in rect: region_rects.append(int(value))
     var region_rectangles: RID = _buffer(region_rects.to_byte_array())
     var envelope: RID = _buffer(FileAccess.get_file_as_bytes(root + "envelope.bin"))
+    var native: Variant = JSON.parse_string(FileAccess.get_file_as_string(root + "native.json"))
+    if not native is Dictionary or native.get("schema") != "lie-native-cell-sheets/1" or native.get("source_bank_sha256") != proof["source_bank_sha256"] or native.get("source_packets") != proof["packets"]:
+        failure = "Missing or incompatible native cell sheets"; return false
+    native_proof = native
+    var native_bytes: PackedByteArray = FileAccess.get_file_as_bytes(root + "native.bin")
+    var native_meta: Dictionary = native_proof["packets"]["native.bin"]
+    if native_bytes.size() != int(native_meta["bytes"]) or FileAccess.get_sha256(root + "native.bin") != native_meta["sha256"]:
+        failure = "Native cell sheet identity"; return false
+    var native_mesh: RID = _buffer(native_bytes)
     var captured: Variant = JSON.parse_string(FileAccess.get_file_as_string(root + "views.json"))
     if not captured is Dictionary or captured.get("schema") != "lie-captured-views/1" or captured.get("source_bank_sha256") != proof["source_bank_sha256"] or captured.get("spec",{}).get("source_packets") != proof["packets"]:
         failure = "Missing or incompatible view-visible captures"; return false
@@ -161,7 +173,7 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
     for layer in range(_lights*6):
         var slice: RID = _rd.texture_create_shared_from_slice(RDTextureView.new(),_shadows,layer,0)
         var frame: RID = _rd.framebuffer_create([slice]); _frames.append(frame); _shadow_frames.append(frame)
-    var files: Dictionary = {"surface":SurfaceShader,"shadow":ShadowShader,"regions":RegionsShader,"regions_shadow":RegionsShadowShader,"envelope":EnvelopeShader,"envelope_shadow":EnvelopeShadowShader,"views":ViewsShader,"views_fast":ViewsFastShader,"light":LightShader}
+    var files: Dictionary = {"surface":SurfaceShader,"shadow":ShadowShader,"regions":RegionsShader,"regions_shadow":RegionsShadowShader,"envelope":EnvelopeShader,"envelope_shadow":EnvelopeShadowShader,"views":ViewsShader,"views_fast":ViewsFastShader,"native":NativeShader,"native_shadow":NativeShadowShader,"light":LightShader}
     for key in files:
         var file: RDShaderFile = files[key]
         var spirv: RDShaderSPIRV = file.get_spirv()
@@ -172,11 +184,12 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
         else:
             var raster := RDPipelineRasterizationState.new(); raster.cull_mode = RenderingDevice.POLYGON_CULL_DISABLED
             var depth_state := RDPipelineDepthStencilState.new(); depth_state.enable_depth_test = true; depth_state.enable_depth_write = true; depth_state.depth_compare_operator = RenderingDevice.COMPARE_OP_LESS
+            if key.begins_with("native"): depth_state.depth_compare_operator = RenderingDevice.COMPARE_OP_GREATER
             var blend := RDPipelineColorBlendState.new(); var attachments: Array[RDPipelineColorBlendStateAttachment] = []
-            if key in ["surface","regions","envelope","views","views_fast"]:
+            if key in ["surface","regions","envelope","views","views_fast","native"]:
                 for i in range(3): attachments.append(RDPipelineColorBlendStateAttachment.new())
             blend.attachments = attachments
-            pipeline = _rd.render_pipeline_create(shader,_rd.framebuffer_get_format(_primary_frame if key in ["surface","regions","envelope","views","views_fast"] else _shadow_frames[0]),-1,RenderingDevice.RENDER_PRIMITIVE_TRIANGLES,raster,RDPipelineMultisampleState.new(),depth_state,blend)
+            pipeline = _rd.render_pipeline_create(shader,_rd.framebuffer_get_format(_primary_frame if key in ["surface","regions","envelope","views","views_fast","native"] else _shadow_frames[0]),-1,RenderingDevice.RENDER_PRIMITIVE_TRIANGLES,raster,RDPipelineMultisampleState.new(),depth_state,blend)
         _programs[key] = {"shader":shader,"pipeline":pipeline}
         if not pipeline.is_valid(): failure = "Native opaque pipeline: " + key; return false
     var uniforms: Array[RDUniform] = [_uniform(0,proxies),_uniform(1,_views),_uniform(2,atlas["depth"],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(3,atlas["normal"],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(4,atlas["color"],RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(5,rectangles)]
@@ -201,6 +214,15 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
         var capture_set: RID = _rd.uniform_set_create(capture_uniforms,_programs[key]["shader"],0)
         if not capture_set.is_valid(): failure = "Captured view descriptors: "+key; return false
         _draw_sets[key] = capture_set; _sets.append(capture_set)
+    for key in ["native","native_shadow"]:
+        var native_uniforms: Array[RDUniform] = uniforms.duplicate()
+        if key=="native": native_uniforms.append(_uniform(8,native_mesh))
+        else:
+            native_uniforms.append(_uniform(6,region_texture,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE))
+            native_uniforms.append(_uniform(7,region_rectangles))
+        var native_set: RID = _rd.uniform_set_create(native_uniforms,_programs[key]["shader"],0)
+        if not native_set.is_valid(): failure = "Native descriptors: " + key; return false
+        _draw_sets[key] = native_set; _sets.append(native_set)
     var group_buffer: RID = light_groups
     var light_uniforms: Array[RDUniform] = [_uniform(0,_world,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(1,_normal,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(2,_color,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(3,_shadows,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(4,output,RenderingDevice.UNIFORM_TYPE_IMAGE),_uniform(5,transport.output_rid,RenderingDevice.UNIFORM_TYPE_IMAGE),_uniform(6,transport.material_codes_rid()),_uniform(7,transport.surface_light_codes_rid()),_uniform(8,group_buffer),_uniform(9,_views),_uniform(10,_nodes),_uniform(11,transport.emission_descriptors_rid()),_uniform(12,_options)]
     _light_set = _rd.uniform_set_create(light_uniforms,_programs["light"]["shader"],0); _sets.append(_light_set)
@@ -215,14 +237,14 @@ func _view(at: int, eye: Vector3, right: Vector3, up: Vector3, forward: Vector3,
     for i in range(80): _view_packet[at*80+i] = bytes[i]
 
 func _draw(key: String, frame: RID, view: int) -> void:
-    var clear: PackedColorArray = [Color(0,0,0,0),Color(0,0,0,0),Color(0,0,0,0)] if key in ["surface","regions","envelope","views","views_fast"] else []
-    var list: int = _rd.draw_list_begin(frame,RenderingDevice.DRAW_CLEAR_ALL,clear,1.)
+    var clear: PackedColorArray = [Color(0,0,0,0),Color(0,0,0,0),Color(0,0,0,0)] if key in ["surface","regions","envelope","views","views_fast","native"] else []
+    var list: int = _rd.draw_list_begin(frame,RenderingDevice.DRAW_CLEAR_ALL,clear,0. if key.begins_with("native") else 1.)
     _rd.draw_list_bind_render_pipeline(list,_programs[key]["pipeline"])
     _rd.draw_list_bind_uniform_set(list,_draw_sets[key],0)
-    if key.begins_with("envelope"):
+    if key.begins_with("envelope") or key=="native":
         for master in range(2):
-            var group: Dictionary = access_proof["envelope_groups"][master]
-            _rd.draw_list_set_push_constant(list,PackedInt32Array([view,int(group["first_quad"]),0 if master==0 else 96,0]).to_byte_array(),16)
+            var group: Dictionary = native_proof["groups"][master] if key.begins_with("native") else access_proof["envelope_groups"][master]
+            _rd.draw_list_set_push_constant(list,PackedInt32Array([view,int(group["first_quad"]),0 if master==0 else 96,_size]).to_byte_array(),16)
             _rd.draw_list_draw(list,false,96 if master==0 else 1,int(group["quads"])*6)
     else:
         _rd.draw_list_set_push_constant(list,PackedInt32Array([view,0,0,0]).to_byte_array(),16)
@@ -252,7 +274,7 @@ func render(parameters: PackedByteArray, transport: CompositorEffect, shadows: b
             _view(1+l*6+face,eye,right,up,forward,1.)
     var shadow_dirty: bool = not changed_lights.is_empty()
     _rd.buffer_update(_views,0,_view_packet.size(),_view_packet)
-    var options: PackedByteArray = PackedInt32Array([1 if shadows else 0,1 if material else 0,0,0]).to_byte_array()
+    var options: PackedByteArray = PackedInt32Array([1 if shadows else 0,1 if material else 0,1 if backend=="native" else 0,0]).to_byte_array()
     options.append_array(PackedFloat32Array([.0005,.0004,0,0]).to_byte_array()); _rd.buffer_update(_options,0,32,options)
     if primary_dirty:
         _stamp(profile,owner,serial,"primary","begin")
@@ -284,7 +306,7 @@ func invalidate() -> void:
     _camera_key = PackedByteArray(); _shadow_keys.clear(); _transport_serial = -1
 
 func capture() -> Dictionary:
-    return {"surface_world":_rd.texture_get_data(_world,0).to_float32_array(),"surface_normal_half":_rd.texture_get_data(_normal,0),"surface_color_half":_rd.texture_get_data(_color,0),"native_depth":_rd.texture_get_data(_primary_depth,0).to_float32_array()}
+    return {"surface_world":_rd.texture_get_data(_world,0).to_float32_array(),"surface_normal_half":_rd.texture_get_data(_normal,0),"surface_color_half":_rd.texture_get_data(_color,0),"native_depth":_rd.texture_get_data(_primary_depth,0).to_float32_array(),"view_packet":_view_packet,"proxy_packet":_proxy_packet}
 
 func release() -> void:
     if _rd == null: return

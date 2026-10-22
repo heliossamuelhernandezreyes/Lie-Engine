@@ -143,3 +143,8 @@ Mali, alongside severe simple-view deformation and adjusted-view coverage
 failure at the newly reported pose. See [the reproduced diagnosis](LIE25_PHONE_POSE_DIAGNOSIS.md).
 This supersedes the earlier absence of physical measurements; it does not
 establish acceptable near-camera image quality or continuous motion.
+
+The recovered native-cell and reverse-Z experiment is documented in
+[LIE_NATIVE_DEPTH_RECOVERY.md](LIE_NATIVE_DEPTH_RECOVERY.md). It substantially
+reduces the reproduced coverage failure, while preserving unresolved precision,
+grain and very high auxiliary triangle cost. It is not a mobile replacement.

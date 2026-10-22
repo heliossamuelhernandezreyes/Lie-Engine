@@ -149,3 +149,11 @@ gpu_compute/lie14-import.log
 /gpu_compute/fixtures/lie-runtime-reference.json
 /gpu_compute/lie-runtime-*.json
 /gpu_compute/lie-runtime-*.png
+
+# Derived captured fields and native QA intermediates are reconstructed from
+# the attributed bank. Durable numerical/image evidence belongs in evidence/.
+/gpu_compute/captures/liewall05/
+/gpu_compute/captures/liewall06/
+/gpu_compute/fixtures/opaque-reference.json
+/gpu_compute/fixtures/persistent-visibility-reference.json
+/gpu_compute/assets/lie_wall01/.wall_bank.zlib.*

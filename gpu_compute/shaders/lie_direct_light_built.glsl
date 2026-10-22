@@ -97,11 +97,16 @@ float visibility(uint l,vec3 p,vec3 normal){
     vec2 uv=vec2(dot(q,view.right.xyz),-dot(q,view.up.xyz))/z*.5+.5;
     float depth=far/(far-near)-far*near/((far-near)*z);
     depth-=far*near/(far-near)*options.tuning.y/(z*z);
+    // Compute reverse depth directly; 1-forwardDepth would retain the
+    // cancellation that caused the original close-surface ownership ties.
+    bool reversed=options.flags.z!=0u;
+    if(reversed)depth=near*(far-z)/((far-near)*z)+far*near/(far-near)*options.tuning.y/(z*z);
     ivec2 size=textureSize(shadow_maps,0).xy;
     ivec2 pixel=ivec2(uv*vec2(size));float visible=0.;
     for(int y=-1;y<=1;y++)for(int x=-1;x<=1;x++){
         ivec2 at=clamp(pixel+ivec2(x,y),ivec2(0),size-1);
-        visible+=depth<=texelFetch(shadow_maps,ivec3(at,layer),0).r?1.:0.;
+        float stored=texelFetch(shadow_maps,ivec3(at,layer),0).r;
+        visible+=(reversed?depth>=stored:depth<=stored)?1.:0.;
     }
     return visible/9.;
 }

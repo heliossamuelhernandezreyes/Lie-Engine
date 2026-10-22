@@ -2,6 +2,7 @@ extends "res://lie_wall24_android_lab.gd"
 const DirectEffect = preload("res://lie_direct_effect.gd")
 const DIRECT_MODES = {"regions_1080":{"internal_resolution":1080,"direct_backend":"regions"},"views_1080":{"internal_resolution":1080,"direct_backend":"views"},"views_fast_1080":{"internal_resolution":1080,"direct_backend":"views_fast"},"regions_720":{"internal_resolution":720,"direct_backend":"regions"},"views_720":{"internal_resolution":720,"direct_backend":"views"},"views_fast_720":{"internal_resolution":720,"direct_backend":"views_fast"}}
 var _direct_status_clock: float = 0.
+var _active_backend_label: Label
 const DIRECT_LABELS = {"regions_1080":"Regiones 1080","views_1080":"Vistas ajustadas 1080","views_fast_1080":"Vistas simples 1080","regions_720":"Regiones 720","views_720":"Vistas ajustadas 720","views_fast_720":"Vistas simples 720"}
 
 func _ready() -> void:
@@ -17,12 +18,12 @@ func _apply() -> void:
 func command(request: Variant) -> Dictionary:
     if request is Dictionary and request.get("values",{}) is Dictionary:
         var values: Dictionary = request.get("values",{})
-        if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views","views_fast"]:
+        if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views","views_fast","native"]:
             return {"ok":false,"error":"direct_backend","revision":revision}
     return super.command(request)
 
 func _benchmark_set_values(values: Dictionary) -> Dictionary:
-    if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views","views_fast"]: return {"ok":false,"error":"direct_backend","revision":revision}
+    if values.has("direct_backend") and values["direct_backend"] not in ["reference","regions","views","views_fast","native"]: return {"ok":false,"error":"direct_backend","revision":revision}
     return super._benchmark_set_values(values)
 
 func _stream_event(values: Dictionary, kind: String, mode: String, cycle: int, force: bool = false) -> Dictionary:
@@ -162,7 +163,7 @@ func _ui() -> void:
     var box: Node = status.get_parent(); _label(box,"VISTAS CAPTURADAS",19)
     _label(box,"Vistas: aproximación de profundidad; compara bordes y movimiento",15)
     var select := OptionButton.new()
-    for entry in [["Vistas ajustadas experimental","views"],["Vistas simples sin ajuste","views_fast"],["Regiones (2.4)","regions"],["Referencia discos","reference"]]:
+    for entry in [["Vistas ajustadas experimental","views"],["Vistas simples sin ajuste","views_fast"],["Regiones (2.4)","regions"],["Superficie nativa experimental","native"],["Referencia discos","reference"]]:
         select.add_item(entry[0]); select.set_item_metadata(select.item_count-1,entry[1])
     select.item_selected.connect(func(index: int): command({"op":"set_values","values":{"direct_backend":select.get_item_metadata(index)}}))
     box.add_child(select); controls["direct_backend"] = select
@@ -175,22 +176,28 @@ func _ui() -> void:
     for item in box.get_children():
         if item is Button and item.text=="Medir solo el modo actual": item.hide()
     for item in picture.get_parent().get_children():
-        if item is Label and item.text.begins_with("LIE ·"): item.text = "LIE · Vistas capturadas · 2.5"
+        if item is Label and item.text.begins_with("LIE ·"):
+            _active_backend_label = item
+            item.text = "LIE · Preparando superficie"
 
 func agent_snapshot() -> Dictionary:
     var result: Dictionary = super.agent_snapshot()
-    result["control_contract"]["direct_backends"] = ["reference","regions","views","views_fast"]
+    result["control_contract"]["direct_backends"] = ["reference","regions","views","views_fast","native"]
     result["control_contract"]["comparison_modes"] = DIRECT_MODES
     return result
 
 func _process(delta: float) -> void:
     super._process(delta)
+    if _active_backend_label != null and effect != null:
+        var active: String = effect.effective_direct_backend
+        var name: String = {"regions":"Regiones","views":"Vistas ajustadas · experimental","views_fast":"VISTAS SIMPLES · CONTROL SIN PRECISIÓN","native":"Superficie nativa · experimental","reference":"Referencia discos","reference_fallback":"FALLO · referencia de respaldo"}.get(active,active)
+        _active_backend_label.text = "%s · %d → %d" % [name,effect.render_size,effect.output_size]
     _direct_status_clock += delta
     if _direct_status_clock < 1. or effect == null: return
     _direct_status_clock = 0.
     if _diagnostic_label != null: _diagnostic_label.text = Diagnostics.brief(Diagnostics.summarize(effect.solve_profile.snapshot()))
-    if status != null and effect.effective_direct_backend in ["regions","views","views_fast"]:
-        status.text = "%s · experimental\nInterior: %d × %d · salida: %d × %d\nImágenes actualizadas: %d" % [{"regions":"Regiones","views":"Vistas ajustadas","views_fast":"Vistas simples"}.get(effect.effective_direct_backend,effect.effective_direct_backend),effect.render_size,effect.render_size,effect.output_size,effect.output_size,effect.frame_count]
+    if status != null and effect.effective_direct_backend in ["regions","views","views_fast","native"]:
+        status.text = "%s · experimental\nInterior: %d × %d · salida: %d × %d\nImágenes actualizadas: %d" % [{"regions":"Regiones","views":"Vistas ajustadas","views_fast":"Vistas simples","native":"Superficie nativa · Z invertida"}.get(effect.effective_direct_backend,effect.effective_direct_backend),effect.render_size,effect.render_size,effect.output_size,effect.output_size,effect.frame_count]
     if status != null and effect.direct_failure != "": status.text += "\nSuperficie no disponible: " + effect.direct_failure
 
 func _refresh() -> void:

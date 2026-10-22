@@ -1,0 +1,37 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+Vulkan 1.4.318 - Forward Mobile - Using Device #0: Unknown - llvmpipe (LLVM 20.1.2, 256 bits)
+
+OpVectorExtractDynamic is not supported yet.
+WALL07 CHECK 1 real attributed-bank native Vulkan initialization true
+WALL07 CHECK 2 exact phone camera through validated command true
+WALL07 CHECK 3 camera 0 true
+WALL07 CHECK 4 select regions true
+OpVectorExtractDynamic is not supported yet.
+WALL07 CHECK 5 actual regions without fallback true
+NATIVE FRAME 0 regions llvmpipe (LLVM 20.1.2, 256 bits)
+WALL07 CHECK 6 select native true
+WALL07 CHECK 7 actual native without fallback true
+NATIVE FRAME 0 native llvmpipe (LLVM 20.1.2, 256 bits)
+WALL07 CHECK 8 camera 1 true
+WALL07 CHECK 9 select regions true
+WALL07 CHECK 10 actual regions without fallback true
+NATIVE FRAME 1 regions llvmpipe (LLVM 20.1.2, 256 bits)
+WALL07 CHECK 11 select native true
+WALL07 CHECK 12 actual native without fallback true
+NATIVE FRAME 1 native llvmpipe (LLVM 20.1.2, 256 bits)
+WALL07 CHECK 13 camera 2 true
+WALL07 CHECK 14 select regions true
+WALL07 CHECK 15 actual regions without fallback true
+NATIVE FRAME 2 regions llvmpipe (LLVM 20.1.2, 256 bits)
+WALL07 CHECK 16 select native true
+WALL07 CHECK 17 actual native without fallback true
+NATIVE FRAME 2 native llvmpipe (LLVM 20.1.2, 256 bits)
+WALL07 CHECK 18 native camera reuses light maps and node response true
+WALL07 CHECK 19 native scalar power reuses geometry and shadow maps true
+WALL07 CHECK 20 native only moved light rebuilds six views true
+WALL07 CHECK 21 native independent sources sum once in linear radiance true
+WALL07 CHECK 22 native source removal leaves no invented ambient true
+WALL07 CHECK 23 native source round-trip restores image true
+WALL07 CHECK 24 native cached image equals fresh primary and maps true
+WALL07 CHECK 25 native idle emits no extra solve true
+NATIVE DEPTH 25 PASS

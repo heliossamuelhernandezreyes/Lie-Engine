@@ -1,0 +1,1953 @@
+{
+  "schema": "lie-native-depth-recovery/1",
+  "base_commit": "6ee27c4",
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "device": "llvmpipe LLVM 20.1.2, native Vulkan 1.4, Godot 4.7.2",
+  "precision_disposition": "improved but strict owner/depth acceptance remains open; no Android release or production-default change",
+  "execution": {
+    "checks": 25,
+    "failed": false,
+    "frames": [
+      {
+        "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "internal_size": 720,
+        "metrics": {
+          "access": {
+            "envelope_cell_center_max_error_m": 0.00299876253120601,
+            "envelope_groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 4114.0,
+                "triangles": 8228.0
+              },
+              {
+                "first_quad": 4114.0,
+                "quads": 11832.0,
+                "triangles": 23664.0
+              }
+            ],
+            "envelope_layers_per_direction": 1.0,
+            "envelope_max_step_cells": 32.0,
+            "envelope_quad_stride": 48.0,
+            "envelope_refine_error_m": 0.003,
+            "packets": {
+              "envelope.bin": {
+                "bytes": 765408.0,
+                "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+              },
+              "regions.bin": {
+                "bytes": 282624.0,
+                "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+              }
+            },
+            "region_height": 138.0,
+            "region_rects": [
+              [
+                0.0,
+                0.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                13.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                26.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                39.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                52.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                60.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                68.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                71.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                74.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                77.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                80.0,
+                128.0,
+                29.0
+              ],
+              [
+                0.0,
+                109.0,
+                128.0,
+                29.0
+              ]
+            ],
+            "region_size": 8.0,
+            "region_width": 128.0,
+            "schema": "lie-surface-access/1",
+            "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "additional_requested_bytes": 253290656,
+          "atlas_resident": true,
+          "bounded_view_queries": false,
+          "captured_views": {
+            "masters": [
+              {
+                "height": 1137.0,
+                "max_capture_size": 192.0,
+                "valid_pixels": 867700.0,
+                "views": 64.0,
+                "width": 2048.0
+              },
+              {
+                "height": 3071.0,
+                "max_capture_size": 512.0,
+                "valid_pixels": 193404.0,
+                "views": 64.0,
+                "width": 4096.0
+              }
+            ],
+            "metadata_stride": 80.0,
+            "packets": {
+              "views-0.bin": {
+                "bytes": 18628608.0,
+                "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+              },
+              "views-1.bin": {
+                "bytes": 100630528.0,
+                "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+              },
+              "views-meta.bin": {
+                "bytes": 10240.0,
+                "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+              }
+            },
+            "runtime": {
+              "angular_candidates": 3.0,
+              "shadow_backend": "regions",
+              "source_cell_walk": false,
+              "source_refinements": 2.0,
+              "view_depth_steps": 3.0
+            },
+            "schema": "lie-captured-views/1",
+            "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "spec": {
+              "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+              "grid": 8.0,
+              "sizes": [
+                192.0,
+                512.0
+              ],
+              "source_packets": {
+                "color.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+                },
+                "depth.bin": {
+                  "bytes": 17367040.0,
+                  "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+                },
+                "normal.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+                }
+              }
+            }
+          },
+          "compiled_layers": 4,
+          "effective_backend": "regions",
+          "failure": "",
+          "fixed_depth_reprojection": false,
+          "fragment_depth_search": true,
+          "native_shadow_size": 512,
+          "node_builds": 1,
+          "primary_builds": 1,
+          "proxy_triangles": 1164,
+          "requested_backend": "regions",
+          "scope": "experimental opaque compiled surface; native depth; four captured layers; shared full brick master replaces sparse instance selections; light-space cube maps replace short disk shadows; finite-resolution visibility differs; reference resources retained for A/B; no physical FPS claim",
+          "shade_builds": 1,
+          "shadow_backend": "regions",
+          "shadow_builds": 0,
+          "shadow_light_builds": 0,
+          "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+          "source_projection_dispatches": 0,
+          "source_shadow_queries": 0,
+          "submitted_triangles": 1164,
+          "surface_cell_walk": true
+        },
+        "mode": "regions",
+        "pose": {
+          "active_visibility": true,
+          "area_lights": false,
+          "area_size": 0.3,
+          "block_access": true,
+          "bounded_raster": true,
+          "camera_elevation": 2.0563994513617607,
+          "camera_yaw": -72.90939846038818,
+          "clay_absorption": 0.0,
+          "compact_shadows": false,
+          "contact_shadows": true,
+          "contact_steps": 12,
+          "continuous_light": true,
+          "coverage_enabled": true,
+          "cpu_reuse": true,
+          "direct_backend": "regions",
+          "direct_shadow_proxies": true,
+          "distance_factor": 0.6,
+          "energy_radius": false,
+          "explode": 0.0,
+          "exposure": 2.0,
+          "fill_azimuth": 55.0,
+          "fill_enabled": true,
+          "fill_power": 0.32,
+          "fused_shading": true,
+          "internal_resolution": 720,
+          "kernel_mode": "split",
+          "key_enabled": true,
+          "lean_barriers": false,
+          "light_azimuth": -53.4,
+          "light_power": 1.0,
+          "lighting_preset": "neutral",
+          "master": "real_scan_wall",
+          "material_response": true,
+          "mode": "master",
+          "normal_filtering": true,
+          "occlusion_witnesses": true,
+          "optical_codes": true,
+          "persistent_visibility": true,
+          "power_response": true,
+          "precomputed_ray_boxes": true,
+          "quality_2x": false,
+          "raster_backend": "compute",
+          "roof": true,
+          "roughness_variation": 0.06,
+          "scan_shadows": true,
+          "screen_tiles": false,
+          "seed": 29.0,
+          "separate_lights": true,
+          "shadows": false,
+          "stage_timestamps": false,
+          "surface_continuity": true,
+          "surface_detail": true,
+          "surface_filter": true,
+          "surface_queries": true,
+          "tight_bounds": true,
+          "variation": 0.0,
+          "visibility_diagnostics": false,
+          "visibility_stream": false,
+          "world_contacts": true
+        }
+      },
+      {
+        "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "internal_size": 720,
+        "metrics": {
+          "access": {
+            "envelope_cell_center_max_error_m": 0.00299876253120601,
+            "envelope_groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 4114.0,
+                "triangles": 8228.0
+              },
+              {
+                "first_quad": 4114.0,
+                "quads": 11832.0,
+                "triangles": 23664.0
+              }
+            ],
+            "envelope_layers_per_direction": 1.0,
+            "envelope_max_step_cells": 32.0,
+            "envelope_quad_stride": 48.0,
+            "envelope_refine_error_m": 0.003,
+            "packets": {
+              "envelope.bin": {
+                "bytes": 765408.0,
+                "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+              },
+              "regions.bin": {
+                "bytes": 282624.0,
+                "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+              }
+            },
+            "region_height": 138.0,
+            "region_rects": [
+              [
+                0.0,
+                0.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                13.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                26.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                39.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                52.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                60.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                68.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                71.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                74.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                77.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                80.0,
+                128.0,
+                29.0
+              ],
+              [
+                0.0,
+                109.0,
+                128.0,
+                29.0
+              ]
+            ],
+            "region_size": 8.0,
+            "region_width": 128.0,
+            "schema": "lie-surface-access/1",
+            "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "additional_requested_bytes": 253290656,
+          "atlas_resident": true,
+          "bounded_view_queries": false,
+          "captured_views": {
+            "masters": [
+              {
+                "height": 1137.0,
+                "max_capture_size": 192.0,
+                "valid_pixels": 867700.0,
+                "views": 64.0,
+                "width": 2048.0
+              },
+              {
+                "height": 3071.0,
+                "max_capture_size": 512.0,
+                "valid_pixels": 193404.0,
+                "views": 64.0,
+                "width": 4096.0
+              }
+            ],
+            "metadata_stride": 80.0,
+            "packets": {
+              "views-0.bin": {
+                "bytes": 18628608.0,
+                "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+              },
+              "views-1.bin": {
+                "bytes": 100630528.0,
+                "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+              },
+              "views-meta.bin": {
+                "bytes": 10240.0,
+                "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+              }
+            },
+            "runtime": {
+              "angular_candidates": 3.0,
+              "shadow_backend": "regions",
+              "source_cell_walk": false,
+              "source_refinements": 2.0,
+              "view_depth_steps": 3.0
+            },
+            "schema": "lie-captured-views/1",
+            "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "spec": {
+              "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+              "grid": 8.0,
+              "sizes": [
+                192.0,
+                512.0
+              ],
+              "source_packets": {
+                "color.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+                },
+                "depth.bin": {
+                  "bytes": 17367040.0,
+                  "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+                },
+                "normal.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+                }
+              }
+            }
+          },
+          "compiled_layers": 4,
+          "effective_backend": "native",
+          "failure": "",
+          "fixed_depth_reprojection": false,
+          "fragment_depth_search": false,
+          "native_shadow_size": 512,
+          "native_sheets": {
+            "groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 254428.0,
+                "triangles": 508856.0
+              },
+              {
+                "first_quad": 254428.0,
+                "quads": 54395.0,
+                "triangles": 108790.0
+              }
+            ],
+            "layers": 4.0,
+            "packets": {
+              "native.bin": {
+                "bytes": 14823504.0,
+                "sha256": "b3b6e5860a9f8ce90bb0c6219c58644c28a5d3789a0795b294917d88586e7084"
+              }
+            },
+            "quad_stride": 48.0,
+            "schema": "lie-native-cell-sheets/1",
+            "scope": "exact finite constant-depth cell sheets; original material/owner lookup; entry-face selection matches regions; auxiliary raster triangles; reverse-Z primary and regions shadows; no original mesh; no speed claim",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "node_builds": 2,
+          "primary_builds": 2,
+          "proxy_triangles": 1164,
+          "requested_backend": "native",
+          "reverse_z": true,
+          "scope": "experimental opaque compiled surface; native depth; four captured layers; shared full brick master replaces sparse instance selections; light-space cube maps replace short disk shadows; finite-resolution visibility differs; reference resources retained for A/B; no physical FPS claim",
+          "shade_builds": 2,
+          "shadow_backend": "regions_reverse_z",
+          "shadow_builds": 0,
+          "shadow_light_builds": 0,
+          "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+          "source_projection_dispatches": 0,
+          "source_shadow_queries": 0,
+          "submitted_triangles": 48958966,
+          "surface_cell_walk": false
+        },
+        "mode": "native",
+        "pose": {
+          "active_visibility": true,
+          "area_lights": false,
+          "area_size": 0.3,
+          "block_access": true,
+          "bounded_raster": true,
+          "camera_elevation": 2.0563994513617607,
+          "camera_yaw": -72.90939846038818,
+          "clay_absorption": 0.0,
+          "compact_shadows": false,
+          "contact_shadows": true,
+          "contact_steps": 12,
+          "continuous_light": true,
+          "coverage_enabled": true,
+          "cpu_reuse": true,
+          "direct_backend": "native",
+          "direct_shadow_proxies": true,
+          "distance_factor": 0.6,
+          "energy_radius": false,
+          "explode": 0.0,
+          "exposure": 2.0,
+          "fill_azimuth": 55.0,
+          "fill_enabled": true,
+          "fill_power": 0.32,
+          "fused_shading": true,
+          "internal_resolution": 720,
+          "kernel_mode": "split",
+          "key_enabled": true,
+          "lean_barriers": false,
+          "light_azimuth": -53.4,
+          "light_power": 1.0,
+          "lighting_preset": "neutral",
+          "master": "real_scan_wall",
+          "material_response": true,
+          "mode": "master",
+          "normal_filtering": true,
+          "occlusion_witnesses": true,
+          "optical_codes": true,
+          "persistent_visibility": true,
+          "power_response": true,
+          "precomputed_ray_boxes": true,
+          "quality_2x": false,
+          "raster_backend": "compute",
+          "roof": true,
+          "roughness_variation": 0.06,
+          "scan_shadows": true,
+          "screen_tiles": false,
+          "seed": 29.0,
+          "separate_lights": true,
+          "shadows": false,
+          "stage_timestamps": false,
+          "surface_continuity": true,
+          "surface_detail": true,
+          "surface_filter": true,
+          "surface_queries": true,
+          "tight_bounds": true,
+          "variation": 0.0,
+          "visibility_diagnostics": false,
+          "visibility_stream": false,
+          "world_contacts": true
+        }
+      },
+      {
+        "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "internal_size": 720,
+        "metrics": {
+          "access": {
+            "envelope_cell_center_max_error_m": 0.00299876253120601,
+            "envelope_groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 4114.0,
+                "triangles": 8228.0
+              },
+              {
+                "first_quad": 4114.0,
+                "quads": 11832.0,
+                "triangles": 23664.0
+              }
+            ],
+            "envelope_layers_per_direction": 1.0,
+            "envelope_max_step_cells": 32.0,
+            "envelope_quad_stride": 48.0,
+            "envelope_refine_error_m": 0.003,
+            "packets": {
+              "envelope.bin": {
+                "bytes": 765408.0,
+                "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+              },
+              "regions.bin": {
+                "bytes": 282624.0,
+                "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+              }
+            },
+            "region_height": 138.0,
+            "region_rects": [
+              [
+                0.0,
+                0.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                13.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                26.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                39.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                52.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                60.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                68.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                71.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                74.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                77.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                80.0,
+                128.0,
+                29.0
+              ],
+              [
+                0.0,
+                109.0,
+                128.0,
+                29.0
+              ]
+            ],
+            "region_size": 8.0,
+            "region_width": 128.0,
+            "schema": "lie-surface-access/1",
+            "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "additional_requested_bytes": 253290656,
+          "atlas_resident": true,
+          "bounded_view_queries": false,
+          "captured_views": {
+            "masters": [
+              {
+                "height": 1137.0,
+                "max_capture_size": 192.0,
+                "valid_pixels": 867700.0,
+                "views": 64.0,
+                "width": 2048.0
+              },
+              {
+                "height": 3071.0,
+                "max_capture_size": 512.0,
+                "valid_pixels": 193404.0,
+                "views": 64.0,
+                "width": 4096.0
+              }
+            ],
+            "metadata_stride": 80.0,
+            "packets": {
+              "views-0.bin": {
+                "bytes": 18628608.0,
+                "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+              },
+              "views-1.bin": {
+                "bytes": 100630528.0,
+                "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+              },
+              "views-meta.bin": {
+                "bytes": 10240.0,
+                "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+              }
+            },
+            "runtime": {
+              "angular_candidates": 3.0,
+              "shadow_backend": "regions",
+              "source_cell_walk": false,
+              "source_refinements": 2.0,
+              "view_depth_steps": 3.0
+            },
+            "schema": "lie-captured-views/1",
+            "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "spec": {
+              "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+              "grid": 8.0,
+              "sizes": [
+                192.0,
+                512.0
+              ],
+              "source_packets": {
+                "color.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+                },
+                "depth.bin": {
+                  "bytes": 17367040.0,
+                  "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+                },
+                "normal.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+                }
+              }
+            }
+          },
+          "compiled_layers": 4,
+          "effective_backend": "regions",
+          "failure": "",
+          "fixed_depth_reprojection": false,
+          "fragment_depth_search": true,
+          "native_shadow_size": 512,
+          "node_builds": 3,
+          "primary_builds": 3,
+          "proxy_triangles": 1164,
+          "requested_backend": "regions",
+          "scope": "experimental opaque compiled surface; native depth; four captured layers; shared full brick master replaces sparse instance selections; light-space cube maps replace short disk shadows; finite-resolution visibility differs; reference resources retained for A/B; no physical FPS claim",
+          "shade_builds": 3,
+          "shadow_backend": "regions",
+          "shadow_builds": 0,
+          "shadow_light_builds": 0,
+          "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+          "source_projection_dispatches": 0,
+          "source_shadow_queries": 0,
+          "submitted_triangles": 1164,
+          "surface_cell_walk": true
+        },
+        "mode": "regions",
+        "pose": {
+          "active_visibility": true,
+          "area_lights": false,
+          "area_size": 0.3,
+          "block_access": true,
+          "bounded_raster": true,
+          "camera_elevation": 2.0563994513617607,
+          "camera_yaw": -73.00939846038818,
+          "clay_absorption": 0.0,
+          "compact_shadows": false,
+          "contact_shadows": true,
+          "contact_steps": 12,
+          "continuous_light": true,
+          "coverage_enabled": true,
+          "cpu_reuse": true,
+          "direct_backend": "regions",
+          "direct_shadow_proxies": true,
+          "distance_factor": 0.6,
+          "energy_radius": false,
+          "explode": 0.0,
+          "exposure": 2.0,
+          "fill_azimuth": 55.0,
+          "fill_enabled": true,
+          "fill_power": 0.32,
+          "fused_shading": true,
+          "internal_resolution": 720,
+          "kernel_mode": "split",
+          "key_enabled": true,
+          "lean_barriers": false,
+          "light_azimuth": -53.4,
+          "light_power": 1.0,
+          "lighting_preset": "neutral",
+          "master": "real_scan_wall",
+          "material_response": true,
+          "mode": "master",
+          "normal_filtering": true,
+          "occlusion_witnesses": true,
+          "optical_codes": true,
+          "persistent_visibility": true,
+          "power_response": true,
+          "precomputed_ray_boxes": true,
+          "quality_2x": false,
+          "raster_backend": "compute",
+          "roof": true,
+          "roughness_variation": 0.06,
+          "scan_shadows": true,
+          "screen_tiles": false,
+          "seed": 29.0,
+          "separate_lights": true,
+          "shadows": false,
+          "stage_timestamps": false,
+          "surface_continuity": true,
+          "surface_detail": true,
+          "surface_filter": true,
+          "surface_queries": true,
+          "tight_bounds": true,
+          "variation": 0.0,
+          "visibility_diagnostics": false,
+          "visibility_stream": false,
+          "world_contacts": true
+        }
+      },
+      {
+        "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "internal_size": 720,
+        "metrics": {
+          "access": {
+            "envelope_cell_center_max_error_m": 0.00299876253120601,
+            "envelope_groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 4114.0,
+                "triangles": 8228.0
+              },
+              {
+                "first_quad": 4114.0,
+                "quads": 11832.0,
+                "triangles": 23664.0
+              }
+            ],
+            "envelope_layers_per_direction": 1.0,
+            "envelope_max_step_cells": 32.0,
+            "envelope_quad_stride": 48.0,
+            "envelope_refine_error_m": 0.003,
+            "packets": {
+              "envelope.bin": {
+                "bytes": 765408.0,
+                "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+              },
+              "regions.bin": {
+                "bytes": 282624.0,
+                "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+              }
+            },
+            "region_height": 138.0,
+            "region_rects": [
+              [
+                0.0,
+                0.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                13.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                26.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                39.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                52.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                60.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                68.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                71.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                74.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                77.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                80.0,
+                128.0,
+                29.0
+              ],
+              [
+                0.0,
+                109.0,
+                128.0,
+                29.0
+              ]
+            ],
+            "region_size": 8.0,
+            "region_width": 128.0,
+            "schema": "lie-surface-access/1",
+            "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "additional_requested_bytes": 253290656,
+          "atlas_resident": true,
+          "bounded_view_queries": false,
+          "captured_views": {
+            "masters": [
+              {
+                "height": 1137.0,
+                "max_capture_size": 192.0,
+                "valid_pixels": 867700.0,
+                "views": 64.0,
+                "width": 2048.0
+              },
+              {
+                "height": 3071.0,
+                "max_capture_size": 512.0,
+                "valid_pixels": 193404.0,
+                "views": 64.0,
+                "width": 4096.0
+              }
+            ],
+            "metadata_stride": 80.0,
+            "packets": {
+              "views-0.bin": {
+                "bytes": 18628608.0,
+                "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+              },
+              "views-1.bin": {
+                "bytes": 100630528.0,
+                "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+              },
+              "views-meta.bin": {
+                "bytes": 10240.0,
+                "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+              }
+            },
+            "runtime": {
+              "angular_candidates": 3.0,
+              "shadow_backend": "regions",
+              "source_cell_walk": false,
+              "source_refinements": 2.0,
+              "view_depth_steps": 3.0
+            },
+            "schema": "lie-captured-views/1",
+            "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "spec": {
+              "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+              "grid": 8.0,
+              "sizes": [
+                192.0,
+                512.0
+              ],
+              "source_packets": {
+                "color.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+                },
+                "depth.bin": {
+                  "bytes": 17367040.0,
+                  "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+                },
+                "normal.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+                }
+              }
+            }
+          },
+          "compiled_layers": 4,
+          "effective_backend": "native",
+          "failure": "",
+          "fixed_depth_reprojection": false,
+          "fragment_depth_search": false,
+          "native_shadow_size": 512,
+          "native_sheets": {
+            "groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 254428.0,
+                "triangles": 508856.0
+              },
+              {
+                "first_quad": 254428.0,
+                "quads": 54395.0,
+                "triangles": 108790.0
+              }
+            ],
+            "layers": 4.0,
+            "packets": {
+              "native.bin": {
+                "bytes": 14823504.0,
+                "sha256": "b3b6e5860a9f8ce90bb0c6219c58644c28a5d3789a0795b294917d88586e7084"
+              }
+            },
+            "quad_stride": 48.0,
+            "schema": "lie-native-cell-sheets/1",
+            "scope": "exact finite constant-depth cell sheets; original material/owner lookup; entry-face selection matches regions; auxiliary raster triangles; reverse-Z primary and regions shadows; no original mesh; no speed claim",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "node_builds": 4,
+          "primary_builds": 4,
+          "proxy_triangles": 1164,
+          "requested_backend": "native",
+          "reverse_z": true,
+          "scope": "experimental opaque compiled surface; native depth; four captured layers; shared full brick master replaces sparse instance selections; light-space cube maps replace short disk shadows; finite-resolution visibility differs; reference resources retained for A/B; no physical FPS claim",
+          "shade_builds": 4,
+          "shadow_backend": "regions_reverse_z",
+          "shadow_builds": 0,
+          "shadow_light_builds": 0,
+          "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+          "source_projection_dispatches": 0,
+          "source_shadow_queries": 0,
+          "submitted_triangles": 48958966,
+          "surface_cell_walk": false
+        },
+        "mode": "native",
+        "pose": {
+          "active_visibility": true,
+          "area_lights": false,
+          "area_size": 0.3,
+          "block_access": true,
+          "bounded_raster": true,
+          "camera_elevation": 2.0563994513617607,
+          "camera_yaw": -73.00939846038818,
+          "clay_absorption": 0.0,
+          "compact_shadows": false,
+          "contact_shadows": true,
+          "contact_steps": 12,
+          "continuous_light": true,
+          "coverage_enabled": true,
+          "cpu_reuse": true,
+          "direct_backend": "native",
+          "direct_shadow_proxies": true,
+          "distance_factor": 0.6,
+          "energy_radius": false,
+          "explode": 0.0,
+          "exposure": 2.0,
+          "fill_azimuth": 55.0,
+          "fill_enabled": true,
+          "fill_power": 0.32,
+          "fused_shading": true,
+          "internal_resolution": 720,
+          "kernel_mode": "split",
+          "key_enabled": true,
+          "lean_barriers": false,
+          "light_azimuth": -53.4,
+          "light_power": 1.0,
+          "lighting_preset": "neutral",
+          "master": "real_scan_wall",
+          "material_response": true,
+          "mode": "master",
+          "normal_filtering": true,
+          "occlusion_witnesses": true,
+          "optical_codes": true,
+          "persistent_visibility": true,
+          "power_response": true,
+          "precomputed_ray_boxes": true,
+          "quality_2x": false,
+          "raster_backend": "compute",
+          "roof": true,
+          "roughness_variation": 0.06,
+          "scan_shadows": true,
+          "screen_tiles": false,
+          "seed": 29.0,
+          "separate_lights": true,
+          "shadows": false,
+          "stage_timestamps": false,
+          "surface_continuity": true,
+          "surface_detail": true,
+          "surface_filter": true,
+          "surface_queries": true,
+          "tight_bounds": true,
+          "variation": 0.0,
+          "visibility_diagnostics": false,
+          "visibility_stream": false,
+          "world_contacts": true
+        }
+      },
+      {
+        "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "internal_size": 720,
+        "metrics": {
+          "access": {
+            "envelope_cell_center_max_error_m": 0.00299876253120601,
+            "envelope_groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 4114.0,
+                "triangles": 8228.0
+              },
+              {
+                "first_quad": 4114.0,
+                "quads": 11832.0,
+                "triangles": 23664.0
+              }
+            ],
+            "envelope_layers_per_direction": 1.0,
+            "envelope_max_step_cells": 32.0,
+            "envelope_quad_stride": 48.0,
+            "envelope_refine_error_m": 0.003,
+            "packets": {
+              "envelope.bin": {
+                "bytes": 765408.0,
+                "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+              },
+              "regions.bin": {
+                "bytes": 282624.0,
+                "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+              }
+            },
+            "region_height": 138.0,
+            "region_rects": [
+              [
+                0.0,
+                0.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                13.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                26.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                39.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                52.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                60.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                68.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                71.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                74.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                77.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                80.0,
+                128.0,
+                29.0
+              ],
+              [
+                0.0,
+                109.0,
+                128.0,
+                29.0
+              ]
+            ],
+            "region_size": 8.0,
+            "region_width": 128.0,
+            "schema": "lie-surface-access/1",
+            "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "additional_requested_bytes": 253290656,
+          "atlas_resident": true,
+          "bounded_view_queries": false,
+          "captured_views": {
+            "masters": [
+              {
+                "height": 1137.0,
+                "max_capture_size": 192.0,
+                "valid_pixels": 867700.0,
+                "views": 64.0,
+                "width": 2048.0
+              },
+              {
+                "height": 3071.0,
+                "max_capture_size": 512.0,
+                "valid_pixels": 193404.0,
+                "views": 64.0,
+                "width": 4096.0
+              }
+            ],
+            "metadata_stride": 80.0,
+            "packets": {
+              "views-0.bin": {
+                "bytes": 18628608.0,
+                "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+              },
+              "views-1.bin": {
+                "bytes": 100630528.0,
+                "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+              },
+              "views-meta.bin": {
+                "bytes": 10240.0,
+                "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+              }
+            },
+            "runtime": {
+              "angular_candidates": 3.0,
+              "shadow_backend": "regions",
+              "source_cell_walk": false,
+              "source_refinements": 2.0,
+              "view_depth_steps": 3.0
+            },
+            "schema": "lie-captured-views/1",
+            "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "spec": {
+              "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+              "grid": 8.0,
+              "sizes": [
+                192.0,
+                512.0
+              ],
+              "source_packets": {
+                "color.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+                },
+                "depth.bin": {
+                  "bytes": 17367040.0,
+                  "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+                },
+                "normal.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+                }
+              }
+            }
+          },
+          "compiled_layers": 4,
+          "effective_backend": "regions",
+          "failure": "",
+          "fixed_depth_reprojection": false,
+          "fragment_depth_search": true,
+          "native_shadow_size": 512,
+          "node_builds": 5,
+          "primary_builds": 5,
+          "proxy_triangles": 1164,
+          "requested_backend": "regions",
+          "scope": "experimental opaque compiled surface; native depth; four captured layers; shared full brick master replaces sparse instance selections; light-space cube maps replace short disk shadows; finite-resolution visibility differs; reference resources retained for A/B; no physical FPS claim",
+          "shade_builds": 5,
+          "shadow_backend": "regions",
+          "shadow_builds": 0,
+          "shadow_light_builds": 0,
+          "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+          "source_projection_dispatches": 0,
+          "source_shadow_queries": 0,
+          "submitted_triangles": 1164,
+          "surface_cell_walk": true
+        },
+        "mode": "regions",
+        "pose": {
+          "active_visibility": true,
+          "area_lights": false,
+          "area_size": 0.3,
+          "block_access": true,
+          "bounded_raster": true,
+          "camera_elevation": 2.0563994513617607,
+          "camera_yaw": -72.80939846038818,
+          "clay_absorption": 0.0,
+          "compact_shadows": false,
+          "contact_shadows": true,
+          "contact_steps": 12,
+          "continuous_light": true,
+          "coverage_enabled": true,
+          "cpu_reuse": true,
+          "direct_backend": "regions",
+          "direct_shadow_proxies": true,
+          "distance_factor": 0.6,
+          "energy_radius": false,
+          "explode": 0.0,
+          "exposure": 2.0,
+          "fill_azimuth": 55.0,
+          "fill_enabled": true,
+          "fill_power": 0.32,
+          "fused_shading": true,
+          "internal_resolution": 720,
+          "kernel_mode": "split",
+          "key_enabled": true,
+          "lean_barriers": false,
+          "light_azimuth": -53.4,
+          "light_power": 1.0,
+          "lighting_preset": "neutral",
+          "master": "real_scan_wall",
+          "material_response": true,
+          "mode": "master",
+          "normal_filtering": true,
+          "occlusion_witnesses": true,
+          "optical_codes": true,
+          "persistent_visibility": true,
+          "power_response": true,
+          "precomputed_ray_boxes": true,
+          "quality_2x": false,
+          "raster_backend": "compute",
+          "roof": true,
+          "roughness_variation": 0.06,
+          "scan_shadows": true,
+          "screen_tiles": false,
+          "seed": 29.0,
+          "separate_lights": true,
+          "shadows": false,
+          "stage_timestamps": false,
+          "surface_continuity": true,
+          "surface_detail": true,
+          "surface_filter": true,
+          "surface_queries": true,
+          "tight_bounds": true,
+          "variation": 0.0,
+          "visibility_diagnostics": false,
+          "visibility_stream": false,
+          "world_contacts": true
+        }
+      },
+      {
+        "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+        "internal_size": 720,
+        "metrics": {
+          "access": {
+            "envelope_cell_center_max_error_m": 0.00299876253120601,
+            "envelope_groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 4114.0,
+                "triangles": 8228.0
+              },
+              {
+                "first_quad": 4114.0,
+                "quads": 11832.0,
+                "triangles": 23664.0
+              }
+            ],
+            "envelope_layers_per_direction": 1.0,
+            "envelope_max_step_cells": 32.0,
+            "envelope_quad_stride": 48.0,
+            "envelope_refine_error_m": 0.003,
+            "packets": {
+              "envelope.bin": {
+                "bytes": 765408.0,
+                "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+              },
+              "regions.bin": {
+                "bytes": 282624.0,
+                "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+              }
+            },
+            "region_height": 138.0,
+            "region_rects": [
+              [
+                0.0,
+                0.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                13.0,
+                8.0,
+                13.0
+              ],
+              [
+                0.0,
+                26.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                39.0,
+                24.0,
+                13.0
+              ],
+              [
+                0.0,
+                52.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                60.0,
+                24.0,
+                8.0
+              ],
+              [
+                0.0,
+                68.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                71.0,
+                29.0,
+                3.0
+              ],
+              [
+                0.0,
+                74.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                77.0,
+                128.0,
+                3.0
+              ],
+              [
+                0.0,
+                80.0,
+                128.0,
+                29.0
+              ],
+              [
+                0.0,
+                109.0,
+                128.0,
+                29.0
+              ]
+            ],
+            "region_size": 8.0,
+            "region_width": 128.0,
+            "schema": "lie-surface-access/1",
+            "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "additional_requested_bytes": 253290656,
+          "atlas_resident": true,
+          "bounded_view_queries": false,
+          "captured_views": {
+            "masters": [
+              {
+                "height": 1137.0,
+                "max_capture_size": 192.0,
+                "valid_pixels": 867700.0,
+                "views": 64.0,
+                "width": 2048.0
+              },
+              {
+                "height": 3071.0,
+                "max_capture_size": 512.0,
+                "valid_pixels": 193404.0,
+                "views": 64.0,
+                "width": 4096.0
+              }
+            ],
+            "metadata_stride": 80.0,
+            "packets": {
+              "views-0.bin": {
+                "bytes": 18628608.0,
+                "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+              },
+              "views-1.bin": {
+                "bytes": 100630528.0,
+                "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+              },
+              "views-meta.bin": {
+                "bytes": 10240.0,
+                "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+              }
+            },
+            "runtime": {
+              "angular_candidates": 3.0,
+              "shadow_backend": "regions",
+              "source_cell_walk": false,
+              "source_refinements": 2.0,
+              "view_depth_steps": 3.0
+            },
+            "schema": "lie-captured-views/1",
+            "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "spec": {
+              "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+              "grid": 8.0,
+              "sizes": [
+                192.0,
+                512.0
+              ],
+              "source_packets": {
+                "color.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+                },
+                "depth.bin": {
+                  "bytes": 17367040.0,
+                  "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+                },
+                "normal.bin": {
+                  "bytes": 34734080.0,
+                  "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+                }
+              }
+            }
+          },
+          "compiled_layers": 4,
+          "effective_backend": "native",
+          "failure": "",
+          "fixed_depth_reprojection": false,
+          "fragment_depth_search": false,
+          "native_shadow_size": 512,
+          "native_sheets": {
+            "groups": [
+              {
+                "first_quad": 0.0,
+                "quads": 254428.0,
+                "triangles": 508856.0
+              },
+              {
+                "first_quad": 254428.0,
+                "quads": 54395.0,
+                "triangles": 108790.0
+              }
+            ],
+            "layers": 4.0,
+            "packets": {
+              "native.bin": {
+                "bytes": 14823504.0,
+                "sha256": "b3b6e5860a9f8ce90bb0c6219c58644c28a5d3789a0795b294917d88586e7084"
+              }
+            },
+            "quad_stride": 48.0,
+            "schema": "lie-native-cell-sheets/1",
+            "scope": "exact finite constant-depth cell sheets; original material/owner lookup; entry-face selection matches regions; auxiliary raster triangles; reverse-Z primary and regions shadows; no original mesh; no speed claim",
+            "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+            "source_packets": {
+              "color.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+              },
+              "depth.bin": {
+                "bytes": 17367040.0,
+                "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+              },
+              "normal.bin": {
+                "bytes": 34734080.0,
+                "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+              }
+            }
+          },
+          "node_builds": 6,
+          "primary_builds": 6,
+          "proxy_triangles": 1164,
+          "requested_backend": "native",
+          "reverse_z": true,
+          "scope": "experimental opaque compiled surface; native depth; four captured layers; shared full brick master replaces sparse instance selections; light-space cube maps replace short disk shadows; finite-resolution visibility differs; reference resources retained for A/B; no physical FPS claim",
+          "shade_builds": 6,
+          "shadow_backend": "regions_reverse_z",
+          "shadow_builds": 0,
+          "shadow_light_builds": 0,
+          "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+          "source_projection_dispatches": 0,
+          "source_shadow_queries": 0,
+          "submitted_triangles": 48958966,
+          "surface_cell_walk": false
+        },
+        "mode": "native",
+        "pose": {
+          "active_visibility": true,
+          "area_lights": false,
+          "area_size": 0.3,
+          "block_access": true,
+          "bounded_raster": true,
+          "camera_elevation": 2.0563994513617607,
+          "camera_yaw": -72.80939846038818,
+          "clay_absorption": 0.0,
+          "compact_shadows": false,
+          "contact_shadows": true,
+          "contact_steps": 12,
+          "continuous_light": true,
+          "coverage_enabled": true,
+          "cpu_reuse": true,
+          "direct_backend": "native",
+          "direct_shadow_proxies": true,
+          "distance_factor": 0.6,
+          "energy_radius": false,
+          "explode": 0.0,
+          "exposure": 2.0,
+          "fill_azimuth": 55.0,
+          "fill_enabled": true,
+          "fill_power": 0.32,
+          "fused_shading": true,
+          "internal_resolution": 720,
+          "kernel_mode": "split",
+          "key_enabled": true,
+          "lean_barriers": false,
+          "light_azimuth": -53.4,
+          "light_power": 1.0,
+          "lighting_preset": "neutral",
+          "master": "real_scan_wall",
+          "material_response": true,
+          "mode": "master",
+          "normal_filtering": true,
+          "occlusion_witnesses": true,
+          "optical_codes": true,
+          "persistent_visibility": true,
+          "power_response": true,
+          "precomputed_ray_boxes": true,
+          "quality_2x": false,
+          "raster_backend": "compute",
+          "roof": true,
+          "roughness_variation": 0.06,
+          "scan_shadows": true,
+          "screen_tiles": false,
+          "seed": 29.0,
+          "separate_lights": true,
+          "shadows": false,
+          "stage_timestamps": false,
+          "surface_continuity": true,
+          "surface_detail": true,
+          "surface_filter": true,
+          "surface_queries": true,
+          "tight_bounds": true,
+          "variation": 0.0,
+          "visibility_diagnostics": false,
+          "visibility_stream": false,
+          "world_contacts": true
+        }
+      }
+    ],
+    "scope": "untimed software Vulkan; regions comparison is not source ground truth; no mobile speed or photo-fidelity claim"
+  },
+  "fixed_motion_coverage": [
+    {
+      "camera_yaw": -72.90939846038818,
+      "regions_hits": 138812,
+      "native_hits": 138811,
+      "missing_vs_regions": 1,
+      "extra_vs_regions": 0,
+      "interior_missing_5x5": 1,
+      "different_owner_overlap": 59
+    },
+    {
+      "camera_yaw": -73.00939846038818,
+      "regions_hits": 138639,
+      "native_hits": 138631,
+      "missing_vs_regions": 8,
+      "extra_vs_regions": 0,
+      "interior_missing_5x5": 3,
+      "different_owner_overlap": 75
+    },
+    {
+      "camera_yaw": -72.80939846038818,
+      "regions_hits": 139030,
+      "native_hits": 139027,
+      "missing_vs_regions": 3,
+      "extra_vs_regions": 0,
+      "interior_missing_5x5": 1,
+      "different_owner_overlap": 71
+    }
+  ],
+  "independent_oracle": {
+    "scope": "independent float64 exact finite captured-cell ray oracle; all regions/native ownership or coverage differences plus seeded hit and empty rays; original runtime view/proxy packets; regions is not ground truth; no source-mesh or mobile-performance claim",
+    "samples": 2460,
+    "oracle_hits": 1259,
+    "native_hits": 1259,
+    "native_missing": 0,
+    "native_extra": 0,
+    "native_owner_mismatches": 7,
+    "owner_mismatch_distance_to_cell_edge_m": [
+      2.2411094651695694e-07,
+      6.8347049352808114e-09,
+      0.00018268406783815506,
+      3.476909711627515e-08,
+      0.00011949565497207674,
+      2.6917068877380385e-07,
+      1.26762394811619e-07
+    ],
+    "regions_owner_mismatches": 52,
+    "native_distance_error_m_percentiles": [
+      8.932856609966677e-08,
+      2.2549079430334022e-07,
+      5.394629670174582e-07,
+      0.004412752687793731
+    ],
+    "native_distance_errors_over_20um": 7,
+    "near_ties_under_1um": 1
+  },
+  "negative_direct_triangle_oracle": {
+    "scope": "independent float64 exact finite captured-cell ray oracle; all regions/native ownership or coverage differences plus seeded hit and empty rays; original runtime view/proxy packets; regions is not ground truth; no source-mesh or mobile-performance claim",
+    "samples": 3046,
+    "oracle_hits": 1836,
+    "native_hits": 1823,
+    "native_missing": 22,
+    "native_extra": 9,
+    "native_owner_mismatches": 564,
+    "regions_owner_mismatches": 50,
+    "native_distance_error_m_percentiles": [
+      1.3196284764926958e-07,
+      0.003386674174285598,
+      0.18844049034602706,
+      0.23759525099232448
+    ],
+    "native_distance_errors_over_20um": 577,
+    "near_ties_under_1um": 1
+  },
+  "native_packet": {
+    "schema": "lie-native-cell-sheets/1",
+    "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+    "source_packets": {
+      "depth.bin": {
+        "bytes": 17367040,
+        "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+      },
+      "normal.bin": {
+        "bytes": 34734080,
+        "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+      },
+      "color.bin": {
+        "bytes": 34734080,
+        "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+      }
+    },
+    "quad_stride": 48,
+    "groups": [
+      {
+        "first_quad": 0,
+        "quads": 254428,
+        "triangles": 508856
+      },
+      {
+        "first_quad": 254428,
+        "quads": 54395,
+        "triangles": 108790
+      }
+    ],
+    "layers": 4,
+    "packets": {
+      "native.bin": {
+        "bytes": 14823504,
+        "sha256": "b3b6e5860a9f8ce90bb0c6219c58644c28a5d3789a0795b294917d88586e7084"
+      }
+    },
+    "scope": "exact finite constant-depth cell sheets; original material/owner lookup; entry-face selection matches regions; auxiliary raster triangles; reverse-Z primary and regions shadows; no original mesh; no speed claim"
+  },
+  "submitted_primary_triangles": 48958966,
+  "regressions": {
+    "python_discovered": 238,
+    "python_skipped": 1,
+    "python_failed": 0,
+    "rig_checks": 247,
+    "agent_checks": 25,
+    "command_checks": 22
+  },
+  "original_adjusted_phone_pose_missing_vs_regions": 6531,
+  "artifacts": {
+    "phone-native.png": {
+      "bytes": 391851,
+      "sha256": "6d5e882543e91341d07a0f39c0d741f7bd3ccc79d8584c2801ba4f60e705a208"
+    },
+    "phone-regions.png": {
+      "bytes": 391754,
+      "sha256": "84bc47763fb143d01f2f545155e087bf5a106e4ebce3029266bd3f01f34b3262"
+    },
+    "native-gpu.log": {
+      "bytes": 1897,
+      "sha256": "09053c720958ed7a3fa442b7e9bf0dd4ba49c58f68570dbc971e21da78d4781a"
+    },
+    "native-import.log": {
+      "bytes": 1636,
+      "sha256": "ea0d080a7129db2d5e031dcd970890be270cec002d50c2f51bdeff55544c20fc"
+    },
+    "python.log": {
+      "bytes": 2862,
+      "sha256": "a9158701ba0d5902afa0ac83efc397bab6fcdc7279107aa22da6be6835b0de5f"
+    }
+  }
+}
