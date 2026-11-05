@@ -106,8 +106,18 @@ jobs:
             ${{ runner.temp }}/lie-import.log
             ${{ runner.temp }}/lie-native-gpu.log
             ${{ runner.temp }}/lie-native-triplet-pose*.json
-            ${{ runner.temp }}/lie-native-qa/native-depth/0-native-world.bin
-            ${{ runner.temp }}/lie-native-qa/native-depth/0-regions-world.bin
-            ${{ runner.temp }}/lie-native-qa/native-depth/0-native-views.bin
-            ${{ runner.temp }}/lie-native-qa/native-depth/0-native-proxies.bin
-            ${{ runner.temp }}/lie-native-qa/native-depth/execution.json
+            /tmp/lie-native-qa/native-depth/0-native-world.bin
+            /tmp/lie-native-qa/native-depth/0-regions-world.bin
+            /tmp/lie-native-qa/native-depth/0-native-views.bin
+            /tmp/lie-native-qa/native-depth/0-native-proxies.bin
+            /tmp/lie-native-qa/native-depth/1-native-world.bin
+            /tmp/lie-native-qa/native-depth/1-regions-world.bin
+            /tmp/lie-native-qa/native-depth/1-native-views.bin
+            /tmp/lie-native-qa/native-depth/1-native-proxies.bin
+            /tmp/lie-native-qa/native-depth/2-native-world.bin
+            /tmp/lie-native-qa/native-depth/2-regions-world.bin
+            /tmp/lie-native-qa/native-depth/2-native-views.bin
+            /tmp/lie-native-qa/native-depth/2-native-proxies.bin
+            /tmp/lie-native-qa/native-depth/execution.json
+            /tmp/lie-native-qa/native-depth/phone-shadows-native.png
+            /tmp/lie-native-qa/native-depth/phone-shadows-regions.png
