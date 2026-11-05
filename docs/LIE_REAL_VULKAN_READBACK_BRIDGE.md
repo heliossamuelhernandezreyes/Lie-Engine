@@ -2,7 +2,7 @@
 
 **Rama:** `research/lie-geometric-sufficiency-audit` (PR #73, no merge a `main`).  
 **Alcance:** pared experimental LIE 2.5 / `work/lie-native-depth`; no confundir con LIE-27 en `main`.  
-**Estado:** implementación y pruebas de **formato/contrato**. No se afirma aquí una nueva ejecución Vulkan o Blender, porque el banco atribuido y la malla original no están archivados completos en el repositorio visible. La ejecución registrada en `docs/LIE_NATIVE_DEPTH_RECOVERY.md` pertenece a la rama experimental.
+**Estado:** implementación y pruebas de **formato/contrato**. El banco atribuido **sí se recuperó** del APK verificado en GitHub Actions y se comprobó su checksum. El ensayo Vulkan nuevo se ejecuta en el workflow independiente `lie-vulkan-attributed-wall.yml`; no confundir un workflow enviado con un resultado aprobado. La malla original completa y su transformación verificable siguen pendientes. La ejecución histórica de `docs/LIE_NATIVE_DEPTH_RECOVERY.md` pertenece a la rama experimental.
 
 ## Qué prueba cada nivel
 
@@ -25,7 +25,7 @@ git worktree add ../lie-geometric-audit research/lie-geometric-sufficiency-audit
 
 Si la rama ya tiene un worktree, se puede trabajar desde el existente; los comandos anteriores son ejemplos.
 
-En `lie-native-depth`, restaurar los paquetes del banco original al directorio `gpu_compute/captures/liewall06`. Verificar procedencia: SHA-256 de banco **ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340**. Este checksum está documentado, pero no sustituye inspeccionar individualmente los archivos fuente ni asegura que la malla Blender original esté disponible.
+En `lie-native-depth`, restaurar los paquetes del banco original al directorio `gpu_compute/captures/liewall06`. **Ya se recuperaron y verificaron a partir del APK** del workflow histórico `39371606348`, artefacto `12242222027`, titulado `lie-captured-views-apk-and-evidence`. El script `tools/lie_recover_attributed_apk_bank.py` extrae los 39 archivos originales del APK y valida hashes de `library.bin`, `direct/depth.bin`, `direct/normal.bin` y `direct/color.bin`. La checksum del banco es **ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340**. No se debe subir el banco al repositorio: el workflow lo recupera durante la ejecución. Recuperar el banco de capturas no equivale a poseer la malla fuente Blender.
 
 Reproducir la prueba Vulkan documentada en esa rama:
 
@@ -43,6 +43,10 @@ godot --path /tmp/lie-native-qa --rendering-driver vulkan --rendering-method mob
 ```
 
 Esto exige un entorno Vulkan funcional y los binarios del banco. Si falla por faltantes, **NO** reemplazar por `regions`, ejemplos CPU o ceros.
+
+## Ensayo Vulkan real reproducible sin modificar main
+
+El workflow [LIE native Vulkan archived bank experiment](../.github/workflows/lie-vulkan-attributed-wall.yml) descarga el APK original, restaura el banco, compila la rama experimental por separado, ejecuta Godot 4.7.2 + Vulkan por software (llvmpipe) y corre el puente de representación contra GPU en poses 0/1/2. Guarda JSON y readbacks como artefacto si la ejecución llega a completarse. **No es una prueba de velocidad Mali ni reemplaza la comparación con malla original.**
 
 ## Etapa A — Captura real vs Vulkan real (sin inventar la fuente)
 
