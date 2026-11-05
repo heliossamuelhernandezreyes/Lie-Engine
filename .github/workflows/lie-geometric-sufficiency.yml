@@ -8,6 +8,9 @@ on:
       - 'tools/lie_geometric_sufficiency_probe.py'
       - 'tests/test_lie_geometric_sufficiency_probe.py'
       - 'tools/lie_geometric_triplet_compare.py'
+      - 'tools/lie_real_vulkan_triplet.py'
+      - 'tests/test_lie_real_vulkan_triplet.py'
+      - 'docs/LIE_REAL_VULKAN_READBACK_BRIDGE.md'
       - 'tests/test_lie_geometric_triplet_compare.py'
       - 'docs/LIE_GEOMETRIC_TRIPLET_COMPARISON.md'
       - '.github/workflows/lie-geometric-sufficiency.yml'
@@ -36,6 +39,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_lie_geometric_sufficiency_probe.py' -v
       - name: Run triplet attribution tests
         run: python -m unittest discover -s tests -p 'test_lie_geometric_triplet_compare.py' -v
+      - name: Verify real-readback adapter with synthetic I/O fixtures (no GPU claim)
+        run: python -m unittest discover -s tests -p 'test_lie_real_vulkan_triplet.py' -v
       - name: Record numerical evidence
         run: python tools/lie_geometric_sufficiency_probe.py --output /tmp/lie-geometric-sufficiency.json
       - name: Record triplet diagnostics (CPU only)
