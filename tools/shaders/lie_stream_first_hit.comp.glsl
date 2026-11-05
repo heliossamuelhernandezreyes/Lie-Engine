@@ -78,24 +78,39 @@ void main() {
 
         // Entry-axis traversal follows the SAME finite four-layer captured
         // cell sheets; nothing is fitted or interpolated across a missing cell.
+        // Integer-index DDA: do NOT accumulate 1e-7 into metres of world
+        // distance, as FP32 can skip/revisit a cell. Ray is rebased at AABB
+        // entry and each crossing moves a discrete (cell.x,cell.y) index.
         float entry_base=max(entry,0.);
         eye+=ray*entry_base;
         float end_local=exit_t-entry_base;
         float t=1.e-6;
+        vec2 uv0=vec2(eye[axes.x],eye[axes.y]);
+        vec2 uv_start=uv0+uv_ray*t;
+        ivec2 cell=clamp(ivec2(floor((uv_start-lower)/size_cell)),ivec2(0),rect.zw-1);
+        ivec2 direction=ivec2(uv_ray.x>=0.?1:-1,uv_ray.y>=0.?1:-1);
+        vec2 step_time=vec2(1.e30);
+        vec2 boundary_time=vec2(1.e30);
+        for(int a=0;a<2;a++) {
+            if(abs(uv_ray[a])>1.e-16) {
+                float edge=lower[a]+float(cell[a]+(direction[a]>0?1:0))*size_cell[a];
+                boundary_time[a]=(edge-uv0[a])/uv_ray[a];
+                step_time[a]=size_cell[a]/abs(uv_ray[a]);
+                // One initial float32 rounding can put us infinitesimally
+                // behind an edge. The next transition must never go backwards.
+                boundary_time[a]=max(boundary_time[a],t);
+            }
+        }
         bool finished=false;
         for(int iteration=0;iteration<MAX_CELL_STEPS;iteration++) {
             if(t>end_local+EPS||entry_base+t>=best) {finished=true;break;}
+            if(any(lessThan(cell,ivec2(0)))||any(greaterThanEqual(cell,rect.zw))) {
+                finished=true;break;
+            }
             traversed++;
-            vec3 pos=eye+ray*t;
-            vec2 uv=vec2(pos[axes.x],pos[axes.y]);
-            ivec2 cell=clamp(ivec2(floor((uv-lower)/size_cell)),ivec2(0),rect.zw-1);
-            vec2 edge=lower+(vec2(cell)+step(vec2(0.),uv_ray))*size_cell;
-            vec2 next_t=vec2(1.e30);
-            if(abs(uv_ray.x)>1.e-16)next_t.x=(edge.x-uv.x)/uv_ray.x+t;
-            if(abs(uv_ray.y)>1.e-16)next_t.y=(edge.y-uv.y)/uv_ray.y+t;
-            float stop=min(end_local,min(next_t.x,next_t.y));
+            float stop=min(end_local,min(boundary_time.x,boundary_time.y));
             stop=min(stop,best-entry_base);
-            if(stop<t-EPS)break;
+            if(stop<t-EPS) {overflow=true;break;}
 
             vec4 layers=texelFetch(depth_field,cell+rect.xy,0);
             float local_best=1.e30;
@@ -109,7 +124,8 @@ void main() {
                     local_layer=layer;
                 }
             }
-            if(local_layer>=0 && local_best<best) {
+            bool accepted=false;
+            if(local_layer>=0 && entry_base+local_best<best) {
                 vec3 local_hit=eye+ray*local_best;
                 vec3 world=(p.world*vec4(local_hit,1.)).xyz;
                 vec4 n=texelFetch(normal_field,ivec3(cell+rect.xy,local_layer),0);
@@ -123,14 +139,25 @@ void main() {
                     best_color=vec4(clamp(c.rgb*p.material.x,vec3(0.),vec3(1.)),1.);
                     best_revz=v.lens.x*(v.lens.y-z)/((v.lens.y-v.lens.x)*z);
                     winner=1;
+                    accepted=true;
                 }
             }
-            // Never stop at an occupied cell unless the chosen hit is valid:
-            // the first-hit must win across ALL intersecting proxies.
-            if(local_layer>=0&&local_best<1.e29) {finished=true;break;}
-            float bumped=max(stop+EPS,t+EPS);
-            if(bumped<=t) {overflow=true;break;}
-            t=bumped;
+            if(accepted) {finished=true;break;}
+            if(stop>=end_local-EPS||entry_base+stop>=best-EPS) {
+                finished=true;break;
+            }
+            bool move_x=boundary_time.x<=boundary_time.y;
+            bool move_y=boundary_time.y<=boundary_time.x;
+            if(!move_x&&!move_y) {overflow=true;break;}
+            if(move_x) {
+                cell.x+=direction.x;
+                boundary_time.x+=step_time.x;
+            }
+            if(move_y) {
+                cell.y+=direction.y;
+                boundary_time.y+=step_time.y;
+            }
+            t=stop;
         }
         if(!finished&&t<=end_local+EPS&&entry_base+t<best&&!overflow)overflow=true;
     }
