@@ -20,6 +20,10 @@ on:
       - 'tools/lie_native_compensated_comparison.py'
       - 'tests/test_lie_native_compensated_boundary.py'
       - 'tools/lie_native_sparse_first_hit.py'
+      - 'tools/lie_stream_first_hit_stage.py'
+      - 'tools/lie_stream_first_hit_compare.py'
+      - 'tools/shaders/lie_stream_first_hit.comp.glsl'
+      - 'tests/test_lie_stream_first_hit.py'
       - 'tests/test_lie_native_sparse_first_hit.py'
       - 'docs/LIE_NATIVE_BOUNDARY_FORENSICS.md'
       - 'tools/lie_blender_original_raycast.py'
@@ -71,6 +75,10 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_lie_sparse_conflict_feasibility.py' -v
       - name: Validate GPU-native-only sparse risk detector
         run: python -m unittest discover -s tests -p 'test_lie_native_sparse_first_hit.py' -v
+      - name: Validate candidate-driven compute staging without GPU performance claims
+        run: |
+          python -m unittest discover -s tests -p 'test_lie_stream_first_hit.py' -v
+          python -m py_compile tools/lie_stream_first_hit_stage.py tools/lie_stream_first_hit_compare.py
       - name: Record numerical evidence
         run: python tools/lie_geometric_sufficiency_probe.py --output /tmp/lie-geometric-sufficiency.json
       - name: Record triplet diagnostics (CPU only)
