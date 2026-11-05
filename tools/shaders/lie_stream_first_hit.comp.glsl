@@ -78,10 +78,13 @@ void main() {
 
         // Entry-axis traversal follows the SAME finite four-layer captured
         // cell sheets; nothing is fitted or interpolated across a missing cell.
-        float t=max(entry,0.)+EPS;
+        float entry_base=max(entry,0.);
+        eye+=ray*entry_base;
+        float end_local=exit_t-entry_base;
+        float t=1.e-6;
         bool finished=false;
         for(int iteration=0;iteration<MAX_CELL_STEPS;iteration++) {
-            if(t>exit_t+EPS||t>=best) {finished=true;break;}
+            if(t>end_local+EPS||entry_base+t>=best) {finished=true;break;}
             traversed++;
             vec3 pos=eye+ray*t;
             vec2 uv=vec2(pos[axes.x],pos[axes.y]);
@@ -90,8 +93,8 @@ void main() {
             vec2 next_t=vec2(1.e30);
             if(abs(uv_ray.x)>1.e-16)next_t.x=(edge.x-uv.x)/uv_ray.x+t;
             if(abs(uv_ray.y)>1.e-16)next_t.y=(edge.y-uv.y)/uv_ray.y+t;
-            float stop=min(exit_t,min(next_t.x,next_t.y));
-            stop=min(stop,best);
+            float stop=min(end_local,min(next_t.x,next_t.y));
+            stop=min(stop,best-entry_base);
             if(stop<t-EPS)break;
 
             vec4 layers=texelFetch(depth_field,cell+rect.xy,0);
@@ -113,7 +116,7 @@ void main() {
                 vec4 c=texelFetch(color_field,ivec3(cell+rect.xy,local_layer),0);
                 float z=dot(world-v.eye.xyz,v.forward.xyz);
                 if(z>v.lens.x&&z<v.lens.y) {
-                    best=local_best;
+                    best=entry_base+local_best;
                     best_world=vec4(world,n.w+p.material.z+1.);
                     best_normal=vec4(normalize(transpose(mat3(p.local))*n.xyz),
                         clamp(c.a+p.material.y,.2,.95));
@@ -129,7 +132,7 @@ void main() {
             if(bumped<=t) {overflow=true;break;}
             t=bumped;
         }
-        if(!finished&&t<=exit_t+EPS&&t<best&&!overflow)overflow=true;
+        if(!finished&&t<=end_local+EPS&&entry_base+t<best&&!overflow)overflow=true;
     }
 
     if(overflow) {
