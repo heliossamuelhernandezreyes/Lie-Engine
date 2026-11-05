@@ -6,10 +6,13 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import sys
 
 import numpy as np
 
-module_path=Path(__file__).resolve().parents[1]/'tools'/'lie_real_vulkan_triplet.py'
+tools_dir=Path(__file__).resolve().parents[1]/'tools'
+if str(tools_dir) not in sys.path:sys.path.insert(0,str(tools_dir))
+module_path=tools_dir/'lie_real_vulkan_triplet.py'
 spec=importlib.util.spec_from_file_location('lie_real_vulkan_triplet',module_path)
 triplet=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(triplet)
