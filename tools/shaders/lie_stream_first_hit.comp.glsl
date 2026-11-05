@@ -80,7 +80,7 @@ void main() {
         // cell sheets; nothing is fitted or interpolated across a missing cell.
         float t=max(entry,0.)+EPS;
         bool finished=false;
-        for(int step=0;step<MAX_CELL_STEPS;step++) {
+        for(int iteration=0;iteration<MAX_CELL_STEPS;iteration++) {
             if(t>exit_t+EPS||t>=best) {finished=true;break;}
             traversed++;
             vec3 pos=eye+ray*t;
