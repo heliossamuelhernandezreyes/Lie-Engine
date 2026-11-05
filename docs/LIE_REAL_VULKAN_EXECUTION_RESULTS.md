@@ -69,3 +69,17 @@ Hay errores próximos a fronteras de celdas que podrían tener causas numéricas
 `oracle_next_candidate_gap_m` resultó nulo en los impactos registrados: el recorrido independiente histórico corta después del primer impacto por tramo y no dispone de un segundo candidato fiable en esos píxeles. **No atribuir esta causa a empate de profundidades sin desarrollar otro oráculo independiente de dos impactos y certificarlo.**
 
 El informe `strict_sample_acceptance.passed = false` en todas las poses, aunque las verificaciones de ejecución Godot y el workflow CI finalizaron correctamente. **Éxito de ejecución ≠ exactitud geométrica**. Permanecen dos tareas independientes: arreglar las discrepancias de consulta frente a las celdas, y recuperar/verificar el original Blender para medir pérdida de captura frente a fuente.
+
+### Inspección binaria local del píxel crítico
+
+Se leyeron directamente los archivos `1-regions-world.bin` y `1-native-world.bin` del artefacto 13414771717, en la coordenada **(416,434)** del framebuffer 720×720:
+
+| Fuente | `world.xyz` (metros) | `world.w`, propietario |
+|---|---|---:|
+| `regions` (Vulkan) | (0.629140377, −0.247762307, 0.004330661) | **83** |
+| `native` (Vulkan) | (0.444266796, −0.225806534, 0.048820555) | **80** |
+| Oráculo float64 de celdas | primer impacto a distancia 2.882374825 m | **83** |
+
+`native` está seleccionando aquí un impacto visualmente **más cercano**; `regions` coincide con el propietario del oráculo. El mismo paquete binario muestra superficies del propietario 80 en píxeles vecinos, así que la incidencia puede involucrar soporte/cobertura de una celda candidata, descarte half-open, profundidad o decisión de primer impacto. La distancia de 0.2675 mm se refiere **al borde de la celda ganadora del oráculo**, no al soporte del candidato erróneo 80; por sí sola no descarta un problema de borde de esa otra celda.
+
+Esta inspección confirma que no es solo un fallo de presentación de métricas: los buffers de ambos backends almacenan posiciones e identificadores diferentes. **No modifica** el diagnóstico pendiente de la malla Blender original.
