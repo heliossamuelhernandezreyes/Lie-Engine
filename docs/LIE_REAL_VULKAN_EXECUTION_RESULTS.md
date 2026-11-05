@@ -51,3 +51,21 @@ La arquitectura actual de 48,958,966 triángulos auxiliares para la pared sigue 
 Comparar distancias al borde de celda y separación al segundo impacto por píxel incorrecto, priorizando (416,434) en la pose −0.1° y los dos falsos negativos de las poses vecinas. Conservar los archivos binarios de lectura real; revisar quién gana al cambiar ±1 subpíxel y al usar precisión/half-open bounds consistentes. Exigir también un raycast Blender autenticado del original si se desea certificar pérdida de datos por captura.
 
 La malla original documentada en `catalog.json` se atribuye a *Stratford New Place Brick Ver 2*, Centre-of-Archaeology (Sketchfab), CC BY 4.0, con 500,000 triángulos; el catálogo no contiene por sí solo el mesh original ni resuelve su transformación exacta en la pared.
+
+## Segunda ejecución — registros completos y distancias de borde
+
+[GitHub Actions 42027026472](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42027026472): **éxito**, usando de nuevo banco original restaurado, Godot 4.7.2 y Vulkan por software. Artefacto de evidencia: `lie-real-vulkan-native-triplet-evidence`, ID **13414771717**. Contiene readbacks binarios completos `world`, `views` y `proxies` de poses 0, 1 y 2, JSON de diagnóstico y logs, más dos PNG de apariencia con sombras. Los binarios se conservaron sin cambiar la representación.
+
+La comparación incorporó `oracle_distance_to_cell_edge_m`. Distancia geométrica desde el impacto del oráculo a la frontera de celda; **no** es error en profundidad ni precisión de GPU.
+
+| Pose | Rayos con discrepancias representación↔GPU | A más de 0.1 mm del borde de su celda | Ejemplo |
+|---|---:|---:|---|
+| 0, pose original | 7 | 2 | (413,441): error −4.413 mm, a 0.183 mm del borde |
+| 1, yaw −0.1° | 7 | 2 | (416,434): error **−191.415 mm**, a **0.2675 mm** del borde |
+| 2, yaw +0.1° | 11 | 2 | (461,370): error −4.254 mm con **mismo propietario**, a 0.285 mm del borde |
+
+Hay errores próximos a fronteras de celdas que podrían tener causas numéricas, pero **no todos los fallos pueden descartarse simplemente como impactos en el borde de la celda ganadora según el oráculo**. La segunda pose selecciona como ganador GPU a la superficie 80 a 2.690960059 m mientras el oráculo de celdas da como primer impacto a la superficie 83 a 2.882374825 m. La diferencia es 0.191414766 m; la GPU devuelve una superficie **más cercana** que la del oráculo, así que falta examinar si se trata de un oclusor espurio, una transformación/proyección incorrecta, o un error de intersección del propio oráculo cerca de la discontinuidad **de otra superficie**.
+
+`oracle_next_candidate_gap_m` resultó nulo en los impactos registrados: el recorrido independiente histórico corta después del primer impacto por tramo y no dispone de un segundo candidato fiable en esos píxeles. **No atribuir esta causa a empate de profundidades sin desarrollar otro oráculo independiente de dos impactos y certificarlo.**
+
+El informe `strict_sample_acceptance.passed = false` en todas las poses, aunque las verificaciones de ejecución Godot y el workflow CI finalizaron correctamente. **Éxito de ejecución ≠ exactitud geométrica**. Permanecen dos tareas independientes: arreglar las discrepancias de consulta frente a las celdas, y recuperar/verificar el original Blender para medir pérdida de captura frente a fuente.
