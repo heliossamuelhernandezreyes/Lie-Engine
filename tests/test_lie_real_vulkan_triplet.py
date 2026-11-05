@@ -13,6 +13,10 @@ module_path=Path(__file__).resolve().parents[1]/'tools'/'lie_real_vulkan_triplet
 spec=importlib.util.spec_from_file_location('lie_real_vulkan_triplet',module_path)
 triplet=importlib.util.module_from_spec(spec)
 spec.loader.exec_module(triplet)
+blend_path=Path(__file__).resolve().parents[1]/'tools'/'lie_blender_original_raycast.py'
+blend_spec=importlib.util.spec_from_file_location('lie_blender_original_raycast',blend_path)
+blend=importlib.util.module_from_spec(blend_spec)
+blend_spec.loader.exec_module(blend)
 
 
 class RealVulkanBridgeTests(unittest.TestCase):
@@ -112,6 +116,32 @@ class RealVulkanBridgeTests(unittest.TestCase):
                      owner_id=np.array([1]),manifest=json.dumps(meta))
             with self.assertRaisesRegex(ValueError,'owner mapping'):
                 triplet.load_source(p,np.array([0]),'0'*64)
+
+
+    def test_blender_rays_are_native_camera_rays(self):
+        with tempfile.TemporaryDirectory() as td:
+            cap=Path(td)
+            view=np.zeros(20,dtype='<f4')
+            view[14]=1.
+            view[4]=1.
+            view[9]=1.
+            view[18]=1.
+            view.tofile(cap/'0-native-views.bin')
+            eye,dirs,view_path=blend.camera(cap,0,np.array([0]),2)
+            np.testing.assert_allclose(eye,[0.,0.,0.])
+            expected=np.array([-.5,.5,1.])
+            expected/=np.linalg.norm(expected)
+            np.testing.assert_allclose(dirs[0],expected)
+            self.assertEqual(view_path.name,'0-native-views.bin')
+
+    def test_blender_transform_must_be_invertible(self):
+        with tempfile.TemporaryDirectory() as td:
+            mat=Path(td)/'matrix.json'
+            mat.write_text(json.dumps({'runtime_to_blender':np.eye(4).tolist()}))
+            np.testing.assert_array_equal(blend.matrix_from_file(mat),np.eye(4))
+            mat.write_text(json.dumps({'runtime_to_blender':np.zeros((4,4)).tolist()}))
+            with self.assertRaises(ValueError):
+                blend.matrix_from_file(mat)
 
     def test_mismatched_readback_dimensions_rejected(self):
         with tempfile.TemporaryDirectory() as td:
