@@ -32,14 +32,11 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_lie_wall25_sufficiency.py' -v
       - name: Restore exact attributed WALL06 bank and prepare all three GPU backends
         run: |
-          python tools/lie_wall06_alignment.py > /tmp/lie-wall25-build.log 2>&1
-          python tools/lie_direct_surface.py >> /tmp/lie-wall25-build.log 2>&1
-          python tools/lie_direct_access.py >> /tmp/lie-wall25-build.log 2>&1
-          python tools/lie_direct_views.py >> /tmp/lie-wall25-build.log 2>&1
-          python tools/lie_native_surface.py >> /tmp/lie-wall25-build.log 2>&1
+          python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform linux.x86_64 > /tmp/lie-wall25-native-build.log 2>&1
           python tools/lie_direct_access_shaders.py
           python tools/lie_direct_views_shaders.py
           python tools/lie_native_shaders.py
+          python tools/lie_direct_views_build.py --stage /tmp/lie-wall25-source-qa > /tmp/lie-wall25-build.log 2>&1
           python tools/lie_native_stage.py --stage /tmp/lie-wall25-source-qa
           python - <<'PY'
           from pathlib import Path
