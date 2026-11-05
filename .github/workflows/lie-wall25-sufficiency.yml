@@ -6,6 +6,7 @@ on:
       - research/lie25-real-wall-sufficiency
     paths:
       - tools/lie_wall25_sufficiency.py
+      - tools/lie_wall25_original_mesh.py
       - tests/test_lie_wall25_sufficiency.py
       - .github/workflows/lie-wall25-sufficiency.yml
   workflow_dispatch:
@@ -80,12 +81,33 @@ jobs:
           assert r['field_to_native_gpu']['source_hits']>0, 'No actual surface for the accepted phone camera'
           print('THREE_STAGE_WALL_MEASUREMENTS',r['source_bank_to_field'],r['field_to_native_gpu'])
           PY
+      - name: Acquire hash-locked original 500K-triangle Stratford brick GLB
+        run: |
+          python -m pip install rtree objaverse
+          python tools/lie_brick02_acquire_objaverse.py --directory /tmp/lie-wall25-original > /tmp/lie-wall25-original-acquire.log 2>&1
+          python -m unittest discover -s tests -p 'test_lie_wall25_original_mesh.py' -v
+      - name: Audit actual original triangle geometry against captured brick
+        run: |
+          python tools/lie_wall25_original_mesh.py --bank gpu_compute/captures/liewall06 --source-glb /tmp/lie-wall25-original/6077f6801089403993f6a6612ff5739a.glb --captures /tmp/lie-wall25-source-qa/native-depth --output /tmp/lie-wall25-original-glb.json --limit 96 > /tmp/lie-wall25-original-oracle.log 2>&1
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/lie-wall25-original-glb.json'))
+          assert r['source_mesh_triangles']==500000
+          assert r['tested_brick_rays']>0
+          print('ORIGINAL_SCAN_GEOMETRY_MEASURED',r['source_mesh_hit_count'],r['depth_gt_1mm'],r['depth_gt_5mm'])
+          PY
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: lie-wall25-source-bank-field-gpu-proof
           path: |
             /tmp/lie-wall25-three-stage.json
+            /tmp/lie-wall25-original-glb.json
+            /tmp/lie-wall25-original/provenance.json
+            /tmp/lie-wall25-source-qa/native-depth/0-native-world.bin
+            /tmp/lie-wall25-source-qa/native-depth/0-regions-world.bin
+            /tmp/lie-wall25-source-qa/native-depth/0-native-views.bin
+            /tmp/lie-wall25-source-qa/native-depth/0-native-proxies.bin
             /tmp/lie-wall25-*.log
             /tmp/lie-wall25-source-qa/native-depth/execution.json
             /tmp/lie-wall25-source-qa/native-depth/0-regions.png
