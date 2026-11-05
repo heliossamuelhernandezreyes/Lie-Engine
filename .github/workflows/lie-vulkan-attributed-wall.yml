@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 40
     env:
       LIE_EXPERIMENT: experiment
-      LIE_STAGE: ${{ runner.temp }}/lie-native-qa
+      LIE_STAGE: /tmp/lie-native-qa
     steps:
       - name: Checkout geometry audit branch
         uses: actions/checkout@v4
