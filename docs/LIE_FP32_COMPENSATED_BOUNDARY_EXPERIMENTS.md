@@ -43,3 +43,39 @@ Se añadió `tools/lie_native_compensated_boundary_v2.py` como siguiente hipóte
 - El oráculo contiene las **celdas capturadas**, no una malla Blender original. El triplete completo fuente→representación→GPU sigue bloqueado por la malla y alineación de fuente.
 - Las ejecuciones son Vulkan llvmpipe por software. No prueban rendimiento real ni viabilidad en móviles de gama baja.
 - Un shader que compile y pase pruebas funcionales puede seguir siendo geométricamente incorrecto. No confundir `CI success` con `strict_all_poses_pass`.
+
+
+## V2 real — execution success, geometric acceptance FAIL
+
+The V2 experiment ran successfully using Godot 4.7.2 and native Vulkan software rendering (llvmpipe), after installing only the essential Vulkan packages. [GitHub Actions 42050042062](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42050042062) preserved evidence artifact **13427230790** (`lie-native-compensated-v2-minimal-evidence`). A prior runner without a Vulkan ICD fell back to OpenGL and was not considered valid evidence. The separate apt-update workflow stalled in dependency setup. Neither outcome changes the geometric criterion.
+
+V2 passed shader compilation and restored real capture packets. The critical (416,434) pixel changed from owner 80 to owner **83**, but **strict_all_poses_pass=false**.
+
+| Camera pose | Baseline errors on common oracle union | V2 errors | V2 rescued | V2 newly wrong | New coverage misses vs baseline (full 720²) |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| 0 | 8 | 10 | 3 | **5** | 0 |
+| 1 | 8 | 6 | 5 | **3** | **2** |
+| 2 | 13 | 11 | 7 | **5** | 0 |
+
+The union is generated from the real readback discrepancies of both versions for each pose. It is biased toward problematic pixels and does not estimate a global error rate. Full-frame coverage deltas compare V2 against the original native GPU, not Blender or the capture-cell oracle.
+
+**Conclusion:** V2 is also rejected as a production correction. More accurate isolated boundary predicates do not guarantee consistent arbitration among competing surface candidates across the scene. No release shader, mobile APK, or `main` branch was changed.
+
+## What the real evidence says about a selective resolve architecture
+
+The baseline `regions` and `native` full-frame readbacks disagree on coverage/owner at only **60, 83 and 78 pixels** (poses 0,1,2) of the 518,400-pixel framebuffer: **0.0116%, 0.0160% and 0.0150%**, respectively. The offline flag catches **7/7, 7/7 and 9/11** of the independently diagnosed native errors on the targeted samples. The two unflagged pose-2 errors have a matching owner but incorrect depth.
+
+These are counts from two **already fully computed renderers**. They are **not** proof that flags can be produced cheaply during the native shader pass, or that a sparse resolver will meet any FPS target. The 2 missed depth-only cases show that comparing ownership alone is insufficient.
+
+A reproducible offline feasibility analyzer is `tools/lie_sparse_conflict_feasibility.py`, with regression tests that deliberately demonstrate its depth-only blind spot. Its input is the archived Vulkan A/B evidence ZIP and it does not fabricate ray hits.
+
+### Next experimental design: sparse first-hit conflict resolution
+
+1. **Detect ambiguous pixels without running a second full-frame reference backend.** Candidate sources include conservative patch edges, depth/owner discontinuities, duplicate depth contenders and proxy-overlap intervals. A flag must include same-owner depth errors, not only owner conflicts.
+2. **Preserve sufficient candidate information:** pixel, camera/pose hash, proxy/patch/face, owner, depth interval and conservative bounds. The flag must never silently discard an existing valid hit.
+3. **Resolve flagged pixels against the actual captured source field**, using a bounded first-hit traversal or reliable candidate hierarchy. If a pixel can have a competing surface not present in the raster candidates, the fallback must be able to discover it; sorting only already-accepted candidates is insufficient.
+4. **Correct the primary output coherently**: owner, depth, world XYZ, normal, material and reverse-Z output must come from the same chosen hit. Appearance and shadows are separate tests after geometry is validated.
+5. **Prove correctness against the independent float64 cell oracle** at the three failed cameras plus subpixel camera perturbations and disocclusions. Require zero new errors among all altered pixels and no new holes; expand beyond the initial targeted sample.
+6. **Then measure GPU cost and thermal behavior** on Android hardware, with a low-end phone target. A software Vulkan experiment cannot guarantee cheap mobile execution.
+
+Keep the source-mesh vs capture proof separate: the authentic original Blender/scan mesh and its validated transforms are still not available in this triplet.
