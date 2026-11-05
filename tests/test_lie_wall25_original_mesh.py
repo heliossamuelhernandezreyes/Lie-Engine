@@ -32,6 +32,13 @@ class OriginalGeometry(unittest.TestCase):
         self.assertAlmostEqual(depths[0],1.,places=7)
         self.assertFalse(np.isfinite(depths[1]))
 
+    def test_sparse_hit_indices_are_not_used_as_location_indices(self):
+        mesh=trimesh.Trimesh(vertices=[[-.5,-.5,0],[.5,-.5,0],[0,.5,0]],faces=[[0,1,2]],process=False)
+        dirs=np.array([[.9,0,-.1]]*7+[[0,0,-1.]],dtype=float)
+        distances=hit_original_mesh(mesh,np.array([0,0,1.]),dirs,packet())
+        self.assertFalse(np.isfinite(distances[:7]).any())
+        self.assertAlmostEqual(distances[7],1.,places=7)
+
     def test_source_mesh_double_sided_and_proxy_rotation(self):
         mesh=trimesh.creation.box(extents=[.5,.5,.1])
         p=packet()
