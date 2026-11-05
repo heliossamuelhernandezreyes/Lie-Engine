@@ -1,0 +1,122 @@
+name: LIE sparse first-hit offline bank experiment
+
+on:
+  push:
+    branches:
+      - research/lie-geometric-sufficiency-audit
+    paths:
+      - 'tools/lie_native_sparse_first_hit.py'
+      - 'tests/test_lie_native_sparse_first_hit.py'
+      - '.github/workflows/lie-native-sparse-first-hit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  sparse-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install only native risk detector dependency
+        run: python -m pip install numpy
+      - name: Validate risk detector with adversarial fixtures
+        run: python -m unittest discover -s tests -p 'test_lie_native_sparse_first_hit.py' -v
+      - name: Restore ORIGINAL archived Vulkan data from an approved run
+        uses: actions/download-artifact@v4
+        with:
+          name: lie-real-vulkan-native-triplet-evidence
+          run-id: 42027026472
+          repository: heliossamuelhernandezreyes/Lie-Engine
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/native-readback
+      - name: Recover only authenticated captured-cell layout from APK
+        uses: actions/download-artifact@v4
+        with:
+          name: lie-captured-views-apk-and-evidence
+          run-id: 39371606348
+          repository: heliossamuelhernandezreyes/Lie-Engine
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/attributed-apk
+      - name: Verify old Vulkan packet provenance and unpack only source layout
+        env:
+          LIE_ARCHIVE: ${{ runner.temp }}/native-readback
+          LIE_APK_ARCHIVE: ${{ runner.temp }}/attributed-apk
+          LIE_LAYOUT_ROOT: ${{ runner.temp }}/capture-layout
+        run: |
+          python - <<'PY'
+          import hashlib,os,json,zipfile
+          from pathlib import Path
+          root=Path(os.environ['LIE_ARCHIVE'])
+          gpu=[p for p in root.rglob('1-native-world.bin') if 'native-depth' in p.parts]
+          diag=list(root.rglob('lie-native-triplet-pose1.json'))
+          assert len(gpu)==1 and len(diag)==1,(gpu,diag)
+          apk=list(Path(os.environ['LIE_APK_ARCHIVE']).rglob('*.apk'))
+          assert len(apk)==1,apk
+          sha=hashlib.sha256(apk[0].read_bytes()).hexdigest()
+          assert sha=='e6af19560fb7183eab71c85411867ebe2e7cc84e8df7d84fd131ce83e7c87212'
+          with zipfile.ZipFile(apk[0]) as z:
+              layout=z.read('assets/captures/liewall06/direct/surface.json')
+          p=Path(os.environ['LIE_LAYOUT_ROOT'])/'direct'/'surface.json'
+          p.parent.mkdir(parents=True,exist_ok=True)
+          p.write_bytes(layout)
+          print(json.dumps({'native':str(gpu[0].parent),'diagnostics':str(diag[0].parent),'apk_sha256':sha}))
+          with open(os.environ['GITHUB_ENV'],'a') as env:
+              env.write('LIE_NATIVE_DATA='+str(gpu[0].parent)+'\n')
+              env.write('LIE_NATIVE_DIAG='+str(diag[0].parent)+'\n')
+          PY
+      - name: Measure native-only detection budget / known-error recall
+        env:
+          LIE_CAPTURE_LAYOUT: ${{ runner.temp }}/capture-layout
+        run: |
+          mkdir -p "${{ runner.temp }}/sparse-results"
+          for threshold in 0.002 0.01 0.05; do
+            for pose in 0 1 2; do
+              python tools/lie_native_sparse_first_hit.py \
+                --captures "$LIE_NATIVE_DATA" \
+                --bank "$LIE_CAPTURE_LAYOUT" \
+                --diagnostics "$LIE_NATIVE_DIAG" \
+                --pose "$pose" --threshold-cells "$threshold" \
+                --output "${{ runner.temp }}/sparse-results/sparse-pose${pose}-threshold${threshold}.json"
+            done
+          done
+      - name: Consolidate reproducible detector metrics
+        run: |
+          python - <<'PY'
+          import glob,json,os
+          from pathlib import Path
+          src=Path(os.environ['RUNNER_TEMP'])/'sparse-results'
+          report={'schema':'lie-sparse-native-gpu-offline/1',
+              'basis':'authentic Vulkan-native pixel world/view/proxy readbacks; original capture atlas layout recovered from verified APK',
+              'reference':'targeted independent float64 oracle errors saved before detector construction, not used to select candidates',
+              'cases':[]}
+          for file in sorted(src.glob('sparse-pose*.json')):
+              j=json.loads(file.read_text())
+              report['cases'].append({
+                  'pose':j['pose'],'threshold_cells':j['threshold_cells'],
+                  'flagged':j['flagged_pixels'],'frame_fraction':j['frame_fraction'],
+                  'edge_flags':j['edge_flags'],'small_gap_flags':j['small_gap_flags'],
+                  'known_errors':j['known_targeted_errors']['known_errors'],
+                  'caught_known_errors':j['known_targeted_errors']['caught'],
+                  'missed_known_pixel_ids':j['known_targeted_errors']['missed_pixel_ids']})
+          report['limits']=[
+              'No runtime GPU candidate register or real sparse correction yet',
+              'Detector alone cannot see discarded candidate fragments',
+              'This proves worklist cost/recall tradeoff only, not full-scene correctness or source mesh fidelity']
+          (src/'sparse-summary.json').write_text(json.dumps(report,indent=2)+'\n')
+          print(json.dumps(report,indent=2))
+          PY
+      - name: Store native-only sparse risk evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-sparse-native-only-risk-evidence
+          retention-days: 30
+          if-no-files-found: warn
+          path: ${{ runner.temp }}/sparse-results/*.json
