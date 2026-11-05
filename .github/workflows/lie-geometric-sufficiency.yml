@@ -19,6 +19,8 @@ on:
       - 'tests/test_lie_native_compensated_boundary_v2.py'
       - 'tools/lie_native_compensated_comparison.py'
       - 'tests/test_lie_native_compensated_boundary.py'
+      - 'tools/lie_native_sparse_first_hit.py'
+      - 'tests/test_lie_native_sparse_first_hit.py'
       - 'docs/LIE_NATIVE_BOUNDARY_FORENSICS.md'
       - 'tools/lie_blender_original_raycast.py'
       - 'tests/test_lie_real_vulkan_triplet.py'
@@ -67,6 +69,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_lie_native_compensated_boundary_v2.py' -v
       - name: Test offline sparse conflict detection, including depth-only blind spot
         run: python -m unittest discover -s tests -p 'test_lie_sparse_conflict_feasibility.py' -v
+      - name: Validate GPU-native-only sparse risk detector
+        run: python -m unittest discover -s tests -p 'test_lie_native_sparse_first_hit.py' -v
       - name: Record numerical evidence
         run: python tools/lie_geometric_sufficiency_probe.py --output /tmp/lie-geometric-sufficiency.json
       - name: Record triplet diagnostics (CPU only)
