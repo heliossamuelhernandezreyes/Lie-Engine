@@ -62,7 +62,7 @@ def hit_original_mesh(mesh, eye, dirs, proxy_packet):
     t=np.full(len(d),np.inf,np.float64)
     if len(rayidx):
         w=loc-p
-        param=np.einsum('ij,ij->i',w[rayidx],d[rayidx]) / np.einsum('ij,ij->i',d[rayidx],d[rayidx])
+        param=np.einsum('ij,ij->i',w,d[rayidx]) / np.einsum('ij,ij->i',d[rayidx],d[rayidx])
         okay=param>1e-7
         t[rayidx[okay]]=param[okay]
     return t
