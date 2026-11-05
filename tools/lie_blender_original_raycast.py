@@ -46,7 +46,6 @@ def camera(captures,pose,pixel_ids,size):
     view=view[:20].astype(float)
     eye=view[:3]
     xy=np.c_[pixel_ids%size+.5,pixel_ids//size+.5]*(2/size)-1
-    dirs=view[12:15]+view[4:7]*xy[:,0,None]-view[8:11]*xy[:,1,None]
     # The native shader scales the XY offsets with view[18].
     dirs=view[12:15]+(view[4:7]*xy[:,0,None]-view[8:11]*xy[:,1,None])*view[18]
     lengths=np.linalg.norm(dirs,axis=1)
