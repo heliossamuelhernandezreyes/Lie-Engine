@@ -112,6 +112,33 @@ jobs:
           (src/'sparse-summary.json').write_text(json.dumps(report,indent=2)+'\n')
           print(json.dumps(report,indent=2))
           PY
+      - name: Checkout exact earlier finite captured-cell oracle
+        uses: actions/checkout@v4
+        with:
+          ref: work/lie-native-depth
+          path: experimental-native-oracle
+      - name: Recover the original captured-cell packets, not a regenerated mesh
+        env:
+          LIE_APK_ARCHIVE: ${{ runner.temp }}/attributed-apk
+          LIE_LAYOUT_ROOT: ${{ runner.temp }}/capture-layout
+        run: |
+          APK="$(find "$LIE_APK_ARCHIVE" -type f -name '*.apk' | head -1)"
+          test -n "$APK"
+          python tools/lie_recover_attributed_apk_bank.py \
+            --apk "$APK" --out "$LIE_LAYOUT_ROOT" \
+            --report "${{ runner.temp }}/sparse-results/attributed-bank-integrity.json"
+      - name: CPU upper bound for selected rays (independent finite-cell oracle)
+        env:
+          LIE_CAPTURE_LAYOUT: ${{ runner.temp }}/capture-layout
+        run: |
+          python tools/lie_native_sparse_first_hit.py \
+            --captures "$LIE_NATIVE_DATA" \
+            --bank "$LIE_CAPTURE_LAYOUT" \
+            --diagnostics "$LIE_NATIVE_DIAG" \
+            --experimental-checkout experimental-native-oracle \
+            --pose 1 --threshold-cells 0.002 \
+            --resolve-with-oracle \
+            --output "${{ runner.temp }}/sparse-results/sparse-pose1-cpu-reference-upper-bound.json"
       - name: Store native-only sparse risk evidence
         if: always()
         uses: actions/upload-artifact@v4
