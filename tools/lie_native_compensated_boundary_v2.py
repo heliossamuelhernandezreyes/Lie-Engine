@@ -124,9 +124,9 @@ def apply(shader:Path):
     data=shader.read_text()
     if data.count(ORIGINAL)!=1 or data.count(INSERT_AFTER)!=1 or data.count(VERTEX_INSERT)!=1 or data.count(VERTEX_SET)!=1 or 'lie_precise_patch_contains' in data:
         raise ValueError('Expected exactly one unmodified native shader fragment')
-    data=data.replace(INSERT_AFTER,INSERT_AFTER+'\n'+HELPERS)
-    data=data.replace(VERTEX_INSERT,VERTEX_INSERT+'\\nlayout(location=4) flat out float lie_native_source_depth;')
-    data=data.replace(VERTEX_SET,VERTEX_SET+'\\n    lie_native_source_depth=q.depth.x;')
+    data=data.replace(INSERT_AFTER,INSERT_AFTER+chr(10)+'layout(location=4) flat in float lie_native_source_depth;'+chr(10)+HELPERS)
+    data=data.replace(VERTEX_INSERT,VERTEX_INSERT+chr(10)+'layout(location=4) flat out float lie_native_source_depth;')
+    data=data.replace(VERTEX_SET,VERTEX_SET+chr(10)+'    lie_native_source_depth=q.depth.x;')
     data=data.replace(ORIGINAL,REPLACEMENT)
     shader.write_text(data)
     return {'shader':str(shader),'precision':'two-float compensated FP32 with fma and original captured depth flat varying',
