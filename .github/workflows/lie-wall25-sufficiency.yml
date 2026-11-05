@@ -1,0 +1,92 @@
+name: LIE 2.5 source bank / cell field / Vulkan sufficiency
+
+on:
+  push:
+    branches:
+      - research/lie25-real-wall-sufficiency
+    paths:
+      - tools/lie_wall25_sufficiency.py
+      - tests/test_lie_wall25_sufficiency.py
+      - .github/workflows/lie-wall25-sufficiency.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lie-wall25-sufficiency
+  cancel-in-progress: true
+
+jobs:
+  three-stage-wall:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install offline numerical and asset dependencies
+        run: python -m pip install -r requirements-ci.txt
+      - name: Test ray-disk/source attribution with independent fixtures
+        run: python -m unittest discover -s tests -p 'test_lie_wall25_sufficiency.py' -v
+      - name: Restore exact attributed WALL06 bank and prepare all three GPU backends
+        run: |
+          python tools/lie_direct_access_shaders.py
+          python tools/lie_direct_views_shaders.py
+          python tools/lie_native_shaders.py
+          python tools/lie_direct_views_build.py --stage /tmp/lie-wall25-source-stage > /tmp/lie-wall25-build.log 2>&1
+          python tools/lie_native_stage.py --stage /tmp/lie-wall25-source-qa
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json
+          root=Path('gpu_compute/captures/liewall06')
+          bank=(root/'library.bin').read_bytes()
+          assert len(bank)==41700560
+          assert hashlib.sha256(bank).hexdigest()=='ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340'
+          proof=json.loads((root/'direct/surface.json').read_text())
+          assert proof['source_bank_sha256']==hashlib.sha256(bank).hexdigest()
+          for name,m in proof['packets'].items():
+              data=(root/'direct'/name).read_bytes()
+              assert len(data)==m['bytes'] and hashlib.sha256(data).hexdigest()==m['sha256']
+          print('WALL06 EXACT ORIGINAL CAPTURE IDENTITY VERIFIED')
+          PY
+      - name: Install headless Godot 4.7.2 and software Vulkan
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl -fL --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          mkdir -p godot-bin
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Import project and capture real depth/owner/geometry at failing camera
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-wall25-source-qa --editor --import --quit > /tmp/lie-wall25-import.log 2>&1
+          timeout 1200s xvfb-run -a -s '-screen 0 1280x800x24' godot-bin/Godot_v4.7.2-stable_linux.x86_64 --path /tmp/lie-wall25-source-qa --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_native_depth.gd > /tmp/lie-wall25-vulkan.log 2>&1
+          test -s /tmp/lie-wall25-source-qa/native-depth/0-native-world.bin
+          test -s /tmp/lie-wall25-source-qa/native-depth/0-native-proxies.bin
+          test -s /tmp/lie-wall25-source-qa/native-depth/0-native-views.bin
+      - name: Compare captured source disks vs field vs genuine Vulkan
+        run: |
+          python tools/lie_wall25_sufficiency.py --bank gpu_compute/captures/liewall06 --captures /tmp/lie-wall25-source-qa/native-depth --output /tmp/lie-wall25-three-stage.json > /tmp/lie-wall25-report.log 2>&1
+          python - <<'PY'
+          import json
+          r=json.load(open('/tmp/lie-wall25-three-stage.json'))
+          assert r['source_bank_to_field']['source_hits']>0, 'Source disk oracle produced no hits'
+          assert r['field_to_native_gpu']['compared_hits']>0, 'Finite cell oracle produced no hits'
+          assert r['field_to_native_gpu']['source_hits']>0, 'No actual surface for the accepted phone camera'
+          print('THREE_STAGE_WALL_MEASUREMENTS',r['source_bank_to_field'],r['field_to_native_gpu'])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-wall25-source-bank-field-gpu-proof
+          path: |
+            /tmp/lie-wall25-three-stage.json
+            /tmp/lie-wall25-*.log
+            /tmp/lie-wall25-source-qa/native-depth/execution.json
+            /tmp/lie-wall25-source-qa/native-depth/0-regions.png
+            /tmp/lie-wall25-source-qa/native-depth/0-native.png
+          if-no-files-found: warn
