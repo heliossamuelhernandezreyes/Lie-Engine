@@ -124,6 +124,8 @@ def load_source(path: Path,indices,view_digest):
             raise ValueError('Source raycast and Vulkan camera packets differ')
         if not isinstance(meta.get('source_mesh_sha256'),str) or len(meta['source_mesh_sha256'])!=64:
             raise ValueError('Original source geometry hash required')
+        if meta.get('owner_namespace')!='lie-native-wall-owner-v1' or not isinstance(meta.get('owner_mapping_sha256'),str) or len(meta['owner_mapping_sha256'])!=64:
+            raise ValueError('Explicit original mesh to native wall owner mapping required')
         pix=packet['pixel_ids'].astype(np.int64)
         if len(pix)!=len(np.unique(pix)) or not np.array_equal(np.sort(pix),np.sort(indices)):
             raise ValueError('Source-raycast pixel IDs must match chosen oracle pixel IDs exactly')
@@ -186,6 +188,7 @@ def analyze(captures: Path,bank: Path,experimental: Path,pose=0,
         diagnostics.append(item)
     return {'schema':'lie-real-readback-oracle/1','scope':'actual Vulkan readback vs float64 finite captured-cell oracle, NEVER original mesh without separately supplied source NPZ',
         'pose':pose,'viewport':[size,size],'samples':len(indices),
+        'selected_pixel_ids':[int(x) for x in indices],
         'sampling':'ALL pixels, expensive' if all_pixels else 'ALL disagreement pixels (regions/native coverage or owner) plus seeded unchanged hits/background; TARGETED, not a population estimate',
         'seed':seed,'depth_tolerance_m':tolerance_m,
         'provenance':{'captured_bank_surface_sha256':digest(bank/'direct'/'surface.json'),
