@@ -1,0 +1,26 @@
+name: LIE original scan oracle unit contracts
+
+on:
+  push:
+    branches: [research/lie25-real-wall-sufficiency]
+    paths:
+      - tools/lie_wall25_original_mesh.py
+      - tests/test_lie_wall25_original_mesh.py
+      - .github/workflows/lie-wall25-original-unit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-mesh-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r requirements-ci.txt rtree
+      - name: Test original triangle intersections and published coordinate frame
+        run: python -m unittest discover -s tests -p 'test_lie_wall25_original_mesh.py' -v
