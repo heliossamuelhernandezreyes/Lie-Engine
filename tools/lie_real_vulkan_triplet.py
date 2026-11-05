@@ -180,12 +180,16 @@ def analyze(captures: Path,bank: Path,experimental: Path,pose=0,
             'representation_owner':rep['owner_id'][j],
             'gpu_owner':gpu['owner_id'][j],
             'representation_distance_m':rep['depth_m'][j],
-            'gpu_distance_m':gpu['depth_m'][j]}
+            'gpu_distance_m':gpu['depth_m'][j],
+            'oracle_distance_to_cell_edge_m':float(edge[j]) if np.isfinite(edge[j]) else None,
+            'oracle_next_candidate_gap_m':float(second[j]-distances[j]) if np.isfinite(second[j]) and np.isfinite(distances[j]) else None}
         if src is not None:
             item['source_hit']=bool(src['hit'][j])
             item['source_owner']=src['owner_id'][j]
             item['source_distance_m']=src['depth_m'][j]
         diagnostics.append(item)
+    stats['strict_sample_acceptance']={'passed':all(stats['representation_to_vulkan'][key]==0 for key in ('missing','extra','owner_mismatches','depth_over_tolerance')),
+        'scope':'selected-ray strict captured-cell correspondence only, NOT overall rendering quality or original source identity'}
     return {'schema':'lie-real-readback-oracle/1','scope':'actual Vulkan readback vs float64 finite captured-cell oracle, NEVER original mesh without separately supplied source NPZ',
         'pose':pose,'viewport':[size,size],'samples':len(indices),
         'selected_pixel_ids':[int(x) for x in indices],
