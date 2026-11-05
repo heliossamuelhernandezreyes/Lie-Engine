@@ -53,3 +53,26 @@ python tools/lie_wall25_sufficiency.py --bank gpu_compute/captures/liewall06 --c
 ~~~
 
 **Estado de aceptación:** no aceptar un cambio de arquitectura solo porque se encuentre una disparidad banco/celda. Debemos comparar después el banco con el **GLB verificado** y los resultados de iluminación por separado; un detalle de la malla fuente puede no existir en las muestras aunque el campo reproduzca fielmente las muestras.
+
+
+## Resultado verificado: banco de muestras → campo de celdas → Vulkan (CI)
+
+[GitHub Actions, ejecución completa exitosa #41981155326](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/41981155326), software Vulkan llvmpipe, no GPU física Mali, sin benchmarks FPS. Archivo `lie-wall25-three-stage.json` en el artefacto `lie-wall25-source-bank-field-gpu-proof`.
+
+En los **204 rayos dirigidos** (diferencias entre `regions` y `native` más controles de primer plano y fondo), resultados:
+
+| Etapa | Referencia con impacto | Consultado con impacto | Ausentes/sobrantes | Identidad distinta, con impacto en ambas | Profundidad fuera de tolerancia | Error máximo |
+|---|---:|---:|---:|---:|---:|---:|
+| Banco de discos → 4 capas | 156 | 155 | 1 / 0 | 65 | 74 sobre 1 mm | 201.981 mm |
+| Campo de 4 capas → Vulkan nativo | 155 | 155 | 0 / 0 | 7 | 7 sobre 20 µm | 4.413 mm |
+| Banco → Vulkan | 156 | 155 | 1 / 0 | 64 | 72 sobre 1 mm | 201.981 mm |
+
+El error de 202 mm suele ocurrir en **distintas superficies u objetos**, y NO se puede interpretar como error de profundidad de un parche equivalente. `owner_mismatches` incluye identificadores de micronodo/material y puede incluir el mismo ladrillo en una subregión distinta. Los números **no** son porcentajes sobre la pantalla ni un oráculo de malla original. Fuente original auténtica → banco sigue siendo una cuarta etapa separada.
+
+Los siete errores entre campo y GPU conservan la observación experimental anterior de profundidad y propietarios; los 65 errores banco/celda son independientes de la GPU. Por tanto, **no corresponde atribuir todas las deformaciones a la GPU**. Tampoco corresponde afirmar que todas las superficies faltan en la fuente original, porque el banco y los campos son representaciones aproximadas diferentes.
+
+## Oráculo original de 500k triángulos: cobertura y límites
+
+Existe `tools/lie_wall25_original_mesh.py`, con un contrato de identidad SHA-256 del GLB y transformaciones del campo WALL06, y la prueba `tests/test_lie_wall25_original_mesh.py` superó las verificaciones de geometría sintética en la ejecución [#41981617131](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/41981617131).
+
+**No interpretar el código unitario como una auditoría del GLB descargado**. El paso real requiere adquirir el objeto de procedencia verificada desde Objaverse. Se comparan únicamente rayos cuyo primer impacto en el banco pertenece al ladrillo; el mortero tiene otra procedencia y se excluye. Si el fetch externo o el trazado del mesh fallan, conservar el informe de tres etapas como el resultado más reciente verificado, no sustituirlo con un material ficticio.
