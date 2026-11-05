@@ -34,6 +34,107 @@ float safe_dir(float d) {
     return abs(d)>1.e-16?d:(d<0.?-1.e-16:1.e-16);
 }
 
+// Compensated FP32 classification is used ONLY for finite-cell boundary
+// ambiguity. FMA residuals emulate a two-float interval without FP64.
+precise vec2 lie_sum(float a,float b) {
+    precise float sum=a+b;
+    precise float bb=sum-a;
+    precise float e=(a-(sum-bb))+(b-bb);
+    return vec2(sum,e);
+}
+precise vec2 lie_product(float a,float b) {
+    precise float hi=a*b;
+    precise float lo=fma(a,b,-hi);
+    return vec2(hi,lo);
+}
+precise vec2 lie_add(vec2 a,vec2 b) {
+    precise vec2 s=lie_sum(a.x,b.x);
+    return lie_sum(s.x,s.y+a.y+b.y);
+}
+precise vec2 lie_sub(vec2 a,vec2 b) {
+    return lie_add(a,vec2(-b.x,-b.y));
+}
+precise vec2 lie_mul(vec2 a,vec2 b) {
+    precise vec2 product=lie_product(a.x,b.x);
+    return lie_sum(product.x,product.y+a.x*b.y+a.y*b.x);
+}
+precise vec2 lie_div(vec2 a,vec2 b) {
+    precise float coarse=a.x/b.x;
+    precise vec2 residual=lie_sub(a,lie_mul(b,vec2(coarse,0.)));
+    precise float correction=(residual.x+residual.y)/b.x;
+    return lie_add(vec2(coarse,0.),vec2(correction,0.));
+}
+precise vec2 lie_local_eye(Proxy p,View v,int axis) {
+    precise vec2 result=vec2(p.local[3][axis],0.);
+    for(int j=0;j<3;j++)
+        result=lie_add(result,lie_product(p.local[j][axis],v.eye[j]));
+    return result;
+}
+precise vec2 lie_local_dir(Proxy p,View v,int axis,vec2 sx,vec2 sy) {
+    precise vec2 forward=vec2(0.),right=vec2(0.),up=vec2(0.);
+    for(int j=0;j<3;j++) {
+        forward=lie_add(forward,lie_product(p.local[j][axis],v.forward[j]));
+        right=lie_add(right,lie_product(p.local[j][axis],v.right[j]));
+        up=lie_add(up,lie_product(p.local[j][axis],v.up[j]));
+    }
+    precise vec2 side=lie_sub(lie_mul(right,sx),lie_mul(up,sy));
+    return lie_add(forward,lie_mul(side,vec2(v.lens.z,0.)));
+}
+precise vec2 lie_edge(vec2 eu,vec2 ez,vec2 ru,vec2 rz,
+                     vec2 plane,float lo,float hi,float dim,float edge) {
+    precise vec2 offset=lie_sub(eu,vec2(lo,0.));
+    precise vec2 base=lie_sub(lie_mul(offset,vec2(dim,0.)),
+                          lie_mul(vec2(edge,0.),lie_sub(vec2(hi,0.),vec2(lo,0.))));
+    return lie_add(lie_mul(base,rz),
+        lie_mul(lie_mul(lie_sub(plane,ez),ru),vec2(dim,0.)));
+}
+bool lie_compensated_cell(Proxy p,View v,int axis,int face,ivec4 rect,
+                          ivec2 cell,float source_depth,uint pixel,uint side) {
+    precise float px=float(pixel%side)+.5;
+    precise float py=float(pixel/side)+.5;
+    precise vec2 sx=lie_sub(lie_div(vec2(px*2.,0.),vec2(float(side),0.)),
+                             vec2(1.,0.));
+    precise vec2 sy=lie_sub(lie_div(vec2(py*2.,0.),vec2(float(side),0.)),
+                             vec2(1.,0.));
+    ivec2 axes=axis==0?ivec2(1,2):axis==1?ivec2(0,2):ivec2(0,1);
+    precise vec2 ez=lie_local_eye(p,v,axis);
+    precise vec2 rz=lie_local_dir(p,v,axis,sx,sy);
+    if(rz.x==0.)return false;
+    precise vec2 plane=face%2==0
+        ?lie_sub(vec2(p.hi[axis],0.),vec2(source_depth,0.))
+        :lie_add(vec2(p.lo[axis],0.),vec2(source_depth,0.));
+    precise float orientation=rz.x>0.?1.:-1.;
+    for(int a=0;a<2;a++) {
+        int u=axes[a];
+        precise float dim=a==0?float(rect.z):float(rect.w);
+        precise vec2 eu=lie_local_eye(p,v,u);
+        precise vec2 ru=lie_local_dir(p,v,u,sx,sy);
+        precise float low=float(cell[a]);
+        precise vec2 lower=lie_edge(eu,ez,ru,rz,plane,p.lo[u],p.hi[u],dim,low);
+        precise vec2 upper=lie_edge(eu,ez,ru,rz,plane,p.lo[u],p.hi[u],dim,low+1.);
+        if(orientation*(lower.x+lower.y)<0. ||
+           orientation*(upper.x+upper.y)>=0.)return false;
+    }
+    return true;
+}
+bool lie_confirm_candidate(Proxy p,View v,int axis,int face,ivec4 rect,
+        ivec2 cell,float source_depth,vec3 eye,vec3 ray,float candidate,
+        uint pixel,uint side) {
+    ivec2 axes=axis==0?ivec2(1,2):axis==1?ivec2(0,2):ivec2(0,1);
+    vec3 hit=eye+ray*candidate;
+    vec2 lo=vec2(p.lo[axes.x],p.lo[axes.y]);
+    vec2 hi=vec2(p.hi[axes.x],p.hi[axes.y]);
+    vec2 u=(vec2(hit[axes.x],hit[axes.y])-lo)/(hi-lo)*vec2(rect.zw);
+    vec2 delta=u-vec2(cell);
+    // Fast path for interior candidates. Near borders, classify using
+    // original source_depth and FMA-compensated camera transform.
+    if(all(greaterThanEqual(delta,vec2(.005)))&&all(lessThan(delta,vec2(.995))))
+        return true;
+    if(any(lessThan(delta,vec2(-.005)))||any(greaterThan(delta,vec2(1.005))))
+        return false;
+    return lie_compensated_cell(p,v,axis,face,rect,cell,source_depth,pixel,side);
+}
+
 void main() {
     uint pixel=gl_GlobalInvocationID.x;
     uint side=uint(push.value.x);
@@ -119,7 +220,9 @@ void main() {
                 if(layers[layer]<0.)continue;
                 float plane=(face%2==0)?p.hi[axis]-layers[layer]:p.lo[axis]+layers[layer];
                 float candidate=(plane-eye[axis])/safe[axis];
-                if(candidate>=t-EPS&&candidate<=stop+EPS&&candidate>0.&&candidate<local_best) {
+                if(candidate>=t-EPS&&candidate<=stop+EPS&&candidate>0.&&candidate<local_best &&
+                   lie_confirm_candidate(p,v,axis,face,rect,cell,layers[layer],eye,ray,
+                                         candidate,pixel,side)) {
                     local_best=candidate;
                     local_layer=layer;
                 }
