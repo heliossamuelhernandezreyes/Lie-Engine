@@ -8,6 +8,8 @@ on:
       - '.github/workflows/lie-vulkan-attributed-wall.yml'
       - 'tools/lie_recover_attributed_apk_bank.py'
       - 'tools/lie_real_vulkan_triplet.py'
+      - 'tools/lie_native_edge_precision_probe.py'
+      - 'tools/lie_native_edge_guard_ablation.py'
   workflow_dispatch:
 
 permissions:
@@ -94,6 +96,45 @@ jobs:
               --pose "$pose" \
               --output "${{ runner.temp }}/lie-native-triplet-pose${pose}.json"
           done
+      - name: Verify the archived 80-vs-83 float32 boundary inversion
+        run: |
+          python tools/lie_native_edge_precision_probe.py \
+            --captures "$LIE_STAGE/native-depth" \
+            --bank "$LIE_EXPERIMENT/gpu_compute/captures/liewall06" \
+            --pose 1 --assert-critical \
+            --output "${{ runner.temp }}/lie-native-boundary-80-83.json"
+      - name: Preserve baseline before staged edge-guard experiment
+        run: |
+          mkdir -p "${{ runner.temp }}/lie-native-before"
+          cp "$LIE_STAGE"/native-depth/{0,1,2}-native-world.bin "${{ runner.temp }}/lie-native-before/"
+      - name: Apply experimental float32 edge guard to STAGED shader only
+        run: |
+          python tools/lie_native_edge_guard_ablation.py apply \
+            --shader "$LIE_STAGE/shaders/lie_direct_native.glsl"
+          "$GODOT" --headless --path "$LIE_STAGE" --editor --import --quit \
+            > "${{ runner.temp }}/lie-guard-import.log" 2>&1
+          cat "${{ runner.temp }}/lie-guard-import.log"
+      - name: Execute independent staged Vulkan guard A/B (not a production fix)
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
+        run: |
+          xvfb-run -a "$GODOT" --path "$LIE_STAGE" --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_native_depth.gd \
+            > "${{ runner.temp }}/lie-guard-gpu.log" 2>&1 || { cat "${{ runner.temp }}/lie-guard-gpu.log"; exit 1; }
+          cat "${{ runner.temp }}/lie-guard-gpu.log"
+          for pose in 0 1 2; do
+            python tools/lie_real_vulkan_triplet.py \
+              --captures "$LIE_STAGE/native-depth" \
+              --bank "$LIE_EXPERIMENT/gpu_compute/captures/liewall06" \
+              --experimental-checkout "$LIE_EXPERIMENT" \
+              --pose "$pose" \
+              --output "${{ runner.temp }}/lie-native-guard-triplet-pose${pose}.json"
+          done
+          python tools/lie_native_edge_guard_ablation.py summarize \
+            --before "${{ runner.temp }}/lie-native-before" \
+            --after "$LIE_STAGE/native-depth" \
+            --pose 1 --output "${{ runner.temp }}/lie-native-guard-ablation.json"
       - name: Keep authenticated evidence, without publishing recovered bank
         if: always()
         uses: actions/upload-artifact@v4
@@ -106,6 +147,12 @@ jobs:
             ${{ runner.temp }}/lie-import.log
             ${{ runner.temp }}/lie-native-gpu.log
             ${{ runner.temp }}/lie-native-triplet-pose*.json
+            ${{ runner.temp }}/lie-native-boundary-80-83.json
+            ${{ runner.temp }}/lie-native-guard-import.log
+            ${{ runner.temp }}/lie-guard-gpu.log
+            ${{ runner.temp }}/lie-native-guard-triplet-pose*.json
+            ${{ runner.temp }}/lie-native-guard-ablation.json
+            ${{ runner.temp }}/lie-native-before/*-native-world.bin
             /tmp/lie-native-qa/native-depth/0-native-world.bin
             /tmp/lie-native-qa/native-depth/0-regions-world.bin
             /tmp/lie-native-qa/native-depth/0-native-views.bin
