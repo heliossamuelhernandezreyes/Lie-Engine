@@ -9,6 +9,7 @@ on:
       - 'tests/test_lie_geometric_sufficiency_probe.py'
       - 'tools/lie_geometric_triplet_compare.py'
       - 'tools/lie_real_vulkan_triplet.py'
+      - 'tools/lie_blender_original_raycast.py'
       - 'tests/test_lie_real_vulkan_triplet.py'
       - 'docs/LIE_REAL_VULKAN_READBACK_BRIDGE.md'
       - 'tests/test_lie_geometric_triplet_compare.py'
@@ -20,6 +21,10 @@ on:
       - 'tests/test_lie_geometric_sufficiency_probe.py'
       - 'tools/lie_geometric_triplet_compare.py'
       - 'tests/test_lie_geometric_triplet_compare.py'
+      - 'tools/lie_real_vulkan_triplet.py'
+      - 'tools/lie_blender_original_raycast.py'
+      - 'tests/test_lie_real_vulkan_triplet.py'
+      - 'docs/LIE_REAL_VULKAN_READBACK_BRIDGE.md'
       - 'docs/LIE_GEOMETRIC_TRIPLET_COMPARISON.md'
       - '.github/workflows/lie-geometric-sufficiency.yml'
   workflow_dispatch:
@@ -41,6 +46,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_lie_geometric_triplet_compare.py' -v
       - name: Verify real-readback adapter with synthetic I/O fixtures (no GPU claim)
         run: python -m unittest discover -s tests -p 'test_lie_real_vulkan_triplet.py' -v
+      - name: Compile Blender ray-export script without Blender runtime
+        run: python -m py_compile tools/lie_blender_original_raycast.py
       - name: Record numerical evidence
         run: python tools/lie_geometric_sufficiency_probe.py --output /tmp/lie-geometric-sufficiency.json
       - name: Record triplet diagnostics (CPU only)
