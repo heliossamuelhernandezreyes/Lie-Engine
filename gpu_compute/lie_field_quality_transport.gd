@@ -9,14 +9,18 @@ var _quality_desired:=PackedByteArray()
 var _quality_rids: Dictionary={}
 var quality_updates: int=0
 func _transport_file() -> RDShaderFile:return QualityShader
-func _quality_dispatch(commands: int,stage: int,threads: int,ping: int) -> void:
-    _rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,ping,0,0]).to_byte_array(),16)
+func _quality_dispatch(commands: int,stage: int,threads: int,ping: int,source_sector: int=0) -> void:
+    _rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,ping,source_sector,0]).to_byte_array(),16)
     _rd.compute_list_dispatch(commands,ceili(float(threads)/64.),1,1);_rd.compute_list_add_barrier(commands)
 func _dispatch(commands: int,stage: int,threads: int,ping: int=0) -> void:
     if stage==3 and _gpu_optics and _gpu_separate:
         var count: int=_count*_light_count
         _quality_dispatch(commands,5,count,ping)
-        _quality_dispatch(commands,3,count*6,ping)
+        var sectors: int=1
+        if _quality_bytes.decode_u32(0)==6:
+            for i in range(_count):
+                if _field_packets[19].decode_float(16+i*64+12)<_quality_bytes.decode_float(20):sectors=6;break
+        for s in range(sectors):_quality_dispatch(commands,3,count*6,ping,s)
         _quality_dispatch(commands,7,count,ping)
         return
     super._dispatch(commands,stage,threads,ping)

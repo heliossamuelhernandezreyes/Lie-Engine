@@ -68,6 +68,17 @@ func run() -> void:
     lab.effect.force_geometry_rebuild();await settle();var cold: Dictionary=await capture(lab.effect)
     metrics["cached_vs_cold_max"]=difference(back.color,cold.color)
     check(metrics.cached_vs_cold_max<.0001,"cached and forced-cold appearance agree")
+    field_serial=lab.transport.frame_count;lab.transport.invalidate_transport();lab.effect.invalidate_lighting();await settle()
+    cold=await capture(lab.effect)
+    metrics["cached_vs_resolved_field_max"]=difference(back.color,cold.color)
+    check(lab.transport.frame_count>field_serial and metrics.cached_vs_resolved_field_max<.0001,"fresh transport solve restores cached appearance")
+    var power: float=float(lab.state.light_power)
+    check(lab.command({"op":"set_values","values":{"light_power":minf(power+.125,1.9)}}).ok,"scalar power edit accepted")
+    await settle()
+    check(lab.command({"op":"set_values","values":{"light_power":power}}).ok,"scalar power restored")
+    await settle();cold=await capture(lab.effect)
+    metrics["power_round_trip_max"]=difference(back.color,cold.color)
+    check(metrics.power_round_trip_max<.0001,"scalar power cache restores exact lighting")
     check(lab.command({"op":"set_values","values":{"key_enabled":false,"fill_enabled":false}}).ok,"sources disabled through original API")
     await settle();dark=await capture(lab.effect);peak=0.
     for i in range(0,dark.color.size(),4):

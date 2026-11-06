@@ -21,7 +21,7 @@ func uniform(binding: int,rid: RID,image: bool=false) -> RDUniform:
 func submit(stages: Array,set_rid: RID) -> void:
     var list: int=rd.compute_list_begin();rd.compute_list_bind_compute_pipeline(list,pipeline);rd.compute_list_bind_uniform_set(list,set_rid,0)
     for row in stages:
-        rd.compute_list_set_push_constant(list,PackedInt32Array([row[0],row[2],0,0]).to_byte_array(),16)
+        rd.compute_list_set_push_constant(list,PackedInt32Array([row[0],row[2],row[3] if row.size()>3 else 0,0]).to_byte_array(),16)
         rd.compute_list_dispatch(list,ceili(float(row[1])/64.),1,1);rd.compute_list_add_barrier(list)
     rd.compute_list_end();rd.submit();rd.sync()
 func totals(data: PackedFloat32Array,n: int,lights: int) -> Array:

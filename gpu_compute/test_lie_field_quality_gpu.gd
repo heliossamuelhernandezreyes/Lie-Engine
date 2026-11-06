@@ -6,7 +6,9 @@ func surface_bridge() -> bool:return true
 func submit(stages: Array,set_rid: RID) -> void:
     var expanded: Array=[]
     for row in stages:
-        if row[0]==3:expanded.append_array([[3,row[1]*6,row[2]],[7,row[1],row[2]]])
+        if row[0]==3:
+            for s in range(6):expanded.append([3,row[1]*6,row[2],s])
+            expanded.append([7,row[1],row[2]])
         else:expanded.append(row)
     if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SUBMIT ",expanded)
     if OS.get_environment("LIE_QUALITY_SYNC_STAGES")=="1":
