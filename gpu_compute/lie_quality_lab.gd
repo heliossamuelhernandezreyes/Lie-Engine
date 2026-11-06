@@ -5,6 +5,9 @@ const QualityModel=preload("res://lie_field_quality_model.gd")
 func _transport_factory() -> CompositorEffect:return QualityTransport.new()
 func _coded_effect_factory() -> CompositorEffect:return QualityEffect.new(720)
 func command(request: Variant) -> Dictionary:
+    if request is Dictionary and request.get("values",{}) is Dictionary:
+        for key in ["separate_lights","optical_codes"]:
+            if request.get("values",{}).has(key) and request.values[key]!=true:return {"ok":false,"error":"quality_requires_source_directions","revision":revision}
     if request is Dictionary and request.get("op")=="field_policy":
         var options: Variant=request.get("options")
         if not QualityModel.valid(options):return {"ok":false,"error":"field_policy","revision":revision}
@@ -12,13 +15,18 @@ func command(request: Variant) -> Dictionary:
         effect.invalidate_lighting();revision+=1
         return {"ok":true,"revision":revision,"quality":transport.optical_metrics().quality}
     if request is Dictionary and request.get("op")=="light_occluders":
-        if not request.get("boxes") is Array or not request.get("expected_revision") is int or not request.get("new_revision") is int:
+        if not request.get("boxes") is Array or not QualityModel.integer_value(request.get("expected_revision"),0,0xffffffff) or not QualityModel.integer_value(request.get("new_revision"),0,0xffffffff):
             return {"ok":false,"error":"occluder_transaction","revision":revision}
-        if transport==null or not transport.set_dynamic_occluders(request.boxes,request.expected_revision,request.new_revision):
+        if transport==null or not transport.set_dynamic_occluders(request.boxes,int(request.expected_revision),int(request.new_revision)):
             return {"ok":false,"error":"occluder_revision_or_bounds","revision":revision}
         effect.invalidate_lighting();revision+=1
         return {"ok":true,"revision":revision,"quality":transport.optical_metrics().quality}
     return super.command(request)
+func _quality_mode(sectors: int,budget: bool) -> void:
+    if transport==null:return
+    var options: Dictionary=transport.optical_metrics().quality.policy.duplicate(true)
+    options.angular_sectors=sectors;options.area_budget=budget
+    command({"op":"field_policy","options":options})
 func _ui() -> void:
     super._ui()
     var box: Node=status.get_parent()
@@ -26,6 +34,6 @@ func _ui() -> void:
     var radius_button:=CheckButton.new();radius_button.text="Radio energético";radius_button.button_pressed=state.get("energy_radius",false)
     radius_button.toggled.connect(func(v: bool):command({"op":"set_values","values":{"energy_radius":v}}));box.add_child(radius_button)
     var old:=Button.new();old.text="Comparar transporte anterior"
-    old.pressed.connect(func():command({"op":"field_policy","options":{"angular_sectors":1,"area_budget":false}}));box.add_child(old)
+    old.pressed.connect(func():_quality_mode(1,false));box.add_child(old)
     var improved:=Button.new();improved.text="Usar transporte mejorado"
-    improved.pressed.connect(func():command({"op":"field_policy","options":{"angular_sectors":6,"area_budget":true}}));box.add_child(improved)
+    improved.pressed.connect(func():_quality_mode(6,true));box.add_child(improved)

@@ -17,7 +17,10 @@ func run() -> void:
     var spirv: RDShaderSPIRV=shader_resource().get_spirv();shader=rd.shader_create_from_spirv(spirv);pipeline=rd.compute_pipeline_create(shader)
     if not pipeline.is_valid():printerr(spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE));quit(1);return
     var outputs: Dictionary={}
-    for name in fixture.cases:outputs[name]=execute(fixture.cases[name],name)
+    for name in fixture.cases:
+        outputs[name]=execute(fixture.cases[name],name)
+        if outputs[name].is_empty():
+            rd.free_rid(pipeline);rd.free_rid(shader);rd.free();quit(1);return
     var a: PackedFloat32Array=outputs.paths_six;var b: PackedFloat32Array=outputs.paths_one
     check(a[3*4]>b[3*4]+.00001 and a[4*4]>b[4*4]+.00001,"one source retains both lateral reflection paths")
     check(b[5*4]>a[5*4]+.00001,"angular mean artifact removed from center")

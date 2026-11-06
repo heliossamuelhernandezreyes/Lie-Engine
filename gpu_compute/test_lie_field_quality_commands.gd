@@ -30,5 +30,8 @@ func run() -> void:
     for q in [{"area_budget":1},{"roughness_split":NAN},{"dynamic_occluders":[[[0,0,0],[0,1,1]]]},{"visibility_revision":-1}]:
         check(not Quality.valid(q),"malformed policy rejected")
     check(Quality.packet([1.],{}).size()==32+33*16,"quality ABI capacity")
+    var from_json: Variant=JSON.parse_string('{"angular_sectors":6,"visibility_revision":2}')
+    check(Quality.packet([1.],from_json).size()==32+33*16,"JSON numeric policy survives parser float conversion")
+    check(not Quality.valid({"angular_sectors":1.5}) and not Quality.integer_value(true,0,1),"fractional and boolean revisions rejected")
     print("QUALITY COMMAND ","FAIL" if failed else "PASS"," ",checks)
     t=null;quit(1 if failed else 0)

@@ -46,6 +46,9 @@ func execute(case: Dictionary,name: String) -> PackedFloat32Array:
     if surface_bridge():
         var zero:=PackedByteArray();zero.resize(272+n*8*16);data[25]=zero
     data.merge(case_extra_buffers(case))
+    for binding in data:
+        if data[binding].is_empty():
+            check(false,name+" empty buffer "+str(binding));return PackedFloat32Array()
     var rids: Dictionary={};var uniforms: Array[RDUniform]=[]
     for binding in data:
         rids[binding]=rd.storage_buffer_create(data[binding].size(),data[binding]);uniforms.append(uniform(binding,rids[binding]))
@@ -54,7 +57,10 @@ func execute(case: Dictionary,name: String) -> PackedFloat32Array:
     var image_rid: RID=rd.texture_create(format,RDTextureView.new(),[]);uniforms.append(uniform(10,image_rid,true))
     var set_rid: RID=rd.uniform_set_create(uniforms,shader,0)
     check(set_rid.is_valid(),name+" real uniform set")
-    if not set_rid.is_valid():return PackedFloat32Array()
+    if not set_rid.is_valid():
+        rd.free_rid(image_rid)
+        for rid in rids.values():rd.free_rid(rid)
+        return PackedFloat32Array()
     var channels: int=lights if sep else 1
     submit([[0,n*lights,0],[1,lights,0],[2,n*channels,0]],set_rid)
     if surface_bridge():submit([[6,n*lights,0]],set_rid)

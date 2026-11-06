@@ -1,16 +1,18 @@
 extends RefCounted
 ## Versioned transport policy; all areas in square meters, linear RGB power.
 const DEFAULTS={"angular_sectors":6,"area_budget":true,"reference_area":1.0,"roughness_split":.5,"dynamic_occluders":[],"visibility_revision":0}
+static func integer_value(value: Variant,low: int,high: int) -> bool:
+    return (value is int or value is float) and is_finite(float(value)) and float(value)==floor(float(value)) and value>=low and value<=high
 static func valid(options: Variant) -> bool:
     if not options is Dictionary:return false
     for key in options:
         if not DEFAULTS.has(key):return false
     var q: Dictionary=DEFAULTS.duplicate(true);q.merge(options,true)
-    if not q.angular_sectors is int or q.angular_sectors not in [1,6] or not q.area_budget is bool:return false
+    if not integer_value(q.angular_sectors,1,6) or int(q.angular_sectors) not in [1,6] or not q.area_budget is bool:return false
     for key in ["reference_area","roughness_split"]:
         if not (q[key] is int or q[key] is float) or not is_finite(float(q[key])):return false
     if q.reference_area<=0.0 or q.roughness_split<0.0 or q.roughness_split>1.0:return false
-    if not q.visibility_revision is int or q.visibility_revision<0 or q.visibility_revision>0xffffffff:return false
+    if not integer_value(q.visibility_revision,0,0xffffffff):return false
     if not q.dynamic_occluders is Array or q.dynamic_occluders.size()>16:return false
     for box in q.dynamic_occluders:
         if not box is Array or box.size()!=2:return false
