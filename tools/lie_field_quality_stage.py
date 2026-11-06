@@ -25,7 +25,7 @@ def stage(destination,wall=False):
     shutil.copy2(source/'fixtures/field-quality-reference.json',destination/'fixtures/field-quality-reference.json')
     shutil.copy2(source/'fixtures/lie26-rig.json',destination/'fixtures/lie26-rig.json')
     if wall:shutil.copytree(source/'captures/liewall06',destination/'captures/liewall06')
-    (destination/'project.godot').write_text('config_version=5\n[rendering]\nrenderer/rendering_method="mobile"\n[display]\nwindow/size/viewport_width=720\nwindow/size/viewport_height=720\n')
+    (destination/'project.godot').write_text('config_version=5\n[rendering]\nrenderer/rendering_method="mobile"\n[display]\nwindow/size/viewport_width=720\nwindow/size/viewport_height=720\n[editor]\nimport/use_multiple_threads=false\n')
     print(json.dumps({'resources':len(copied),'wall':wall,'destination':str(destination)}))
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--stage',type=Path,required=True);p.add_argument('--wall',action='store_true');a=p.parse_args();stage(a.stage,a.wall)
