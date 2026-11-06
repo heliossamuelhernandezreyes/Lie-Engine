@@ -159,3 +159,8 @@ gpu_compute/lie14-import.log
 /gpu_compute/assets/lie_wall01/.wall_bank.zlib.*
 # Rebuilt by tools/lie_field_quality_cases.py and preserved by Vulkan CI.
 gpu_compute/fixtures/field-quality-reference.json
+# Reproducible independent reference: large sources/captures stay in artifacts.
+/gpu_compute/captures/brick_reference/
+/gpu_compute/brick-reference-*.json
+/gpu_compute/brick-reference-*.png
+/gpu_compute/*-lie-*.rgba32f
