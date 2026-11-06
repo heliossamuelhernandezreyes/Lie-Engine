@@ -1,0 +1,63 @@
+#[compute]
+#version 450
+// LIE28: source RGB albedo and roughness captured without lighting.
+// Geometric normals remain independent of material maps. No source mesh draw.
+layout(local_size_x=64) in;
+struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
+struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
+struct Projection { vec4 world; vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
+
+
+
+
+
+
+layout(set=0,binding=6,std430) readonly buffer Parameters {
+    vec4 eye; vec4 right; vec4 up; vec4 forward; vec4 lens; ivec4 counts;
+    vec4 light; vec4 light_color; vec4 ambient; vec4 options;
+    vec4 shadow_right; vec4 shadow_up; vec4 shadow_forward;
+    vec4 iris; vec4 wall; vec4 settings;
+} parameters;
+
+
+
+layout(rgba32f,set=0,binding=11) uniform image2D output_image;
+layout(rgba32f,set=0,binding=12) uniform image2D final_image;
+
+layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
+const float PI=3.141592653589793;
+const uint EMPTY=0xffffffffu;
+const int SHADOW_SIZE=512;
+
+
+
+
+
+
+
+vec3 to_srgb(vec3 p) {
+    return mix(p*12.92,1.055*pow(max(p,vec3(0)),vec3(1.0/2.4))-.055,greaterThan(p,vec3(.0031308)));
+}
+
+
+
+
+
+
+
+void main() {
+    uint i=gl_GlobalInvocationID.x,pixels=uint(parameters.counts.z*parameters.counts.w);
+    const int stage=7;
+
+        ivec2 size=imageSize(final_image);if(i>=uint(size.x*size.y)) return;
+        ivec2 xy=ivec2(int(i)%size.x,int(i)/size.x);int scale=phase.value.y;
+        vec3 linear=vec3(0);float coverage=0;
+        for(int y=0;y<scale;y++) for(int x=0;x<scale;x++) {
+            vec4 value=imageLoad(output_image,xy*scale+ivec2(x,y));linear+=value.rgb*value.a;coverage+=value.a;
+        }
+        if(coverage==0) {imageStore(final_image,xy,vec4(0));return;}
+        linear=max(linear/coverage*parameters.ambient.w,vec3(0));
+        imageStore(final_image,xy,vec4(to_srgb(linear/(vec3(1)+linear)),coverage/float(scale*scale)));return;
+
+}

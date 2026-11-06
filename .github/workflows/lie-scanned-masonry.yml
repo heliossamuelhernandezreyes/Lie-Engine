@@ -1,0 +1,72 @@
+name: LIE whole scanned brick and seeded masonry
+on:
+  push:
+    branches: [work/lie-scanned-masonry]
+    paths-ignore: ["docs/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: scanned-masonry-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-scanned-masonry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: tools
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: CPU regressions and generated entries
+        run: |
+          python -m pip install --timeout 20 --retries 2 -r requirements-ci.txt
+          python -m unittest discover -s tests -p 'test_*.py' -q
+          python tools/lie_scanned_masonry_shader.py
+          python tools/lie_brick_reference_shader.py
+          git diff --exit-code -- gpu_compute/shaders gpu_compute/lie_scanned_masonry_kernels.gd
+      - name: Public attributed source and pinned native engine
+        run: |
+          timeout 180s sudo apt-get -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -o Acquire::Retries=1 update -qq
+          timeout 180s sudo apt-get -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -o Acquire::Retries=1 install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1 libxi6 libxfixes3 libxrender1 libxxf86vm1 libsm6 libgl1 libegl1 libxkbcommon0
+          mkdir -p /tmp/scanned-source
+          curl --fail --location --retry 2 --max-time 180 -o /tmp/scanned-source/brick.glb https://huggingface.co/datasets/allenai/objaverse/resolve/main/glbs/000-013/6077f6801089403993f6a6612ff5739a.glb
+          curl --fail --location --retry 2 --max-time 90 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Common capture compiler and deterministic assemblies
+        run: |
+          python tools/lie_scanned_brick_prepare.py --source /tmp/scanned-source/brick.glb --provenance gpu_compute/assets/scanned_masonry/source_provenance.json --output /tmp/scanned-capture
+          python tools/lie_scanned_masonry.py --capture /tmp/scanned-capture --output /tmp/scanned-masonry
+          python tools/lie_scanned_masonry_stage.py --bank /tmp/scanned-masonry --stage /tmp/scanned-stage
+      - name: Native import, rig, agent and real captured renderer
+        run: |
+          set -o pipefail
+          engine=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          timeout 90 "$engine" --headless --path /tmp/scanned-stage --editor --import --quit 2>&1 | tee scanned-import.log
+          timeout 60 "$engine" --headless --path /tmp/scanned-stage --script res://test_lie26_rig.gd 2>&1 | tee scanned-rig.log
+          timeout 60 "$engine" --headless --path /tmp/scanned-stage --script res://workshop/test_lie_agent_session.gd 2>&1 | tee scanned-agent.log
+          timeout 360 xvfb-run -a "$engine" --path /tmp/scanned-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_scanned_masonry.gd 2>&1 | tee scanned-native.log
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('.').glob('scanned-*.log'):
+              text=p.read_text()
+              assert not any(v in text for v in ('ERROR:', 'SCRIPT ERROR', 'were leaked at exit')),str(p)+'\n'+text[-5000:]
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-scanned-masonry
+          compression-level: 6
+          path: |
+            scanned-*.log
+            /tmp/scanned-stage/*.png
+            /tmp/scanned-stage/*.rgba32f
+            /tmp/scanned-stage/scanned-masonry-native.json
+            /tmp/scanned-masonry
+            /tmp/scanned-capture/asset-profile.json
+            /tmp/scanned-capture/provenance.json
+          if-no-files-found: error

@@ -39,6 +39,8 @@ var sample_bank_bindings: int=0
 
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
+func instance_capacity() -> int:return MAX_INSTANCES
+func work_capacity() -> int:return MAX_WORK
 func shader_resource() -> RDShaderFile:return ShaderFile
 func _bind_stage(_commands: int,_stage: int) -> void:pass
 func _run_stage(_stage: int) -> bool:return true
@@ -57,7 +59,7 @@ func _init(size: int=384) -> void:
     for value in values:
         if not is_finite(value):failure="Captura no finita";return
     for master in catalog.get("masters",{}).values():
-        if master.get("levels",[]).size()<2 or master.get("levels",[]).size()>3:failure="Niveles inválidos";return
+        if master.get("levels",[]).size()<2 or master.get("levels",[]).size()>8:failure="Niveles inválidos";return
         for level in master["levels"]:
             if int(level["start"])<0 or int(level["count"])<1 or int(level["start"])+int(level["count"])>int(catalog["sample_count"]):failure="Rango de captura";return
     if stride==80:
@@ -69,7 +71,7 @@ func _init(size: int=384) -> void:
     capture_loaded=true
 
 func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
-    if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>MAX_INSTANCES*96 or jobs.size()%16!=0 or jobs.size()>MAX_INSTANCES*16 or work<1 or work>MAX_WORK:return false
+    if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>instance_capacity()*96 or jobs.size()%16!=0 or jobs.size()>instance_capacity()*16 or work<1 or work>work_capacity():return false
     if instances.is_empty() or jobs.is_empty() or parameters.decode_s32(80)!=work or parameters.decode_s32(84)!=jobs.size()/16 or parameters.decode_s32(88)!=render_size or parameters.decode_s32(92)!=render_size:return false
     var entries: PackedInt32Array=jobs.to_int32_array();var prefix: int=0
     for i in range(0,entries.size(),4):
@@ -109,7 +111,7 @@ func _initialize() -> bool:
     _samples=lease["cpu_data"] # PackedByteArray COW shares immutable CPU bytes too.
     allocation_bytes+=lease["bytes"] # Referenced bytes; not additive across consumers.
     asset_uploads+=1 if lease["uploaded"] else 0;sample_bank_bindings+=1
-    _buffer(1,MAX_INSTANCES*96);_buffer(2,MAX_INSTANCES*16)
+    _buffer(1,instance_capacity()*96);_buffer(2,instance_capacity()*16)
     projection_capacity=65536;_buffer(3,projection_capacity*96)
     _buffer(4,render_size*render_size*4);_buffer(5,render_size*render_size*4)
     _buffer(6,256);_buffer(7,render_size*render_size*32);_buffer(13,512*512*4)
@@ -151,7 +153,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     var work: int=next["work"]
     if work>projection_capacity:
         _rd.free_rid(_set);_set=RID()
-        _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=mini(MAX_WORK,int(ceil(float(work)/65536))*65536)
+        _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=mini(work_capacity(),int(ceil(float(work)/65536))*65536)
         _buffer(3,projection_capacity*96);_make_set()
     _rd.buffer_update(_buffers[6],0,256,next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])

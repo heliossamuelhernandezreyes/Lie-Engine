@@ -99,9 +99,9 @@ vec3 bench_indirect(vec3 p,uint node) {
     return s
 
 
-def dedicated(stage):
+def dedicated(stage,source=None):
     """Same equations in isolated entries, using the accepted closure compiler."""
-    source=generate();all_functions=functions(source);main=next(f[3] for f in all_functions if f[0]=='main')
+    source=generate() if source is None else source;all_functions=functions(source);main=next(f[3] for f in all_functions if f[0]=='main')
     common=main[:main.index('    if(stage==1)')].replace('int stage=phase.value.x;',f'const int stage={stage};')
     if stage in (4,6):
         branch=main[main.index('    if(i>=pixels) return;'):main.rfind('}')]
