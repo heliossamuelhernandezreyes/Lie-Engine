@@ -1,0 +1,98 @@
+{
+  "schema": "lie-v6-full-frame-acceptance/1",
+  "run_id": 42165371062,
+  "artifact_id": 13479121232,
+  "artifact_sha256": "4d2768cc16fe40387c4e1219745adad980e16badcc060fae87ded2c9e38c54b1",
+  "shader_commit": "63b032162df6059be5fd88313a550a4cd86a2367",
+  "total_pixels": 1555200,
+  "depth_tolerance_m": 2e-05,
+  "poses": [
+    {
+      "pose": 0,
+      "pixels": 518400,
+      "flagged": 32391,
+      "combined_geometry": {
+        "wrong_sampled": 0,
+        "missing": 0,
+        "extra": 0,
+        "wrong_owner": 0,
+        "wrong_depth_over_20um": 0,
+        "incomplete_overflow": 0,
+        "wrong_pixel_ids": []
+      },
+      "readback_status": {
+        "records_all_pixels": 518400,
+        "flagged_pixels": 32391,
+        "resolved_hit_status": 32315,
+        "resolved_miss_status": 76,
+        "overflow_status": 0,
+        "max_cell_iterations": 20535,
+        "untouched_pixels_zero": true
+      },
+      "max_world_error_m": 1.5800737276959875e-06,
+      "max_reverse_z_consistency_error": 2.100103398475217e-10,
+      "identical_baseline_camera_proxies_and_mask": true,
+      "strict_full_frame_first_hit_passed": true
+    },
+    {
+      "pose": 1,
+      "pixels": 518400,
+      "flagged": 32447,
+      "combined_geometry": {
+        "wrong_sampled": 0,
+        "missing": 0,
+        "extra": 0,
+        "wrong_owner": 0,
+        "wrong_depth_over_20um": 0,
+        "incomplete_overflow": 0,
+        "wrong_pixel_ids": []
+      },
+      "readback_status": {
+        "records_all_pixels": 518400,
+        "flagged_pixels": 32447,
+        "resolved_hit_status": 32359,
+        "resolved_miss_status": 88,
+        "overflow_status": 0,
+        "max_cell_iterations": 20193,
+        "untouched_pixels_zero": true
+      },
+      "max_world_error_m": 1.439158596070826e-06,
+      "max_reverse_z_consistency_error": 1.8982229438475884e-10,
+      "identical_baseline_camera_proxies_and_mask": true,
+      "strict_full_frame_first_hit_passed": true
+    },
+    {
+      "pose": 2,
+      "pixels": 518400,
+      "flagged": 32505,
+      "combined_geometry": {
+        "wrong_sampled": 0,
+        "missing": 0,
+        "extra": 0,
+        "wrong_owner": 0,
+        "wrong_depth_over_20um": 0,
+        "incomplete_overflow": 0,
+        "wrong_pixel_ids": []
+      },
+      "readback_status": {
+        "records_all_pixels": 518400,
+        "flagged_pixels": 32505,
+        "resolved_hit_status": 32438,
+        "resolved_miss_status": 67,
+        "overflow_status": 0,
+        "max_cell_iterations": 19365,
+        "untouched_pixels_zero": true
+      },
+      "max_world_error_m": 1.6875210209953623e-06,
+      "max_reverse_z_consistency_error": 1.9582760781879094e-10,
+      "identical_baseline_camera_proxies_and_mask": true,
+      "strict_full_frame_first_hit_passed": true
+    }
+  ],
+  "limitations": [
+    "Captured-cell correspondence for three archived camera poses only",
+    "Combined output is an evaluated baseline-plus-record array, NOT published G-buffer",
+    "Original source mesh, normal/color correctness, GPU compaction and mobile performance not established",
+    "Initial arithmetic canary in this run had an invalid binding ABI; geometry comparisons ran correctly; canary being corrected independently"
+  ]
+}

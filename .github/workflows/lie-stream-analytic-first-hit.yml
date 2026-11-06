@@ -124,6 +124,7 @@ jobs:
           LIBGL_ALWAYS_SOFTWARE: '1'
           MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
         run: |
+          set -o pipefail
           xvfb-run -a "$GODOT" --path "$LIE_STAGE" --rendering-driver vulkan --rendering-method mobile \
             --audio-driver Dummy --script res://lie_gpu_math_probe.gd \
             | tee "${{ runner.temp }}/lie-gpu-math-probe.log"

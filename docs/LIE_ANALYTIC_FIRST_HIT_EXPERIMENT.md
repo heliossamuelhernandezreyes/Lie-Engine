@@ -51,3 +51,22 @@ El censo se amplió localmente al framebuffer COMPLETO de las tres cámaras: **1
 La enumeración analítica no basta si la aritmética compensada tampoco conserva correctamente sus residuos. V6 sustituye el producto con residuo FMA por una descomposición Dekker de operandos FP32. Un canario Vulkan con entradas leídas desde SSBO (sin plegado de constantes) comprueba que el producto reconstruya un residuo conocido y reporta por separado el resultado FMA del mismo dispositivo. Es una hipótesis instrumental, no un diagnóstico ya confirmado del controlador.
 
 La referencia, el umbral y los datos de aceptación se mantienen. PR de investigación; sin integración en main ni APK nuevo.
+
+
+## V6: aceptación geométrica alcanzada en las tres cámaras
+
+[Godot 4.7.2 / Vulkan V6, ejecución 42165371062](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42165371062), artefacto **13479121232**, SHA-256 `4d2768cc16fe40387c4e1219745adad980e16badcc060fae87ded2c9e38c54b1`.
+
+| Pose | Errores baseline (fotograma completo) | V4 | V5 | V6 | Regresiones V6 |
+|---|---:|---:|---:|---:|---:|
+| 0 | 32 | 26 | 27 | **0** | **0** |
+| 1 | 30 | 30 | 23 | **0** | **0** |
+| 2 | 39 | 25 | 25 | **0** | **0** |
+
+Los 97,343 registros GPU marcados superan la comparación exhaustiva con la referencia independiente. Combinados para evaluación con los píxeles baseline sin marca, coinciden en cobertura, propietario y profundidad con los **1,555,200 rayos** del censo completo al umbral original de 20 micrómetros. También se comprobó la posición 3D: errores máximos 1.580 / 1.439 / 1.688 micrómetros. Los buffers de cámara, proxies, geometría original y máscara son idénticos a V4; no se reutilizó una referencia de otra cámara. Cero estados incompletos y cero escrituras en registros no marcados.
+
+Resultado completo: [`checkpoints/LIE_V6_FULL_FRAME_ACCEPTANCE.json`](checkpoints/LIE_V6_FULL_FRAME_ACCEPTANCE.json). El caso 80→83 y los siete casos archivados quedan resueltos en este censo.
+
+**Incidencia de instrumentación preservada:** el canario auxiliar de esa ejecución conservaba bindings/push constants no utilizados del shader principal, por lo que no despachó. Su salida cero no demuestra nada sobre FMA ni Dekker. Además, `tee` ocultó su código de salida. La aceptación geométrica sí se ejecutó y verificó los registros no nulos contra dos referencias; ese resultado sigue siendo válido. El canario se corrigió con una interfaz mínima, comprobación de bindings y `pipefail`; su verificación queda separada del resultado geométrico. No atribuir el fallo a un controlador solo por este canario inválido.
+
+**Alcance final:** primer impacto experimental aceptado para estas tres cámaras y este banco de celdas. No implica fidelidad a la malla original, corrección de normales/materiales, publicación en el G-buffer, compacción GPU ni rendimiento móvil. El shader conserva lanzamiento completo y resultados densos; no presentar esta prueba como optimización para Android. La investigación permanece en un PR draft.

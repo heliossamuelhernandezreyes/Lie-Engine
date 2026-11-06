@@ -11,15 +11,22 @@ import numpy as np
 def stage(root):
     root = Path(root)
     source = (Path(__file__).parent/'shaders/lie_stream_first_hit_analytic.comp.glsl').read_text()
-    prefix = source[:source.index('struct Ray')]
-    shader = prefix + '''
+    helpers = source[source.index('precise vec2 ds_sum'):source.index('struct Ray')]
+    # A standalone ABI: retaining the resolver header would require binding
+    # all its unused samplers and push constants even for this tiny canary.
+    shader = '''#[compute]
+#version 450
+layout(local_size_x=1,local_size_y=1,local_size_z=1) in;
+layout(set=0,binding=0,std430) readonly buffer Input {float value[];} input_probe;
+layout(set=0,binding=7,std430) buffer Output {vec4 value[];} output_probe;
+''' + helpers + '''
 void main() {
-    float a=proxies.p[0].lo.x;
-    float b=proxies.p[0].lo.y;
+    float a=input_probe.value[32];
+    float b=input_probe.value[33];
     precise float hi=a*b;
     precise float residual=fma(a,b,-hi);
     precise vec2 split=ds_product(a,b);
-    output_hit.h[0]=HitRecord(vec4(hi,residual,split),vec4(0.),vec4(0.),vec4(0.));
+    output_probe.value[0]=vec4(hi,residual,split);
 }
 '''
     (root/'shaders/lie_gpu_math_probe.glsl').write_text(shader)
@@ -39,6 +46,8 @@ func _initialize() -> void:
     var a := RDUniform.new(); a.uniform_type=RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER; a.binding=0; a.add_id(input)
     var b := RDUniform.new(); b.uniform_type=RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER; b.binding=7; b.add_id(output)
     var uniforms := rd.uniform_set_create([a,b],shader,0)
+    if not shader.is_valid() or not pipeline.is_valid() or not uniforms.is_valid():
+        printerr("Invalid Vulkan math shader/pipeline/bindings"); quit(1); return
     var list := rd.compute_list_begin()
     rd.compute_list_bind_compute_pipeline(list,pipeline)
     rd.compute_list_bind_uniform_set(list,uniforms,0)
