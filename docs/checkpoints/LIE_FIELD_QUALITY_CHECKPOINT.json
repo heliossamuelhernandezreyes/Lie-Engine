@@ -1,0 +1,278 @@
+{
+  "schema": "lie-field-quality-checkpoint/1",
+  "date_utc": "2026-11-06",
+  "repository": "https://github.com/heliossamuelhernandezreyes/Lie-Engine",
+  "branch": "work/lie-lighting-contract",
+  "base_commit": "0aa2d1db2612902acca4814ec1c1f0f991f921bf",
+  "validated_code_commit": "c15f60ac21777e29f8577d7bfc3df58406359914",
+  "previous_delivered_apk_commit": "6ee27c4cdd767f1d8d13d7cf03d1139210cd6991",
+  "new_apk_built": false,
+  "merged_to_main": false,
+  "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+  "source_bank_changed": false,
+  "ci": {
+    "run_id": 42212206691,
+    "job_id": 127873336046,
+    "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42212206691",
+    "conclusion": "success",
+    "artifact_id": 13500305621,
+    "artifact_bytes": 479304,
+    "artifact_sha256": "80f4de48d3c8fd6e93e26e16511d9dd918f895b3254d89a65a7bc01a80b8fe5d"
+  },
+  "environment": {
+    "godot": "4.7.2-stable",
+    "rendering_method": "Mobile",
+    "api": "Vulkan 1.4.335",
+    "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+    "mesa": "26.0.8",
+    "os": "Ubuntu 26.04",
+    "software_vulkan": true,
+    "physical_android_tested": false
+  },
+  "validation": {
+    "python": {
+      "tests_run": 246,
+      "passed": 245,
+      "skipped": 1,
+      "errors": 0,
+      "failures": 0,
+      "skip": "test_current_locked_source_if_present: optional LeePerrySmith source is acquired by its separate Blender workflow"
+    },
+    "commands": 24,
+    "rig": 247,
+    "agent_session": 25,
+    "field": {
+      "checks": 947,
+      "cases": 29,
+      "failed": false,
+      "max_absolute_error_against_float64": 3.34194344520089e-06,
+      "source_superposition_max_error": 9.313225746154785e-10,
+      "restoration_max_error": 0.0
+    },
+    "final_shader": {
+      "checks": 8,
+      "closed": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "dynamic": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "failed": false,
+      "old_gate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "open": [
+        0.3182462155818939,
+        0.3182462155818939,
+        0.3182462155818939,
+        1.0
+      ]
+    },
+    "wall": {
+      "checks": 27,
+      "failed": false,
+      "policy_round_trip_max": 0.0,
+      "visibility_round_trip_max": 0.0,
+      "cached_vs_cold_max": 0.0,
+      "cached_vs_resolved_field_max": 0.0,
+      "power_round_trip_max": 0.0,
+      "occluded_peak": 0.0,
+      "transport_bytes": 6587928
+    },
+    "error_and_leak_log_scan": "passed"
+  },
+  "counterexamples": {
+    "exact_square_subdivision": {
+      "parent_size_m": 0.004,
+      "children": 4,
+      "child_size_m": 0.002,
+      "receiver_distance_m": 4,
+      "old_split_indirect_red": 0.0,
+      "new_parent_indirect_red": 0.0001281111006865368,
+      "new_split_indirect_red": 0.00012811029218028007,
+      "relative_quadrature_difference": 6.310977365764392e-06,
+      "cpu_relative_tolerance": 1e-05,
+      "scope": "synthetic scalar-relative RGB test; local tolerance policy, not a global image-error bound"
+    },
+    "same_source_two_paths": {
+      "six_sector_receiver_red": [
+        0.00014413938784386138,
+        0.00014413938784386138,
+        4.548246372456147e-34
+      ],
+      "one_sector_receiver_red": [
+        4.548246514383447e-34,
+        4.548246514383447e-34,
+        0.00028827876669204264
+      ],
+      "receiver_order": [
+        "left",
+        "right",
+        "center"
+      ],
+      "scope": "authored metallic test material and finite directed graph; not a photographed measured BRDF"
+    }
+  },
+  "resource_requests": {
+    "nodes": 872,
+    "edges": 35016,
+    "sources_capacity": 8,
+    "sectors_capacity": 6,
+    "lobe_and_cap_bytes": 3348480,
+    "mutable_policy_bytes": 14496,
+    "immutable_edge_bytes": 1120512,
+    "edge_state_bytes": 560256,
+    "additional_quality_bytes": 5043744,
+    "transport_with_bridges_bytes": 6587928,
+    "scope": "requested buffer allocations; not total process memory or measured physical VRAM"
+  },
+  "evidence_files": {
+    "docs/checkpoints/lie-field-quality/field-quality-native.json": {
+      "bytes": 30606,
+      "sha256": "b1f0b427499d7213050f41fb444c845704debba1ebdd551174b9b2a2d55fdf59"
+    },
+    "docs/checkpoints/lie-field-quality/quality-direct-native.json": {
+      "bytes": 346,
+      "sha256": "51a2854a87cc1f1dc471ab3e8299e309f29fd7d68ae09c6337a9092e9d3c6f53"
+    },
+    "docs/checkpoints/lie-field-quality/quality-wall-native.json": {
+      "bytes": 14888,
+      "sha256": "677936180d6e721f91aac0dfdae0bc901dbd1fef3ba6986ee40799586a40fe8f"
+    }
+  },
+  "generated_reference": {
+    "path": "gpu_compute/fixtures/field-quality-reference.json",
+    "committed": false,
+    "generation": "python tools/lie_field_quality_cases.py",
+    "artifact_path": "tmp/lie-quality/fixtures/field-quality-reference.json",
+    "bytes": 442958,
+    "sha256": "da1d2a4649059704ff359510df9f8fa3b4a81957f2848b8aad32b45db92e838b"
+  },
+  "negative_history": [
+    {
+      "run_id": 42190765505,
+      "job_id": 127801922030,
+      "code_prefix": "3937d24",
+      "conclusion": "failed",
+      "observation": "Integral JSON values rejected by an int-only policy guard; empty GPU policy. Fixed integral numeric validation and clean empty-buffer failure.",
+      "artifact_id": 13490275461,
+      "artifact_sha256": "0b8952dcbdd24a576f8694aac528d81103dc4893bf7e8949dd092f14c879e229"
+    },
+    {
+      "run_id": 42191162580,
+      "job_id": null,
+      "code_prefix": "69313d2",
+      "conclusion": "cancelled",
+      "observation": "Superseded during setup; not a transport acceptance result."
+    },
+    {
+      "run_id": 42191608329,
+      "job_id": 127804836741,
+      "code_prefix": "b67e789",
+      "conclusion": "failed",
+      "observation": "Native fault during same-source path case; not a numerical acceptance."
+    },
+    {
+      "run_id": 42192171792,
+      "job_id": 127806589419,
+      "code_prefix": "4270b0c",
+      "conclusion": "failed",
+      "observation": "Stage trace localized native fault to gather phase 3."
+    },
+    {
+      "run_id": 42204831155,
+      "job_id": 127848737338,
+      "code_prefix": "44937ec",
+      "conclusion": "failed",
+      "observation": "Independent target-sector gather and aggregate-radius reduction did not resolve the native fault."
+    },
+    {
+      "run_id": 42205744216,
+      "job_id": 127851798250,
+      "code_prefix": "ec23ae8",
+      "conclusion": "failed",
+      "observation": "Flat vec4 streams and per-dispatch synchronization diagnostics did not resolve the phase-3 fault."
+    },
+    {
+      "run_id": 42206462257,
+      "job_id": 127854240859,
+      "code_prefix": "9136d0c",
+      "conclusion": "failed",
+      "observation": "New one-sector and six-sector paths failed on Mesa 26; unchanged v1 on the same scene passed 27 checks. New path passed local Mesa 25."
+    },
+    {
+      "run_id": 42207306117,
+      "job_id": 127857062428,
+      "code_prefix": "ff583b4",
+      "conclusion": "failed",
+      "observation": "Source-sector streaming alone did not resolve the native fault."
+    },
+    {
+      "run_id": 42208834796,
+      "job_id": 127862147756,
+      "code_prefix": "dc5bdfc",
+      "conclusion": "failed",
+      "observation": "Precomputing edge classification and visibility resolved the reproducible field fault: 945 field, 8 final shader, 21 commands, 247 rig and 25 agent checks passed. Wall preparation then failed on an unrelated optional native diagnostics prerequisite.",
+      "artifact_id": 13498571103,
+      "artifact_sha256": "00c1393e5c73459d43c6f999ca90e2b90de81613f84b9b61897bf7ac25d635bb"
+    },
+    {
+      "run_id": 42209723925,
+      "job_id": 127865076187,
+      "code_prefix": "37d6bf6",
+      "conclusion": "failed",
+      "observation": "Core passed; isolated wall preparation omitted later visibility-order packets. Staging corrected."
+    },
+    {
+      "run_id": 42211060789,
+      "job_id": 127869520106,
+      "code_prefix": "3fa1cfc",
+      "conclusion": "failed",
+      "observation": "947 core checks passed; parallel resource import aborted at editor finalization. Sequential import fixed this preparation issue."
+    },
+    {
+      "run_id": 42211579833,
+      "job_id": 127871237074,
+      "code_prefix": "8008005",
+      "conclusion": "success",
+      "observation": "Complete field, final shading and wall acceptance; 22 command checks before the final caller-aliasing regression.",
+      "artifact_id": 13499171376,
+      "artifact_sha256": "e0a1c74346674206a74f1bcf52013de884e0e35c90a98005222f7ab87204fbc4"
+    },
+    {
+      "run_id": 42212206691,
+      "job_id": 127873336046,
+      "code_prefix": "c15f60a",
+      "conclusion": "success",
+      "observation": "Final code acceptance including 24 command checks and caller-owned nested-array mutation guards.",
+      "artifact_id": 13500305621,
+      "artifact_sha256": "80f4de48d3c8fd6e93e26e16511d9dd918f895b3254d89a65a7bc01a80b8fe5d"
+    }
+  ],
+  "other_preserved_negatives": [
+    "Initial CPU relative tolerance 5e-6 failed at measured subdivision difference approximately 6.311e-6. Documented 1e-5 quadrature tolerance adopted; original GPU oracle tolerance 3e-5 retained.",
+    "Initial isolated rig stage omitted lie26-rig.json and stalled; process stopped, fixture added and 247 rig checks passed.",
+    "Initial local wall image passed before shutdown but freeing extra buffers before the parent uniform set caused an invalid-RID release error. Parent-first release fixed it and final logs are clean.",
+    "An editor import rewrote the root project.godot during diagnosis; it was restored to the exact base version. Isolated resource import configuration belongs to the staging helper."
+  ],
+  "limits": [
+    "Finite graph candidates and immutable captured topology; moving or destroying captured geometry requires updated packets. Analytic boxes do not create visible geometry.",
+    "Six directional sectors merge paths within each sector. Indirect final appearance is predominantly diffuse; no full view-dependent indirect specular, general refraction or caustics.",
+    "Area-weighted tolerance is local. No global image-error guarantee, physical photometric calibration or independent path-traced scene reference established.",
+    "Emitter quadrature remains four samples per panel and eight physical channels; arbitrary emitter resubdivision invariance is not established.",
+    "Full field is solved after relevant changes; no compact active frontier or partial-region solver. Software Vulkan timings do not establish Mali/Android performance.",
+    "Observed Mesa-version differences and successful edge prepass do not conclusively identify a compiler defect.",
+    "Common directional transport, surface consumer and new laboratory integrated; V6 reconstruction and native Godot shadow/depth participation are separate work.",
+    "Energy-radius checkbox remains false at initialization, as in the prior APK. The optional radius policy is exercised by tests."
+  ]
+}

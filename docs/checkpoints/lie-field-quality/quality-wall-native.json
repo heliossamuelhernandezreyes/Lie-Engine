@@ -1,0 +1,445 @@
+{
+  "appearance": {
+    "active_work": {
+      "enabled": true,
+      "gpu_indirect_dispatch": true,
+      "precomputed_ray_boxes": true,
+      "queue_builds": 0,
+      "queue_capacity": 750000,
+      "queue_requested_bytes": 3000016,
+      "scope": "unique final pixel winners; reused on light-only updates; unchanged captured primitive tests"
+    },
+    "appearance": {
+      "bounded_raster": true,
+      "dielectric_f0": 0.04,
+      "material_response": true,
+      "normal_filtering": true,
+      "scope": "opaque nonmetal direct GGX/Smith + attenuated diffuse; indirect field unchanged"
+    },
+    "asset_contract": {
+      "assets": 3,
+      "ok": true,
+      "source_identity": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340"
+    },
+    "brick_instances": 96,
+    "brick_master_count": 1,
+    "camera_render": {
+      "effective_backend": "compute",
+      "failure": "",
+      "format_support": {},
+      "graphics_allocations": 0,
+      "graphics_builds": 0,
+      "graphics_requested_bytes": 0,
+      "internal_size": 1080,
+      "output_size": 720,
+      "requested_backend": "compute",
+      "scope": "original opaque disk coverage and source IDs; two auxiliary triangles per captured footprint; hardware float32 MIN/ADD; owner/visibility atomics retained; integer blend equivalence requires sums below 2^24; GPU precision guard read only during explicit diagnostics; experimental"
+    },
+    "compact_shadows": {
+      "additional_resident_bytes": 16680224,
+      "effective": false,
+      "ready": true,
+      "requested": false,
+      "scope": "extra shared immutable view; exact original position/radius/normal bits and IDs; original bank retained; actual bandwidth gain must be measured",
+      "sha256": "363a7718495f669144454f9819e254d0afa7530bfedc39a9d1d6d8a31d5f0733",
+      "shadow_stride_bytes": 32,
+      "source_stride_bytes": 80
+    },
+    "configuration_packets": {
+      "builds": 1,
+      "reuses": 6
+    },
+    "continuous_light": true,
+    "direct_surface": {
+      "access": {
+        "envelope_cell_center_max_error_m": 0.00299876253120601,
+        "envelope_groups": [
+          {
+            "first_quad": 0.0,
+            "quads": 4114.0,
+            "triangles": 8228.0
+          },
+          {
+            "first_quad": 4114.0,
+            "quads": 11832.0,
+            "triangles": 23664.0
+          }
+        ],
+        "envelope_layers_per_direction": 1.0,
+        "envelope_max_step_cells": 32.0,
+        "envelope_quad_stride": 48.0,
+        "envelope_refine_error_m": 0.003,
+        "packets": {
+          "envelope.bin": {
+            "bytes": 765408.0,
+            "sha256": "4750b34ff546ca8795d188d5903c21cc482ebb920934103d877c9a5397f210f5"
+          },
+          "regions.bin": {
+            "bytes": 282624.0,
+            "sha256": "82b7bdde65af724fb750b96e34bc75b28a82708875df8edadd309198e0b77db6"
+          }
+        },
+        "region_height": 138.0,
+        "region_rects": [
+          [
+            0.0,
+            0.0,
+            8.0,
+            13.0
+          ],
+          [
+            0.0,
+            13.0,
+            8.0,
+            13.0
+          ],
+          [
+            0.0,
+            26.0,
+            24.0,
+            13.0
+          ],
+          [
+            0.0,
+            39.0,
+            24.0,
+            13.0
+          ],
+          [
+            0.0,
+            52.0,
+            24.0,
+            8.0
+          ],
+          [
+            0.0,
+            60.0,
+            24.0,
+            8.0
+          ],
+          [
+            0.0,
+            68.0,
+            29.0,
+            3.0
+          ],
+          [
+            0.0,
+            71.0,
+            29.0,
+            3.0
+          ],
+          [
+            0.0,
+            74.0,
+            128.0,
+            3.0
+          ],
+          [
+            0.0,
+            77.0,
+            128.0,
+            3.0
+          ],
+          [
+            0.0,
+            80.0,
+            128.0,
+            29.0
+          ],
+          [
+            0.0,
+            109.0,
+            128.0,
+            29.0
+          ]
+        ],
+        "region_size": 8.0,
+        "region_width": 128.0,
+        "schema": "lie-surface-access/1",
+        "scope": "conservative all-layer region ranges; coarse front-layer capture envelope; full-resolution original coverage/owner/material lookup in fragment; envelope may change silhouette, depth and shadows; measured cell-centre error is not an acceptance tolerance; no source mesh",
+        "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+        "source_packets": {
+          "color.bin": {
+            "bytes": 34734080.0,
+            "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+          },
+          "depth.bin": {
+            "bytes": 17367040.0,
+            "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+          },
+          "normal.bin": {
+            "bytes": 34734080.0,
+            "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+          }
+        }
+      },
+      "additional_requested_bytes": 276618656,
+      "atlas_resident": true,
+      "bounded_view_queries": true,
+      "captured_views": {
+        "masters": [
+          {
+            "height": 1137.0,
+            "max_capture_size": 192.0,
+            "valid_pixels": 867700.0,
+            "views": 64.0,
+            "width": 2048.0
+          },
+          {
+            "height": 3071.0,
+            "max_capture_size": 512.0,
+            "valid_pixels": 193404.0,
+            "views": 64.0,
+            "width": 4096.0
+          }
+        ],
+        "metadata_stride": 80.0,
+        "packets": {
+          "views-0.bin": {
+            "bytes": 18628608.0,
+            "sha256": "5ecd6e7f7134c492324c3da1d7d5ba4444eae196bb973532eddd1757e230f48c"
+          },
+          "views-1.bin": {
+            "bytes": 100630528.0,
+            "sha256": "1ccf77e80d2d7c1a0e0541557a6c803342475fe6fe6f69aa339a8a1be34a9cd3"
+          },
+          "views-meta.bin": {
+            "bytes": 10240.0,
+            "sha256": "9db582be26f253c9df62a794aa66aa85be801576b3c36de7895854af6ecfe540"
+          }
+        },
+        "runtime": {
+          "angular_candidates": 3.0,
+          "shadow_backend": "regions",
+          "source_cell_walk": false,
+          "source_refinements": 2.0,
+          "view_depth_steps": 3.0
+        },
+        "schema": "lie-captured-views/1",
+        "scope": "offline orthographic visibility of accepted four-layer directional cell fields; no original source mesh; finite angular/resolution approximation; no hole filling; original full-resolution material provenance; fixed runtime queries; shadows independently use regions",
+        "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+        "spec": {
+          "compiler": "8634b68152c108ace773a3a39d1aaf6a5bd86fdba29e5b216601e75d0dc0323d",
+          "grid": 8.0,
+          "sizes": [
+            192.0,
+            512.0
+          ],
+          "source_packets": {
+            "color.bin": {
+              "bytes": 34734080.0,
+              "sha256": "5614ec705a17165d643e9024aba7d2dce6a649c1b176100b7e022a28b434a0ba"
+            },
+            "depth.bin": {
+              "bytes": 17367040.0,
+              "sha256": "8e75f4e8db9700bf71b210dc0af89be09f6b8f83e2e983eb20177d404ca90200"
+            },
+            "normal.bin": {
+              "bytes": 34734080.0,
+              "sha256": "5790182c867ee788f2ae6725a21fe0df53b579f534a87a77875bd14a830afdcc"
+            }
+          }
+        }
+      },
+      "compiled_layers": 4,
+      "effective_backend": "views",
+      "failure": "",
+      "fixed_depth_reprojection": true,
+      "fragment_depth_search": false,
+      "native_shadow_size": 512,
+      "node_builds": 11,
+      "primary_builds": 2,
+      "proxy_triangles": 1164,
+      "query_budget_per_proxy_fragment": {
+        "attribute_texels": 6,
+        "runtime_source_projection_dispatches": 0,
+        "source_depth_texels": 6,
+        "view_depth_texels": 9
+      },
+      "requested_backend": "views",
+      "scope": "experimental opaque compiled surface; native depth; four captured layers; shared full brick master replaces sparse instance selections; light-space cube maps replace short disk shadows; finite-resolution visibility differs; reference resources retained for A/B; no physical FPS claim",
+      "shade_builds": 11,
+      "shadow_backend": "regions",
+      "shadow_builds": 2,
+      "shadow_light_builds": 4,
+      "source_bank_sha256": "ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340",
+      "source_projection_dispatches": 0,
+      "source_shadow_queries": 0,
+      "submitted_triangles": 1164,
+      "surface_cell_walk": false
+    },
+    "geometry_rebuilds": 2,
+    "internal_size": 1080,
+    "kernels": {
+      "dedicated_count": 18,
+      "effective_mode": "split",
+      "extra_surface_buffer_bytes": 0,
+      "ready": true,
+      "requested_mode": "split",
+      "scope": "independent stage entry points and reachable helpers; exact original equations; real 1.2 and 1.3 comparison binaries",
+      "set_builds": 1
+    },
+    "lighting_resolves": 11,
+    "output_resolves": 11,
+    "persistent_visibility": {
+      "active_groups": 0,
+      "allocation_count": 1,
+      "block_access": true,
+      "block_table_bytes": 97632,
+      "diagnostics": false,
+      "enabled": true,
+      "padding": 0,
+      "reference_entries": 772097,
+      "scope": "stable source-reference/instance identity; camera independent; per-light position and metric invalidation",
+      "shared": {
+        "allocations_total": 1,
+        "domains": 1,
+        "references": 1,
+        "resident_bytes": 9265420,
+        "scope": "source-reference/instance identity and scene; light positions validated on GPU"
+      }
+    },
+    "power_response": {
+      "allocations": 0,
+      "builds": 0,
+      "enabled": true,
+      "physical_lights": 0,
+      "requested_bytes": 0,
+      "reuses": 0,
+      "scope": "lazy per-pixel/per-light direct detail; coarse/indirect transport recomputed unchanged; scalar power only; camera, position, material and options invalidate",
+      "valid": false
+    },
+    "recovery_builds": 0,
+    "recovery_capacity": 65536,
+    "recovery_reuses": 0,
+    "reference_bytes": 3088388,
+    "screen_tiles": {
+      "additional_requested_bytes": 39292744,
+      "allocations": 4,
+      "builds": 0,
+      "effective": false,
+      "ready": true,
+      "reference_capacity": 6750000,
+      "requested": false,
+      "scope": "exact per-screen-tile CSR; one pixel owner; unchanged source disks, depth ties and uint material sums; lists reused on light-only updates",
+      "shared_workgroup_bytes": 2560,
+      "strategy": "source-footprint reduction in shared memory",
+      "tile_size": 8
+    },
+    "source_bank_bytes": 41700560,
+    "source_surface": {
+      "cache_bytes": 6000000,
+      "camera_independent_occluders": true,
+      "continuity": true,
+      "receiver_queries": "once per winning source patch/light; recovered pixels reuse witnessed source",
+      "scene_bytes": 13184,
+      "shared_visibility": {
+        "groups": 1,
+        "references": 1,
+        "scope": "immutable source visibility; scene hierarchy and writable caches excluded",
+        "shared_blas_bytes": 5943064,
+        "uploads_total": 1
+      },
+      "source_geometry": "captured tangent disks, shared master IDs",
+      "visibility_precision": "8 bits per light; eighth light 7 bits",
+      "visibility_uploads": 1,
+      "world_contacts": true
+    },
+    "submission": {
+      "lean_barriers": false,
+      "lean_transitions": 0,
+      "scope": "same dependency boundaries; omit restoration of state immediately rebound by every dispatch; whole appearance interval retained",
+      "stage_timestamps": false
+    },
+    "surface_light": {
+      "bias_m": 0.0003,
+      "contacts": true,
+      "detail": true,
+      "reach_m": 0.025,
+      "recovery_surface_bytes": 2097152,
+      "steps": 12
+    },
+    "surface_pipeline": {
+      "additional_full_frame_bytes": 0,
+      "filtered": true,
+      "fused": true,
+      "material_builds": 0,
+      "material_packet_bytes_per_pixel": 16,
+      "material_reuses": 0
+    },
+    "surface_queries": {
+      "bounds_builds": 0,
+      "enabled": true,
+      "occlusion_witnesses": true,
+      "required_storage_buffers": 32,
+      "scope": "resident world centers/normal intervals; 16-block parents; exact captured-disk blocking witnesses; below 32 storage descriptors use the accepted 1.2 shader",
+      "selections": 0,
+      "storage_buffer_limit": 1000000,
+      "supported": true,
+      "witness_bytes": 24707360,
+      "world_plan": {
+        "builds": 0,
+        "reuses": 0,
+        "scope": "source domain + instance assembly + geometry recipe + schedule; camera/light independent"
+      }
+    },
+    "tangent_bounds": {
+      "bytes": 4194240,
+      "effective": true,
+      "ready": true,
+      "requested": true,
+      "scope": "refitted bounds only; unchanged original topology, leaves, TLAS, kernels and disk intersections",
+      "sha256": "e8cd762b428a36911521913e09ed9ee219cbda700c8396aac6f89fa38b8e022b"
+    },
+    "visibility_stream": {
+      "effective": false,
+      "order_bytes": 3088388,
+      "ready": true,
+      "requested": false,
+      "scope": "spatially ordered final winners; separate per-light cache/witness and exact BLAS kernels; 1.5 page traversal absent; original disks and shadow equations",
+      "set_builds": 1,
+      "trace_queue_bytes": 3000016
+    }
+  },
+  "cached_vs_cold_max": 0.0,
+  "cached_vs_resolved_field_max": 0.0,
+  "checks": 27,
+  "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+  "failed": false,
+  "occluded_peak": 0.0,
+  "physical_android_tested": false,
+  "policy_round_trip_max": 0.0,
+  "power_round_trip_max": 0.0,
+  "quality": {
+    "backend": "lie-light-field/1",
+    "capacity": 8,
+    "directional_codes": true,
+    "edges": 35016,
+    "header_updates": 0,
+    "incident_direction": "one directional moment per source light, surface and bounce",
+    "lights": 2,
+    "patches": 872,
+    "quality": {
+      "immutable_edge_bytes": 1120512,
+      "max_sectors": 6,
+      "mutable_policy_bytes": 14496,
+      "policy": {
+        "angular_sectors": 6,
+        "area_budget": true,
+        "dynamic_occluders": [],
+        "reference_area": 1.0,
+        "roughness_split": 0.5,
+        "visibility_revision": 2
+      },
+      "scope": "opaque; area-weighted local tolerance, not a global image-error guarantee; dynamic AABB visibility; moments within sectors remain approximate",
+      "updates": 10
+    },
+    "scan_shadow_caps": true,
+    "scope": "opaque finite patches; no refracted paths",
+    "separate_lights": true,
+    "units": "meters; relative linear RGB power"
+  },
+  "transport_bytes": 6587928,
+  "visibility_round_trip_max": 0.0
+}
