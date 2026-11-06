@@ -1,0 +1,71 @@
+name: LIE streaming lossless delta packet verification
+
+on:
+  push:
+    branches: [research/lie-geometric-sufficiency-audit]
+    paths:
+      - '.github/workflows/lie-stream-delta-packets.yml'
+      - 'tools/lie_stream_delta_tiles.py'
+      - 'tools/lie_stream_delta_measure.py'
+      - 'tests/test_lie_stream_delta_tiles.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  delta-codec-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install numpy
+      - name: Check exact bit conservation, CRC and cache invalidation
+        run: python -m unittest discover -s tests -p test_lie_stream_delta_tiles.py -v
+      - name: Download real Vulkan pre-discard candidate bitsets
+        uses: actions/download-artifact@v4
+        with:
+          name: lie-stream-vulkan-candidate-risk-evidence
+          run-id: 42070697177
+          repository: heliossamuelhernandezreyes/Lie-Engine
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/stream-gpu-evidence
+      - name: Download original verified capture bank inside APK
+        uses: actions/download-artifact@v4
+        with:
+          name: lie-captured-views-apk-and-evidence
+          run-id: 39371606348
+          repository: heliossamuelhernandezreyes/Lie-Engine
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/apk
+      - name: Recover and authenticate actual LIE 2.5 geometry bank
+        run: |
+          APK="$(find "${{ runner.temp }}/apk" -type f -name '*.apk' | head -1)"
+          test -n "$APK"
+          python tools/lie_recover_attributed_apk_bank.py \
+            --apk "$APK" --out "${{ runner.temp }}/liewall06" \
+            --report "${{ runner.temp }}/bank-check.json"
+      - name: Losslessly compress all real GPU risk planes into P-frame tile deltas
+        run: |
+          CAPTURE="$(find "${{ runner.temp }}/stream-gpu-evidence" -type f -name '1-native-candidate-risk.bin' | head -1)"
+          test -n "$CAPTURE"
+          DIR="$(dirname "$CAPTURE")"
+          python tools/lie_stream_delta_measure.py \
+            --captures "$DIR" --bank "${{ runner.temp }}/liewall06" \
+            --tile-budget 2400 \
+            --output "${{ runner.temp }}/delta-packets"
+      - name: Preserve byte-exact P-frame packet evidence (not original geometry bank)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-stream-lossless-tile-delta-evidence
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/delta-packets/lie-stream-delta-report.json
+            ${{ runner.temp }}/delta-packets/lie-risk-pose*-delta.bin
+            ${{ runner.temp }}/bank-check.json

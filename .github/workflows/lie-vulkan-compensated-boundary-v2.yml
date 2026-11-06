@@ -1,0 +1,176 @@
+name: LIE native compensated FP32 precise-depth V2 A/B
+
+on:
+  push:
+    branches:
+      - research/lie-geometric-sufficiency-audit
+    paths:
+      - '.github/workflows/lie-vulkan-compensated-boundary-v2.yml'
+      - 'tools/lie_native_compensated_boundary_v2.py'
+      - 'tools/lie_native_compensated_comparison.py'
+      - 'tools/lie_real_vulkan_triplet.py'
+      - 'tests/test_lie_native_compensated_boundary_v2.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  native-attributed-wall:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      LIE_EXPERIMENT: experiment
+      LIE_STAGE: /tmp/lie-native-qa
+    steps:
+      - name: Checkout geometry audit branch
+        uses: actions/checkout@v4
+      - name: Checkout untouched native LIE experimental branch
+        uses: actions/checkout@v4
+        with:
+          ref: work/lie-native-depth
+          path: experiment
+      - name: Download verified public LIE 2.5 APK and historical evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: lie-captured-views-apk-and-evidence
+          run-id: 39371606348
+          repository: heliossamuelhernandezreyes/Lie-Engine
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: ${{ runner.temp }}/lie-original-apk
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install bank/compiler dependencies and software Vulkan
+        run: |
+          python -m pip install numpy
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb libvulkan1 mesa-vulkan-drivers vulkan-tools unzip
+      - name: Recover 39 attributed capture files and verify original hashes
+        run: |
+          find "${{ runner.temp }}/lie-original-apk" -name '*.apk' -type f -print
+          APK="$(find "${{ runner.temp }}/lie-original-apk" -name '*.apk' -type f | head -1)"
+          test -n "$APK"
+          python tools/lie_recover_attributed_apk_bank.py \
+            --apk "$APK" \
+            --out "$LIE_EXPERIMENT/gpu_compute/captures/liewall06" \
+            --report "${{ runner.temp }}/lie-bank-recovery.json"
+      - name: Rebuild exact native shaders and captured-cell rectangles
+        run: |
+          python "$LIE_EXPERIMENT/tools/lie_direct_access_shaders.py"
+          python "$LIE_EXPERIMENT/tools/lie_direct_views_shaders.py"
+          python "$LIE_EXPERIMENT/tools/lie_native_shaders.py"
+          python "$LIE_EXPERIMENT/tools/lie_native_surface.py"
+          python "$LIE_EXPERIMENT/tools/lie_native_stage.py" --stage "$LIE_STAGE"
+      - name: Install pinned Godot 4.7.2
+        run: |
+          curl --fail --location --retry 3 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          echo "GODOT=$GITHUB_WORKSPACE/godot-bin/Godot_v4.7.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+      - name: Import staged test project and verify Vulkan driver
+        run: |
+          "$GODOT" --headless --path "$LIE_STAGE" --editor --import --quit > "${{ runner.temp }}/lie-import.log" 2>&1
+          cat "${{ runner.temp }}/lie-import.log"
+          vulkaninfo --summary || true
+      - name: Execute native RenderingDevice Vulkan at three failure camera poses
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
+        run: |
+          xvfb-run -a "$GODOT" --path "$LIE_STAGE" --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_native_depth.gd \
+            > "${{ runner.temp }}/lie-native-gpu.log" 2>&1 || { cat "${{ runner.temp }}/lie-native-gpu.log"; exit 1; }
+          cat "${{ runner.temp }}/lie-native-gpu.log"
+          test -s "$LIE_STAGE/native-depth/0-native-world.bin"
+          test -s "$LIE_STAGE/native-depth/0-native-views.bin"
+          test -s "$LIE_STAGE/native-depth/0-native-proxies.bin"
+      - name: Compare actual Vulkan against independent captured-cell ray oracle
+        run: |
+          for pose in 0 1 2; do
+            python tools/lie_real_vulkan_triplet.py \
+              --captures "$LIE_STAGE/native-depth" \
+              --bank "$LIE_EXPERIMENT/gpu_compute/captures/liewall06" \
+              --experimental-checkout "$LIE_EXPERIMENT" \
+              --pose "$pose" \
+              --output "${{ runner.temp }}/lie-native-triplet-pose${pose}.json"
+          done
+      - name: Verify the archived 80-vs-83 float32 boundary inversion
+        run: |
+          python tools/lie_native_edge_precision_probe.py \
+            --captures "$LIE_STAGE/native-depth" \
+            --bank "$LIE_EXPERIMENT/gpu_compute/captures/liewall06" \
+            --pose 1 --assert-critical \
+            --output "${{ runner.temp }}/lie-native-boundary-80-83.json"
+      - name: Preserve baseline before staged edge-guard experiment
+        run: |
+          mkdir -p "${{ runner.temp }}/lie-native-before"
+          cp "$LIE_STAGE"/native-depth/{0,1,2}-native-world.bin "${{ runner.temp }}/lie-native-before/"
+      - name: Apply V2 precise compensated classifier with original captured plane to staged native shader
+        run: |
+          python tools/lie_native_compensated_boundary_v2.py \
+            --shader "$LIE_STAGE/shaders/lie_direct_native.glsl"
+          "$GODOT" --headless --path "$LIE_STAGE" --editor --import --quit \
+            > "${{ runner.temp }}/lie-compensated-import.log" 2>&1
+          cat "${{ runner.temp }}/lie-compensated-import.log"
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('/tmp/lie-native-qa/shaders/lie_direct_native.glsl')
+          assert p.read_text().count('lie_precise_patch_contains')==2
+          PY
+      - name: Run actual Vulkan software rendering for compensated A/B
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
+        run: |
+          xvfb-run -a "$GODOT" --path "$LIE_STAGE" --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://test_lie_native_depth.gd \
+            > "${{ runner.temp }}/lie-compensated-gpu.log" 2>&1 || { cat "${{ runner.temp }}/lie-compensated-gpu.log"; exit 1; }
+          cat "${{ runner.temp }}/lie-compensated-gpu.log"
+          for pose in 0 1 2; do
+            python tools/lie_real_vulkan_triplet.py \
+              --captures "$LIE_STAGE/native-depth" \
+              --bank "$LIE_EXPERIMENT/gpu_compute/captures/liewall06" \
+              --experimental-checkout "$LIE_EXPERIMENT" \
+              --pose "$pose" \
+              --output "${{ runner.temp }}/lie-native-compensated-triplet-pose${pose}.json"
+          done
+          python tools/lie_native_compensated_comparison.py \
+            --baseline "${{ runner.temp }}/lie-native-before" \
+            --trial "$LIE_STAGE/native-depth" \
+            --reports "${{ runner.temp }}" \
+            --output "${{ runner.temp }}/lie-native-compensated-common-union.json"
+      - name: Keep authenticated evidence, without publishing recovered bank
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-native-compensated-v2-vulkan-evidence
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            ${{ runner.temp }}/lie-bank-recovery.json
+            ${{ runner.temp }}/lie-import.log
+            ${{ runner.temp }}/lie-native-gpu.log
+            ${{ runner.temp }}/lie-native-triplet-pose*.json
+            ${{ runner.temp }}/lie-native-boundary-80-83.json
+            ${{ runner.temp }}/lie-native-guard-import.log
+            ${{ runner.temp }}/lie-compensated-gpu.log
+            ${{ runner.temp }}/lie-native-compensated-triplet-pose*.json
+            ${{ runner.temp }}/lie-native-compensated-common-union.json
+            ${{ runner.temp }}/lie-native-before/*-native-world.bin
+            /tmp/lie-native-qa/native-depth/0-native-world.bin
+            /tmp/lie-native-qa/native-depth/0-regions-world.bin
+            /tmp/lie-native-qa/native-depth/0-native-views.bin
+            /tmp/lie-native-qa/native-depth/0-native-proxies.bin
+            /tmp/lie-native-qa/native-depth/1-native-world.bin
+            /tmp/lie-native-qa/native-depth/1-regions-world.bin
+            /tmp/lie-native-qa/native-depth/1-native-views.bin
+            /tmp/lie-native-qa/native-depth/1-native-proxies.bin
+            /tmp/lie-native-qa/native-depth/2-native-world.bin
+            /tmp/lie-native-qa/native-depth/2-regions-world.bin
+            /tmp/lie-native-qa/native-depth/2-native-views.bin
+            /tmp/lie-native-qa/native-depth/2-native-proxies.bin
+            /tmp/lie-native-qa/native-depth/execution.json
+            /tmp/lie-native-qa/native-depth/phone-shadows-native.png
+            /tmp/lie-native-qa/native-depth/phone-shadows-regions.png

@@ -1,0 +1,95 @@
+name: LIE geometric sufficiency CPU fixtures
+
+on:
+  push:
+    branches:
+      - research/lie-geometric-sufficiency-audit
+    paths:
+      - 'tools/lie_geometric_sufficiency_probe.py'
+      - 'tests/test_lie_geometric_sufficiency_probe.py'
+      - 'tools/lie_geometric_triplet_compare.py'
+      - 'tools/lie_real_vulkan_triplet.py'
+      - 'tools/lie_native_edge_precision_probe.py'
+      - 'tools/lie_native_edge_guard_ablation.py'
+      - 'tools/lie_native_guard_union_compare.py'
+      - 'tools/lie_native_compensated_boundary.py'
+      - 'tools/lie_native_compensated_boundary_v2.py'
+      - 'tools/lie_sparse_conflict_feasibility.py'
+      - 'tests/test_lie_sparse_conflict_feasibility.py'
+      - 'tests/test_lie_native_compensated_boundary_v2.py'
+      - 'tools/lie_native_compensated_comparison.py'
+      - 'tests/test_lie_native_compensated_boundary.py'
+      - 'tools/lie_native_sparse_first_hit.py'
+      - 'tools/lie_stream_first_hit_stage.py'
+      - 'tools/lie_stream_first_hit_compare.py'
+      - 'tools/shaders/lie_stream_first_hit.comp.glsl'
+      - 'tests/test_lie_stream_first_hit.py'
+      - 'tests/test_lie_native_sparse_first_hit.py'
+      - 'docs/LIE_NATIVE_BOUNDARY_FORENSICS.md'
+      - 'tools/lie_blender_original_raycast.py'
+      - 'tests/test_lie_real_vulkan_triplet.py'
+      - 'docs/LIE_REAL_VULKAN_READBACK_BRIDGE.md'
+      - 'tests/test_lie_geometric_triplet_compare.py'
+      - 'docs/LIE_GEOMETRIC_TRIPLET_COMPARISON.md'
+      - '.github/workflows/lie-geometric-sufficiency.yml'
+  pull_request:
+    paths:
+      - 'tools/lie_geometric_sufficiency_probe.py'
+      - 'tests/test_lie_geometric_sufficiency_probe.py'
+      - 'tools/lie_geometric_triplet_compare.py'
+      - 'tests/test_lie_geometric_triplet_compare.py'
+      - 'tools/lie_real_vulkan_triplet.py'
+      - 'tools/lie_blender_original_raycast.py'
+      - 'tests/test_lie_real_vulkan_triplet.py'
+      - 'docs/LIE_REAL_VULKAN_READBACK_BRIDGE.md'
+      - 'docs/LIE_GEOMETRIC_TRIPLET_COMPARISON.md'
+      - '.github/workflows/lie-geometric-sufficiency.yml'
+  workflow_dispatch:
+
+jobs:
+  geometry-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install reproducible dependencies
+        run: python -m pip install numpy
+      - name: Run controlled geometry tests
+        run: python -m unittest discover -s tests -p 'test_lie_geometric_sufficiency_probe.py' -v
+      - name: Run triplet attribution tests
+        run: python -m unittest discover -s tests -p 'test_lie_geometric_triplet_compare.py' -v
+      - name: Verify real-readback adapter with synthetic I/O fixtures (no GPU claim)
+        run: python -m unittest discover -s tests -p 'test_lie_real_vulkan_triplet.py' -v
+      - name: Compile Blender ray-export script without Blender runtime
+        run: python -m py_compile tools/lie_blender_original_raycast.py
+      - name: Compile forensic and guard evaluation tools
+        run: python -m py_compile tools/lie_native_edge_precision_probe.py tools/lie_native_edge_guard_ablation.py tools/lie_native_guard_union_compare.py
+      - name: Test compensated FP32 experimental shader injection
+        run: python -m unittest discover -s tests -p 'test_lie_native_compensated_boundary.py' -v
+      - name: Test precise plane compensated FP32 injection V2
+        run: python -m unittest discover -s tests -p 'test_lie_native_compensated_boundary_v2.py' -v
+      - name: Test offline sparse conflict detection, including depth-only blind spot
+        run: python -m unittest discover -s tests -p 'test_lie_sparse_conflict_feasibility.py' -v
+      - name: Validate GPU-native-only sparse risk detector
+        run: python -m unittest discover -s tests -p 'test_lie_native_sparse_first_hit.py' -v
+      - name: Validate candidate-driven compute staging without GPU performance claims
+        run: |
+          python -m unittest discover -s tests -p 'test_lie_stream_first_hit.py' -v
+          python -m py_compile tools/lie_stream_first_hit_stage.py tools/lie_stream_first_hit_compare.py
+      - name: Record numerical evidence
+        run: python tools/lie_geometric_sufficiency_probe.py --output /tmp/lie-geometric-sufficiency.json
+      - name: Record triplet diagnostics (CPU only)
+        run: |
+          python tools/lie_geometric_triplet_compare.py --demo wall_hole --output /tmp/lie-geometric-wall-triplet.json
+          python tools/lie_geometric_triplet_compare.py --demo hidden_bump --output /tmp/lie-geometric-bump-triplet.json
+      - name: Store experiment evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-geometric-sufficiency-cpu
+          path: |
+            /tmp/lie-geometric-sufficiency.json
+            /tmp/lie-geometric-wall-triplet.json
+            /tmp/lie-geometric-bump-triplet.json

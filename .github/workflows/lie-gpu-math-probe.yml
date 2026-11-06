@@ -1,0 +1,53 @@
+name: LIE independent Vulkan arithmetic canary
+
+on:
+  push:
+    branches: [research/lie-geometric-sufficiency-audit]
+    paths:
+      - '.github/workflows/lie-gpu-math-probe.yml'
+      - 'tools/lie_gpu_math_probe.py'
+      - 'tools/shaders/lie_stream_first_hit_analytic.comp.glsl'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-products:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install bounded Vulkan test dependencies
+        run: |
+          python -m pip install --timeout 20 --retries 2 numpy
+          timeout 180s sudo apt-get -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -o Acquire::Retries=1 update -qq
+          timeout 180s sudo apt-get -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -o Acquire::Retries=1 install -y -qq xvfb libvulkan1 mesa-vulkan-drivers unzip
+      - name: Stage standalone shader and pinned Godot
+        run: |
+          curl --fail --location --retry 2 --max-time 90 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          mkdir -p /tmp/lie-math/shaders
+          printf 'config_version=5\n[rendering]\nrenderer/rendering_method="mobile"\n' > /tmp/lie-math/project.godot
+          python tools/lie_gpu_math_probe.py --stage /tmp/lie-math
+          godot-bin/Godot_v4.7.2-stable_linux.x86_64 --headless --path /tmp/lie-math --editor --import --quit
+      - name: Require nonzero runtime product and exact Dekker residual
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          MESA_LOADER_DRIVER_OVERRIDE: llvmpipe
+        run: |
+          set -o pipefail
+          xvfb-run -a godot-bin/Godot_v4.7.2-stable_linux.x86_64 \
+            --path /tmp/lie-math --rendering-driver vulkan --rendering-method mobile \
+            --audio-driver Dummy --script res://lie_gpu_math_probe.gd \
+            2>&1 | tee /tmp/lie-gpu-math-probe.log
+      - name: Preserve actual Vulkan arithmetic evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lie-independent-gpu-math
+          path: /tmp/lie-gpu-math-probe.log
