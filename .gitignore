@@ -157,3 +157,5 @@ gpu_compute/lie14-import.log
 /gpu_compute/fixtures/opaque-reference.json
 /gpu_compute/fixtures/persistent-visibility-reference.json
 /gpu_compute/assets/lie_wall01/.wall_bank.zlib.*
+# Rebuilt by tools/lie_field_quality_cases.py and preserved by Vulkan CI.
+gpu_compute/fixtures/field-quality-reference.json

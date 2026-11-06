@@ -96,6 +96,10 @@ func _proxies(catalog: Dictionary) -> PackedByteArray:
         packet.append_array(PackedInt32Array([int(box["first_face"]),0,0,0]).to_byte_array())
     return packet
 
+func _light_shader_resource() -> RDShaderFile:return LightShader
+func _extra_light_uniforms(_transport: CompositorEffect) -> Array[RDUniform]:return []
+func _fine_visibility_flags() -> int:return 0
+
 func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: CompositorEffect, output: RID, light_groups: RID) -> bool:
     _rd = rd; _size = size; _lights = transport.desired_light_count
     if _lights < 1 or _lights > 8: failure = "Native field requires 1..8 published lights"; return false
@@ -173,7 +177,7 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
     for layer in range(_lights*6):
         var slice: RID = _rd.texture_create_shared_from_slice(RDTextureView.new(),_shadows,layer,0)
         var frame: RID = _rd.framebuffer_create([slice]); _frames.append(frame); _shadow_frames.append(frame)
-    var files: Dictionary = {"surface":SurfaceShader,"shadow":ShadowShader,"regions":RegionsShader,"regions_shadow":RegionsShadowShader,"envelope":EnvelopeShader,"envelope_shadow":EnvelopeShadowShader,"views":ViewsShader,"views_fast":ViewsFastShader,"native":NativeShader,"native_shadow":NativeShadowShader,"light":LightShader}
+    var files: Dictionary = {"surface":SurfaceShader,"shadow":ShadowShader,"regions":RegionsShader,"regions_shadow":RegionsShadowShader,"envelope":EnvelopeShader,"envelope_shadow":EnvelopeShadowShader,"views":ViewsShader,"views_fast":ViewsFastShader,"native":NativeShader,"native_shadow":NativeShadowShader,"light":_light_shader_resource()}
     for key in files:
         var file: RDShaderFile = files[key]
         var spirv: RDShaderSPIRV = file.get_spirv()
@@ -225,6 +229,7 @@ func initialize(rd: RenderingDevice, catalog: Dictionary, size: int, transport: 
         _draw_sets[key] = native_set; _sets.append(native_set)
     var group_buffer: RID = light_groups
     var light_uniforms: Array[RDUniform] = [_uniform(0,_world,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(1,_normal,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(2,_color,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(3,_shadows,RenderingDevice.UNIFORM_TYPE_SAMPLER_WITH_TEXTURE),_uniform(4,output,RenderingDevice.UNIFORM_TYPE_IMAGE),_uniform(5,transport.output_rid,RenderingDevice.UNIFORM_TYPE_IMAGE),_uniform(6,transport.material_codes_rid()),_uniform(7,transport.surface_light_codes_rid()),_uniform(8,group_buffer),_uniform(9,_views),_uniform(10,_nodes),_uniform(11,transport.emission_descriptors_rid()),_uniform(12,_options)]
+    light_uniforms.append_array(_extra_light_uniforms(transport))
     _light_set = _rd.uniform_set_create(light_uniforms,_programs["light"]["shader"],0); _sets.append(_light_set)
     var ready: bool = _surface_set.is_valid() and _shadow_set.is_valid() and _light_set.is_valid()
     if not ready: failure = "Native surface descriptors"
@@ -274,7 +279,7 @@ func render(parameters: PackedByteArray, transport: CompositorEffect, shadows: b
             _view(1+l*6+face,eye,right,up,forward,1.)
     var shadow_dirty: bool = not changed_lights.is_empty()
     _rd.buffer_update(_views,0,_view_packet.size(),_view_packet)
-    var options: PackedByteArray = PackedInt32Array([1 if shadows else 0,1 if material else 0,1 if backend=="native" else 0,0]).to_byte_array()
+    var options: PackedByteArray = PackedInt32Array([1 if shadows else 0,1 if material else 0,1 if backend=="native" else 0,_fine_visibility_flags()]).to_byte_array()
     options.append_array(PackedFloat32Array([.0005,.0004,0,0]).to_byte_array()); _rd.buffer_update(_options,0,32,options)
     if primary_dirty:
         _stamp(profile,owner,serial,"primary","begin")

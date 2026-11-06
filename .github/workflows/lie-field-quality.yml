@@ -1,0 +1,79 @@
+name: LIE area budgets, directional paths and shared visibility
+on:
+  push:
+    branches: [work/lie-lighting-contract]
+    paths-ignore: ["docs/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lie-field-quality-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  actual-vulkan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Complete CPU regressions and independent quality fixtures
+        env:
+          PYTHONPATH: tools
+        run: |
+          python -m pip install --timeout 20 --retries 2 -r requirements-ci.txt
+          python -m unittest discover -s tests -p 'test_*.py' -q
+          python tools/lie_field_quality_shader.py
+          git diff --exit-code -- gpu_compute/shaders
+          python tools/lie_field_quality_stage.py --stage /tmp/lie-quality
+      - name: Install bounded native Vulkan dependencies
+        run: |
+          timeout 180s sudo apt-get -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -o Acquire::Retries=1 update -qq
+          timeout 180s sudo apt-get -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -o Acquire::Retries=1 install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1 unzip
+          curl --fail --location --retry 2 --max-time 90 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q godot.zip -d godot-bin
+          chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Real GPU field and runtime contracts
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -o pipefail
+          engine="$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64"
+          "$engine" --headless --path /tmp/lie-quality --editor --import --quit 2>&1 | tee quality-import.log
+          timeout 60 "$engine" --headless --path /tmp/lie-quality --script res://test_lie_field_quality_commands.gd 2>&1 | tee quality-commands.log
+          timeout 60 "$engine" --headless --path /tmp/lie-quality --script res://test_lie26_rig.gd 2>&1 | tee quality-rig.log
+          timeout 60 "$engine" --headless --path /tmp/lie-quality --script res://workshop/test_lie_agent_session.gd 2>&1 | tee quality-agent.log
+          timeout 180 xvfb-run -a "$engine" --path /tmp/lie-quality --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_field_quality_gpu.gd 2>&1 | tee quality-field.log
+          timeout 60 xvfb-run -a "$engine" --path /tmp/lie-quality --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_quality_direct_gpu.gd 2>&1 | tee quality-direct.log
+      - name: Compile the same attributed wall and stage actual appearance
+        env:
+          PYTHONPATH: tools
+        run: |
+          python tools/lie_direct_views_build.py --stage /tmp/lie-quality-baseline > quality-source.log
+          python tools/lie_field_quality_stage.py --stage /tmp/lie-quality-wall --wall
+      - name: Actual fine shading, dynamic occluders and cache restoration
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -o pipefail
+          engine="$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64"
+          "$engine" --headless --path /tmp/lie-quality-wall --editor --import --quit 2>&1 | tee quality-wall-import.log
+          timeout 300 xvfb-run -a "$engine" --path /tmp/lie-quality-wall --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_quality_wall.gd 2>&1 | tee quality-wall.log
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('.').glob('quality-*.log'):
+              t=p.read_text();assert not any(v in t for v in ('ERROR:', 'SCRIPT ERROR', 'were leaked at exit')),str(p)+'\n'+t[-10000:]
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-field-quality-native-evidence
+          path: |
+            quality-*.log
+            /tmp/lie-quality/field-quality-native.json
+            /tmp/lie-quality/quality-direct-native.json
+            /tmp/lie-quality/fixtures/field-quality-reference.json
+            /tmp/lie-quality-wall/quality-wall-native.json
+            /tmp/lie-quality-wall/quality-wall-*.png
+          if-no-files-found: error

@@ -28,13 +28,15 @@ func _initialize() -> bool:
     _direct_backend = direct_backend
     return super._initialize()
 
+func _direct_renderer_factory() -> RefCounted:return DirectRenderer.new()
+
 func _ensure_native() -> bool:
     var borrowed: Array[RID] = [_images[9],_buffers[21],transport.output_rid,transport.material_codes_rid(),transport.surface_light_codes_rid(),transport.emission_descriptors_rid()]
     if direct_renderer != null and (_native_size != render_size or _native_lights != transport.desired_light_count or _native_borrowed != borrowed):
         direct_renderer.release(); direct_renderer = null
     if direct_renderer == null:
         if direct_failure != "" and _native_size == render_size and _native_lights == transport.desired_light_count: return false
-        direct_renderer = DirectRenderer.new(); _native_size = render_size; _native_lights = transport.desired_light_count
+        direct_renderer = _direct_renderer_factory(); _native_size = render_size; _native_lights = transport.desired_light_count
         if not direct_renderer.initialize(_rd,catalog,render_size,transport,_images[9],_buffers[21]):
             direct_failure = direct_renderer.failure; direct_renderer.release(); direct_renderer = null; return false
         _native_borrowed = borrowed; direct_failure = ""

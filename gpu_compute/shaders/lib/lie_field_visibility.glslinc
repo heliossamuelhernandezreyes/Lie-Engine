@@ -1,0 +1,10 @@
+// Shared dynamic opaque-AABB visibility for node transport and final pixels.
+bool lie_segment_box(vec3 a,vec3 b,vec3 low,vec3 high) {
+    vec3 delta=b-a;float near_t=.001,far_t=.999;
+    for(int k=0;k<3;k++) {
+        if(abs(delta[k])<1e-8) {if(a[k]<low[k] || a[k]>high[k])return false;}
+        else {float u=(low[k]-a[k])/delta[k],v=(high[k]-a[k])/delta[k];
+            near_t=max(near_t,min(u,v));far_t=min(far_t,max(u,v));}
+    }
+    return near_t<=far_t;
+}

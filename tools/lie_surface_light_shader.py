@@ -3,8 +3,8 @@ from pathlib import Path
 from lie_light_field_shader import generate as field
 from lie_wall05_shader import replace
 ROOT=Path(__file__).resolve().parents[1]
-def generate():
-    s=field()
+def generate(field_generator=field):
+    s=field_generator()
     s=replace(s,'void main() {','''layout(set=0,binding=25,std430) buffer SurfaceLights {
     uvec4 header; vec4 values[];
 } surface_lights;

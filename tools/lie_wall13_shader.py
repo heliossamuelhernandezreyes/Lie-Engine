@@ -58,8 +58,8 @@ vec3 lie_surface_unoccluded(uint l,vec3 world,vec3 normal) {''')
     }
     if(stage==10) {lie_resolve_surface(i);return;}''')
     return s
-def generate_field():
-    s=field();s=replace(s,'void main() {',common('lie_area_emission.glslinc')+'''layout(set=0,binding=26,std430) readonly buffer EmissionDescriptors {vec4 values[];} emission_descriptors;
+def generate_field(field_generator=field):
+    s=field_generator();s=replace(s,'void main() {',common('lie_area_emission.glslinc')+'''layout(set=0,binding=26,std430) readonly buffer EmissionDescriptors {vec4 values[];} emission_descriptors;
 void main() {''')
     return replace(s,'weights.values[i]=value;','weights.values[i]=value*lie_emitter_gain(emission_descriptors.values[l],patches.values[p].center_area.xyz-lights.values[l].position_radius.xyz);')
 def generate_filter_test():
