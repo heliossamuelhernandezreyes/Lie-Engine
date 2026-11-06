@@ -8,9 +8,37 @@ from __future__ import annotations
 
 import hashlib
 import json
+from fractions import Fraction
 from pathlib import Path
 
 import numpy as np
+
+
+def rational_support(view, packet, pixel, size, face, cell, source_depth, rect_wh):
+    """Exact rational witness for one sheet, from the original FP32 packets.
+
+    Tests support, not global nearestness. Uses an unnormalised camera ray so
+    every input and operation remains rational; no epsilon or FP64 predicate.
+    """
+    f = lambda x: Fraction(float(x))
+    x, y = pixel
+    sx, sy = Fraction(2*x+1, size)-1, Fraction(2*y+1, size)-1
+    inv = np.asarray(packet)[16:32].reshape(4, 4).T
+    eye = [sum(f(inv[i, j])*f(view[j]) for j in range(3))+f(inv[i, 3]) for i in range(3)]
+    world_ray = [f(view[12+j])+(f(view[4+j])*sx-f(view[8+j])*sy)*f(view[18]) for j in range(3)]
+    ray = [sum(f(inv[i, j])*world_ray[j] for j in range(3)) for i in range(3)]
+    lo, hi = list(map(f, packet[32:35])), list(map(f, packet[36:39]))
+    axis = face//2
+    if ray[axis] == 0:
+        return {'inside': False, 'parallel': True}
+    plane = hi[axis]-f(source_depth) if face % 2 == 0 else lo[axis]+f(source_depth)
+    t = (plane-eye[axis])/ray[axis]
+    axes = [j for j in range(3) if j != axis]
+    fractions = [(eye[u]+ray[u]*t-lo[u])*dim/(hi[u]-lo[u])-c
+                 for u, dim, c in zip(axes, rect_wh, cell)]
+    return {'inside': bool(t > 0 and all(0 <= v < 1 for v in fractions)),
+            'support_fraction': [float(v) for v in fractions],
+            'scope': 'exact rational plane/support witness; not a global first-hit proof'}
 
 
 class CellSheetReference:

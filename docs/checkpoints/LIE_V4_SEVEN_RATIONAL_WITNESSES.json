@@ -1,0 +1,146 @@
+{
+  "schema": "lie-exact-rational-cell-witnesses/1",
+  "scope": "Exact rational support of independently enumerated winning sheets for seven archived rays; not a full-scene proof or source mesh",
+  "pixels": [
+    {
+      "pose": 0,
+      "pixel": [
+        202,
+        312
+      ],
+      "owner": 552,
+      "instance": 61,
+      "face": 4,
+      "cell": [
+        36,
+        35
+      ],
+      "layer": 2,
+      "exact_rational_half_open_support": true,
+      "support_fraction": [
+        0.5340407473635753,
+        6.336878617706392e-06
+      ]
+    },
+    {
+      "pose": 0,
+      "pixel": [
+        132,
+        191
+      ],
+      "owner": 759,
+      "instance": 84,
+      "face": 4,
+      "cell": [
+        50,
+        50
+      ],
+      "layer": 0,
+      "exact_rational_half_open_support": true,
+      "support_fraction": [
+        0.16870508483197055,
+        0.9999976028281191
+      ]
+    },
+    {
+      "pose": 1,
+      "pixel": [
+        35,
+        237
+      ],
+      "owner": 653,
+      "instance": 72,
+      "face": 1,
+      "cell": [
+        46,
+        64
+      ],
+      "layer": 1,
+      "exact_rational_half_open_support": true,
+      "support_fraction": [
+        0.4944212827888427,
+        0.9999399109303727
+      ]
+    },
+    {
+      "pose": 1,
+      "pixel": [
+        437,
+        303
+      ],
+      "owner": 730,
+      "instance": 81,
+      "face": 4,
+      "cell": [
+        83,
+        21
+      ],
+      "layer": 0,
+      "exact_rational_half_open_support": true,
+      "support_fraction": [
+        0.4038064306444468,
+        0.9999991710220552
+      ]
+    },
+    {
+      "pose": 2,
+      "pixel": [
+        274,
+        389
+      ],
+      "owner": 349,
+      "instance": 38,
+      "face": 4,
+      "cell": [
+        102,
+        35
+      ],
+      "layer": 2,
+      "exact_rational_half_open_support": true,
+      "support_fraction": [
+        0.8846972358843027,
+        0.13267382686889945
+      ]
+    },
+    {
+      "pose": 2,
+      "pixel": [
+        467,
+        420
+      ],
+      "owner": 106,
+      "instance": 11,
+      "face": 4,
+      "cell": [
+        157,
+        7
+      ],
+      "layer": 0,
+      "exact_rational_half_open_support": true,
+      "support_fraction": [
+        0.9995144631486017,
+        0.4641946550684842
+      ]
+    },
+    {
+      "pose": 2,
+      "pixel": [
+        57,
+        493
+      ],
+      "owner": 218,
+      "instance": 24,
+      "face": 1,
+      "cell": [
+        25,
+        89
+      ],
+      "layer": 0,
+      "exact_rational_half_open_support": true,
+      "support_fraction": [
+        0.24766937055791652,
+        0.9999768257195332
+      ]
+    }
+  ]
+}

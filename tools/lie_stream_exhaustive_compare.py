@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from lie_cell_sheet_reference import CellSheetReference
+from lie_cell_sheet_reference import CellSheetReference, rational_support
 from lie_real_vulkan_triplet import camera_rays
 from lie_stream_candidate_metrics import load_risk, N, W
 from lie_stream_first_hit_compare import scores, validate_packet
@@ -22,7 +22,7 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def inspect(captures, bank, pose=0, uniform_samples=10000, seed=1729):
+def inspect(captures, bank, pose=0, uniform_samples=10000, seed=1729, all_pixels=False):
     captures, bank = Path(captures), Path(bank)
     flags = load_risk(captures/f'{pose}-native-candidate-risk.bin').any(axis=0)
     original = np.fromfile(captures/f'{pose}-native-world.bin', '<f4').reshape(N, 4)
@@ -30,7 +30,7 @@ def inspect(captures, bank, pose=0, uniform_samples=10000, seed=1729):
     status = validate_packet(packet, flags)
     rng = np.random.default_rng(seed)
     uniform = rng.choice(N, min(uniform_samples, N), replace=False)
-    ids = np.unique(np.r_[np.flatnonzero(flags), uniform])
+    ids = np.arange(N) if all_pixels else np.unique(np.r_[np.flatnonzero(flags), uniform])
     reference = CellSheetReference(bank)
     depth = np.full(len(ids), np.inf)
     owner = np.zeros(len(ids), dtype=np.int64)
@@ -48,6 +48,14 @@ def inspect(captures, bank, pose=0, uniform_samples=10000, seed=1729):
     for pixel in bad_ids[:120]:
         e, rays, p, _, _ = camera_rays(captures, pose, np.array([pixel]), W)
         _, _, witnesses = reference.trace(e, rays, p, details=True)
+        view_packet = np.fromfile(captures/f'{pose}-native-views.bin', '<f4')[:20]
+        for witness in witnesses[0][:4]:
+            q = p[witness['instance']]
+            offset = int(q[44:45].view('<u4')[0])
+            rect = reference.proof['faces'][offset+witness['face']]
+            witness['rational_support'] = rational_support(view_packet, q,
+                [int(pixel%W), int(pixel//W)], W, witness['face'], witness['cell'],
+                witness['depth'], [rect['width'], rect['height']])
         record = packet[pixel]
         witness_records.append({'pixel_id': int(pixel), 'pixel': [int(pixel%W), int(pixel//W)],
             'gpu_owner': int(record[3]), 'gpu_status': int(record[13]),
@@ -55,10 +63,12 @@ def inspect(captures, bank, pose=0, uniform_samples=10000, seed=1729):
             'analytic_candidates': witnesses[0][:4]})
     passed = bool(not new_bad.any() and not outside_bad.any() and status['overflow_status'] == 0)
     return {'schema': 'lie-analytic-mask-census/1', 'pose': pose,
-        'scope': 'ALL flagged pixels plus seeded uniform frame sample; NOT full framebuffer or original mesh',
+        'scope': ('Entire framebuffer against captured cells; NOT original mesh' if all_pixels else
+                  'ALL flagged pixels plus seeded uniform frame sample; NOT full framebuffer or original mesh'),
         'reference': 'analytic finite-cell sheet enumeration; no DDA, no regions truth, no GPU result feedback',
         'samples': len(ids), 'seed': seed, 'uniform_frame_draws': len(uniform),
         'flagged_census': len(ids[selected]), 'unflagged_uniform_samples': len(ids[~selected]),
+        'unflagged_is_census': bool(all_pixels),
         'depth_tolerance_m': 2e-5, 'readback_status': status,
         'baseline_flagged': base, 'compute_flagged': new,
         'repaired_flagged': int((base_bad & ~new_bad).sum()),
@@ -83,12 +93,13 @@ def main():
     p.add_argument('--pose', type=int, default=0)
     p.add_argument('--uniform-samples', type=int, default=10000)
     p.add_argument('--seed', type=int, default=1729)
+    p.add_argument('--all-pixels', action='store_true', help='Census entire frame, including ALL unflagged pixels')
     p.add_argument('--require-pass', action='store_true')
     p.add_argument('--output', required=True, type=Path)
     a = p.parse_args()
     if a.uniform_samples < 0:
         p.error('uniform-samples cannot be negative')
-    result = inspect(a.captures, a.bank, a.pose, a.uniform_samples, a.seed)
+    result = inspect(a.captures, a.bank, a.pose, a.uniform_samples, a.seed, a.all_pixels)
     a.output.parent.mkdir(parents=True, exist_ok=True)
     a.output.write_text(json.dumps(result, indent=2, allow_nan=False)+'\n')
     print(json.dumps({k: v for k, v in result.items() if k not in ('remaining_witnesses', 'provenance')}, indent=2))

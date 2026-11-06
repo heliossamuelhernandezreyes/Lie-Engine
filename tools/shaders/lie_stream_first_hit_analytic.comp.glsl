@@ -1,6 +1,6 @@
 #[compute]
 #version 450
-// V5 correctness experiment: analytic rectangle enumeration, no DDA advances.
+// V6 correctness experiment: analytic rectangle enumeration, no DDA advances.
 // Compensated FP32 camera/instance rays, global first-hit arbitration and
 // half-open cell support. Captured-cell reference only; no G-buffer writes.
 layout(local_size_x=64,local_size_y=1,local_size_z=1) in;
@@ -25,7 +25,19 @@ precise vec2 ds_sum(float a,float b) {
 }
 precise vec2 ds_product(float a,float b) {
     precise float hi=a*b;
-    precise float lo=fma(a,b,-hi);
+    // Dekker product: no reliance on the backend's FMA residual. Intermediate
+    // products have <=24 significant bits and explicit no-contraction.
+    // This experiment's bounded camera/proxy values cannot overflow splitter.
+    precise float ca=4097.*a;
+    precise float cb=4097.*b;
+    precise float ah=ca-(ca-a);
+    precise float bh=cb-(cb-b);
+    precise float al=a-ah;
+    precise float bl=b-bh;
+    precise float e1=hi-ah*bh;
+    precise float e2=e1-al*bh;
+    precise float e3=e2-ah*bl;
+    precise float lo=al*bl-e3;
     return vec2(hi,lo);
 }
 precise vec2 ds_add(vec2 a,vec2 b) {

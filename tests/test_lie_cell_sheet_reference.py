@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/'tools'))
-from lie_cell_sheet_reference import CellSheetReference
+from lie_cell_sheet_reference import CellSheetReference, rational_support
 
 
 class AnalyticSheetTests(unittest.TestCase):
@@ -74,6 +74,17 @@ class AnalyticSheetTests(unittest.TestCase):
             (Path(td)/'direct/depth.bin').write_bytes(b'bad')
             with self.assertRaisesRegex(ValueError, 'identity'):
                 CellSheetReference(Path(td))
+
+    def test_rational_witness_distinguishes_half_open_edge_without_epsilon(self):
+        with tempfile.TemporaryDirectory() as td:
+            _, p = self.bank(td, [[[.5], [.5]]])
+            view = np.zeros(20, dtype='<f4')
+            view[:3] = [.5, .5, 2]
+            view[12:15] = [0, 0, -1]
+            # At screen centre, the ray lies exactly on X=.5. Its sheet
+            # belongs to cell 1; accepting cell 0 would invent an occluder.
+            self.assertFalse(rational_support(view, p, [0, 0], 1, 4, [0, 0], .5, [2, 1])['inside'])
+            self.assertTrue(rational_support(view, p, [0, 0], 1, 4, [1, 0], .5, [2, 1])['inside'])
 
 
 if __name__ == '__main__':
