@@ -9,7 +9,12 @@ func submit(stages: Array,set_rid: RID) -> void:
         if row[0]==3:expanded.append_array([[3,row[1]*6,row[2]],[7,row[1],row[2]]])
         else:expanded.append(row)
     if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SUBMIT ",expanded)
-    super.submit(expanded,set_rid)
+    if OS.get_environment("LIE_QUALITY_SYNC_STAGES")=="1":
+        for row in expanded:
+            print("QUALITY SINGLE ",row)
+            super.submit([row],set_rid)
+            print("QUALITY SINGLE DONE ",row)
+    else:super.submit(expanded,set_rid)
     if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SYNC ",expanded)
 func case_extra_buffers(case: Dictionary) -> Dictionary:
     var n: int=case.model.patches.size();var areas: Array=[]
@@ -26,11 +31,16 @@ func run() -> void:
     var spirv: RDShaderSPIRV=shader_resource().get_spirv();shader=rd.shader_create_from_spirv(spirv);pipeline=rd.compute_pipeline_create(shader)
     if not pipeline.is_valid():printerr(spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE));quit(1);return
     var outputs: Dictionary={}
+    var only: String=OS.get_environment("LIE_QUALITY_CASE")
     for name in fixture.cases:
+        if only!="" and name!=only:continue
         print("QUALITY CASE ",name)
         outputs[name]=execute(fixture.cases[name],name)
         if outputs[name].is_empty():
             rd.free_rid(pipeline);rd.free_rid(shader);rd.free();quit(1);return
+    if only!="":
+        print("QUALITY TARGETED ",only," ","FAIL" if failed else "PASS")
+        rd.free_rid(pipeline);rd.free_rid(shader);rd.free();quit(1 if failed else 0);return
     var a: PackedFloat32Array=outputs.paths_six;var b: PackedFloat32Array=outputs.paths_one
     check(a[3*4]>b[3*4]+.00001 and a[4*4]>b[4*4]+.00001,"one source retains both lateral reflection paths")
     check(b[5*4]>a[5*4]+.00001,"angular mean artifact removed from center")

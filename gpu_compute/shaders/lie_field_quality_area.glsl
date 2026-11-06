@@ -248,8 +248,9 @@ layout(set=0,binding=27,std430) readonly buffer FieldQuality {
     uvec4 q; vec4 parameters; vec4 data[];
 } quality;
 struct LieLobe {vec4 flux_radius;vec4 travel;};
-layout(set=0,binding=28,std430) buffer LobeA {LieLobe v[];} lobe_a;
-layout(set=0,binding=29,std430) buffer LobeB {LieLobe v[];} lobe_b;
+// Flat vec4 streams make the 32-byte packet layout explicit on every driver.
+layout(set=0,binding=28,std430) buffer LobeA {vec4 v[];} lobe_a;
+layout(set=0,binding=29,std430) buffer LobeB {vec4 v[];} lobe_b;
 layout(set=0,binding=30,std430) buffer LobeCaps {vec4 v[];} lobe_caps;
 const uint LIE_SECTORS=6u;
 uint lie_sector(uint node,vec3 direction) {
@@ -281,9 +282,15 @@ float lie_quality_reach(uint node,float parent,vec3 outgoing) {
             cfg.radii.x*sqrt(max(power,0.)/(cfg.radii.z*share)));
     return min(radius,cfg.radii.x)*radius_scale.values[node];
 }
-LieLobe lie_read_lobe(uint id,int ping) {return ping==0?lobe_a.v[id]:lobe_b.v[id];}
+LieLobe lie_read_lobe(uint id,int ping) {
+    LieLobe p;
+    if(ping==0){p.flux_radius=lobe_a.v[id*2u];p.travel=lobe_a.v[id*2u+1u];}
+    else {p.flux_radius=lobe_b.v[id*2u];p.travel=lobe_b.v[id*2u+1u];}
+    return p;
+}
 void lie_write_lobe(uint id,int ping,LieLobe packet) {
-    if(ping==0)lobe_a.v[id]=packet;else lobe_b.v[id]=packet;
+    if(ping==0){lobe_a.v[id*2u]=packet.flux_radius;lobe_a.v[id*2u+1u]=packet.travel;}
+    else {lobe_b.v[id*2u]=packet.flux_radius;lobe_b.v[id*2u+1u]=packet.travel;}
 }
 bool lie_quality_step(uint id) {
     uint n=uint(cfg.dims.x),L=uint(cfg.dims.y);int stage=phase.data.x,ping=phase.data.y;
@@ -302,8 +309,8 @@ bool lie_quality_step(uint id) {
         uint bin=lie_sector(node,travel);
         for(uint s=0u;s<LIE_SECTORS;s++) {
             LieLobe packet;packet.flux_radius=s==bin?vec4(incoming,radius):vec4(0);
-            packet.travel=vec4(travel,0);lobe_a.v[id*LIE_SECTORS+s]=packet;
-            packet.flux_radius=vec4(0);lobe_b.v[id*LIE_SECTORS+s]=packet;
+            packet.travel=vec4(travel,0);lie_write_lobe(id*LIE_SECTORS+s,0,packet);
+            packet.flux_radius=vec4(0);lie_write_lobe(id*LIE_SECTORS+s,1,packet);
         }
         // Preserve public aggregate frontier and direct/indirect bridge ABI.
         frontier_a.values[id]=vec4(incoming,radius);frontier_b.values[id]=vec4(0);
