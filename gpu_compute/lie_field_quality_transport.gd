@@ -46,7 +46,7 @@ func configure(model: Dictionary) -> bool:
     if not options is Dictionary:return false
     var bytes: PackedByteArray=_make_quality_packet(areas,options)
     if bytes.is_empty():return false
-    var normalized: Dictionary=Quality.DEFAULTS.duplicate(true);normalized.merge(options,true)
+    var normalized: Dictionary=Quality.DEFAULTS.duplicate(true);normalized.merge(options.duplicate(true),true)
     if not _quality_areas.is_empty():
         if normalized.visibility_revision<_quality_options.visibility_revision:return false
         if normalized.dynamic_occluders!=_quality_options.dynamic_occluders and normalized.visibility_revision<=_quality_options.visibility_revision:return false
@@ -83,7 +83,7 @@ func _extra_transport_uniforms() -> Array[RDUniform]:
 func set_field_quality(options: Dictionary) -> bool:
     var bytes: PackedByteArray=_make_quality_packet(_quality_areas,options)
     if bytes.is_empty():return false
-    var next: Dictionary=Quality.DEFAULTS.duplicate(true);next.merge(options,true)
+    var next: Dictionary=Quality.DEFAULTS.duplicate(true);next.merge(options.duplicate(true),true)
     if next.dynamic_occluders!=_quality_options.dynamic_occluders and next.visibility_revision<=_quality_options.visibility_revision:return false
     if next.visibility_revision<_quality_options.visibility_revision:return false
     if bytes==_quality_desired:return true

@@ -42,5 +42,9 @@ func run() -> void:
     check(Quality.with_edges(Quality.packet([.1,.1,.1,.1,.1,.1],{}),sources.factors,sources.outgoing)==str(c.quality_hex).hex_decode(),"compiled edge packet matches independent float64 encoder")
     var bad_graph: PackedByteArray=sources.factors.duplicate();bad_graph.encode_u32(4,4294967295)
     check(Quality.with_edges(Quality.packet([.1,.1,.1,.1,.1,.1],{}),bad_graph,sources.outgoing).is_empty(),"oversized edge count rejected before allocation")
+    var external: Dictionary={"dynamic_occluders":[[[.35,-.1,.35],[.65,.1,.65]]],"visibility_revision":3}
+    check(t.set_field_quality(external),"caller-owned policy accepted")
+    before=t._quality_desired.duplicate();external.dynamic_occluders[0][0][0]=.1
+    check(t._quality_desired==before and t.optical_metrics().quality.policy.dynamic_occluders[0][0][0]==.35,"caller mutation cannot alter a published snapshot")
     print("QUALITY COMMAND ","FAIL" if failed else "PASS"," ",checks)
     t=null;quit(1 if failed else 0)
