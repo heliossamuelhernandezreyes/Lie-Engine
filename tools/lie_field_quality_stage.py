@@ -13,7 +13,7 @@ def stage(destination,wall=False):
     destination.mkdir(parents=True);source=ROOT/'gpu_compute'
     for name,text in outputs().items():(source/'shaders'/name).write_text(text)
     prepare()
-    pending=['test_lie_field_quality_gpu.gd','test_lie_quality_direct_gpu.gd','test_lie_field_quality_commands.gd','test_lie26_rig.gd','workshop/test_lie_agent_session.gd']
+    pending=['test_lie_field_quality_gpu.gd','test_lie_quality_legacy_probe.gd','test_lie_quality_direct_gpu.gd','test_lie_field_quality_commands.gd','test_lie26_rig.gd','workshop/test_lie_agent_session.gd']
     if wall:pending+=['lie_quality_lab.tscn','test_lie_quality_wall.gd']
     copied=set();pattern=re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
     while pending:

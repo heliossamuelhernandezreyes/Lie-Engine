@@ -83,7 +83,9 @@ func optical_metrics() -> Dictionary:
     result["quality"]={"policy":_quality_options.duplicate(true),"updates":quality_updates,"max_sectors":6,"scope":"opaque; area-weighted local tolerance, not a global image-error guarantee; dynamic AABB visibility; moments within sectors remain approximate"}
     return result
 func _release_gpu() -> void:
+    # The parent releases the uniform set before any bound buffer is freed.
+    # Freeing a quality buffer first auto-invalidates that set on Vulkan.
+    super._release_gpu()
     for rid in _quality_rids.values():
         if rid.is_valid():_rd.free_rid(rid)
     _quality_rids.clear()
-    super._release_gpu()

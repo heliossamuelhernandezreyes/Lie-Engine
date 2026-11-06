@@ -52,13 +52,18 @@ jobs:
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
           LIE_QUALITY_TRACE: '1'
-          LIE_QUALITY_CASE: paths_six
           LIE_QUALITY_SYNC_STAGES: '1'
         run: |
           set -o pipefail
           engine="$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64"
           if test -x "$engine"; then
-            timeout 90 xvfb-run -a "$engine" --path /tmp/lie-quality --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_field_quality_gpu.gd 2>&1 | tee quality-targeted-diagnosis.log
+            set +e
+            for scenario in paths_one paths_six; do
+              LIE_QUALITY_CASE="$scenario" timeout 90 xvfb-run -a "$engine" --path /tmp/lie-quality --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_field_quality_gpu.gd 2>&1 | tee "quality-diagnosis-$scenario.log"
+            done
+            timeout 90 xvfb-run -a "$engine" --path /tmp/lie-quality --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_quality_legacy_probe.gd 2>&1 | tee quality-diagnosis-v1.log
+            # This step preserves failed probes; it never changes the earlier
+            # acceptance step's failure to success.
           fi
       - name: Compile the same attributed wall and stage actual appearance
         env:
