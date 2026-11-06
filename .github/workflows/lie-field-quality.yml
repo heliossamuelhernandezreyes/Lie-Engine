@@ -69,7 +69,13 @@ jobs:
         env:
           PYTHONPATH: tools
         run: |
-          python tools/lie_direct_views_build.py --stage /tmp/lie-quality-baseline > quality-source.log
+          # Compile the shared bank without the unrelated optional native
+          # performance-counter extension required by later APK builders.
+          python tools/lie_wall13_android_build.py --stage /tmp/lie-quality-baseline > quality-source.log
+          python tools/lie_direct_surface.py >> quality-source.log
+          python tools/lie_direct_access.py >> quality-source.log
+          python tools/lie_direct_views.py >> quality-source.log
+          python tools/lie_native_surface.py >> quality-source.log
           python tools/lie_field_quality_stage.py --stage /tmp/lie-quality-wall --wall
       - name: Actual fine shading, dynamic occluders and cache restoration
         env:

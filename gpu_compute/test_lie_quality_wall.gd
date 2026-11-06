@@ -30,6 +30,7 @@ func run() -> void:
         printerr(lab.transport.failure," / ",lab.effect.direct_failure);lab.queue_free();await settle();quit(1);return
     check(lab.effect.effective_direct_backend=="views","captured view path active without fallback")
     check(lab.effect.catalog.sha256=="ca667dfc0e5f5de19190ef12c24395a99b2be66a418420bf30e61ba9ef253340","attributed bank unchanged")
+    check(lab.agent_snapshot().control_contract.field_quality.op=="field_policy" and lab.agent_snapshot().control_contract.light_occluders.max_boxes==16,"scene advertises validated field operations")
     var base: Dictionary=await capture(lab.effect);save(base,"open")
     var counter: Dictionary=lab.effect.cache_metrics().direct_surface
     var field_serial: int=lab.transport.frame_count;await settle(12)

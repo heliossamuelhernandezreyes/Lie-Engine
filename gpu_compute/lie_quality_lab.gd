@@ -27,6 +27,12 @@ func _quality_mode(sectors: int,budget: bool) -> void:
     var options: Dictionary=transport.optical_metrics().quality.policy.duplicate(true)
     options.angular_sectors=sectors;options.area_budget=budget
     command({"op":"field_policy","options":options})
+func agent_snapshot() -> Dictionary:
+    var result: Dictionary=super.agent_snapshot()
+    result["control_contract"]["field_quality"]={"op":"field_policy","angular_sectors":[1,6],"area_budget":"bool","reference_area":"positive m2","roughness_split":[0.,1.]}
+    result["control_contract"]["light_occluders"]={"op":"light_occluders","max_boxes":16,"revision":"expected_revision -> greater new_revision; uint32"}
+    if transport!=null:result["metrics"]["field_quality"]=transport.optical_metrics().get("quality",{})
+    return result
 func _ui() -> void:
     super._ui()
     var box: Node=status.get_parent()
