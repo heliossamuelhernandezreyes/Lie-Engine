@@ -1,0 +1,106 @@
+{
+  "schema": "lie-scanned-masonry-checkpoint/1",
+  "code_commit": "fcbbee5d8ce7b8190d28cccdbe815ce180d1cb9d",
+  "branch": "work/lie-scanned-masonry",
+  "ci_run": 42262987934,
+  "ci_status": "success",
+  "source_author": "Centre-of-Archaeology",
+  "source_license": "CC BY 4.0",
+  "files": {
+    "original/6077f6801089403993f6a6612ff5739a.glb": {
+      "bytes": 20324708,
+      "sha256": "b55b9d584fcfa6d7baf9e1d815c02578d91e092efc4cf88a47c23bbee643031b"
+    },
+    "capture/library.bin": {
+      "bytes": 43898880,
+      "sha256": "bc664d311b4bd4c6da32fa864715739c198c82e6439e8a5977091eadd440c251"
+    },
+    "masonry/library.bin": {
+      "bytes": 46878720,
+      "sha256": "610eab3a7b06bc80c5257bfe30ffb1152f3b8c739138d266ae4a1ea739d60298"
+    },
+    "capture/views.json": {
+      "bytes": 37488,
+      "sha256": "da8d846afa4b0e5d500da622f9614232f76a0b81b2da527f723d94b007345ca4"
+    },
+    "stage2/scanned-masonry-native.json": {
+      "bytes": 968,
+      "sha256": "26ae130cb0b66ddea8e584e0511839ae02c774ca774f750b25911daef90fc779"
+    }
+  },
+  "local_native": {
+    "cases": {
+      "brick": {
+        "coverage_pixels": 85844,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 243069184,
+        "instances": 1,
+        "sample_invocations": 480000,
+        "shared_bank_bytes": 46878720,
+        "source_mesh_draws": 0
+      },
+      "house": {
+        "coverage_pixels": 207216,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 406647040,
+        "instances": 4882,
+        "sample_invocations": 2213888,
+        "shared_bank_bytes": 46878720,
+        "source_mesh_draws": 0
+      },
+      "wall": {
+        "coverage_pixels": 36833,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 243069184,
+        "instances": 168,
+        "sample_invocations": 416640,
+        "shared_bank_bytes": 46878720,
+        "source_mesh_draws": 0
+      }
+    },
+    "checks": 42,
+    "failed": false,
+    "physical_android_tested": false,
+    "shared_irradiance_integrated": false
+  },
+  "python_tests": {
+    "total": 259,
+    "passed": 258,
+    "skipped": 1
+  },
+  "rig_checks": 247,
+  "agent_checks": 25,
+  "ci_job": 128047485277,
+  "ci_artifact": {
+    "id": 13526570230,
+    "bytes": 42047480,
+    "sha256": "f4705b834f1daa180a385052fa51d10f62482a5bea9ea2d5140a1896f7aef3c4"
+  },
+  "ci_python": {
+    "total": 259,
+    "passed": 258,
+    "skipped": 1
+  },
+  "ci_native_checks": 42,
+  "ci_device": "llvmpipe LLVM 21.1.8; software Vulkan; no physical Android test",
+  "ci_capture_bank_matches_local": true,
+  "cross_host_byte_identity": {
+    "bank_bytes_identical": true,
+    "recipes": {
+      "brick-2102.json": "8baa272536a2a19c048e3db695208a98cd8108b4b08aade2de7ecf65258f79b4",
+      "wall-2102.json": "7f6dd5787a4e72b98bb95d1a0f46efa679a04aac9d1a1ad6dacee6cc9cbec905",
+      "house-2102.json": "fb5f23cc87cb4192c6f192bd43f7ad68bf346c35b6d8ca4bb797221ca8eb0ec7",
+      "brick-7319.json": "0a1c3df80aac98824d8a722007c3bf644845e56a5e16000d45ccd525ee09b357",
+      "wall-7319.json": "ec99c5cf2364e51524789a3d03f127c50d03cfd4277a9ad6dca6dd246396cced",
+      "house-7319.json": "f5243c108c5f3515c04ace3fe9803fd076200a436ee1e0ea747a7e6e5b91ebec"
+    },
+    "local": "llvmpipe LLVM19 / Python3.12",
+    "ci": "llvmpipe LLVM21 / Python3.11"
+  },
+  "dataset_package": {
+    "filename": "LIE_Ladrillo_Escaneado_y_Mamposteria.zip",
+    "bytes": 182005154,
+    "sha256": "fa100b98ecce048a593f4094d120cfd89236549e1c35d784b8bf7b383666b71c",
+    "files": 172
+  }
+}
