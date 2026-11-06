@@ -33,5 +33,10 @@ func run() -> void:
     var from_json: Variant=JSON.parse_string('{"angular_sectors":6,"visibility_revision":2}')
     check(Quality.packet([1.],from_json).size()==32+33*16,"JSON numeric policy survives parser float conversion")
     check(not Quality.valid({"angular_sectors":1.5}) and not Quality.integer_value(true,0,1),"fractional and boolean revisions rejected")
+    malformed=c.model.duplicate(true);malformed["field_quality"]={"visibility_revision":0}
+    before=t._quality_desired.duplicate()
+    check(not t.configure(malformed) and t._quality_desired==before,"full configure cannot replay stale visibility")
+    var last: PackedByteArray=Quality.packet([1.],{"visibility_revision":4294967295})
+    check(not last.is_empty() and last.decode_u32(12)==4294967295,"uint32 revision ABI survives maximum value")
     print("QUALITY COMMAND ","FAIL" if failed else "PASS"," ",checks)
     t=null;quit(1 if failed else 0)

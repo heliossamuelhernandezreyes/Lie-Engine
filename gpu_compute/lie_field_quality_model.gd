@@ -11,7 +11,7 @@ static func valid(options: Variant) -> bool:
     if not integer_value(q.angular_sectors,1,6) or int(q.angular_sectors) not in [1,6] or not q.area_budget is bool:return false
     for key in ["reference_area","roughness_split"]:
         if not (q[key] is int or q[key] is float) or not is_finite(float(q[key])):return false
-    if q.reference_area<=0.0 or q.roughness_split<0.0 or q.roughness_split>1.0:return false
+    if q.reference_area<1.17549435e-38 or q.reference_area>3.402823466e38 or q.roughness_split<0.0 or q.roughness_split>1.0:return false
     if not integer_value(q.visibility_revision,0,0xffffffff):return false
     if not q.dynamic_occluders is Array or q.dynamic_occluders.size()>16:return false
     for box in q.dynamic_occluders:
@@ -29,6 +29,7 @@ static func packet(areas: Array,options: Dictionary) -> PackedByteArray:
     var q: Dictionary=DEFAULTS.duplicate(true);q.merge(options,true)
     var bytes:=PackedInt32Array([q.angular_sectors,1 if q.area_budget else 0,q.dynamic_occluders.size(),q.visibility_revision]).to_byte_array()
     bytes.append_array(PackedFloat32Array([q.reference_area,q.roughness_split,0,0]).to_byte_array())
+    if not is_finite(bytes.decode_float(16)) or bytes.decode_float(16)<=0:return PackedByteArray()
     bytes.resize(32+(areas.size()+32)*16)
     for i in range(areas.size()):
         if not (areas[i] is int or areas[i] is float) or not is_finite(float(areas[i])) or areas[i]<=0:return PackedByteArray()

@@ -49,7 +49,16 @@ class FieldQuality(unittest.TestCase):
             m=partition_model(False);m['field_quality']=bad
             with self.assertRaises(ValueError):packet(m)
         m=partition_model(False);saved=copy.deepcopy(m);packet(m);self.assertEqual(m,saved)
+        m['field_quality']={'angular_sectors':6.,'visibility_revision':2.}
+        self.assertGreater(len(packet(m)),0)
+        for bad in ({'dynamic_occluders':[[[False,0,0],[1,1,1]]]},{'dynamic_occluders':[[[1e10,0,0],[1e10+1,1,1]]]},{'reference_area':1e39}):
+            m['field_quality']=bad
+            with self.assertRaises(ValueError):packet(m)
     def test_generated_sources_are_current(self):
         for name,s in outputs().items():self.assertEqual((ROOT/'gpu_compute/shaders'/name).read_text(),s)
+    def test_area_channels_and_multisource_quality(self):
+        np.testing.assert_allclose(self.result('paths_two_sources'),self.result('paths_key_only')+self.result('paths_fill_only'),atol=1e-14)
+        np.testing.assert_allclose(self.result('area_two_panels'),self.result('area_key_only')+self.result('area_fill_only'),atol=1e-14)
+        self.assertEqual(self.result('area_backwards').max(),0.)
 
 if __name__=='__main__':unittest.main()

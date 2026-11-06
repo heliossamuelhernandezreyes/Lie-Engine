@@ -38,11 +38,16 @@ def paths_model():
 
 def cases():
     result = {}
-    def add(name, model, packets=None):
+    def add(name, model, packets=None, emission_hex=None):
         m = copy.deepcopy(model)
         if packets is None: packets = sources(m, form_factors(m)[0])
+        normals = None
+        if emission_hex is not None:
+            descriptors=np.frombuffer(bytes.fromhex(emission_hex),'<f4').reshape(8,4)
+            normals=[v[:3] if v[3] else None for v in descriptors[:len(m['lights'])]]
         result[name] = {'model': m, 'sources_hex': {k: v.hex() for k, v in packets.items()},
-                        'separate': True, 'output': solve(m, packets)}
+                        'separate': True, 'output': solve(m, packets,emission_normals=normals)}
+        if emission_hex is not None:result[name]['emission_hex']=emission_hex
     for name, c in fixture_cases().items():
         if not c['separate']: continue
         m = copy.deepcopy(c['model']); m['field_quality'] = {'angular_sectors': 1, 'area_budget': False}
@@ -56,6 +61,14 @@ def cases():
     m['field_quality'] = {'angular_sectors': 6, 'dynamic_occluders': [[[.35, -.1, .35], [.65, .1, .65]]], 'visibility_revision': 1}
     add('paths_blocked', m, packets)
     m['field_quality'] = {'angular_sectors': 6, 'visibility_revision': 2}; add('paths_restored', m, packets)
+    m,F=paths_model();m['lights'].append({'position':[.4,.1,3.],'radius':10.,'power_rgb':[2.,7.,12.]})
+    packets=sources(m,F);add('paths_two_sources',m,packets)
+    for l,name in enumerate(['paths_key_only','paths_fill_only']):
+        one=copy.deepcopy(m);one['lights'][1-l]['power_rgb']=[0.,0.,0.];add(name,one,packets)
+    from lie_area_reference import cases as area_cases
+    for name,c in area_cases().items():
+        if name not in ('two_panels','key_only','fill_only','backwards'):continue
+        add('area_'+name,c['model'],{k:bytes.fromhex(v) for k,v in c['sources_hex'].items()},c['emission_hex'])
     return result
 
 

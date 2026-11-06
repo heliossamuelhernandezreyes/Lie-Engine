@@ -16,11 +16,15 @@ func configure(model: Dictionary) -> bool:
     if not options is Dictionary:return false
     var bytes: PackedByteArray=Quality.packet(areas,options)
     if bytes.is_empty():return false
+    var normalized: Dictionary=Quality.DEFAULTS.duplicate(true);normalized.merge(options,true)
+    if not _quality_areas.is_empty():
+        if normalized.visibility_revision<_quality_options.visibility_revision:return false
+        if normalized.dynamic_occluders!=_quality_options.dynamic_occluders and normalized.visibility_revision<=_quality_options.visibility_revision:return false
     if not model.get("optical_sheets",[]).is_empty():return false
     # Validate all base contracts before committing the new desired policy.
     if not Model.valid(model) or not _valid_point_codes(model.get("lights",[])) or _validated_emission(model).is_empty() or factor_input_bytes(model).is_empty():return false
     if (_count!=0 and areas.size()!=_count) or (_triangle_count!=-1 and model.get("triangles",[]).size()!=_triangle_count):return false
-    _quality_areas=areas;_quality_options=Quality.DEFAULTS.duplicate(true);_quality_options.merge(options,true)
+    _quality_areas=areas;_quality_options=normalized
     _quality_desired=bytes
     return super.configure(model)
 func _additional_transport_data(model: Dictionary) -> Dictionary:

@@ -9,6 +9,7 @@ func case_extra_buffers(case: Dictionary) -> Dictionary:
     var data: Dictionary={27:QualityModel.packet(areas,case.model.get("field_quality",{}))}
     for pair in [[26,128],[28,n*8*6*32],[29,n*8*6*32],[30,n*8*6*16]]:
         var bytes:=PackedByteArray();bytes.resize(pair[1]);data[pair[0]]=bytes
+    if case.has("emission_hex"):data[26]=str(case.emission_hex).hex_decode()
     return data
 func run() -> void:
     var fixture: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://fixtures/field-quality-reference.json"))
@@ -29,8 +30,11 @@ func run() -> void:
         restore=maxf(restore,absf(a[i]-outputs.paths_restored[i]));changed=maxf(changed,absf(a[i]-outputs.paths_blocked[i]))
     check(restore<1e-7 and changed>.00001,"moving occluder changes field and restoration is exact")
     var source_sum: float=0.
-    for i in range(outputs.legacy_two_colored_lights.size()):source_sum=maxf(source_sum,absf(outputs.legacy_two_colored_lights[i]-outputs.legacy_left_only[i]-outputs.legacy_right_only[i]))
+    for i in range(outputs.paths_two_sources.size()):source_sum=maxf(source_sum,absf(outputs.paths_two_sources[i]-outputs.paths_key_only[i]-outputs.paths_fill_only[i]))
     check(source_sum<1e-5,"quality field source superposition")
+    var area_sum: float=0.
+    for i in range(outputs.area_two_panels.size()):area_sum=maxf(area_sum,absf(outputs.area_two_panels[i]-outputs.area_key_only[i]-outputs.area_fill_only[i]))
+    check(area_sum<1e-5,"eight physical panel channels preserve source superposition")
     report.merge({"checks":checks,"failed":failed,"device":rd.get_device_name(),"source_superposition_max_error":source_sum,"restoration_max_error":restore})
     var file:=FileAccess.open("res://field-quality-native.json",FileAccess.WRITE);file.store_string(JSON.stringify(report,"  ",true,true));file.close()
     rd.free_rid(pipeline);rd.free_rid(shader);rd.free()

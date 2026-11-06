@@ -18,17 +18,25 @@ def options(model):
     if not isinstance(raw, dict) or set(raw)-set(DEFAULTS):
         raise ValueError('Unknown field quality option')
     q = copy.deepcopy(DEFAULTS); q.update(raw)
-    if type(q['angular_sectors']) is not int or q['angular_sectors'] not in (1, 6):
+    if type(q['angular_sectors']) not in (int,float) or q['angular_sectors'] not in (1, 6):
         raise ValueError('Angular capacity must be 1 or 6')
+    q['angular_sectors']=int(q['angular_sectors'])
     if type(q['area_budget']) is not bool:
         raise ValueError('Area budget must be boolean')
     for k in ('reference_area', 'roughness_split'):
         if type(q[k]) not in (int, float) or not math.isfinite(q[k]):
             raise ValueError('Finite quality parameter required')
-    if q['reference_area'] <= 0 or not 0 <= q['roughness_split'] <= 1:
+    if not 1.17549435e-38 <= q['reference_area'] <= 3.402823466e38 or not 0 <= q['roughness_split'] <= 1:
         raise ValueError('Invalid quality parameter range')
-    if type(q['visibility_revision']) is not int or not 0 <= q['visibility_revision'] <= 0xffffffff:
+    revision=q['visibility_revision']
+    if type(revision) not in (int,float) or not math.isfinite(revision) or int(revision)!=revision or not 0 <= revision <= 0xffffffff:
         raise ValueError('Invalid visibility revision')
+    q['visibility_revision']=int(revision)
+    if not isinstance(q['dynamic_occluders'],list):raise ValueError('Occluders must be an array')
+    for box in q['dynamic_occluders']:
+        if not isinstance(box,list) or len(box)!=2:raise ValueError('Box must have two corners')
+        for p in box:
+            if not isinstance(p,list) or len(p)!=3 or any(type(v) not in (int,float) for v in p):raise ValueError('Box coordinates must be numeric')
     boxes = np.asarray(q['dynamic_occluders'], dtype=float)
     if boxes.size == 0: boxes = boxes.reshape(0, 2, 3)
     if boxes.shape != (len(boxes), 2, 3) or len(boxes) > 16 or not np.isfinite(boxes).all() or not (boxes[:, 0] < boxes[:, 1]).all():
@@ -44,6 +52,8 @@ def packet(model):
         rows[n+i*2, :3] = box[0]; rows[n+i*2+1, :3] = box[1]
     if not np.isfinite(rows).all() or not (rows[:n, 0] > 0).all():
         raise ValueError('Field policy not representable in float32')
+    for i in range(len(q['dynamic_occluders'])):
+        if not (rows[n+i*2,:3]<rows[n+i*2+1,:3]).all():raise ValueError('Occluder collapses in float32')
     return struct.pack('<4I4f', q['angular_sectors'], q['area_budget'], len(q['dynamic_occluders']),
                        q['visibility_revision'], q['reference_area'], q['roughness_split'], 0, 0)+rows.tobytes()
 
