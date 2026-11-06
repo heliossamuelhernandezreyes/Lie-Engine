@@ -40,6 +40,7 @@ var sample_bank_bindings: int=0
 func capture_root() -> String:return ROOT
 func sample_stride() -> int:return 48
 func shader_resource() -> RDShaderFile:return ShaderFile
+func _bind_stage(_commands: int,_stage: int) -> void:pass
 
 func _init(size: int=384) -> void:
     output_size=clampi(size,128,512);render_size=output_size*2
@@ -157,6 +158,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _rd.capture_timestamp(_profile_marker("begin"))
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     for stage in [1,2,3,4,6,7]:
+        _bind_stage(list,stage)
         var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
         _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
         _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)

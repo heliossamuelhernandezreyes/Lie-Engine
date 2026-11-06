@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 concurrency:
   group: lie-brick-reference-${{ github.ref }}
   cancel-in-progress: true
@@ -16,6 +17,7 @@ jobs:
     env:
       PYTHONPATH: tools
       LIBGL_ALWAYS_SOFTWARE: '1'
+      LIE_BRICK_TRACE: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -27,6 +29,11 @@ jobs:
           python -m unittest discover -s tests -p 'test_*.py' -q
           python tools/lie_brick_reference_shader.py
           git diff --exit-code -- gpu_compute/shaders
+      - uses: actions/cache/restore@v4
+        id: source-cache
+        with:
+          path: /tmp/brick-fixture
+          key: brick-cycles432-s512-r256-c128-${{ hashFiles('tools/lie_brick_reference_blender.py', 'tools/lie28_prepare_blender.py', 'tools/lie22_prepare_blender.py', 'tools/lie_asset_contract.py', 'tools/lie_brick_reference_math.py') }}
       - name: Bounded official renderers and software Vulkan setup
         run: |
           timeout 180s sudo apt-get -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20 -o Acquire::Retries=1 update -qq
@@ -45,11 +52,33 @@ jobs:
           unzip -q godot.zip -d godot-bin
           chmod +x godot-bin/Godot_v4.7.2-stable_linux.x86_64
       - name: Same LIE-28 master, neutral captures and independent Cycles renders
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -o pipefail
-          timeout 600 blender-bin/blender -b -t 4 --python tools/lie_brick_reference_blender.py -- --output /tmp/brick-fixture --resolution 256 --samples 512 --capture-resolution 128 2>&1 | tee brick-source.log
+          # Bootstrap the first source cache from the prior successful SOURCE
+          # build. Its native job failed and is not counted as native acceptance.
+          # Restore only when every capture/reference recipe is unchanged;
+          # otherwise regenerate. Per-file hashes and source geometry are
+          # validated below regardless of the route.
+          if ! test -f /tmp/brick-fixture/manifest.json; then
+            git fetch --depth=1 origin ce6c7511b58c473dc7913016392f8e9fd0883a01
+            if git diff --quiet ce6c7511b58c473dc7913016392f8e9fd0883a01 HEAD -- tools/lie_brick_reference_blender.py tools/lie28_prepare_blender.py tools/lie22_prepare_blender.py tools/lie_asset_contract.py tools/lie_brick_reference_math.py && gh run download 42243777231 --repo "$GITHUB_REPOSITORY" --name lie-brick-independent-reference --dir /tmp/brick-source-cache-bootstrap; then
+              cp -a /tmp/brick-source-cache-bootstrap/tmp/brick-fixture /tmp/brick-fixture
+              echo 'Reused verified source/reference bytes from run 42243777231; native validation is rerun.' | tee brick-source.log
+            else
+              timeout 600 blender-bin/blender -b -t 4 --python tools/lie_brick_reference_blender.py -- --output /tmp/brick-fixture --resolution 256 --samples 512 --capture-resolution 128 2>&1 | tee brick-source.log
+            fi
+          else
+            echo 'Reused source cache; native validation is rerun.' | tee brick-source.log
+          fi
           python tools/lie_brick_reference_verify.py --fixture /tmp/brick-fixture | tee brick-source-verification.log
           python tools/lie_brick_reference_stage.py --fixture /tmp/brick-fixture --stage /tmp/brick-stage
+      - uses: actions/cache/save@v4
+        if: steps.source-cache.outputs.cache-hit != 'true'
+        with:
+          path: /tmp/brick-fixture
+          key: ${{ steps.source-cache.outputs.cache-primary-key }}
       - name: Actual captured camera, shared field, commands and source lifetime
         run: |
           set -o pipefail

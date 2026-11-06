@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 from lie_brick_reference_math import split_triangle, triangle_area, camera_frame, metrics
-from lie_brick_reference_shader import generate
+from lie_brick_reference_shader import generate,dedicated
 
 
 class BrickReferenceTests(unittest.TestCase):
@@ -42,6 +42,15 @@ class BrickReferenceTests(unittest.TestCase):
         self.assertIn('bool face_support=',shader)
         self.assertIn('y=-shadow_bound',shader)
         self.assertNotIn('y=-shadow_bound',generate(False))
+
+    def test_dedicated_entries_keep_source_equations_and_binding_closure(self):
+        for stage in (1,2,3,4,6,7):
+            shader,bindings=dedicated(stage)
+            self.assertIn('const int stage='+str(stage),shader)
+            self.assertEqual(bindings,sorted(set(bindings)))
+            self.assertTrue(bindings)
+        self.assertNotIn('bench_indirect(',dedicated(2)[0])
+        self.assertIn('lie_stencil_weight(',dedicated(4)[0])
 
 
 if __name__=='__main__':unittest.main()

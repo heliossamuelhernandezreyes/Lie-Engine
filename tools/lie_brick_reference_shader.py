@@ -4,8 +4,11 @@ This consumer deliberately evaluates Lambert direct radiance for the matte
 benchmark. It is not a replacement for the production GGX surface consumer.
 """
 import argparse
+import json
+import re
 from pathlib import Path
 from lie_wall05_shader import replace
+from lie_wall17_shader import functions,mask,end_brace
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -83,7 +86,51 @@ vec3 bench_indirect(vec3 p,uint node) {
     return s
 
 
+def dedicated(stage):
+    """Same equations in isolated entries, using the accepted closure compiler."""
+    source=generate();all_functions=functions(source);main=next(f[3] for f in all_functions if f[0]=='main')
+    common=main[:main.index('    if(stage==1)')].replace('int stage=phase.value.x;',f'const int stage={stage};')
+    if stage in (4,6):
+        branch=main[main.index('    if(i>=pixels) return;'):main.rfind('}')]
+    else:
+        key=2 if stage==3 else stage
+        match=re.search(r'    if\(stage=='+str(key)+r'(?:\)| \|\| stage==\d+\))\s*\{',mask(main))
+        if match is None:raise ValueError('Missing camera stage')
+        end=end_brace(mask(main),match.end()-1);branch=main[match.end():end-1]
+    entry=common+branch+'\n}\n'
+    by_name={f[0]:f for f in all_functions if f[0]!='main'};needed=set();pending=[entry]
+    while pending:
+        calls=set(re.findall(r'\b(\w+)\s*\(',mask(pending.pop())))
+        for name in sorted(calls&by_name.keys()-needed):needed.add(name);pending.append(by_name[name][3])
+    source=source[:all_functions[-1][1]]
+    for name,start,end,_ in reversed(all_functions[:-1]):
+        if name not in needed:source=source[:start]+source[end:]
+    source+='\n'+entry
+    declarations=list(re.finditer(r'layout\([^;]*?binding\s*=\s*(\d+)[^;]*?\)\s*(?:readonly\s+|writeonly\s+)?(?:buffer\s+\w+\s*\{[^}]*\}\s*(\w+)|uniform\s+(?:readonly\s+|writeonly\s+)?\w+\s+(\w+))\s*;',source,re.S))
+    used=source
+    for m in reversed(declarations):used=used[:m.start()]+used[m.end():]
+    bindings=[]
+    for m in reversed(declarations):
+        if re.search(r'\b'+(m[2] or m[3])+r'\b',mask(used)):bindings.append(int(m[1]))
+        else:source=source[:m.start()]+source[m.end():]
+    return '\n'.join(line.rstrip() for line in source.splitlines())+'\n',sorted(bindings)
+
+
+def outputs():
+    result={'gpu_compute/shaders/lie_brick_reference.glsl':generate()};bindings={}
+    gd='extends RefCounted\n## Generated independent entries; identical captured equations.\nconst SHADERS={\n'
+    for stage in (1,2,3,4,6,7):
+        shader,bindings[stage]=dedicated(stage)
+        result[f'gpu_compute/shaders/lie_brick_reference_stage_{stage}.glsl']=shader
+        gd+=f'    {stage}:preload("res://shaders/lie_brick_reference_stage_{stage}.glsl"),\n'
+    gd+='}\nconst BINDINGS='+json.dumps(bindings,separators=(',',':')).replace('"','')+'\n'
+    result['gpu_compute/lie_brick_reference_kernels.gd']=gd
+    return result
+
+
 if __name__ == '__main__':
     parser=argparse.ArgumentParser();parser.add_argument('--output',type=Path);parser.add_argument('--legacy-shadow-footprint',action='store_true');args=parser.parse_args()
     if args.legacy_shadow_footprint and args.output is None:parser.error('Legacy replay requires an explicit --output; preserve the accepted generated shader')
-    (args.output or ROOT/'gpu_compute/shaders/lie_brick_reference.glsl').write_text(generate(not args.legacy_shadow_footprint))
+    if args.output:args.output.write_text(generate(not args.legacy_shadow_footprint))
+    else:
+        for name,text in outputs().items():(ROOT/name).write_text(text)

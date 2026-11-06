@@ -7,7 +7,7 @@ import re
 import shutil
 import numpy as np
 from lie_light_field import sources
-from lie_brick_reference_shader import generate
+from lie_brick_reference_shader import outputs
 from lie_brick_reference_math import preview
 from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,7 +21,7 @@ def stage(fixture, destination):
         if not p.is_file() or p.stat().st_size != data['bytes'] or hashlib.sha256(p.read_bytes()).hexdigest() != data['sha256']:
             raise ValueError('Source/reference hash mismatch: '+name)
     destination.mkdir(parents=True); source = ROOT/'gpu_compute'
-    (source/'shaders/lie_brick_reference.glsl').write_text(generate())
+    for name,text in outputs().items():(ROOT/name).write_text(text)
     pending = ['lie_brick_reference_lab.tscn', 'test_lie_brick_reference.gd', 'test_lie26_rig.gd', 'workshop/test_lie_agent_session.gd']
     copied = set(); pattern = re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
     while pending:
