@@ -3,6 +3,10 @@ const QualityShader=preload("res://shaders/lie_field_quality_area.glsl")
 const QualityModel=preload("res://lie_field_quality_model.gd")
 func shader_resource() -> RDShaderFile:return QualityShader
 func surface_bridge() -> bool:return true
+func submit(stages: Array,set_rid: RID) -> void:
+    if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SUBMIT ",stages)
+    super.submit(stages,set_rid)
+    if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SYNC ",stages)
 func case_extra_buffers(case: Dictionary) -> Dictionary:
     var n: int=case.model.patches.size();var areas: Array=[]
     for p in case.model.patches:areas.append(p.area)
@@ -19,6 +23,7 @@ func run() -> void:
     if not pipeline.is_valid():printerr(spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE));quit(1);return
     var outputs: Dictionary={}
     for name in fixture.cases:
+        print("QUALITY CASE ",name)
         outputs[name]=execute(fixture.cases[name],name)
         if outputs[name].is_empty():
             rd.free_rid(pipeline);rd.free_rid(shader);rd.free();quit(1);return

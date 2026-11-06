@@ -44,6 +44,12 @@ func run() -> void:
     metrics["policy_round_trip_max"]=difference(base.color,back.color)
     check(metrics.policy_round_trip_max<.0001,"policy round trip restores actual image")
     check(lab.effect.cache_metrics().direct_surface.primary_builds==counter.primary_builds,"policy edit retains reconstructed surface")
+    check(lab.command({"op":"set_values","values":{"energy_radius":true}}).ok,"effective-radius policy enabled through scene controls")
+    await settle()
+    check(lab.light_model.has("secondary_radii") and lab.transport.optical_metrics().quality.policy.area_budget,"area budget reaches actual radius solve")
+    check(lab.command({"op":"set_values","values":{"energy_radius":false}}).ok,"effective-radius policy removed")
+    await settle();back=await capture(lab.effect)
+    check(difference(base.color,back.color)<.0001,"radius policy round trip restores lighting")
     # Full enclosing light-only occluder is a deterministic visibility test;
     # this asserts no residual direct OR indirect light, not visible geometry.
     check(lab.command({"op":"light_occluders","boxes":[[[-10000.,-10000.,-10000.],[10000.,10000.,10000.]]],"expected_revision":0,"new_revision":1}).ok,"dynamic visibility publication accepted")

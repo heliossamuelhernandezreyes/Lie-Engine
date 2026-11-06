@@ -31,8 +31,7 @@ func _ui() -> void:
     super._ui()
     var box: Node=status.get_parent()
     _label(box,"ILUMINACIÓN POR SUPERFICIES",19)
-    var radius_button:=CheckButton.new();radius_button.text="Radio energético";radius_button.button_pressed=state.get("energy_radius",false)
-    radius_button.toggled.connect(func(v: bool):command({"op":"set_values","values":{"energy_radius":v}}));box.add_child(radius_button)
+    _check(box,"energy_radius","Radio energético")
     var old:=Button.new();old.text="Comparar transporte anterior"
     old.pressed.connect(func():_quality_mode(1,false));box.add_child(old)
     var improved:=Button.new();improved.text="Usar transporte mejorado"
