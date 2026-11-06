@@ -97,6 +97,19 @@ jobs:
               text=p.read_text()
               assert not any(v in text for v in ('ERROR:', 'SCRIPT ERROR', 'were leaked at exit')),str(p)+'\n'+text[-5000:]
           PY
+      - name: Preserve isolated native failure diagnosis
+        if: failure()
+        run: |
+          set -o pipefail
+          engine="$PWD/godot-bin/Godot_v4.7.2-stable_linux.x86_64"
+          if test -x "$engine" && test -d /tmp/brick-stage; then
+            set +e
+            LIE_BRICK_FIELD_ONLY=1 timeout 60 xvfb-run -a "$engine" --path /tmp/brick-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_brick_reference_probe.gd 2>&1 | tee brick-probe-field-only.log
+            for stage in 1 2 3 4 6 7; do
+              LIE_BRICK_MAX_STAGE="$stage" timeout 60 xvfb-run -a "$engine" --path /tmp/brick-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_brick_reference_probe.gd 2>&1 | tee "brick-probe-prefix-$stage.log"
+            done
+            # Diagnostics cannot turn the preceding acceptance failure green.
+          fi
       - uses: actions/upload-artifact@v4
         if: always()
         with:

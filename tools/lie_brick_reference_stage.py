@@ -22,7 +22,7 @@ def stage(fixture, destination):
             raise ValueError('Source/reference hash mismatch: '+name)
     destination.mkdir(parents=True); source = ROOT/'gpu_compute'
     for name,text in outputs().items():(ROOT/name).write_text(text)
-    pending = ['lie_brick_reference_lab.tscn', 'test_lie_brick_reference.gd', 'test_lie26_rig.gd', 'workshop/test_lie_agent_session.gd']
+    pending = ['lie_brick_reference_lab.tscn', 'test_lie_brick_reference.gd', 'test_lie_brick_reference_probe.gd', 'test_lie26_rig.gd', 'workshop/test_lie_agent_session.gd']
     copied = set(); pattern = re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
     while pending:
         name = pending.pop()

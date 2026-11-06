@@ -35,6 +35,9 @@ func _bind_stage(commands: int,stage: int) -> void:
     if OS.get_environment("LIE_BRICK_TRACE")=="1":print("BRICK CAMERA STAGE ",stage)
     _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline)
     _rd.compute_list_bind_uniform_set(commands,_sets[stage],0)
+func _run_stage(stage: int) -> bool:
+    var limit: String=OS.get_environment("LIE_BRICK_MAX_STAGE")
+    return limit.is_empty() or stage<=int(limit)
 func _release() -> void:
     for stage in _sets:
         if stage!=1 and _rd.uniform_set_is_valid(_sets[stage]):_rd.free_rid(_sets[stage])

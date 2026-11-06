@@ -58,7 +58,9 @@ func _install_case() -> void:
         var p: Dictionary=model.patches[i];var group: Array=current.groups[i]
         floats.append_array(PackedFloat32Array(p.position+[p.area]+p.normal+[0.]+[float(group[0]),float(group[1]),0.,0.]))
     effect.bench_packet=PackedInt32Array([model.patches.size(),model.lights.size(),0,0]).to_byte_array();effect.bench_packet.append_array(floats.to_byte_array())
-    var compositor:=Compositor.new();compositor.compositor_effects=[transport,effect];world.compositor=compositor
+    var compositor:=Compositor.new()
+    compositor.compositor_effects=[transport] if OS.get_environment("LIE_BRICK_FIELD_ONLY")=="1" else [transport,effect]
+    world.compositor=compositor
     _apply()
 func _apply() -> void:
     if effect==null:return
