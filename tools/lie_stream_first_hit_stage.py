@@ -18,7 +18,7 @@ def replace_once(s,old,new):
         raise ValueError(f'Expected exactly one stable staged renderer marker: {old[:100]}')
     return s.replace(old,new)
 
-def apply(stage:Path):
+def apply(stage:Path, analytic=False):
     shader=stage/'shaders'/'lie_stream_first_hit.glsl'
     renderer=stage/'lie_direct_renderer.gd'
     test=stage/'test_lie_native_depth.gd'
@@ -95,7 +95,8 @@ def apply(stage:Path):
         var result_file := FileAccess.open(prefix+"-first-hit.bin",FileAccess.WRITE)
         result_file.store_buffer(hit_record); result_file.close()
 '''+marker)
-    shutil.copyfile(SHADER,shader)
+    selected=HERE/'shaders'/'lie_stream_first_hit_analytic.comp.glsl' if analytic else SHADER
+    shutil.copyfile(selected,shader)
     renderer.write_text(source)
     test.write_text(script)
     return {'schema':'lie-native-stream-first-hit-staging/1',
@@ -110,7 +111,8 @@ def apply(stage:Path):
 def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage',required=True,type=Path)
+    p.add_argument('--analytic',action='store_true',help='Use V5 analytic enumeration; preserve V4 shader')
     args=p.parse_args()
-    print(json.dumps(apply(args.stage),indent=2))
+    print(json.dumps(apply(args.stage,args.analytic),indent=2))
 
 if __name__=='__main__':main()
