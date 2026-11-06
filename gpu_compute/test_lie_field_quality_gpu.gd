@@ -4,9 +4,13 @@ const QualityModel=preload("res://lie_field_quality_model.gd")
 func shader_resource() -> RDShaderFile:return QualityShader
 func surface_bridge() -> bool:return true
 func submit(stages: Array,set_rid: RID) -> void:
-    if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SUBMIT ",stages)
-    super.submit(stages,set_rid)
-    if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SYNC ",stages)
+    var expanded: Array=[]
+    for row in stages:
+        if row[0]==3:expanded.append_array([[3,row[1]*6,row[2]],[7,row[1],row[2]]])
+        else:expanded.append(row)
+    if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SUBMIT ",expanded)
+    super.submit(expanded,set_rid)
+    if OS.get_environment("LIE_QUALITY_TRACE")=="1":print("QUALITY SYNC ",expanded)
 func case_extra_buffers(case: Dictionary) -> Dictionary:
     var n: int=case.model.patches.size();var areas: Array=[]
     for p in case.model.patches:areas.append(p.area)

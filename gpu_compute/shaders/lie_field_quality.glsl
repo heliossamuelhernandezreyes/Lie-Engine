@@ -261,7 +261,8 @@ uint lie_sector(uint node,vec3 direction) {
     vec3 d=vec3(dot(direction,t),dot(direction,b),dot(direction,n));
     vec3 a=abs(d);
     uint k=a.x>=a.y && a.x>=a.z?0u:a.y>=a.z?1u:2u;
-    return k*2u+(d[int(k)]>=0.?0u:1u);
+    float sign_value=k==0u?d.x:k==1u?d.y:d.z;
+    return min(k*2u+(sign_value>=0.?0u:1u),5u);
 }
 bool lie_dynamic_clear(vec3 a,vec3 b) {
     for(uint j=0u;j<quality.q.z;j++) {
@@ -287,8 +288,9 @@ void lie_write_lobe(uint id,int ping,LieLobe packet) {
 bool lie_quality_step(uint id) {
     uint n=uint(cfg.dims.x),L=uint(cfg.dims.y);int stage=phase.data.x,ping=phase.data.y;
     if(stage==0 || stage==1 || stage==4)return false;
-    if(id>=n*L)return true;
-    uint node=id%n,light=id/n;
+    uint logical=stage==3?id/LIE_SECTORS:id;
+    if(logical>=n*L)return true;
+    uint node=logical%n,light=logical/n;
     if(stage==2) {
         vec3 incoming=lights.values[light].power.rgb*(weights.values[id]/caps.values[light])*
             transmittance(patches.values[node].center_area.xyz,lights.values[light].position_radius.xyz);
@@ -323,14 +325,17 @@ bool lie_quality_step(uint id) {
         return true;
     }
     if(stage==3) {
-        vec3 flux[6],moment[6];float parent=0.;
-        for(uint s=0u;s<LIE_SECTORS;s++){flux[s]=vec3(0);moment[s]=vec3(0);}
+        // One receiver/sector per invocation: no dynamically indexed local
+        // scatter arrays. All global writes have an explicit packet bound.
+        uint target=id%LIE_SECTORS;
+        vec3 flux=vec3(0),moment=vec3(0);float parent=0.;
         uint ob=factors.values[2],eb=factors.values[3];
         for(uint e=factors.values[ob+node];e<factors.values[ob+node+1u];e++) {
             uint src=factors.values[eb+e*2u];
             vec3 delta=patches.values[node].center_area.xyz-patches.values[src].center_area.xyz;
             if(!lie_dynamic_clear(patches.values[src].center_area.xyz,patches.values[node].center_area.xyz))continue;
             vec3 direction=normalize(delta);uint bin=lie_sector(node,direction);
+            if(bin!=target)continue;
             float F=uintBitsToFloat(factors.values[eb+e*2u+1u]);
             for(uint s=0u;s<LIE_SECTORS;s++) {
                 uint packet=(light*n+src)*LIE_SECTORS+s;LieLobe p=lie_read_lobe(packet,ping);
@@ -339,20 +344,26 @@ bool lie_quality_step(uint id) {
                 vec2 w=angular_weight(src,node,F,p.travel.xyz,p.flux_radius.w)/lobe_caps.v[packet].xy;
                 vec3 value=p.flux_radius.rgb*(D*w.x+R*w.y)*
                     transmittance(patches.values[src].center_area.xyz,patches.values[node].center_area.xyz);
-                flux[bin]+=value;float strength=max(value.r,max(value.g,value.b));
-                moment[bin]+=direction*strength;if(strength>0.)parent=max(parent,p.flux_radius.w);
+                flux+=value;float strength=max(value.r,max(value.g,value.b));
+                moment+=direction*strength;if(strength>0.)parent=max(parent,p.flux_radius.w);
             }
         }
-        vec3 total=vec3(0),outgoing=vec3(0);vec3 directions[6];
+        vec3 travel=dot(moment,moment)>1e-16?normalize(moment):-patches.values[node].normal_gray.xyz;
+        LieLobe result;result.flux_radius=vec4(flux,parent);result.travel=vec4(travel,0);
+        lie_write_lobe(id,1-ping,result);return true;
+    }
+    if(stage==7) {
+        vec3 total=vec3(0),outgoing=vec3(0);float parent=0.;
         for(uint s=0u;s<LIE_SECTORS;s++) {
-            directions[s]=dot(moment[s],moment[s])>1e-16?normalize(moment[s]):-patches.values[node].normal_gray.xyz;
-            vec3 D,R;parts(node,directions[s],D,R);outgoing+=flux[s]*(D+R);total+=flux[s];
+            LieLobe p=lie_read_lobe(id*LIE_SECTORS+s,1-ping);
+            vec3 D,R;parts(node,p.travel.xyz,D,R);outgoing+=p.flux_radius.rgb*(D+R);
+            total+=p.flux_radius.rgb;parent=max(parent,p.flux_radius.w);
         }
         // Share the node's aggregate reach across bins: angular subdivision
         // must not introduce a second per-bin energy cutoff.
         float radius=lie_quality_reach(node,parent,outgoing);
         for(uint s=0u;s<LIE_SECTORS;s++) {
-            LieLobe p;p.flux_radius=vec4(flux[s],radius);p.travel=vec4(directions[s],0);
+            LieLobe p=lie_read_lobe(id*LIE_SECTORS+s,1-ping);p.flux_radius.w=radius;
             lie_write_lobe(id*LIE_SECTORS+s,1-ping,p);
         }
         if(ping==0)frontier_b.values[id]=vec4(total,radius);else frontier_a.values[id]=vec4(total,radius);
