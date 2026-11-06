@@ -1,0 +1,161 @@
+{
+  "schema": "lie-brick-reference-checkpoint/1",
+  "date": "2026-11-06",
+  "branch": "work/lie-brick-reference",
+  "base_commit": "79a48c35337d6f16e01fbceb164a13b3f369df4f",
+  "validated_code_commit": "aab8c2a003041533cba1b3165b01eaaeb8e4e5eb",
+  "ci": {
+    "run_id": 42247946881,
+    "job_id": 127995026809,
+    "conclusion": "success",
+    "url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42247946881",
+    "artifact_id": 13519621961,
+    "artifact_bytes": 48090364,
+    "artifact_sha256": "c99848a6f0d3a9248980e08e75f9a95de1e38d478ea678420285c9d5c898b3ed"
+  },
+  "source_bank_sha256": "b30eb232c1158e1810735e26b250b9b451e9a51ea9416d6fa05a148bd10bd18a",
+  "source_bank_bytes": 18285760,
+  "reference": {
+    "engine": "Cycles CPU",
+    "blender": "4.3.2",
+    "samples": 512,
+    "seeds": [
+      71,
+      193
+    ],
+    "full_bounces": 3,
+    "direct_bounces": 0,
+    "denoising": false,
+    "world": "black",
+    "display_transform_in_metrics": false
+  },
+  "reference_origin": {
+    "source_build_run_id": 42243777231,
+    "source_build_code": "ce6c7511b58c473dc7913016392f8e9fd0883a01",
+    "source_verified_again_after_restore": true,
+    "native_acceptance_from_that_first_run": false,
+    "cache_policy": "restore only unchanged capture/reference recipes; verify every manifest file and original geometry before native execution"
+  },
+  "environments": [
+    {
+      "name": "CI",
+      "godot": "4.7.2-stable",
+      "mesa": "26.0.8",
+      "vulkan": "1.4.335",
+      "device": "llvmpipe LLVM 21.1.8",
+      "software": true
+    },
+    {
+      "name": "local",
+      "godot": "4.7.2-stable",
+      "mesa": "25.0.7",
+      "vulkan": "1.4.305",
+      "device": "llvmpipe LLVM 19.1.7",
+      "software": true
+    }
+  ],
+  "validation": {
+    "python_tests_run": 253,
+    "python_passed": 252,
+    "python_skipped": 1,
+    "skip_reason": "Optional LeePerrySmith source belongs to its separate Blender acquisition workflow",
+    "rig_checks": 247,
+    "agent_session_checks": 25,
+    "native_checks": 148,
+    "cases": 8,
+    "source_surface_points_checked": 1500,
+    "max_source_surface_error_m": 2.9010698199272156e-07,
+    "control_gates": {
+      "cycles_analytic_relative_l1_below_1_percent": true,
+      "lie_analytic_relative_l1_below_3_percent": true,
+      "calibration_coverage_iou_above_97_percent": true,
+      "aperture_direct_relative_l1_below_15_percent": true
+    },
+    "errors_and_leak_scan": "passed"
+  },
+  "local_equivalence": {
+    "readbacks_compared": 40,
+    "dedicated_stages_vs_monolithic_max": 0.0,
+    "node_indirect_prepass_vs_original_max": 0.0,
+    "reference_and_bank_changed": false
+  },
+  "negative_history": [
+    {
+      "run_id": 42243777231,
+      "job_id": 127980548056,
+      "code": "ce6c7511b58c473dc7913016392f8e9fd0883a01",
+      "conclusion": "failure",
+      "observation": "Source/reference and rig/agent passed; native monolithic consumer SIGSEGV on Mesa 26. Local Mesa 25 passed 148 checks.",
+      "artifact_id": 13517278811,
+      "artifact_sha256": "721de17895c7ffd9973deca4b0304af3d4a376ff050670886d9d325bf62aad22"
+    },
+    {
+      "run_id": 42246271641,
+      "job_id": 127989188458,
+      "code": "5016470f8a3617609c3f5fe7156cddbd3bb3e125",
+      "conclusion": "failure",
+      "observation": "Six independent camera kernels preserve local images but alone did not resolve native Mesa 26 fault.",
+      "artifact_id": 13519295659,
+      "artifact_sha256": "899cea3e1c74d84e7daac3c455613f7b299b874209b1c24520fc8a4fe55082c7"
+    },
+    {
+      "run_id": 42247148573,
+      "job_id": 127992235218,
+      "code": "0a5666162d5ba1622ddc1c7965b3454ebbbdc1a5",
+      "conclusion": "failure",
+      "observation": "Field-only readback passes; camera prefixes through stages 1,2,3 pass; adding shading stage 4 faults. Later prefixes also fault. This localizes the execution, not a conclusive compiler defect.",
+      "artifact_id": 13519546394,
+      "artifact_sha256": "9f427b1f21cde2a152ab3a8f9dccfe98cfa55775933b81d531cb005899850123"
+    },
+    {
+      "run_id": 42247946881,
+      "job_id": 127995026809,
+      "code": "aab8c2a003041533cba1b3165b01eaaeb8e4e5eb",
+      "conclusion": "success",
+      "observation": "Per-node field-minus-direct prepass resolves the reproduced fault; all native and independent comparison controls pass with unchanged source/reference/tolerances."
+    }
+  ],
+  "other_preserved_negatives": [
+    "Initial longest-edge-only source quadrature exceeded 1024 nodes; an explicit thin-triangle area stopping budget was introduced, preserving total area and source geometry.",
+    "Initial staging copied editable Blend into the imported runtime tree, triggering the Blender importer; stage now keeps editable source outside imported resources and raw data behind .gdignore.",
+    "Inherited fixed 3x3 shadow splats produced a light grid in the aperture scene; preserved metrics, image and byte-identical legacy replay are linked below."
+  ],
+  "quality_status": {
+    "scene_fidelity_accepted": false,
+    "native_execution_accepted": true,
+    "physical_android_tested": false,
+    "new_apk_built": false,
+    "merged_to_main": false,
+    "notable_limit": "Aperture total relative L1 about 57%; indirect relative L1 about 225%, with absolute errors and two-seed noise also reported. General view-dependent indirect glossy and photographic acceptance remain separate."
+  },
+  "evidence_files": {
+    "docs/checkpoints/lie-brick-reference/comparison.json": {
+      "bytes": 92039,
+      "sha256": "8a650a361afcac0b540e7247279615ffd43ff06f5bdeda3c5ccc5dbd233178ea"
+    },
+    "docs/checkpoints/lie-brick-reference/native.json": {
+      "bytes": 2679,
+      "sha256": "a1fede4fbdcf7881130f915af84f2f53c655cb8030323c920f16a605eb5a05e2"
+    },
+    "docs/checkpoints/lie-brick-reference/preliminary-fixed3x3-opening.png": {
+      "bytes": 24662,
+      "sha256": "3e3690733db249839cd02051c6f0e5e77e6c637f6b18cf8c850dceb32a880e40"
+    },
+    "docs/checkpoints/lie-brick-reference/preliminary-fixed3x3.json": {
+      "bytes": 70955,
+      "sha256": "d1c68188df5dc7cda0fbde46d7dac7cac1316159731301458b5767bb86791eb8"
+    },
+    "docs/checkpoints/lie-brick-reference/shadow-footprint-regression.json": {
+      "bytes": 3361,
+      "sha256": "7272a87f07e03e71c92d8dac00eccf18de03965974637b15005be06b9d5a5658"
+    },
+    "docs/checkpoints/lie-brick-reference/source-verification.json": {
+      "bytes": 502,
+      "sha256": "ee812682b8966ead6f27c8468d33551a2404a20527b2061ca694496e8fea935e"
+    },
+    "docs/checkpoints/lie-brick-reference/window.png": {
+      "bytes": 135004,
+      "sha256": "b0088ee2962d553cf680209804acafa270cf7476a96b801c50765a4653f32258"
+    }
+  }
+}

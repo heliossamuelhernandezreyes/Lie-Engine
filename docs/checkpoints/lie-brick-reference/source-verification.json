@@ -1,0 +1,15 @@
+{
+  "schema": "lie-brick-source-verification/1",
+  "checked_surface_samples": 1500,
+  "max_source_surface_error_m": 2.9010698199272156e-07,
+  "surface_areas_m2": {
+    "brick": 0.106785500566865,
+    "floor": 0.6176000250592828,
+    "wall": 0.4230400216570498,
+    "blocker": 0.0368499998986721,
+    "opening_wall": 0.4006400229638817
+  },
+  "bank_sha256": "b30eb232c1158e1810735e26b250b9b451e9a51ea9416d6fa05a148bd10bd18a",
+  "glb_dimensions_verified": true,
+  "authored_face_groups_verified": true
+}

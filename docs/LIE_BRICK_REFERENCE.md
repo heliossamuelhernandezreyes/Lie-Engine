@@ -25,6 +25,8 @@ triángulos para la consulta directa** en este control. No se oculta ese uso ni
 se presenta el resultado como aceptación de una visibilidad basada exclusivamente
 en capturas. Las métricas del laboratorio declaran esa cantidad de triángulos.
 
+![Comparación nativa: capturas LIE a la izquierda y Cycles a la derecha](checkpoints/lie-brick-reference/window.png)
+
 Se reutilizan `lie_field_quality_transport.gd`, sus fuentes, presupuestos pasivos,
 separación por lámpara, bridge de directa y contrato CSR. El consumidor nuevo
 deriva de LIE-28 y conserva su reconstrucción por muestras y soporte de caras.
@@ -163,3 +165,84 @@ apagado, caché, restauración de potencia/política, UI y rechazo de revisiones
 La validación Vulkan por software certifica ejecución y resultados del
 experimento. No establece FPS, memoria total ni calentamiento en Android.
 Esta etapa no construye una APK ni integra V6.
+
+## Resultados finales
+
+Código validado: `aab8c2a003041533cba1b3165b01eaaeb8e4e5eb`.
+[Ejecución completa aprobada](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42247946881),
+job `127995026809`. Godot 4.7.2, Cycles/Blender 4.3.2,
+Vulkan 1.4.335, llvmpipe LLVM 21.1.8 / Mesa 26.0.8.
+
+| Escena | L1 total | L1 directa | L1 indirecta |
+|---|---:|---:|---:|
+| Plano de calibración | 0.21 % | 0.21 % | Sin indirecta |
+| Ladrillo mate | 1.42 % | 0.43 % | 12.92 % |
+| Luz rasante | 2.14 % | 0.42 % | 18.99 % |
+| Dos ladrillos | 1.76 % | 0.50 % | 19.96 % |
+| Obstáculo izquierdo | 1.61 % | 0.47 % | 15.02 % |
+| Obstáculo derecho | 1.64 % | 0.53 % | 14.97 % |
+| Panel de área | 1.60 % | 0.66 % | 14.49 % |
+| Abertura con fuente detrás | 57.06 % | 7.45 % | 225.32 % |
+
+Son errores sobre los interiores de la máscara de referencia descrita arriba.
+Los bordes se evalúan aparte: IoU entre aproximadamente 98.3 % y 98.9 %.
+La separación por canal muestra que una directa dominante puede hacer pequeño
+el error total mientras persisten diferencias considerables en los rebotes.
+La abertura es un caso adverso real de esta representación. No se elimina de
+las cifras ni se atribuye su causa exclusivamente a una de las aproximaciones.
+
+Los [datos completos](checkpoints/lie-brick-reference/comparison.json) incluyen
+errores absolutos, sesgos, regiones y ruido por semilla. Por ejemplo, en el caso
+mate el ruido RMSE estimado de la referencia media sobre el interior ronda
+`2.68e-4` para la indirecta; no se supone que todo el error frente a esa imagen
+sea sesgo del modelo. Las superficies casi negras se interpretan junto con sus
+valores absolutos, no sólo por su porcentaje.
+
+| Validación | Resultado |
+|---|---|
+| Python completo | 253 contabilizadas: 252 aprobadas, 1 omitida por fuente opcional de otro laboratorio |
+| Rig / sesión de agente | 247 / 25 comprobaciones aprobadas |
+| Laboratorio nativo | 148 comprobaciones aprobadas, ocho escenas, UI real y lectura GPU |
+| Captura frente a fuente | 1500 puntos; distancia numérica máxima `2.9010698199272156e-7` m |
+| Controles analíticos / abertura | Cuatro criterios aprobados |
+| Restauración de política y potencia | Diferencia máxima cero en todos los casos |
+| Fuentes apagadas | RGB máximo cero en todos los casos |
+| Errores de script, liberación y fugas en registros de aceptación | Ninguno detectado |
+
+## Fallo nativo aislado y resuelto
+
+La primera versión pasó localmente en Mesa 25 / LLVM 19 y sufrió SIGSEGV en
+Mesa 26 / LLVM 21. Separar las seis etapas de cámara no bastó. Los prefijos de
+diagnóstico demostraron que el campo común completo y la cámara hasta la etapa
+3 pasaban; añadir el sombreado de píxel de la etapa 4 reproducía el cierre.
+
+La versión final añade una prefase GPU por nodo que calcula la misma resta
+`irradiancia_total - irradiancia_directa`. El píxel interpola su resultado
+residente en vez de repetir la resta dentro de los bucles de fuentes y grupos.
+Se conservan referencias, materiales, ecuaciones y tolerancias. Así pasó Mesa
+26. En Mesa 25, las 40 imágenes float32 de los ocho casos coinciden exactamente
+con la versión anterior, tanto al separar kernels como al añadir la prefase.
+Esta es una corrección reproducible de la organización del cálculo; no identifica
+concluyentemente un defecto particular del compilador.
+
+El [checkpoint](checkpoints/LIE_BRICK_REFERENCE_CHECKPOINT.json) conserva los
+tres runs fallidos, sus artifacts y el diagnóstico. También conserva el
+[contraejemplo del splat 3×3](checkpoints/lie-brick-reference/preliminary-fixed3x3.json)
+y la [comparación controlada de su corrección](checkpoints/lie-brick-reference/shadow-footprint-regression.json).
+
+Las referencias finales fueron producidas en el run inicial cuya **preparación
+de fuentes** pasó; su etapa nativa fallida no cuenta como aceptación. Los runs
+posteriores reutilizan esos bytes sólo cuando no cambian las recetas pertinentes,
+validan otra vez hashes y geometría, y vuelven a ejecutar toda la aceptación
+nativa. La generación fresca sigue disponible en el comando de reproducción.
+
+El artifact final `13519621961` ocupa `48,090,364` bytes; SHA-256
+`c99848a6f0d3a9248980e08e75f9a95de1e38d478ea678420285c9d5c898b3ed`.
+Contiene los maestros editables, banco, referencias EXR/NumPy, lecturas GPU,
+figuras y registros. Al descomprimirlo, `tmp/brick-fixture` es el argumento
+`--fixture` del preparador; el código se obtiene de la rama de GitHub.
+
+La siguiente revisión arquitectónica queda centrada en la resolución espacial,
+la interpolación y la respuesta de los rebotes cerca de aberturas. La aceptación
+fotográfica, los materiales brillantes y el rendimiento Android conservan sus
+pruebas independientes pendientes.

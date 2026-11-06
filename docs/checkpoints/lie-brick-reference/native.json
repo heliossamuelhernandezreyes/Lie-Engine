@@ -1,0 +1,87 @@
+{
+  "cases": {
+    "area_panel": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 1.1920928955078125e-07,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 5943512,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 125316
+    },
+    "blocker_left": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 2.9802322387695313e-08,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 6096216,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 175228
+    },
+    "blocker_right": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 2.9802322387695313e-08,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 6096600,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 175228
+    },
+    "calibration_plane": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 0.0,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 1317472,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 45622
+    },
+    "grazing_point": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 2.384185791015625e-07,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 5943512,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 125316
+    },
+    "matte_point": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 2.9802322387695313e-08,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 5943512,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 125316
+    },
+    "two_bricks": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 2.9802322387695313e-08,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 7458968,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 174818
+    },
+    "wall_opening": {
+      "capture_bytes": 18285760,
+      "decomposition_max": 5.960464477539063e-08,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "field_bytes": 4848536,
+      "off_peak": 0.0,
+      "policy_restoration_max": 0.0,
+      "power_restoration_max": 0.0,
+      "sample_invocations": 123296
+    }
+  },
+  "checks": 148,
+  "failed": false,
+  "physical_android_tested": false
+}
