@@ -70,3 +70,19 @@ Resultado completo: [`checkpoints/LIE_V6_FULL_FRAME_ACCEPTANCE.json`](checkpoint
 **Incidencia de instrumentación preservada:** el canario auxiliar de esa ejecución conservaba bindings/push constants no utilizados del shader principal, por lo que no despachó. Su salida cero no demuestra nada sobre FMA ni Dekker. Además, `tee` ocultó su código de salida. La aceptación geométrica sí se ejecutó y verificó los registros no nulos contra dos referencias; ese resultado sigue siendo válido. El canario se corrigió con una interfaz mínima, comprobación de bindings y `pipefail`; su verificación queda separada del resultado geométrico. No atribuir el fallo a un controlador solo por este canario inválido.
 
 **Alcance final:** primer impacto experimental aceptado para estas tres cámaras y este banco de celdas. No implica fidelidad a la malla original, corrección de normales/materiales, publicación en el G-buffer, compacción GPU ni rendimiento móvil. El shader conserva lanzamiento completo y resultados densos; no presentar esta prueba como optimización para Android. La investigación permanece en un PR draft.
+
+
+## Cierre del canario auxiliar: verificado en Vulkan
+
+[Canario independiente 42167117014](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42167117014), commit `d0eff91fb5e3e30cc934ddd13b2459f311430c75`, artefacto **13479282635**: **aprobado** con Godot 4.7.2, Vulkan 1.4.335, llvmpipe LLVM 21.1.8.
+
+Para dos operandos FP32 `0x3f800001` (1 + 2^-23), leídos desde SSBO:
+
+| Método | Parte alta | Residuo | Verificación |
+|---|---:|---:|---|
+| Producto + FMA | 1.0000002384185791 | **0** | No conserva el residuo requerido |
+| Producto Dekker | 1.0000002384185791 | **2^-46 = 1.4210854715202004e-14** | Correcto |
+
+Esto confirma directamente que el producto con residuo FMA no cumple el contrato que necesitaba la aritmética compensada **en este entorno concreto**. No atribuye ese comportamiento a todas las GPUs ni demuestra cómo se comportará Mali. El canario mínimo corregido no usa bindings/push constants del resolutor y `pipefail` hace obligatoria su aprobación. La corrección geométrica V6 y el canario aritmético están verificados por ejecuciones independientes; el shader de resolución es el mismo.
+
+Registro exacto: [`checkpoints/LIE_GPU_ARITHMETIC_CANARY.json`](checkpoints/LIE_GPU_ARITHMETIC_CANARY.json). La repetición completa 42166476975 se quedó preparando dependencias; no sustituye ni invalida los dos resultados completados anteriores.

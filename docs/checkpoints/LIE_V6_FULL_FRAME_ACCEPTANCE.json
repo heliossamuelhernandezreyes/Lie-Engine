@@ -94,5 +94,11 @@
     "Combined output is an evaluated baseline-plus-record array, NOT published G-buffer",
     "Original source mesh, normal/color correctness, GPU compaction and mobile performance not established",
     "Initial arithmetic canary in this run had an invalid binding ABI; geometry comparisons ran correctly; canary being corrected independently"
-  ]
+  ],
+  "arithmetic_canary_closure": {
+    "run_id": 42167117014,
+    "artifact_id": 13479282635,
+    "dekker_passed": true,
+    "initial_invalid_canary_preserved": true
+  }
 }

@@ -1,0 +1,23 @@
+{
+  "schema": "lie-vulkan-arithmetic-canary/1",
+  "run_id": 42167117014,
+  "job_id": 127726053583,
+  "commit": "d0eff91fb5e3e30cc934ddd13b2459f311430c75",
+  "artifact_id": 13479282635,
+  "artifact_sha256": "4afdd2f207d01800e132e8025152e2eb4df9b4e7b1eb0feabca9f67bb546b172",
+  "godot": "4.7.2",
+  "device": "Vulkan 1.4.335, llvmpipe LLVM 21.1.8 256 bits",
+  "input_float32_bits": [
+    "3f800001",
+    "3f800001"
+  ],
+  "expected_high": 1.000000238418579,
+  "expected_residual": 1.4210854715202004e-14,
+  "observed_fma_residual": 0.0,
+  "observed_dekker_residual": 1.4210854715202004e-14,
+  "dekker_passed": true,
+  "limitations": [
+    "One runtime canary on software Vulkan; not a claim about all GPUs or Mali",
+    "Geometric validation is separate: run 42165371062 and full-frame checkpoint"
+  ]
+}
