@@ -2,22 +2,22 @@
   "schema": "lie-coded-lighting-audit/1",
   "scope": "CPU approximation probes; no new GPU execution or Android performance measurement",
   "legacy_source": {
-    "commit": "d115ccc37d3032a31fc246456ee42474ce4279dc",
+    "commit": "8c8b1f515bc8784ab61b854487d018f63f7ca8c1",
     "sha256": {
       "tools/lie_light_transport.py": "c0f811afa8c6834be3021fdc116f84db4998345eeabacd127b157ee441412e0f"
     }
   },
   "legacy_partition": {
-    "unbounded_relative_partition_error": 3.2499917896004294e-06,
+    "unbounded_relative_partition_error": 3.249992583048049e-06,
     "rows": {
       "unbounded_one": {
-        "receiver_indirect_flux_red": 0.00019894367488599608,
+        "receiver_indirect_flux_red": 0.00019894367488859643,
         "source_radii_m": [
           0.0
         ]
       },
       "unbounded_four": {
-        "receiver_indirect_flux_red": 0.0001989430283206861,
+        "receiver_indirect_flux_red": 0.0001989430283231286,
         "source_radii_m": [
           0.0,
           0.0,
@@ -26,7 +26,7 @@
         ]
       },
       "bounded_one": {
-        "receiver_indirect_flux_red": 0.00012811111261106824,
+        "receiver_indirect_flux_red": 0.00012811111261612496,
         "source_radii_m": [
           5.9999999399999995
         ]
@@ -94,9 +94,9 @@
     "interpretation": "One moment cannot distinguish two angular lobes; both alternatives remain passive."
   },
   "bounded_power_nonlinearity": {
-    "full_power_indirect": 0.00012811111261106824,
+    "full_power_indirect": 0.00012811111261612496,
     "quarter_power_indirect": 0.0,
-    "linear_prediction_at_quarter_power": 3.202777815276706e-05,
+    "linear_prediction_at_quarter_power": 3.202777815403124e-05,
     "interpretation": "Power-dependent support is nonlinear. The existing direct-detail cache does not cache this coarse bounded solve."
   },
   "source_separated_field_source": {
@@ -108,16 +108,16 @@
     }
   },
   "source_separated_field_partition": {
-    "unbounded_relative_partition_error": 3.234059053679371e-06,
+    "unbounded_relative_partition_error": 3.2340590537710813e-06,
     "rows": {
       "unbounded_one": {
-        "receiver_indirect_flux_red": 0.00019894368467402744
+        "receiver_indirect_flux_red": 0.00019894366594495183
       },
       "unbounded_four": {
-        "receiver_indirect_flux_red": 0.00019894304127840285
+        "receiver_indirect_flux_red": 0.0001989430225493878
       },
       "bounded_one": {
-        "receiver_indirect_flux_red": 0.00012811112143694037
+        "receiver_indirect_flux_red": 0.00012811110036806342
       },
       "bounded_four": {
         "receiver_indirect_flux_red": 0.0

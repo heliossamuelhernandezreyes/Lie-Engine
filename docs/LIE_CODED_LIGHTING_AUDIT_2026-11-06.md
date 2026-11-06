@@ -88,14 +88,14 @@ La opción `--field-root` es prescindible para comprobar el transporte original.
 
 ### 1. El recorte individual depende de la subdivisión
 
-Se mantiene un emisor blanco de 0.1 m², su material y una superficie receptora a 4 m. Se compara un nodo central con cuatro nodos próximos, de 0.025 m² cada uno. Los pequeños desplazamientos evitan nodos coincidentes; la comparación sin recorte cuantifica ese error geométrico.
+Se mantiene una superficie blanca cuadrada de 4 × 4 mm, su material y una superficie receptora a 4 m. Se compara un nodo central con la partición exacta en cuatro cuadrados de 2 × 2 mm, con sus centros separados 2 mm. La potencia puntual, en unidades relativas, se ajusta para que el nodo original reciba aproximadamente 0.1 de flujo y se conserva entre ambas representaciones. La comparación sin recorte cuantifica el error de cuadratura. El tamaño pequeño permite aislar el criterio de alcance de los cambios de integración espacial.
 
 | Representación | Sin radio secundario: flujo indirecto rojo | Con radio secundario: flujo indirecto rojo |
 |---|---:|---:|
-| Un nodo, referencia original | 0.000198943674886 | 0.000128111112611 |
-| Cuatro nodos, referencia original | 0.000198943028321 | 0 |
-| Un nodo, campo separado por fuente | 0.000198943684674 | 0.000128111121437 |
-| Cuatro nodos, campo separado por fuente | 0.000198943041278 | 0 |
+| Un nodo, referencia original | 0.000198943674889 | 0.000128111112616 |
+| Cuatro nodos, referencia original | 0.000198943028323 | 0 |
+| Un nodo, campo separado por fuente | 0.000198943665945 | 0.000128111100368 |
+| Cuatro nodos, campo separado por fuente | 0.000198943022549 | 0 |
 
 Sin recorte, el error relativo de subdivisión es aproximadamente 0.000325 %. Con la política seleccionada, el alcance original de casi 6 m pasa a casi 3 m por nodo y la contribución desaparece. El comportamiento se reproduce en ambos oráculos, incluido el modo más reciente basado en umbral de irradiancia.
 

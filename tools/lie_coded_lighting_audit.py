@@ -34,8 +34,9 @@ def provenance(root: Path, paths: tuple[str, ...]) -> dict:
 
 
 def fixture(split: bool) -> dict:
-    # Preserve total area, normal, material, illumination and receiving patch.
-    # Tiny offsets avoid coincident nodes while keeping quadrature error small.
+    # Exact square partition: one 4x4 mm patch or four 2x2 mm children.
+    # Scale the relative source power to isolate the cutoff from flux scale.
+    source_area = 0.004**2
     points = [[0, 0, 0]]
     if split:
         points = [[x, 0, z] for x in (-0.001, 0.001) for z in (-0.001, 0.001)]
@@ -48,10 +49,10 @@ def fixture(split: bool) -> dict:
                       "albedo": [0, 0, 0], "roughness": 1, "ior": 1},
         },
         "lights": [{"position": [0, 1, 0], "radius": 100,
-                    "power_rgb": [4 * math.pi] * 3}],
+                    "power_rgb": [4 * math.pi * 0.1 / source_area] * 3}],
         "blockers": [],
         "patches": [
-            {"position": point, "normal": [0, 1, 0], "area": 0.1 / len(points),
+            {"position": point, "normal": [0, 1, 0], "area": source_area / len(points),
              "gray_mean": 1, "material": "white"}
             for point in points
         ],
