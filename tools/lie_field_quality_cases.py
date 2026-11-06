@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from lie_light_field import fixture_cases, sources, unit
 from lie_light_transport import form_factors
-from lie_field_quality import solve
+from lie_field_quality import solve,compiled_packet
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -46,7 +46,7 @@ def cases():
             descriptors=np.frombuffer(bytes.fromhex(emission_hex),'<f4').reshape(8,4)
             normals=[v[:3] if v[3] else None for v in descriptors[:len(m['lights'])]]
         result[name] = {'model': m, 'sources_hex': {k: v.hex() for k, v in packets.items()},
-                        'separate': True, 'output': solve(m, packets,emission_normals=normals)}
+                        'quality_hex':compiled_packet(m,packets).hex(),'separate': True, 'output': solve(m, packets,emission_normals=normals)}
         if emission_hex is not None:result[name]['emission_hex']=emission_hex
     for name, c in fixture_cases().items():
         if not c['separate']: continue

@@ -13,6 +13,7 @@ func _quality_dispatch(commands: int,stage: int,threads: int,ping: int,source_se
     _rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,ping,source_sector,0]).to_byte_array(),16)
     _rd.compute_list_dispatch(commands,ceili(float(threads)/64.),1,1);_rd.compute_list_add_barrier(commands)
 func _dispatch(commands: int,stage: int,threads: int,ping: int=0) -> void:
+    if stage==0 and _field_edges>0:_quality_dispatch(commands,8,_field_edges*2,0)
     if stage==3 and _gpu_optics and _gpu_separate:
         var count: int=_count*_light_count
         _quality_dispatch(commands,5,count,ping)
@@ -24,12 +25,15 @@ func _dispatch(commands: int,stage: int,threads: int,ping: int=0) -> void:
         _quality_dispatch(commands,7,count,ping)
         return
     super._dispatch(commands,stage,threads,ping)
+func _make_quality_packet(areas: Array,options: Dictionary) -> PackedByteArray:
+    var bytes: PackedByteArray=Quality.packet(areas,options)
+    return Quality.with_edges(bytes,_field_factors,_field_packets.get(21,PackedByteArray()))
 func configure(model: Dictionary) -> bool:
     var areas: Array=[]
     for patch in model.get("patches",[]):areas.append(patch.get("area",0))
     var options: Variant=model.get("field_quality",_quality_options)
     if not options is Dictionary:return false
-    var bytes: PackedByteArray=Quality.packet(areas,options)
+    var bytes: PackedByteArray=_make_quality_packet(areas,options)
     if bytes.is_empty():return false
     var normalized: Dictionary=Quality.DEFAULTS.duplicate(true);normalized.merge(options,true)
     if not _quality_areas.is_empty():
@@ -55,15 +59,16 @@ func _before_transport_update(data: Dictionary) -> void:
         quality_updates+=1
 func _extra_transport_uniforms() -> Array[RDUniform]:
     var result: Array[RDUniform]=super._extra_transport_uniforms()
-    for binding in [27,28,29,30]:
+    for binding in [27,28,29,30,31]:
         var bytes: PackedByteArray=_quality_bytes if binding==27 else PackedByteArray()
-        if binding!=27:bytes.resize(_count*MAX_FIELD_LIGHTS*6*(16 if binding==30 else 32))
+        if binding==31:bytes.resize(maxi(8,_field_edges*2*8))
+        elif binding!=27:bytes.resize(_count*MAX_FIELD_LIGHTS*6*(16 if binding==30 else 32))
         var rid: RID=_rd.storage_buffer_create(bytes.size(),bytes)
         if not rid.is_valid():failure="Field quality allocation";return []
         _quality_rids[binding]=rid;allocation_bytes+=bytes.size();result.append(_uniform(binding,rid))
     return result
 func set_field_quality(options: Dictionary) -> bool:
-    var bytes: PackedByteArray=Quality.packet(_quality_areas,options)
+    var bytes: PackedByteArray=_make_quality_packet(_quality_areas,options)
     if bytes.is_empty():return false
     var next: Dictionary=Quality.DEFAULTS.duplicate(true);next.merge(options,true)
     if next.dynamic_occluders!=_quality_options.dynamic_occluders and next.visibility_revision<=_quality_options.visibility_revision:return false

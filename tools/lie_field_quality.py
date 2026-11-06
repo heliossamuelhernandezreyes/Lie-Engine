@@ -68,6 +68,17 @@ def sectors(directions, normals, roughness, q):
     return np.where((q['angular_sectors'] == 1) | (roughness >= q['roughness_split']), 0, result)
 
 
+def compiled_packet(model,packets):
+    data=bytearray(packet(model));m=int(np.frombuffer(packets['factors'],'<u4')[1])
+    struct.pack_into('<f',data,24,float(m));rows=[]
+    for name in ('factors','outgoing'):
+        a,b,_=decode_csr(packets[name])
+        if len(a)!=m:raise ValueError('Edge counts differ')
+        src,dst=(b,a) if name=='factors' else (a,b)
+        rows.extend(zip(src,dst,np.zeros(m),np.zeros(m)))
+    return bytes(data)+np.asarray(rows,dtype='<f4').reshape(-1,4).tobytes()
+
+
 def solve(model, packets, emission_normals=None):
     q = options(model); packet(model)  # Same numerical representability contract.
     p = np.array([v['position'] for v in model['patches']], '<f4').astype(float)

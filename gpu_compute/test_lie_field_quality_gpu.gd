@@ -1,12 +1,14 @@
 extends "res://test_lie_light_field_gpu.gd"
 const QualityShader=preload("res://shaders/lie_field_quality_area.glsl")
 const QualityModel=preload("res://lie_field_quality_model.gd")
+var _case_edges: int=0
 func shader_resource() -> RDShaderFile:return QualityShader
 func surface_bridge() -> bool:return true
 func submit(stages: Array,set_rid: RID) -> void:
     var expanded: Array=[]
     for row in stages:
-        if row[0]==3:
+        if row[0]==0 and _case_edges>0:expanded.append_array([[8,_case_edges*2,0],row])
+        elif row[0]==3:
             for s in range(6):expanded.append([3,row[1]*6,row[2],s])
             expanded.append([7,row[1],row[2]])
         else:expanded.append(row)
@@ -21,10 +23,16 @@ func submit(stages: Array,set_rid: RID) -> void:
 func case_extra_buffers(case: Dictionary) -> Dictionary:
     var n: int=case.model.patches.size();var areas: Array=[]
     for p in case.model.patches:areas.append(p.area)
-    var data: Dictionary={27:QualityModel.packet(areas,case.model.get("field_quality",{}))}
+    var gather: PackedByteArray=str(case.sources_hex.factors).hex_decode()
+    var outgoing: PackedByteArray=str(case.sources_hex.outgoing).hex_decode()
+    _case_edges=gather.decode_u32(4)
+    var policy: PackedByteArray=QualityModel.with_edges(QualityModel.packet(areas,case.model.get("field_quality",{})),gather,outgoing)
+    check(policy==str(case.quality_hex).hex_decode(),"compiled edge ABI matches independent encoder")
+    var data: Dictionary={27:policy}
     for pair in [[26,128],[28,n*8*6*32],[29,n*8*6*32],[30,n*8*6*16]]:
         var bytes:=PackedByteArray();bytes.resize(pair[1]);data[pair[0]]=bytes
     if case.has("emission_hex"):data[26]=str(case.emission_hex).hex_decode()
+    var edge_bytes:=PackedByteArray();edge_bytes.resize(maxi(8,_case_edges*2*8));data[31]=edge_bytes
     return data
 func run() -> void:
     var fixture: Dictionary=JSON.parse_string(FileAccess.get_file_as_string("res://fixtures/field-quality-reference.json"))

@@ -44,3 +44,24 @@ static func packet(areas: Array,options: Dictionary) -> PackedByteArray:
         for k in range(3):
             if bytes.decode_float(32+(areas.size()+j*2)*16+k*4)>=bytes.decode_float(32+(areas.size()+j*2+1)*16+k*4):return PackedByteArray()
     return bytes
+
+static func with_edges(policy: PackedByteArray,gather: PackedByteArray,outgoing: PackedByteArray) -> PackedByteArray:
+    if gather.size()<20 or outgoing.size()<20 or policy.is_empty():return PackedByteArray()
+    var n: int=gather.decode_u32(0);var m: int=gather.decode_u32(4)
+    if n<1 or n>1024 or m>n*n or policy.size()!=32+(n+32)*16:return PackedByteArray()
+    var result: PackedByteArray=policy.duplicate();var begin: int=result.size()
+    result.encode_float(24,float(m));result.resize(begin+2*m*16)
+    for side in range(2):
+        var graph: PackedByteArray=gather if side==0 else outgoing
+        if graph.decode_u32(0)!=n or graph.decode_u32(4)!=m or graph.decode_u32(8)!=4 or graph.decode_u32(12)!=n+5 or graph.size()!=4*(n+5)+8*m:return PackedByteArray()
+        if graph.decode_u32(16)!=0 or graph.decode_u32(16+n*4)!=m:return PackedByteArray()
+        for row in range(n):
+            var first: int=graph.decode_u32(16+row*4);var last: int=graph.decode_u32(20+row*4)
+            if first>last or last>m:return PackedByteArray()
+            for e in range(first,last):
+                var column: int=graph.decode_u32(4*(n+5)+e*8)
+                if column>=n:return PackedByteArray()
+                var at: int=begin+(side*m+e)*16
+                result.encode_float(at,float(column if side==0 else row))
+                result.encode_float(at+4,float(row if side==0 else column))
+    return result

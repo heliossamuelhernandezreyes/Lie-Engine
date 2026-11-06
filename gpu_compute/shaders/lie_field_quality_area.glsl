@@ -251,6 +251,7 @@ layout(set=0,binding=27,std430) readonly buffer FieldQuality {
 layout(set=0,binding=28,std430) buffer LobeA {vec4 v[];} lobe_a;
 layout(set=0,binding=29,std430) buffer LobeB {vec4 v[];} lobe_b;
 layout(set=0,binding=30,std430) buffer LobeCaps {vec4 v[];} lobe_caps;
+layout(set=0,binding=31,std430) buffer EdgeState {uvec2 v[];} edge_state;
 const uint LIE_SECTORS=6u;
 uint lie_sector(uint node,vec3 direction) {
     if(quality.q.x==1u || optical.values[node].albedo_roughness.w>=quality.parameters.y)return 0u;
@@ -289,6 +290,15 @@ void lie_write_lobe(uint id,int ping,vec4 flux,vec3 travel) {
 }
 bool lie_quality_step(uint id) {
     uint n=uint(cfg.dims.x),L=uint(cfg.dims.y);int stage=phase.data.x,ping=phase.data.y;
+    uint edge_count=uint(quality.parameters.z);
+    if(stage==8) {
+        if(id>=edge_count*2u)return true;
+        vec2 ends=quality.data[n+32u+id].xy;uint source=uint(ends.x),receiver=uint(ends.y);
+        vec3 a=patches.values[source].center_area.xyz,b=patches.values[receiver].center_area.xyz;
+        vec3 delta=b-a;vec3 direction=dot(delta,delta)>1e-16?normalize(delta):vec3(0,0,1);
+        edge_state.v[id]=uvec2(lie_sector(receiver,direction),lie_dynamic_clear(a,b)?1u:0u);
+        return true;
+    }
     if(stage==0 || stage==1 || stage==4)return false;
     uint logical=stage==3?id/LIE_SECTORS:id;
     if(logical>=n*L)return true;
@@ -317,7 +327,7 @@ bool lie_quality_step(uint id) {
             if(max(emitted.r,max(emitted.g,emitted.b))>0.)
             for(uint e=outgoing_graph.values[ob+node];e<outgoing_graph.values[ob+node+1u];e++) {
                 uint dst=outgoing_graph.values[eb+e*2u];
-                if(!lie_dynamic_clear(patches.values[node].center_area.xyz,patches.values[dst].center_area.xyz))continue;
+                if(edge_state.v[edge_count+e].y==0u)continue;
                 float F=uintBitsToFloat(outgoing_graph.values[eb+e*2u+1u]);
                 sum+=angular_weight(node,dst,F,lie_read_travel(packet,ping),emitted.w);
             }
@@ -342,8 +352,8 @@ bool lie_quality_step(uint id) {
         for(uint e=factors.values[ob+node];e<factors.values[ob+node+1u];e++) {
             uint src=factors.values[eb+e*2u];
             vec3 delta=patches.values[node].center_area.xyz-patches.values[src].center_area.xyz;
-            if(!lie_dynamic_clear(patches.values[src].center_area.xyz,patches.values[node].center_area.xyz))continue;
-            vec3 direction=normalize(delta);uint bin=lie_sector(node,direction);
+            if(edge_state.v[e].y==0u)continue;
+            vec3 direction=normalize(delta);uint bin=edge_state.v[e].x;
             if(bin!=target)continue;
             float F=uintBitsToFloat(factors.values[eb+e*2u+1u]);
                 uint packet=(light*n+src)*LIE_SECTORS+source_sector;vec4 emitted=lie_read_flux(packet,ping);

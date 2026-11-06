@@ -38,5 +38,8 @@ func run() -> void:
     check(not t.configure(malformed) and t._quality_desired==before,"full configure cannot replay stale visibility")
     var last: PackedByteArray=Quality.packet([1.],{"visibility_revision":4294967295})
     check(not last.is_empty() and last.decode_u32(12)==4294967295,"uint32 revision ABI survives maximum value")
+    check(Quality.with_edges(Quality.packet([.1,.1,.1,.1,.1,.1],{}),sources.factors,sources.outgoing)==str(c.quality_hex).hex_decode(),"compiled edge packet matches independent float64 encoder")
+    var bad_graph: PackedByteArray=sources.factors.duplicate();bad_graph.encode_u32(4,4294967295)
+    check(Quality.with_edges(Quality.packet([.1,.1,.1,.1,.1,.1],{}),bad_graph,sources.outgoing).is_empty(),"oversized edge count rejected before allocation")
     print("QUALITY COMMAND ","FAIL" if failed else "PASS"," ",checks)
     t=null;quit(1 if failed else 0)
