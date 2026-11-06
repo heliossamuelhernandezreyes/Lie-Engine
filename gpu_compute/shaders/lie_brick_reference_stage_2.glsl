@@ -45,6 +45,7 @@ layout(set=0,binding=16,std430) readonly buffer SurfaceLights {uvec4 header;vec4
 
 
 
+
 // Same point-source units, distance floor, range window and normalized power
 // as the finite-patch field. No second emitter budget and no invented relief.
 

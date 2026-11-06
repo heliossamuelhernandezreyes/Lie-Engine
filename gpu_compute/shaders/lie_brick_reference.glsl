@@ -55,13 +55,12 @@ float lie_stencil_sum(vec3 world,uint node) {
     for(uint k=0u;k<group.y;k++)total+=lie_stencil_weight(world,node,group.x+k);
     return total;
 }
+layout(set=0,binding=19,std430) buffer IndirectNodes {vec4 v[];} indirect_nodes;
 vec3 bench_indirect(vec3 p,uint node) {
     uvec2 group=lie_group(node);float sum=lie_stencil_sum(p,node);vec3 result=vec3(0);
     for(uint k=0u;k<group.y;k++) {
         uint j=group.x+k;float w=lie_stencil_weight(p,node,j)/max(sum,1e-30);
-        vec3 direct=vec3(0);
-        for(uint l=0u;l<surface_lights.header.y;l++)direct+=surface_lights.values[16u+l*bench.header.x+j].rgb;
-        result+=w*max(imageLoad(field_irradiance,ivec2(int(j),0)).rgb-direct,vec3(0));
+        result+=w*indirect_nodes.v[j].rgb;
     }
     return result;
 }
@@ -232,6 +231,13 @@ void main() {
                 atomicAdd(accumulated.v[pixel].normal_roughness.w,uint(round(rough*float(w))));
             }
         }return;
+    }
+    if(stage==8) {
+        if(i>=bench.header.x)return;
+        vec3 direct=vec3(0);
+        for(uint l=0u;l<surface_lights.header.y;l++)direct+=surface_lights.values[16u+l*bench.header.x+i].rgb;
+        indirect_nodes.v[i]=vec4(max(imageLoad(field_irradiance,ivec2(int(i),0)).rgb-direct,vec3(0)),1);
+        return;
     }
     if(stage==7) {
         ivec2 size=imageSize(final_image);if(i>=uint(size.x*size.y)) return;

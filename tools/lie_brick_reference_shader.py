@@ -12,7 +12,7 @@ from lie_wall17_shader import functions,mask,end_brace
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def generate(full_shadow_support=True):
+def generate(full_shadow_support=True,indirect_prepass=True):
     s = (ROOT/'gpu_compute/shaders/lie28_building.glsl').read_text()
     header = '''
 layout(set=0,binding=14,std430) readonly buffer BenchData {uvec4 header;vec4 v[];} bench;
@@ -83,6 +83,19 @@ vec3 bench_indirect(vec3 p,uint node) {
         int mode=int(parameters.settings.w);
         imageStore(output_image,xy,vec4(max(mode==1?direct:mode==2?indirect:direct+indirect,vec3(0)),1));''')
     s = replace(s, 'imageStore(final_image,xy,vec4(to_srgb(linear/(vec3(1)+linear)),coverage/float(scale*scale)));', 'imageStore(final_image,xy,vec4(linear,coverage/float(scale*scale)));')
+    if full_shadow_support and indirect_prepass:
+        s=replace(s,'vec3 bench_indirect(vec3 p,uint node) {','layout(set=0,binding=19,std430) buffer IndirectNodes {vec4 v[];} indirect_nodes;\nvec3 bench_indirect(vec3 p,uint node) {')
+        s=replace(s,'''        vec3 direct=vec3(0);
+        for(uint l=0u;l<surface_lights.header.y;l++)direct+=surface_lights.values[16u+l*bench.header.x+j].rgb;
+        result+=w*max(imageLoad(field_irradiance,ivec2(int(j),0)).rgb-direct,vec3(0));''','''        result+=w*indirect_nodes.v[j].rgb;''')
+        s=replace(s,'    if(stage==7) {','''    if(stage==8) {
+        if(i>=bench.header.x)return;
+        vec3 direct=vec3(0);
+        for(uint l=0u;l<surface_lights.header.y;l++)direct+=surface_lights.values[16u+l*bench.header.x+i].rgb;
+        indirect_nodes.v[i]=vec4(max(imageLoad(field_irradiance,ivec2(int(i),0)).rgb-direct,vec3(0)),1);
+        return;
+    }
+    if(stage==7) {''')
     return s
 
 
@@ -119,7 +132,7 @@ def dedicated(stage):
 def outputs():
     result={'gpu_compute/shaders/lie_brick_reference.glsl':generate()};bindings={}
     gd='extends RefCounted\n## Generated independent entries; identical captured equations.\nconst SHADERS={\n'
-    for stage in (1,2,3,4,6,7):
+    for stage in (1,2,3,4,6,7,8):
         shader,bindings[stage]=dedicated(stage)
         result[f'gpu_compute/shaders/lie_brick_reference_stage_{stage}.glsl']=shader
         gd+=f'    {stage}:preload("res://shaders/lie_brick_reference_stage_{stage}.glsl"),\n'

@@ -31,7 +31,7 @@ const uint EMPTY=0xffffffffu;
 const int SHADOW_SIZE=512;
 
 layout(set=0,binding=14,std430) readonly buffer BenchData {uvec4 header;vec4 v[];} bench;
-layout(rgba32f,set=0,binding=15) uniform readonly image2D field_irradiance;
+
 layout(set=0,binding=16,std430) readonly buffer SurfaceLights {uvec4 header;vec4 values[];} surface_lights;
 layout(set=0,binding=18,std430) readonly buffer Emission {vec4 v[];} emission;
 vec3 lie_position(uint node){return bench.v[24u+node*3u].xyz;}
@@ -55,13 +55,12 @@ float lie_stencil_sum(vec3 world,uint node) {
     for(uint k=0u;k<group.y;k++)total+=lie_stencil_weight(world,node,group.x+k);
     return total;
 }
+layout(set=0,binding=19,std430) buffer IndirectNodes {vec4 v[];} indirect_nodes;
 vec3 bench_indirect(vec3 p,uint node) {
     uvec2 group=lie_group(node);float sum=lie_stencil_sum(p,node);vec3 result=vec3(0);
     for(uint k=0u;k<group.y;k++) {
         uint j=group.x+k;float w=lie_stencil_weight(p,node,j)/max(sum,1e-30);
-        vec3 direct=vec3(0);
-        for(uint l=0u;l<surface_lights.header.y;l++)direct+=surface_lights.values[16u+l*bench.header.x+j].rgb;
-        result+=w*max(imageLoad(field_irradiance,ivec2(int(j),0)).rgb-direct,vec3(0));
+        result+=w*indirect_nodes.v[j].rgb;
     }
     return result;
 }

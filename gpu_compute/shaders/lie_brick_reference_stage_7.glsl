@@ -45,6 +45,7 @@ const int SHADOW_SIZE=512;
 
 
 
+
 // Same point-source units, distance floor, range window and normalized power
 // as the finite-patch field. No second emitter budget and no invented relief.
 

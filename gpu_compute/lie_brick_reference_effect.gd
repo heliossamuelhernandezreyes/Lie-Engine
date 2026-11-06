@@ -11,6 +11,7 @@ func _buffer(binding: int,length: int,data: PackedByteArray=PackedByteArray()) -
     super._buffer(binding,length*8 if binding==13 else length,data)
 func _make_set() -> void:
     if not _buffers.has(14):_buffer(14,bench_packet.size(),bench_packet)
+    if not _buffers.has(19):_buffer(19,int(bench_packet.decode_u32(0))*16)
     for rid in _sets.values():
         if _rd.uniform_set_is_valid(rid):_rd.free_rid(rid)
     _sets.clear();_set=RID()
@@ -32,6 +33,12 @@ func _make_set() -> void:
         if not _sets[stage].is_valid():failure="Stage descriptors "+str(stage);return
     _set=_sets[1]
 func _bind_stage(commands: int,stage: int) -> void:
+    if stage==4:
+        if OS.get_environment("LIE_BRICK_TRACE")=="1":print("BRICK CAMERA STAGE 8 (node indirect prepass)")
+        _rd.compute_list_bind_compute_pipeline(commands,_kernels[8].pipeline)
+        _rd.compute_list_bind_uniform_set(commands,_sets[8],0)
+        _rd.compute_list_set_push_constant(commands,PackedInt32Array([8,2,0,0]).to_byte_array(),16)
+        _rd.compute_list_dispatch(commands,ceili(float(bench_packet.decode_u32(0))/64.),1,1);_rd.compute_list_add_barrier(commands)
     if OS.get_environment("LIE_BRICK_TRACE")=="1":print("BRICK CAMERA STAGE ",stage)
     _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline)
     _rd.compute_list_bind_uniform_set(commands,_sets[stage],0)

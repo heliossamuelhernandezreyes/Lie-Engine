@@ -44,13 +44,15 @@ class BrickReferenceTests(unittest.TestCase):
         self.assertNotIn('y=-shadow_bound',generate(False))
 
     def test_dedicated_entries_keep_source_equations_and_binding_closure(self):
-        for stage in (1,2,3,4,6,7):
+        for stage in (1,2,3,4,6,7,8):
             shader,bindings=dedicated(stage)
             self.assertIn('const int stage='+str(stage),shader)
             self.assertEqual(bindings,sorted(set(bindings)))
             self.assertTrue(bindings)
         self.assertNotIn('bench_indirect(',dedicated(2)[0])
         self.assertIn('lie_stencil_weight(',dedicated(4)[0])
+        self.assertNotIn('imageLoad(field_irradiance',dedicated(4)[0])
+        self.assertIn('imageLoad(field_irradiance',dedicated(8)[0])
 
 
 if __name__=='__main__':unittest.main()
