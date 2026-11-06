@@ -19,7 +19,9 @@ def noise(seed,section,row,col,channel):
 def recipe(size,bank_sha,seed=2102,mode='wall'):
     if type(seed) is not int or not 0<=seed<=0xffffffff:raise ValueError('seed_uint32')
     if mode not in ('brick','wall','house'):raise ValueError('mode')
-    x,y,z=map(float,size);gap=.008;px=x+gap;py=y+gap
+    # Canonical nanometer grid removes irrelevant float64 geometry-library
+    # rounding differences between capture hosts that produced the SAME bank.
+    x,y,z=(round(float(v),9) for v in size);gap=.008;px=x+gap;py=y+gap
     rows=8 if mode=='wall' else 36;cols=12 if mode=='wall' else 22;side_cols=16
     W=cols*px-gap;H=rows*py-gap;D=side_cols*px-gap+2*(z+gap)
     entries=[];openings=[]
@@ -54,10 +56,16 @@ def recipe(size,bank_sha,seed=2102,mode='wall'):
         if mode=='house':
             add('authored_box',(0,-.025,0),scale=(W+.08,.05,D+.08),id='floor')
             add('authored_roof',(0,H+.045,0),scale=(W+.16,.09,D+.16),id='roof')
-    return dict(schema=VERSION,seed=seed,mode=mode,bank_sha256=bank_sha,brick_bounds_m=list(size),bounds_m=bounds,bond='whole-brick stack bond',joint_m=gap,
+    return dict(schema=VERSION,seed=seed,mode=mode,bank_sha256=bank_sha,brick_bounds_m=[x,y,z],bounds_m=bounds,bond='whole-brick stack bond',joint_m=gap,
                 source_color_variation=False,opening_rule='omit complete cells and their mortar; roof/floor remain separate authored assets',openings=openings,instances=entries)
 
-def canonical_bytes(value):return (json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode()
+def canonical_bytes(value):
+    def quantize(v):
+        if isinstance(v,float):return round(v,9)
+        if isinstance(v,list):return [quantize(x) for x in v]
+        if isinstance(v,dict):return {k:quantize(x) for k,x in v.items()}
+        return v
+    return (json.dumps(quantize(value),sort_keys=True,separators=(',',':'),allow_nan=False)+'\n').encode()
 
 def box_samples(res,color):
     a=[]

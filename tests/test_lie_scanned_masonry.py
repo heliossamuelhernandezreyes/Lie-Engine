@@ -28,3 +28,6 @@ class MasonryTests(unittest.TestCase):
         for name,value in outputs().items():self.assertEqual((root/name).read_text(),value)
     def test_noise_domain(self):
         values=[noise(2102,1,2,c,0) for c in range(32)];self.assertEqual(len(set(values)),32);self.assertTrue(all(0<=v<=1 for v in values))
+    def test_capture_host_float_roundoff_does_not_change_recipe(self):
+        size=np.array([.1995196166917,.05740722949062766,.10061565197156495]);other=np.nextafter(size,np.inf)
+        self.assertEqual(canonical_bytes(recipe(size,'same-bank',2102,'house')),canonical_bytes(recipe(other,'same-bank',2102,'house')))
