@@ -14,6 +14,7 @@ func run() -> void:
     var t=Transport.new()
     check(t.bind_sources(c.model,sources),"common immutable bank binding")
     check(t.configure(c.model),"quality configuration accepted")
+    check(t._quality_desired.size()==32+(c.model.patches.size()+32)*16 and t._quality_edge_tail.size()==sources.factors.decode_u32(4)*2*16,"mutable policy excludes immutable endpoint table")
     var before: PackedByteArray=t._quality_desired.duplicate()
     check(not t.set_field_quality({"angular_sectors":2}),"invalid sector capacity rejected")
     check(t._quality_desired==before,"rejection leaves desired bytes unchanged")

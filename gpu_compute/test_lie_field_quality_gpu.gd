@@ -61,6 +61,8 @@ func run() -> void:
     var source_sum: float=0.
     for i in range(outputs.paths_two_sources.size()):source_sum=maxf(source_sum,absf(outputs.paths_two_sources[i]-outputs.paths_key_only[i]-outputs.paths_fill_only[i]))
     check(source_sum<1e-5,"quality field source superposition")
+    check(outputs.partition_four[16]>outputs.old_cutoff_four[16]+.0001,"area budget preserves the actual GPU contribution lost by the old cutoff")
+    check(absf(outputs.partition_one[4]-outputs.partition_four[16])<.000015,"GPU receiver remains stable across exact surface subdivision")
     var area_sum: float=0.
     for i in range(outputs.area_two_panels.size()):area_sum=maxf(area_sum,absf(outputs.area_two_panels[i]-outputs.area_key_only[i]-outputs.area_fill_only[i]))
     check(area_sum<1e-5,"eight physical panel channels preserve source superposition")

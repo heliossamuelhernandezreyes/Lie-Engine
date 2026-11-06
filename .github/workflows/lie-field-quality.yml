@@ -71,7 +71,8 @@ jobs:
         run: |
           # Compile the shared bank without the unrelated optional native
           # performance-counter extension required by later APK builders.
-          python tools/lie_wall13_android_build.py --stage /tmp/lie-quality-baseline > quality-source.log
+          python tools/lie_wall20_android_build.py --stage /tmp/lie-quality-baseline > quality-source.log
+          python tools/lie_shadow_view.py >> quality-source.log
           python tools/lie_direct_surface.py >> quality-source.log
           python tools/lie_direct_access.py >> quality-source.log
           python tools/lie_direct_views.py >> quality-source.log

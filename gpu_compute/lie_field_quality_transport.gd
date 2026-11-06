@@ -6,9 +6,18 @@ var _quality_options: Dictionary=Quality.DEFAULTS.duplicate(true)
 var _quality_areas: Array=[]
 var _quality_bytes:=PackedByteArray()
 var _quality_desired:=PackedByteArray()
+var _quality_edge_tail:=PackedByteArray()
 var _quality_rids: Dictionary={}
 var quality_updates: int=0
 func _transport_file() -> RDShaderFile:return QualityShader
+func bind_sources(model: Dictionary,sources: Dictionary) -> bool:
+    var areas: Array=[]
+    for p in model.get("patches",[]):areas.append(p.get("area",0))
+    var prefix: PackedByteArray=Quality.packet(areas,{})
+    var compiled: PackedByteArray=Quality.with_edges(prefix,sources.get("factors",PackedByteArray()),sources.get("outgoing",PackedByteArray()))
+    if compiled.is_empty() or not super.bind_sources(model,sources):return false
+    _quality_edge_tail=compiled.slice(prefix.size())
+    return true
 func _quality_dispatch(commands: int,stage: int,threads: int,ping: int,source_sector: int=0) -> void:
     _rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,ping,source_sector,0]).to_byte_array(),16)
     _rd.compute_list_dispatch(commands,ceili(float(threads)/64.),1,1);_rd.compute_list_add_barrier(commands)
@@ -27,7 +36,9 @@ func _dispatch(commands: int,stage: int,threads: int,ping: int=0) -> void:
     super._dispatch(commands,stage,threads,ping)
 func _make_quality_packet(areas: Array,options: Dictionary) -> PackedByteArray:
     var bytes: PackedByteArray=Quality.packet(areas,options)
-    return Quality.with_edges(bytes,_field_factors,_field_packets.get(21,PackedByteArray()))
+    if bytes.is_empty() or _field_factors.is_empty():return PackedByteArray()
+    bytes.encode_float(24,float(_field_edges))
+    return bytes
 func configure(model: Dictionary) -> bool:
     var areas: Array=[]
     for patch in model.get("patches",[]):areas.append(patch.get("area",0))
@@ -61,7 +72,9 @@ func _extra_transport_uniforms() -> Array[RDUniform]:
     var result: Array[RDUniform]=super._extra_transport_uniforms()
     for binding in [27,28,29,30,31]:
         var bytes: PackedByteArray=_quality_bytes if binding==27 else PackedByteArray()
-        if binding==31:bytes.resize(maxi(8,_field_edges*2*8))
+        if binding==27:
+            bytes=bytes.duplicate();bytes.append_array(_quality_edge_tail)
+        elif binding==31:bytes.resize(maxi(8,_field_edges*2*8))
         elif binding!=27:bytes.resize(_count*MAX_FIELD_LIGHTS*6*(16 if binding==30 else 32))
         var rid: RID=_rd.storage_buffer_create(bytes.size(),bytes)
         if not rid.is_valid():failure="Field quality allocation";return []
@@ -89,7 +102,7 @@ func direct_response_inputs() -> Dictionary:
 func quality_codes_rid() -> RID:return _quality_rids.get(27,RID()) if gpu_ready else RID()
 func optical_metrics() -> Dictionary:
     var result: Dictionary=super.optical_metrics()
-    result["quality"]={"policy":_quality_options.duplicate(true),"updates":quality_updates,"max_sectors":6,"scope":"opaque; area-weighted local tolerance, not a global image-error guarantee; dynamic AABB visibility; moments within sectors remain approximate"}
+    result["quality"]={"policy":_quality_options.duplicate(true),"updates":quality_updates,"max_sectors":6,"mutable_policy_bytes":_quality_bytes.size(),"immutable_edge_bytes":_quality_edge_tail.size(),"scope":"opaque; area-weighted local tolerance, not a global image-error guarantee; dynamic AABB visibility; moments within sectors remain approximate"}
     return result
 func _release_gpu() -> void:
     # The parent releases the uniform set before any bound buffer is freed.
