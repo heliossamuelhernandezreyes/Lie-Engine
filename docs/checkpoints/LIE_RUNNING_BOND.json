@@ -1,0 +1,93 @@
+{
+  "schema": "lie-masonry-running-bond-checkpoint/2",
+  "code_commit": "2c312b9218efffdb49f9af7021e6411e03517385",
+  "base_commit": "4f070163a864ece6ea407456f3dec78dfd51d4ee",
+  "bank_sha256": "a1296ba4e23c9d3a7febbdb1e4b6e0f53cca74ccf26ef77baf3f35caddf5426c",
+  "bank_bytes": 55070720,
+  "construction_verification": {
+    "schema": "lie-running-bond-verification/1",
+    "original_bank_prefix_unchanged": true,
+    "bank_sha256": "a1296ba4e23c9d3a7febbdb1e4b6e0f53cca74ccf26ef77baf3f35caddf5426c",
+    "bytes": 55070720,
+    "cuts": {
+      "half_left": {
+        "closed_edges": true,
+        "cut_normal_verified": true,
+        "original_surface_triangles": 243109,
+        "authored_cap_triangles": 1313,
+        "source_sha256": "21f1ebd59a1020a20a1cbb36fbf55f5d32b00df2f1682fac07e90360eebbc411"
+      },
+      "half_right": {
+        "closed_edges": true,
+        "cut_normal_verified": true,
+        "original_surface_triangles": 242512,
+        "authored_cap_triangles": 1200,
+        "source_sha256": "1cbad32aa994194c8c3e3513e955290b593797154ae8cdd37d296746edd3daff"
+      }
+    }
+  },
+  "local_native": {
+    "cases": {
+      "brick": {
+        "coverage_pixels": 85844,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 243069184,
+        "instances": 1,
+        "sample_invocations": 480000,
+        "shared_bank_bytes": 55070720,
+        "source_mesh_draws": 0
+      },
+      "house": {
+        "coverage_pixels": 207074,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 480737536,
+        "instances": 3784,
+        "sample_invocations": 2999552,
+        "shared_bank_bytes": 55070720,
+        "source_mesh_draws": 0
+      },
+      "wall": {
+        "coverage_pixels": 55117,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 255652096,
+        "instances": 208,
+        "sample_invocations": 599424,
+        "shared_bank_bytes": 55070720,
+        "source_mesh_draws": 0
+      }
+    },
+    "checks": 74,
+    "failed": false,
+    "physical_android_tested": false,
+    "shared_irradiance_integrated": false
+  },
+  "python": {
+    "total": 268,
+    "passed": 267,
+    "skipped": 1
+  },
+  "rig_checks": 247,
+  "agent_checks": 25,
+  "ci_run": 42338266767,
+  "ci_status": "all_job_steps_success",
+  "ci": {
+    "run": 42338266767,
+    "job": 128300013035,
+    "all_job_steps": "success",
+    "legacy_native_checks": 42,
+    "improved_native_checks": 74,
+    "bank_matches_local": true,
+    "device": "software Vulkan llvmpipe LLVM 21.1.8",
+    "artifact": {
+      "id": 13559964491,
+      "bytes": 113354169,
+      "sha256": "00f9c5fff5e1f957b75e97bc7fcf186ab5282c46fa53810987055baedf53eadd"
+    }
+  },
+  "dataset_package": {
+    "filename": "LIE_Construccion_Intercalada_v2.zip",
+    "bytes": 72180440,
+    "sha256": "e34d7aa38fac13cecb98bf34e28cfe7ab99fcc494c2a7f4b7109abdefeaab514",
+    "files": 94
+  }
+}
