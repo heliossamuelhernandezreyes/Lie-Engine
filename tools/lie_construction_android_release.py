@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 import shutil
 import zipfile
+APK_NAME='LIE-Construccion-v6.0.1.apk'
+PREFIX='LIE_Benchmark_v6.0.1'
 
 def digest(path):
     with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
@@ -18,15 +20,15 @@ def release(artifact,expected,guide,output,run_id,job_id):
             matches=[n for n in names if n.endswith('/'+suffix) or n==suffix]
             if len(matches)!=1:raise ValueError('expected_one:'+suffix)
             return matches[0]
-        proof=json.loads(source.read(unique('LIE-Construccion-v6.proof.json')))
+        proof=json.loads(source.read(unique(Path(APK_NAME).with_suffix('.proof.json').name)))
         native=json.loads(source.read(unique('construction-mobile-native.json')))
         field=json.loads(source.read(unique('construction-field-native.json')))
         construction=json.loads(source.read(unique('hq-construction-native.json')))
         hardware=json.loads(source.read(unique('hardware-probe-native.json')))
         assert not any(d['failed'] for d in [native,field,construction,hardware])
-        assert native['checks']==23 and native['report']['complete'] and native['report']['restored']
+        assert native['checks']==28 and native['report']['complete'] and native['report']['restored']
         assert proof['verified_capture_and_metadata_files']==90 and not proof['source_resampling']
-        apk=output/'LIE-Construccion-v6.apk'
+        apk=output/APK_NAME
         with source.open(unique(apk.name)) as src,apk.open('wb') as dest:shutil.copyfileobj(src,dest)
         assert digest(apk)==proof['apk_sha256'] and apk.stat().st_size==proof['apk_bytes']
         # Verify registration, not just the presence of a native .so file.
@@ -40,17 +42,18 @@ def release(artifact,expected,guide,output,run_id,job_id):
                     'field':field['checks'],'mobile':native['checks'],'hardware':hardware['checks'],
                     'mobile_metrics':6,'rig':247,'agent':25},'full_quality':native['full_quality'],
                     'physical_android_tested':False,'native_registration_in_apk':True,
+                    'automatically_copies_completed_report':True,'cancellation_preserves_clipboard':True,
                     'failed_first_export_run':42390170223}
-        (output/'LIE_Construccion_v6_Verificacion.json').write_text(json.dumps(checkpoint,indent=2)+'\n')
-        preview=source.read(unique('construction-mobile-ui.png'));(output/'LIE_Construccion_v6_Interfaz.png').write_bytes(preview)
-        target_guide=output/'LIE_Construccion_v6_Guia.md'
+        (output/(PREFIX+'_Verificacion.json')).write_text(json.dumps(checkpoint,indent=2)+'\n')
+        preview=source.read(unique('construction-mobile-ui.png'));(output/(PREFIX+'_Interfaz.png')).write_bytes(preview)
+        target_guide=output/(PREFIX+'_Guia.md')
         if guide.resolve()!=target_guide.resolve():shutil.copyfile(guide,target_guide)
-        evidence=output/'LIE_Construccion_v6_Pruebas.zip'
+        evidence=output/(PREFIX+'_Pruebas.zip')
         with zipfile.ZipFile(evidence,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as dest:
             for name in names:
                 if name.endswith('/') or name.endswith('.apk'):continue
                 dest.writestr('CI/'+name,source.read(name))
-            dest.write(output/'LIE_Construccion_v6_Verificacion.json','LIE_Construccion_v6_Verificacion.json')
+            dest.write(output/(PREFIX+'_Verificacion.json'),PREFIX+'_Verificacion.json')
             dest.write(target_guide,target_guide.name)
         with zipfile.ZipFile(evidence) as check:assert check.testzip() is None
     print(json.dumps({'apk':str(apk),'bytes':apk.stat().st_size,'sha256':proof['apk_sha256'],
