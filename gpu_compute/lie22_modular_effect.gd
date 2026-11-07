@@ -54,10 +54,17 @@ func _update_parameters(parameters: PackedByteArray) -> void:
     _rd.buffer_update(_buffers[6],0,256,parameters)
 func _source_range_ok(_instances: PackedByteArray,_instance: int,start: int,count: int) -> bool:
     return start+count<=int(catalog.get("sample_count",0))
+func _projection_stride() -> int:return 96
+func _projection_target(work: int) -> int:return maxi(projection_capacity,mini(work_capacity(),ceili(float(work)/65536)*65536))
+func _image_bindings() -> Array:return [8,9,11,12]
+func _prepare_frame(next: Dictionary) -> Dictionary:return next
 
 func _init(size: int=384) -> void:
     output_size=clampi(size,128,512);render_size=output_size*2
     effect_callback_type=EFFECT_CALLBACK_TYPE_POST_TRANSPARENT
+    _load_capture_data()
+
+func _load_capture_data() -> void:
     var root: String=capture_root();var stride: int=sample_stride()
     var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(root+"catalog.json"))
     if not parsed is Dictionary or parsed.get("schema")!=1 or parsed.get("stride")!=stride: failure="Prepara los maestros modulares en Blender";return
@@ -115,6 +122,18 @@ func _initialize() -> bool:
     if not _shader.is_valid():failure="Unable to create reconstruction shader";return false
     _pipeline=_rd.compute_pipeline_create(_shader)
     if not _pipeline.is_valid():failure="Unable to create reconstruction pipeline";_release();return false
+    if not _acquire_primary_source():_release();return false
+    _buffer(1,instance_capacity()*96);_buffer(2,instance_capacity()*16)
+    projection_capacity=65536;_buffer(3,projection_capacity*_projection_stride())
+    _buffer(4,render_size*render_size*4);_buffer(5,render_size*render_size*4)
+    _buffer(6,256);_buffer(7,render_size*render_size*32);_buffer(13,512*512*4)
+    for binding in _image_bindings():
+        var format:=RDTextureFormat.new();format.width=output_size if binding==12 else render_size;format.height=format.width;format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
+        format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
+        var rid: RID=_rd.texture_create(format,RDTextureView.new(),[]);_images[binding]=rid;allocation_bytes+=format.width*format.height*16
+    output_rid=_images[12];_make_set();gpu_ready=_set.is_valid() and _pipeline.is_valid();return gpu_ready
+
+func _acquire_primary_source() -> bool:
     var lease: Dictionary=SharedSamples.acquire(_rd,_samples,str(catalog["sha256"]),sample_stride())
     if not lease.get("ok",false):failure="Shared immutable capture buffer: "+str(lease.get("error"));_release();return false
     _sample_lease=lease["key"];_buffers[0]=lease["rid"];_lengths[0]=lease["bytes"]
@@ -122,15 +141,7 @@ func _initialize() -> bool:
     _samples=lease["cpu_data"] # PackedByteArray COW shares immutable CPU bytes too.
     allocation_bytes+=lease["bytes"] # Referenced bytes; not additive across consumers.
     asset_uploads+=1 if lease["uploaded"] else 0;sample_bank_bindings+=1
-    _buffer(1,instance_capacity()*96);_buffer(2,instance_capacity()*16)
-    projection_capacity=65536;_buffer(3,projection_capacity*96)
-    _buffer(4,render_size*render_size*4);_buffer(5,render_size*render_size*4)
-    _buffer(6,256);_buffer(7,render_size*render_size*32);_buffer(13,512*512*4)
-    for binding in [8,9,11,12]:
-        var format:=RDTextureFormat.new();format.width=output_size if binding==12 else render_size;format.height=format.width;format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
-        format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
-        var rid: RID=_rd.texture_create(format,RDTextureView.new(),[]);_images[binding]=rid;allocation_bytes+=format.width*format.height*16
-    output_rid=_images[12];_make_set();gpu_ready=_set.is_valid() and _pipeline.is_valid();return gpu_ready
+    return true
 
 func _profile_marker(edge: String) -> String:
     return "lie22|%d|%d|%s" % [get_instance_id(),frame_count+1,edge]
@@ -162,10 +173,13 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     var signature: PackedByteArray=next["parameters"].duplicate();signature.append_array(next["instances"]);signature.append_array(next["jobs"])
     if signature==_resident:return
     var work: int=next["work"]
-    if work>projection_capacity:
+    var target_capacity: int=_projection_target(work)
+    if target_capacity!=projection_capacity:
         _rd.free_rid(_set);_set=RID()
-        _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=mini(work_capacity(),int(ceil(float(work)/65536))*65536)
-        _buffer(3,projection_capacity*96);_make_set()
+        _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=target_capacity
+        _buffer(3,projection_capacity*_projection_stride());_make_set()
+    next=_prepare_frame(next)
+    if next.is_empty():return
     _update_parameters(next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])

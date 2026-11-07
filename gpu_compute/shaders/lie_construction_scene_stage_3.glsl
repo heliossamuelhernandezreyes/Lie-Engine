@@ -5,7 +5,7 @@
 layout(local_size_x=64) in;
 struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
 struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
-struct Projection { vec4 world; vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+struct Projection { vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
 struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
 layout(set=0,binding=14,std430) readonly buffer OpticalNormals {vec4 v[];} optical_normals;
 layout(set=0,binding=0,std430) readonly buffer Samples { Sample v[]; } samples;
@@ -111,7 +111,7 @@ void main() {
             float front=dot(n,normalize(-delta));
             vec3 shading=n;
             if(parameters.settings.w>.5) {vec4 optical=optical_normals.v[sid];if(optical.w>.5)shading=normalize(transpose(inverse(basis))*optical.xyz);}
-            p.world=vec4(world,1);p.normal=vec4(shading,front);p.screen=vec4(0);p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);
+            p.normal=vec4(shading,front);p.screen=vec4(0);p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);
             vec3 ld=world-parameters.light.xyz;float lz=dot(ld,parameters.shadow_forward.xyz);
             if(lz>.00001 && dot(n,normalize(-ld))>.05) {
                 vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));

@@ -4,7 +4,7 @@ from pathlib import Path
 from lie_scanned_masonry_shader import outputs as masonry_outputs
 ROOT=Path(__file__).resolve().parents[1]
 def outputs():
-    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14,15],3:[0,1,2,3,4,5,6,7,13,14,15],4:[1,3,4,5,6,7,8,9,11,13],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
+    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14,15],3:[0,1,2,3,4,5,6,7,13,14,15],4:[1,3,4,5,6,7,11,13],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
     for stage in (1,2,3,4,6,7):
         s=original[f'gpu_compute/shaders/lie_scanned_masonry_stage_{stage}.glsl']
         if stage in (2,3):
@@ -26,7 +26,15 @@ bool covered(Projection p,vec2 xy)''')
             p.world=vec4(world,1);p.normal=vec4(shading,front);''')
         if stage==4:
             s=s.replace('vec3(.025)','vec3(.04)').replace('float nl=max(dot(n,l),0),nv=','float nl=dot(point.geometry.xyz,l)>0.?max(dot(n,l),0):0.,nv=')
-        path=f'shaders/lie_construction_scene_stage_{stage}.glsl';result['gpu_compute/'+path]=s;gd+=f'    {stage}:preload("res://{path}"),\n'
+        # World position is reconstructed from depth; its cached vec4 was unused.
+        s=s.replace('struct Projection { vec4 world;', 'struct Projection {').replace('p.world=vec4(world,1);','')
+        if stage==4:
+            s=s.replace('layout(rgba32f,set=0,binding=8) uniform image2D diffuse_image;','').replace('layout(rgba32f,set=0,binding=9) uniform image2D specular_image;','')
+            s=s.replace('imageStore(diffuse_image,xy,vec4(0));imageStore(specular_image,xy,vec4(0));','imageStore(output_image,xy,vec4(0));')
+            s=s.replace('imageStore(diffuse_image,xy,vec4(irradiance,1));\n        imageStore(specular_image,xy,vec4(specular,1));return;', 'imageStore(output_image,xy,vec4(max(base*irradiance+specular,vec3(0)),1));return;')
+            # Unreachable stage-6 text still has to parse without removed images.
+            a=s.index('    if(stage==6) {');s=s[:a]+'\n}\n'
+        path=f'shaders/lie_construction_scene_stage_{stage}.glsl' ;result['gpu_compute/'+path]=s;gd+=f'    {stage}:preload("res://{path}"),\n'
     gd+='}\nconst BINDINGS='+json.dumps(bindings,separators=(',',':')).replace('"','')+'\n';result['gpu_compute/lie_construction_scene_kernels.gd']=gd;return result
 if __name__=='__main__':
     for path,data in outputs().items():(ROOT/path).write_text(data)

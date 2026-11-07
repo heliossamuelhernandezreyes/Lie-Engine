@@ -5,7 +5,7 @@
 layout(local_size_x=64) in;
 struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
 struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
-struct Projection { vec4 world; vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+struct Projection { vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
 struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
 
 layout(set=0,binding=1,std430) readonly buffer Instances { Instance v[]; } instances;
@@ -20,8 +20,8 @@ layout(set=0,binding=6,std430) readonly buffer Parameters {
     vec4 iris; vec4 wall; vec4 settings;
 } parameters;
 layout(set=0,binding=7,std430) buffer Accumulated { Accumulator v[]; } accumulated;
-layout(rgba32f,set=0,binding=8) uniform image2D diffuse_image;
-layout(rgba32f,set=0,binding=9) uniform image2D specular_image;
+
+
 layout(rgba32f,set=0,binding=11) uniform image2D output_image;
 
 layout(set=0,binding=13,std430) buffer Shadow { uint v[]; } shadow;
@@ -74,7 +74,7 @@ void main() {
     ivec2 xy=ivec2(int(i)%parameters.counts.z,int(i)/parameters.counts.z);
     uint owner=winners.v[i];
     if(stage==4) {
-        if(owner==EMPTY) {imageStore(diffuse_image,xy,vec4(0));imageStore(specular_image,xy,vec4(0));return;}
+        if(owner==EMPTY) {imageStore(output_image,xy,vec4(0));return;}
         Projection point=projected.v[owner];
         Accumulator acc=accumulated.v[i];float weight=max(float(acc.color_weight.w),1);
         vec3 base=vec3(acc.color_weight.xyz)/weight;
@@ -95,13 +95,7 @@ void main() {
         vec3 specular=li*F*D*G/(4*nv)*(nl>0?1.0:0.0);
         vec3 ambient=parameters.ambient.rgb*.12;
         vec3 irradiance=(vec3(1)-F)*(li*nl/PI+ambient);
-        imageStore(diffuse_image,xy,vec4(irradiance,1));
-        imageStore(specular_image,xy,vec4(specular,1));return;
-    }
-    if(stage==6) {
-        if(owner==EMPTY) {imageStore(output_image,xy,vec4(0));return;}
-        Accumulator acc=accumulated.v[i];vec3 base=vec3(acc.color_weight.xyz)/max(float(acc.color_weight.w),1);
-        imageStore(output_image,xy,vec4(max(base*imageLoad(diffuse_image,xy).rgb+imageLoad(specular_image,xy).rgb,vec3(0)),1));
+        imageStore(output_image,xy,vec4(max(base*irradiance+specular,vec3(0)),1));return;
     }
 
 }
