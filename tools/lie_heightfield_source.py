@@ -48,7 +48,8 @@ def read_map(path,kind):
         else:raise ValueError('photographic_color_requires_EXR_with_declared_encoding')
     # Provider EXR DWAA compression can overshoot [0,1] very slightly. Preserve
     # the original file and clamp the bounded opaque derivative explicitly.
-    if not np.isfinite(a).all() or a.min()<-.02 or a.max()>1.02:raise ValueError('source_map_out_of_range: '+str(path)+' '+str((a.min(),a.max())))
+    tolerance=.05 if kind=='nor_gl' else .02
+    if not np.isfinite(a).all() or a.min()<-tolerance or a.max()>1+tolerance:raise ValueError('source_map_out_of_range: '+str(path)+' '+str((a.min(),a.max())))
     return a
 
 def linear_albedo(pixels,encoding):
