@@ -5,7 +5,9 @@ var camera: Camera3D
 var world_environment: WorldEnvironment
 var picture: TextureRect
 var texture: Texture2DRD
-var state: Dictionary={"mode":"brick","seed":2102,"yaw":30.0,"elevation":24.0,"light":-35.0,"roof":true,"style":"varied","face":0}
+var mode_control: OptionButton
+var zoom_control: HSlider
+var state: Dictionary={"mode":"brick","seed":2102,"yaw":30.0,"elevation":24.0,"light":-35.0,"roof":true,"style":"varied","face":0,"zoom":1.0,"focus_x":0.0,"focus_y":0.0}
 var revision: int=0
 var metrics: Dictionary={}
 var recipe: Dictionary={}
@@ -15,9 +17,9 @@ func _ready() -> void:
     var layer:=CanvasLayer.new();add_child(layer);var bg:=ColorRect.new();bg.color=Color(.028,.035,.045);bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);layer.add_child(bg)
     picture=TextureRect.new();picture.position=Vector2(10,10);picture.size=Vector2(720,720);layer.add_child(picture)
     var title:=Label.new();title.position=Vector2(744,20);title.text="LIE · LADRILLO ESCANEADO\n\n500 000 triángulos de origen\nCapturas con volumen real\nCOLOR_0 original + tono por pieza\n\nSemillas reproducibles\nLadrillo → muro → casa\nSin malla original en cámara\n\n"+("Aparejo alternado · cuatro giros\nMedios ladrillos: corte real" if effect.catalog.has("assembly_version") else "Prototipo de aparejo apilado\nMortero y techo: autoría simple")+"\nIluminación GGX + ambiente\nGI compartida aún pendiente";layer.add_child(title)
-    var row:=HBoxContainer.new();row.position=Vector2(744,300);layer.add_child(row)
-    for mode in ["brick","wall","house"]:
-        var button:=Button.new();button.text=mode;button.pressed.connect(func():command({"op":"set_values","values":{"mode":mode}}));row.add_child(button)
+    mode_control=OptionButton.new();mode_control.position=Vector2(744,300);mode_control.size=Vector2(310,38);layer.add_child(mode_control)
+    for mode in mode_options():mode_control.add_item({"brick":"Ladrillo","wall":"Muro con juntas","house":"Casa","kit":"Banco de piezas","frame":"Conjunto de abertura","roof":"Conjunto de cubierta"}.get(mode,mode.trim_prefix("asset_").replace("_"," ")))
+    mode_control.item_selected.connect(func(index: int):command({"op":"set_values","values":{"mode":mode_options()[index]}}))
     var next:=Button.new();next.position=Vector2(744,350);next.text="Semilla 2102 / 7319";next.pressed.connect(func():command({"op":"set_values","values":{"seed":7319 if state.seed==2102 else 2102}}));layer.add_child(next)
     var roof:=Button.new();roof.position=Vector2(744,395);roof.text="Mostrar / quitar techo";roof.pressed.connect(func():command({"op":"set_values","values":{"roof":not state.roof}}));layer.add_child(roof)
     if effect.catalog.has("assembly_version"):
@@ -25,8 +27,12 @@ func _ready() -> void:
         for choice in ["varied","uniform","legacy"]:
             var button:=Button.new();button.text={"varied":"Caras y tonos variados","uniform":"Intercalado sin variación","legacy":"Construcción anterior"}[choice];button.pressed.connect(func():command({"op":"set_values","values":{"style":choice}}));styles.add_child(button)
         var face:=Button.new();face.position=Vector2(744,590);face.text="Girar ladrillo / otra cara";face.pressed.connect(func():command({"op":"set_values","values":{"mode":"brick","face":(state.face+1)%4}}));layer.add_child(face)
+    var zoom_label:=Label.new();zoom_label.position=Vector2(744,640);zoom_label.text="Distancia de inspección";layer.add_child(zoom_label)
+    zoom_control=HSlider.new();zoom_control.position=Vector2(744,670);zoom_control.size=Vector2(300,30);zoom_control.min_value=.35;zoom_control.max_value=2.;zoom_control.step=.05;zoom_control.value=1.;zoom_control.value_changed.connect(func(value: float):command({"op":"set_values","values":{"zoom":value}}));layer.add_child(zoom_control)
     update_scene()
+func mode_options() -> Array:return ["brick","wall","house"]+effect.catalog.get("kit_modes",[])
 func recipe_path(candidate: Dictionary) -> String:
+    if candidate.mode in effect.catalog.get("kit_modes",[]):return effect.capture_root()+candidate.mode+"-"+str(candidate.seed)+".json"
     if candidate.mode=="brick" and candidate.face>0:return effect.capture_root()+"brick-face-"+str(candidate.face)+"-"+str(candidate.seed)+".json"
     var suffix: String="" if candidate.style=="varied" else "-"+candidate.style
     return effect.capture_root()+candidate.mode+suffix+"-"+str(candidate.seed)+".json"
@@ -38,7 +44,7 @@ func command(request: Dictionary) -> Dictionary:
     for key in request.values:
         var value: Variant=request.values[key]
         if key=="mode":
-            if not value is String or value not in ["brick","wall","house"]:return {"ok":false,"error":"mode"}
+            if not value is String or value not in mode_options():return {"ok":false,"error":"mode"}
         elif key=="seed":
             if not value is int or value not in [2102,7319]:return {"ok":false,"error":"precompiled_seed"}
         elif key=="roof":
@@ -49,24 +55,33 @@ func command(request: Dictionary) -> Dictionary:
             if not value is int or value<0 or value>3:return {"ok":false,"error":"face"}
         elif key in ["yaw","elevation","light"]:
             if not (value is int or value is float) or not is_finite(float(value)) or abs(float(value))>180:return {"ok":false,"error":"angle"}
+        elif key in ["zoom","focus_x","focus_y"]:
+            if not (value is int or value is float) or not is_finite(float(value)):return {"ok":false,"error":"camera"}
+            if key=="zoom" and (float(value)<.35 or float(value)>2.):return {"ok":false,"error":"zoom"}
+            if key!="zoom" and abs(float(value))>10:return {"ok":false,"error":"focus"}
         else:return {"ok":false,"error":"key"}
         candidate[key]=value
     if not FileAccess.file_exists(recipe_path(candidate)):return {"ok":false,"error":"recipe_unavailable"}
     state=candidate;revision+=1;update_scene();return {"ok":true,"revision":revision}
 func update_scene() -> void:
     recipe=JSON.parse_string(FileAccess.get_file_as_string(recipe_path(state)))
+    mode_control.select(mode_options().find(state.mode))
+    zoom_control.set_value_no_signal(state.zoom)
     if recipe.bank_sha256!=effect.catalog.sha256:metrics={"error":"recipe_bank_identity"};return
     var b: Array=recipe.bounds_m;var extent: float=maxf(float(b[0]),maxf(float(b[1]),float(b[2])));var target:=Vector3(0,0 if state.mode=="brick" else float(b[1])*.5,0)
-    camera.fov=42;var distance: float=extent*2.05;var yaw: float=deg_to_rad(state.yaw);var elevation: float=deg_to_rad(state.elevation)
+    target+=Vector3(state.focus_x,state.focus_y,0)
+    camera.fov=42;var distance: float=extent*2.05*state.zoom;var yaw: float=deg_to_rad(state.yaw);var elevation: float=deg_to_rad(state.elevation)
     camera.position=target+Vector3(sin(yaw)*cos(elevation),sin(elevation),cos(yaw)*cos(elevation))*distance;camera.look_at(target)
     var entries: Array=[]
     for entry in recipe.instances:
-        if entry.id=="roof" and not state.roof:continue
+        if String(entry.id).get_file()=="roof" and not state.roof:continue
         entries.append(entry)
     var levels: Array=[];var work: int=0
     for entry in entries:
         var level: int=0 if state.mode=="brick" else 2 if state.mode=="wall" else 3
-        if entry.id in ["roof","floor"]:level=0
+        level=int(entry.get("lod",level))
+        if String(entry.id).get_file() in ["roof","floor"]:level=0
+        if level<0 or level>=effect.catalog.masters[entry.master].levels.size():metrics={"error":"asset_lod"};return
         levels.append(level);work+=int(effect.catalog.masters[entry.master].levels[level].count)
     # Deterministic budget fallback, never an unchecked allocation.
     while work>effect.work_capacity():
@@ -96,7 +111,7 @@ func update_scene() -> void:
     for v in [pose.basis.x,pose.basis.y,-pose.basis.z]:values.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     values.append_array(PackedFloat32Array([1,1,1,0,1,1,1,0,2102,1,0,0]));bytes.append_array(values.to_byte_array())
     metrics={"configured":effect.configure(bytes,instance_data.to_byte_array(),jobs.to_byte_array(),work),"instances":entries.size(),"samples":work,"bank_sha256":effect.catalog.sha256,"original_mesh_draws":0}
-func agent_snapshot() -> Dictionary:return {"state":state.duplicate(),"revision":revision,"metrics":metrics.duplicate(),"gpu_ready":effect.gpu_ready,"failure":effect.failure,"controls":{"modes":["brick","wall","house"],"precompiled_seeds":[2102,7319],"styles":["varied","uniform","legacy"],"face":[0,3],"angles":[-180,180],"roof":"boolean"}}
+func agent_snapshot() -> Dictionary:return {"state":state.duplicate(),"revision":revision,"metrics":metrics.duplicate(),"gpu_ready":effect.gpu_ready,"failure":effect.failure,"collections":effect.catalog.get("collections",{}),"controls":{"modes":mode_options(),"precompiled_seeds":[2102,7319],"styles":["varied","uniform","legacy"],"face":[0,3],"angles":[-180,180],"zoom":[.35,2.],"focus_m":[-10,10],"roof":"boolean"}}
 func _process(_delta: float) -> void:
     if effect.gpu_ready and texture==null:texture=Texture2DRD.new();texture.texture_rd_rid=effect.output_rid;picture.texture=texture
 func _exit_tree() -> void:

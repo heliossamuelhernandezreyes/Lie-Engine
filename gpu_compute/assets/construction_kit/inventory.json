@@ -1,0 +1,185 @@
+{
+  "schema": "lie-asset-capability-inventory/1",
+  "scope": "current 80-byte opaque capture compiler and scoped construction consumer",
+  "capabilities": {
+    "opaque_static_dielectrics": {
+      "status": "supported_capture_needs_per_asset_native_acceptance",
+      "examples": [
+        "brick",
+        "stone",
+        "concrete",
+        "wood",
+        "plaster",
+        "ceramic",
+        "opaque_plastic",
+        "rigid_opaque_fabric",
+        "ground_chunks"
+      ],
+      "source": "GLB/GLTF/OBJ with authored frame and reviewed provenance"
+    },
+    "thin_or_hollow_geometry": {
+      "status": "conditional",
+      "requirements": [
+        "actual front/back geometry",
+        "native aperture/silhouette tests",
+        "LOD coverage checks"
+      ]
+    },
+    "painted_coatings": {
+      "status": "conditional",
+      "requirements": [
+        "opaque dielectric source material",
+        "no silent metallic override"
+      ]
+    },
+    "metal_exposed": {
+      "status": "requires_another_material_backend",
+      "reason": "80-byte compiler rejects metallicFactor != 0"
+    },
+    "glass_water_alpha_foliage": {
+      "status": "requires_another_capture_or_material_path",
+      "reason": "alpha/transmission/refraction unsupported here; opaque mesh leaves remain separate candidates"
+    },
+    "normal_displacement_ao_emission": {
+      "status": "requires_explicit_source_conversion_or_other_backend",
+      "reason": "no tangent normal/displacement/AO/emission channels in this immutable capture ABI"
+    },
+    "skinned_or_deforming_assets": {
+      "status": "requires_geometry_animation_integration",
+      "reason": "static import alone does not implement generic deformation; rigid instance motion is separate"
+    }
+  },
+  "existing": [
+    {
+      "asset": "brick_scan_and_cut_halves",
+      "status": "resident_native_tested",
+      "evidence": "docs/LIE_RUNNING_BOND.md"
+    },
+    {
+      "asset": "LIE28 authored construction masters",
+      "status": "historically_tested_separate_bank",
+      "evidence": "docs/LIE_28_MODULAR_BUILDING.md",
+      "examples": [
+        "hollow_block",
+        "concrete_panel",
+        "slab",
+        "lintel",
+        "corner",
+        "wall",
+        "window_wall",
+        "door_base",
+        "door_head",
+        "brick_fragments"
+      ]
+    },
+    {
+      "asset": "LIE mortar01 photographic extraction",
+      "status": "experimental_not_accepted",
+      "evidence": "gpu_compute/assets/lie_mortar01/catalog.json",
+      "limitations": [
+        "possible brick-pixel contamination",
+        "mask review incomplete",
+        "not renderer accepted"
+      ]
+    }
+  ],
+  "first_kit": {
+    "mortar_bed": {
+      "role": "horizontal_joint",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    },
+    "mortar_head": {
+      "role": "vertical_joint",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    },
+    "mortar_corner": {
+      "role": "joint_return",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    },
+    "concrete_lintel": {
+      "role": "opening_head",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    },
+    "concrete_sill": {
+      "role": "opening_sill",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    },
+    "plaster_panel": {
+      "role": "opaque_finish",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    },
+    "timber_beam": {
+      "role": "opaque_beam",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    },
+    "ceramic_tile": {
+      "role": "roof_cover",
+      "provenance": "authored geometry and vertex material, not a scan",
+      "required_native_cases": [
+        "individual_source",
+        "composed_set",
+        "light",
+        "depth",
+        "shared_bank"
+      ],
+      "status": "local_native_passed"
+    }
+  },
+  "composition": "bank SHA + asset IDs + hierarchical references + rigid parent frames + explicit positive authored leaf scale"
+}

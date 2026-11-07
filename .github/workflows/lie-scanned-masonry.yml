@@ -1,7 +1,7 @@
 name: LIE whole scanned brick and seeded masonry
 on:
   push:
-    branches: [work/lie-scanned-masonry, work/lie-masonry-bond]
+    branches: [work/lie-scanned-masonry, work/lie-masonry-bond, work/lie-construction-kit]
     paths-ignore: ["docs/**"]
   workflow_dispatch:
 permissions:
@@ -43,7 +43,7 @@ jobs:
           python tools/lie_scanned_masonry.py --capture /tmp/scanned-capture --output /tmp/scanned-masonry
           python tools/lie_scanned_masonry_stage.py --bank /tmp/scanned-masonry --stage /tmp/scanned-stage
       - name: Genuine saw-cut derivatives and running bond
-        if: github.ref_name == 'work/lie-masonry-bond'
+        if: github.ref_name == 'work/lie-masonry-bond' || github.ref_name == 'work/lie-construction-kit'
         run: |
           curl --fail --location --retry 2 --max-time 180 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz
           curl --fail --location --retry 2 --max-time 60 -o /tmp/blender.sha256 https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256
@@ -59,6 +59,12 @@ jobs:
           python tools/lie_masonry_bond.py --base /tmp/scanned-masonry --half-sources /tmp/bond-halves --output /tmp/bond-bank
           python tools/lie_masonry_bond_verify.py --base /tmp/scanned-masonry --bank /tmp/bond-bank --half-sources /tmp/bond-halves
           python tools/lie_scanned_masonry_stage.py --bank /tmp/bond-bank --stage /tmp/bond-stage
+      - name: Authored asset bank and hierarchical construction sets
+        if: github.ref_name == 'work/lie-construction-kit'
+        run: |
+          python tools/lie_construction_kit.py --base /tmp/bond-bank --sources /tmp/kit-sources --output /tmp/kit-bank
+          python tools/lie_construction_verify.py --base /tmp/bond-bank --bank /tmp/kit-bank --sources /tmp/kit-sources
+          python tools/lie_scanned_masonry_stage.py --bank /tmp/kit-bank --stage /tmp/kit-stage --test test_lie_construction_kit.gd
       - name: Native import, rig, agent and real captured renderer
         run: |
           set -o pipefail
@@ -67,9 +73,13 @@ jobs:
           timeout 60 "$engine" --headless --path /tmp/scanned-stage --script res://test_lie26_rig.gd 2>&1 | tee scanned-rig.log
           timeout 60 "$engine" --headless --path /tmp/scanned-stage --script res://workshop/test_lie_agent_session.gd 2>&1 | tee scanned-agent.log
           timeout 360 xvfb-run -a "$engine" --path /tmp/scanned-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_scanned_masonry.gd 2>&1 | tee scanned-native.log
-          if test -d /tmp/bond-stage; then
+          if test -d /tmp/bond-stage && ! test -d /tmp/kit-stage; then
             timeout 90 "$engine" --headless --path /tmp/bond-stage --editor --import --quit 2>&1 | tee scanned-bond-import.log
             timeout 360 xvfb-run -a "$engine" --path /tmp/bond-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_scanned_masonry.gd 2>&1 | tee scanned-bond-native.log
+          fi
+          if test -d /tmp/kit-stage; then
+            timeout 90 "$engine" --headless --path /tmp/kit-stage --editor --import --quit 2>&1 | tee scanned-kit-import.log
+            timeout 480 xvfb-run -a "$engine" --path /tmp/kit-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_construction_kit.gd 2>&1 | tee scanned-kit-native.log
           fi
           python - <<'PY'
           from pathlib import Path
@@ -89,6 +99,11 @@ jobs:
             /tmp/scanned-stage/scanned-masonry-native.json
             /tmp/scanned-masonry
             /tmp/bond-bank
+            /tmp/kit-bank
+            /tmp/kit-sources
+            /tmp/kit-stage/*.png
+            /tmp/kit-stage/*.rgba32f
+            /tmp/kit-stage/scanned-masonry-native.json
             /tmp/bond-halves
             /tmp/bond-stage/*.png
             /tmp/bond-stage/*.rgba32f

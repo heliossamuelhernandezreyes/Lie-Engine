@@ -14,6 +14,33 @@ def proper_rotation(matrix):
         raise ValueError('frame_requires_proper_rotation')
     return R
 
+def bound_source_support(samples,low,high):
+    """Explicit AABB support policy for thin authored masters, not a polygon clip."""
+    a=np.asarray(samples);lo=np.asarray(low)-2e-7;hi=np.asarray(high)+2e-7
+    dominant=np.argmax(abs(a[:,4:7]),axis=1)
+    for axis,(u,v) in enumerate(((2,1),(0,2),(0,1))):
+        m=dominant==axis;a[m,16:18]=np.maximum(a[m,16:18],lo[[u,v]]);a[m,18:20]=np.minimum(a[m,18:20],hi[[u,v]])
+    if (a[:,16:18]>a[:,18:20]).any():raise ValueError('source_support_outside_envelope')
+    return a
+
+def authored_planar_support(vertices,faces,normals,groups,basis,scale,pivot):
+    """Validate an authored partition and bound each planar group in its axes.
+
+    These are rectangles of explicitly declared planar source groups. They
+    are not arbitrary polygon silhouettes or inferred semantic orientation.
+    """
+    v=(np.asarray(vertices)-pivot)@basis.T*scale;n=np.asarray(normals)@basis.T;f=np.asarray(faces);seen=np.zeros(len(f),int);bounds=np.zeros((len(f),4),dtype='<f4')
+    for group in groups:
+        ids=np.asarray(group)
+        if ids.ndim!=1 or ids.dtype.kind not in 'iu' or not len(ids) or ids.min()<0 or ids.max()>=len(f) or len(np.unique(ids))!=len(ids):raise ValueError('source_support_group_indices')
+        seen[ids]+=1;normal=n[ids[0]]
+        if np.min(n[ids]@normal)<.99999:raise ValueError('source_support_group_not_planar')
+        points=v[f[ids].ravel()];plane=points@normal
+        if np.ptp(plane)>2e-6:raise ValueError('source_support_group_not_planar')
+        axis=int(np.argmax(abs(normal)));u,w=((2,1),(0,2),(0,1))[axis];uv=points[:,[u,w]];bounds[ids]=np.r_[uv.min(0)-2e-7,uv.max(0)+2e-7]
+    if not (seen==1).all():raise ValueError('source_support_groups_must_partition_faces')
+    return bounds
+
 def planar_frame(samples,indices,forward_hint=(0,0,1),right_hint=(1,0,0),max_planarity=.2):
     a=np.asarray(samples);ids=np.asarray(indices)
     if a.ndim!=2 or a.shape[1]<7 or ids.ndim!=1 or ids.dtype.kind not in 'iu' or len(ids)<32 or (ids<0).any() or (ids>=len(a)).any():raise ValueError('frame_surface_selection')

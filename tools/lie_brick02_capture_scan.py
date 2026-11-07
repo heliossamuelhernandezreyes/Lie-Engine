@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image
 import trimesh
 from lie_gltf_vertex_color import load_colored_glb, read_glb
-from lie_asset_contract import proper_rotation,inspect_bank,optical_profile
+from lie_asset_contract import proper_rotation,inspect_bank,optical_profile,bound_source_support,authored_planar_support
 
 STRIDE = 80
 MAX_SAMPLES = 750_000
@@ -154,7 +154,7 @@ def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
     # over-smoothing an actual photographed broken edge.
     fn = np.asarray(mesh.face_normals)[chosen]
     vn = np.einsum("ijk,ij->ik", np.asarray(mesh.vertex_normals)[face], weights)
-    nr = normalized(.70 * fn + .30 * vn)
+    nr = fn if 'lie_authored_face_support' in mesh.metadata else normalized(.70 * fn + .30 * vn)
     colored = "lie_vertex_colors_linear" in mesh.metadata
     uv = None if colored else np.einsum("ijk,ij->ik", np.asarray(mesh.visual.uv)[face], weights)
 
@@ -192,6 +192,7 @@ def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
         coords = world[chosen_axis][:, [u, v]]
         out[chosen_axis, 16:18] = coords - 2.3 * radius
         out[chosen_axis, 18:20] = coords + 2.3 * radius
+    if 'lie_authored_face_support' in mesh.metadata:out[:,16:20]=mesh.metadata['lie_authored_face_support'][chosen]
     if not np.isfinite(out).all():
         raise ValueError("Non-finite sampled brick")
     return out
@@ -242,6 +243,12 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
         frame_info={"policy":"authored_semantic_frame","semantic_frame_verified":True,"source_to_lie":basis.tolist(),"meters_per_source_unit":scale,"source_pivot":center.tolist()}
 
     surface_areas = np.asarray([m.area for m in meshes], dtype=np.float64)
+    if asset_profile is not None and 'source_planar_groups' in asset_profile:
+        groups=asset_profile['source_planar_groups']
+        if len(groups)!=len(meshes):raise ValueError('source_support_mesh_count')
+        for mesh,partition in zip(meshes,groups):mesh.metadata['lie_authored_face_support']=authored_planar_support(mesh.vertices,mesh.faces,mesh.face_normals,partition,basis,scale,center)
+    max_radius=float(asset_profile.get('max_capture_radius_m',.009)) if asset_profile is not None else .009
+    if not np.isfinite(max_radius) or not .0002<=max_radius<=.25:raise ValueError('asset_capture_radius_limit')
     size_lo = np.min(np.stack([m.vertices.min(axis=0) for m in meshes]), axis=0)
     size_hi = np.max(np.stack([m.vertices.max(axis=0) for m in meshes]), axis=0)
     true_size = (size_hi - size_lo)[perm] * scale
@@ -262,10 +269,12 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
             if not allocated:
                 continue
             area_m2 = float(mesh.area) * scale ** 2
-            radius = float(np.clip(1.55 * np.sqrt(area_m2 / allocated), .00020, .009))
+            radius = float(np.clip(1.55 * np.sqrt(area_m2 / allocated), .00020, max_radius))
             sampled.append(_sample_mesh(mesh, int(allocated), rng, perm, scale, center, radius,basis))
         data = np.concatenate(sampled)
         if asset_profile is not None:data[:,8]=zone
+        if asset_profile is not None and asset_profile.get('clip_support_to_source_aabb',False):
+            bound_source_support(data,bounds_center-true_size/2,bounds_center+true_size/2)
         rng.shuffle(data)
         if len(data) != target:
             raise ValueError("Incorrect captured sample count")
