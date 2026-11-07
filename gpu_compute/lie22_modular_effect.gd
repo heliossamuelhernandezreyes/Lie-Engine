@@ -44,6 +44,8 @@ func work_capacity() -> int:return MAX_WORK
 func shader_resource() -> RDShaderFile:return ShaderFile
 func _bind_stage(_commands: int,_stage: int) -> void:pass
 func _run_stage(_stage: int) -> bool:return true
+func _dispatch_stage(commands: int,count: int) -> void:
+    _rd.compute_list_dispatch(commands,int(ceil(float(count)/64)),1,1)
 
 func _init(size: int=384) -> void:
     output_size=clampi(size,128,512);render_size=output_size*2
@@ -165,7 +167,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         _bind_stage(list,stage)
         var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
         _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
-        _rd.compute_list_dispatch(list,int(ceil(float(count)/64)),1,1);_rd.compute_list_add_barrier(list)
+        _dispatch_stage(list,count);_rd.compute_list_add_barrier(list)
     _rd.compute_list_end();_rd.capture_timestamp(_profile_marker("end"))
     _resident=signature;sample_invocations=work;instance_count=next["instances"].size()/96;frame_count+=1
 

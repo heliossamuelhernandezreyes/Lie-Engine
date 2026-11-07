@@ -7,6 +7,11 @@ func capture_root() -> String:return "res://captures/scanned_masonry/"
 func shader_resource() -> RDShaderFile:return Kernels.SHADERS[1]
 func instance_capacity() -> int:return 8192
 func work_capacity() -> int:return 3000000
+func _dispatch_stage(commands: int,count: int) -> void:
+    # 2048² pixels need 65536 groups, exceeding Vulkan's guaranteed X limit.
+    # The dedicated kernels flatten both dispatch dimensions explicitly.
+    var groups: int=int(ceil(float(count)/64));var x: int=mini(groups,32768)
+    _rd.compute_list_dispatch(commands,x,int(ceil(float(groups)/x)),1)
 func _init(size: int=720) -> void:
     super._init(512);output_size=clampi(size,256,720);render_size=output_size*2
 func _make_set() -> void:

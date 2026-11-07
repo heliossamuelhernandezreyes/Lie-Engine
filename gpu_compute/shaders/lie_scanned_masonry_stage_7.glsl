@@ -47,7 +47,7 @@ vec3 to_srgb(vec3 p) {
 
 
 void main() {
-    uint i=gl_GlobalInvocationID.x,pixels=uint(parameters.counts.z*parameters.counts.w);
+    uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x,pixels=uint(parameters.counts.z*parameters.counts.w);
     const int stage=7;
 
         ivec2 size=imageSize(final_image);if(i>=uint(size.x*size.y)) return;

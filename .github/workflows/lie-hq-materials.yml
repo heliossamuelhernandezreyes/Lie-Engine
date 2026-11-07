@@ -1,0 +1,66 @@
+name: LIE photographic 8K material bank
+on:
+  push:
+    branches: [work/lie-hq-materials]
+    paths-ignore: ["docs/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: lie-hq-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-hq-materials:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      PYTHONPATH: tools
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      OPENBLAS_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Authoring dependencies and regressions
+        run: |
+          python -m pip install --timeout 30 --retries 2 -r requirements-hq.txt
+          python -m unittest discover -s tests -p 'test_*.py' -q
+      - name: Native runtime
+        run: |
+          timeout 180 sudo apt-get -o Acquire::Retries=1 update -qq
+          timeout 180 sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1 libxi6 libxfixes3 libxrender1 libxxf86vm1 libsm6 libgl1 libegl1 libxkbcommon0
+          curl --fail --location --retry 2 --max-time 90 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Pinned original sources and common capture compiler
+        run: |
+          python tools/lie_hq_materials.py --acquire --sources /tmp/hq/sources --output /tmp/hq/banks
+          python tools/lie_hq_stage.py --banks /tmp/hq/banks --stage /tmp/hq/stage
+      - name: Native depth, coverage, LOD, relighting, instance and shared-bank checks
+        run: |
+          set -o pipefail
+          engine=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          timeout 120 "$engine" --headless --path /tmp/hq/stage --editor --import --quit 2>&1 | tee hq-import.log
+          timeout 600 xvfb-run -a "$engine" --path /tmp/hq/stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_hq_materials.gd 2>&1 | tee hq-native.log
+          python tools/lie_hq_verify.py --sources /tmp/hq/sources --stage /tmp/hq/stage --output /tmp/hq/evidence
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('.').glob('hq-*.log'):
+              t=p.read_text()
+              assert not any(x in t for x in ('ERROR:', 'SCRIPT ERROR','were leaked at exit')),t[-6000:]
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-hq-materials
+          compression-level: 6
+          path: |
+            hq-*.log
+            /tmp/hq/banks
+            /tmp/hq/evidence
+            /tmp/hq/stage/*.png
+            /tmp/hq/stage/*.rgba32f
+            /tmp/hq/stage/*.depth32f
+            /tmp/hq/stage/hq-native.json
+          if-no-files-found: warn

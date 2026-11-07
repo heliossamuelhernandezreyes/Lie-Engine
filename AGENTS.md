@@ -1,5 +1,20 @@
 # Working on Lie Engine
 
+## Source quality is the default
+
+The user requires high-quality sources for new library assets. Prefer original
+high-resolution photographic PBR / detailed whole-object scans, retaining the
+source maps, mesh detail, provenance and physical-scale declarations. Do not
+replace them with flat-colored authored primitives merely to expand the count.
+Functional proxies remain explicitly marked prototypes and are not accepted
+high-quality assets. Source complexity is not constrained to low-poly geometry.
+
+Validate close-up source-versus-LIE appearance, geometric relief, material,
+coverage, multiple views/lighting and LOD before describing new assets as
+high quality. Passing import/unit/cache tests alone is insufficient. Keep the
+original high-resolution sources; solve resident budgets with explicit banks
+and validated derivatives, rather than silently lowering source quality.
+
 Use `gpu_compute/project.godot` with Godot 4.7.2. The top-level Godot project
 is a historical LIE-06 example. The current desktop entry is LIE-27; the
 editor's Lie dock also opens the piece workshop and anatomical laboratory.

@@ -1,0 +1,4 @@
+-r requirements-ci.txt
+trimesh>=4,<6
+OpenEXR==3.5.3
+OpenImageIO==3.2.2.0

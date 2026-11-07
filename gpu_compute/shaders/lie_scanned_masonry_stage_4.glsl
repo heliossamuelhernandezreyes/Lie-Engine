@@ -68,7 +68,7 @@ float visibility(vec3 p,vec3 geometric_normal) {
 
 
 void main() {
-    uint i=gl_GlobalInvocationID.x,pixels=uint(parameters.counts.z*parameters.counts.w);
+    uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x,pixels=uint(parameters.counts.z*parameters.counts.w);
     const int stage=4;
     if(i>=pixels) return;
     ivec2 xy=ivec2(int(i)%parameters.counts.z,int(i)/parameters.counts.z);

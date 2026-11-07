@@ -1,0 +1,544 @@
+{
+  "schema": "lie-hq-material-library/1",
+  "credit": "Powered by Poly Haven",
+  "license": "CC0 1.0",
+  "source_resolution": [
+    8192,
+    8192
+  ],
+  "normal_policy": "retain_original_not_consumed_by_80B",
+  "materials": {
+    "concrete_layers": {
+      "title": "Concrete Layers",
+      "author": "Amal Kumar",
+      "source_url": "https://polyhaven.com/a/concrete_layers",
+      "provider_dimensions_m": [
+        1.5499999523162842,
+        1.5499999523162842
+      ],
+      "displacement_scale_m": 0.04500000178813934,
+      "displacement_midlevel": 0.5,
+      "uv_crop": [
+        0.3967741903727805,
+        0.3967741903727805,
+        0.6032258096272195,
+        0.6032258096272195
+      ],
+      "grid_vertices_per_axis": 1025,
+      "use": "concrete cladding / structural concrete surface",
+      "maps": {
+        "Diffuse": {
+          "bytes": 72023737,
+          "sha256": "06e1a1d1e663b0aff2ae3d10847402c9e343748791d866016cbd0e538e12eaff",
+          "size": 72023737,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/concrete_layers/concrete_layers_diff_8k.exr",
+          "md5": "1c1585a06e82b233e76af2d7e93b3fc7"
+        },
+        "Rough": {
+          "bytes": 17395743,
+          "sha256": "29366dc96e7dacf833a7a14e6c76cb10df0bf9b80655da8e852408f23574c888",
+          "size": 17395743,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/concrete_layers/concrete_layers_rough_8k.exr",
+          "md5": "fd67b90911aed63a420c7a74fd31479f"
+        },
+        "Displacement": {
+          "bytes": 77436976,
+          "sha256": "41cf727d0ebe8de42e1ff612dfbb8b1814699258291487d6bc136859c92cf69b",
+          "size": 77436976,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/concrete_layers/concrete_layers_disp_8k.png",
+          "md5": "799a292b4004a5443d3290d6dfb55f6b"
+        },
+        "nor_gl": {
+          "bytes": 104396020,
+          "sha256": "a203ec95dc66a03c882a4e1eafb487c48746a22898822c06d23781a44b54e802",
+          "size": 104396020,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/concrete_layers/concrete_layers_nor_gl_8k.exr",
+          "md5": "9696d8740fa64429e13e23e9b3ee70ca"
+        },
+        "source": {
+          "bytes": 216971,
+          "sha256": "a4d7b1a20b33e2a792de335a60118dcf7637b4b014f10f80d4349e6ccd648e94",
+          "include": {
+            "textures/concrete_layers_diff_8k.jpg": {
+              "size": 45700805,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/concrete_layers/concrete_layers_diff_8k.jpg",
+              "md5": "92446749924af310d6204918070c931b"
+            },
+            "textures/concrete_layers_disp_8k.png": {
+              "size": 77436976,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/concrete_layers/concrete_layers_disp_8k.png",
+              "md5": "799a292b4004a5443d3290d6dfb55f6b"
+            },
+            "textures/concrete_layers_rough_8k.exr": {
+              "size": 17395743,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/concrete_layers/concrete_layers_rough_8k.exr",
+              "md5": "fd67b90911aed63a420c7a74fd31479f"
+            },
+            "textures/concrete_layers_nor_gl_8k.exr": {
+              "size": 104396020,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/concrete_layers/concrete_layers_nor_gl_8k.exr",
+              "md5": "9696d8740fa64429e13e23e9b3ee70ca"
+            }
+          },
+          "size": 216971,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/concrete_layers/concrete_layers_8k.blend",
+          "md5": "9cdf36150ac3b3f3887a3440eac0a0de"
+        }
+      },
+      "provider_api_metadata": {
+        "name": "Concrete Layers",
+        "categories": [
+          "wall",
+          "plaster-concrete",
+          "outdoor"
+        ],
+        "type": 1,
+        "tags": [
+          "rough",
+          "old",
+          "concrete",
+          "cracked",
+          "chipped",
+          "cement",
+          "cracked cement",
+          "worn",
+          "scratched",
+          "wall",
+          "weathered",
+          "exterior",
+          "coarse"
+        ],
+        "authors": {
+          "Amal Kumar": "All"
+        },
+        "max_resolution": [
+          16384,
+          16384
+        ],
+        "date_published": 1714608000,
+        "dimensions": [
+          1549.9999523162842,
+          1549.9999523162842
+        ],
+        "files_hash": "c737fcdd11f8fb990db499c69027ab845279b47f",
+        "sponsors": [
+          "78546118",
+          "84390067"
+        ],
+        "description": "Free 16K texture of old, layered concrete with coarse formwork lines, chipped edges, fine cracks, scratches and subtle water stains.",
+        "category_id": "b4f089ac-1410-5388-bd51-34e956f0a0a5",
+        "category": "Concrete/Cast Walls & Floors/Board-Form & Panels",
+        "attributes": {
+          "surface_use": "wall",
+          "condition": [
+            "weathered",
+            "cracked",
+            "worn",
+            "damaged"
+          ],
+          "origin": "man_made",
+          "setting": "outdoor"
+        },
+        "img_version": "541112bf",
+        "download_count": 47659,
+        "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/concrete_layers.png?width=256&height=256&format=webp&v=541112bf"
+      }
+    },
+    "wood_table_worn": {
+      "title": "Wood Table Worn",
+      "author": "Dimitrios Savva; Rico Cilliers",
+      "source_url": "https://polyhaven.com/a/wood_table_worn",
+      "provider_dimensions_m": [
+        0.5499999523162842,
+        0.5500000715255737
+      ],
+      "displacement_scale_m": 0.0010000000474974513,
+      "displacement_midlevel": 0.3700000047683716,
+      "uv_crop": [
+        0.20909088386976793,
+        0.2090909469226126,
+        0.7909091161302321,
+        0.7909090530773875
+      ],
+      "grid_vertices_per_axis": 1025,
+      "use": "worn wooden boards / panels surface",
+      "maps": {
+        "Diffuse": {
+          "bytes": 63508101,
+          "sha256": "797684252a9d7060eb72b24d9db6c4a1c656fe1bd4921a0c0c07235b6257be1c",
+          "size": 63508101,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/wood_table_worn/wood_table_worn_diff_8k.exr",
+          "md5": "e9e71db8ddbfdc4c584327ecce9e01ba"
+        },
+        "Rough": {
+          "bytes": 38082319,
+          "sha256": "4a036177ef6adea54d2e4f4f316deeff6f10686dfae9166912570486a6e98b42",
+          "size": 38082319,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/wood_table_worn/wood_table_worn_rough_8k.exr",
+          "md5": "1100ec09f7f354227d198714a3c33396"
+        },
+        "Displacement": {
+          "bytes": 102947376,
+          "sha256": "9d687737eaacea99fba97cfded51bc3179f4779ee4355f0a92913f4786cdd437",
+          "size": 102947376,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/wood_table_worn/wood_table_worn_disp_8k.png",
+          "md5": "bcf88ef291c316c45796cc483927c524"
+        },
+        "nor_gl": {
+          "bytes": 63435351,
+          "sha256": "5ec18be08b23c684f1f1502129d7bc6afa09bd0966a85cc2e9ac9cbfbb4fe971",
+          "size": 63435351,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/wood_table_worn/wood_table_worn_nor_gl_8k.exr",
+          "md5": "f7662f7825d0478fd4e9c530aa520621"
+        },
+        "source": {
+          "bytes": 219347,
+          "sha256": "78e829be5ae40c1754c11d5997bf12a7e327eb376e78693ac1daca6a9b6c7b28",
+          "include": {
+            "textures/wood_table_worn_rough_8k.exr": {
+              "size": 38082319,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/wood_table_worn/wood_table_worn_rough_8k.exr",
+              "md5": "1100ec09f7f354227d198714a3c33396"
+            },
+            "textures/wood_table_worn_diff_8k.jpg": {
+              "size": 41177258,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/wood_table_worn/wood_table_worn_diff_8k.jpg",
+              "md5": "594cce098bdfc7df2020e267d8c08847"
+            },
+            "textures/wood_table_worn_disp_8k.png": {
+              "size": 102947376,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/wood_table_worn/wood_table_worn_disp_8k.png",
+              "md5": "bcf88ef291c316c45796cc483927c524"
+            },
+            "textures/wood_table_worn_nor_gl_8k.exr": {
+              "size": 63435351,
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/wood_table_worn/wood_table_worn_nor_gl_8k.exr",
+              "md5": "f7662f7825d0478fd4e9c530aa520621"
+            }
+          },
+          "size": 219347,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/wood_table_worn/wood_table_worn_8k.blend",
+          "md5": "2e41d402d100baa56434f474b28b5185"
+        }
+      },
+      "provider_api_metadata": {
+        "name": "Wood Table Worn",
+        "categories": [
+          "man made",
+          "wood",
+          "dirty",
+          "raw wood"
+        ],
+        "type": 1,
+        "tags": [
+          "rough",
+          "planks",
+          "table",
+          "worn",
+          "old",
+          "damaged",
+          "discolored",
+          "stained",
+          "brown",
+          "dry",
+          "furniture",
+          "grain",
+          "scratched"
+        ],
+        "authors": {
+          "Dimitrios Savva": "Photography",
+          "Rico Cilliers": "Processing"
+        },
+        "dimensions": [
+          549.9999523162842,
+          550.0000715255737
+        ],
+        "date_published": 1657238400,
+        "prepaid": true,
+        "max_resolution": [
+          8192,
+          8192
+        ],
+        "sponsors": [
+          "4047949",
+          "77433244",
+          "4714267"
+        ],
+        "files_hash": "92fde8d58df92dd57a0a2854a6a6aeb79317b750",
+        "description": "Free 8K texture of a worn, stained brown wooden table: dry, scratched planks with visible grain, discoloration, rough and damaged surface.",
+        "category_id": "30ac2613-5076-5364-b4da-130117ad592d",
+        "category": "Wood/Boards & Planks/Weathered Planks",
+        "attributes": {
+          "surface_use": "object",
+          "condition": [
+            "worn",
+            "damaged",
+            "cracked"
+          ],
+          "origin": "man_made"
+        },
+        "img_version": "ba59696d",
+        "download_count": 419394,
+        "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/wood_table_worn.png?width=256&height=256&format=webp&v=ba59696d"
+      }
+    },
+    "rock_boulder_dry": {
+      "title": "Rock Boulder Dry",
+      "author": "Dimitrios Savva; Rico Cilliers",
+      "source_url": "https://polyhaven.com/a/rock_boulder_dry",
+      "provider_dimensions_m": [
+        1.7999999523162842,
+        1.8000001907348633
+      ],
+      "displacement_scale_m": 0.08500000089406967,
+      "displacement_midlevel": 0.5,
+      "uv_crop": [
+        0.41111110875635964,
+        0.4111111205301157,
+        0.5888888912436403,
+        0.5888888794698843
+      ],
+      "grid_vertices_per_axis": 1025,
+      "use": "rock cladding surface, not a boulder mesh",
+      "maps": {
+        "Diffuse": {
+          "bytes": 81070925,
+          "sha256": "a051fb32c22c187043940ce32261a750af1c15e4ff526a80aec9e94532bf2e6d",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/rock_boulder_dry/rock_boulder_dry_diff_8k.exr",
+          "size": 81070925,
+          "md5": "7d3fe9b37b82c7da846b23d212f12777"
+        },
+        "Rough": {
+          "bytes": 46397255,
+          "sha256": "1164474e370900e6533ad43d512bc57489be43bfa892cc04b94ff09f938cb21a",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/rock_boulder_dry/rock_boulder_dry_rough_8k.exr",
+          "size": 46397255,
+          "md5": "2c87c8870d9e6e4183667fd8ddba8c7e"
+        },
+        "Displacement": {
+          "bytes": 105572614,
+          "sha256": "2240071f939fd627bea97ff05cae61a4d549f07762ea6120b43a5bd7121059bf",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/rock_boulder_dry/rock_boulder_dry_disp_8k.png",
+          "size": 105572614,
+          "md5": "712915d9b33b54cbc73cda3a89319674"
+        },
+        "nor_gl": {
+          "bytes": 99106739,
+          "sha256": "541813502096cb5cf63e909db7c500ec47c2847bf28698a08900cc0a3c34dd66",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/rock_boulder_dry/rock_boulder_dry_nor_gl_8k.exr",
+          "size": 99106739,
+          "md5": "42d58be2681facb5ece3decd991bca23"
+        },
+        "source": {
+          "bytes": 278532,
+          "sha256": "04cb53d6d4a45711bd1001cb1f1de0a9280c5f5a1cbb07756f2bb4738c1d62b9",
+          "include": {
+            "textures/rock_boulder_dry_diff_8k.jpg": {
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/rock_boulder_dry/rock_boulder_dry_diff_8k.jpg",
+              "size": 57786987,
+              "md5": "264d5fffc8324af1b0c3e318f08a0b26"
+            },
+            "textures/rock_boulder_dry_rough_8k.exr": {
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/rock_boulder_dry/rock_boulder_dry_rough_8k.exr",
+              "size": 46397255,
+              "md5": "2c87c8870d9e6e4183667fd8ddba8c7e"
+            },
+            "textures/rock_boulder_dry_nor_gl_8k.exr": {
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/rock_boulder_dry/rock_boulder_dry_nor_gl_8k.exr",
+              "size": 99106739,
+              "md5": "42d58be2681facb5ece3decd991bca23"
+            },
+            "textures/rock_boulder_dry_disp_8k.png": {
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/rock_boulder_dry/rock_boulder_dry_disp_8k.png",
+              "size": 105572614,
+              "md5": "712915d9b33b54cbc73cda3a89319674"
+            }
+          },
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/rock_boulder_dry/rock_boulder_dry_8k.blend",
+          "size": 278532,
+          "md5": "350015419b37385f6e03a454f68f46a2"
+        }
+      },
+      "provider_api_metadata": {
+        "type": 1,
+        "tags": [
+          "weathered",
+          "chipped",
+          "rocks",
+          "boulder",
+          "stone",
+          "flat",
+          "damaged",
+          "eroded",
+          "cracked",
+          "rough",
+          "uneven"
+        ],
+        "name": "Rock Boulder Dry",
+        "categories": [
+          "rock",
+          "outdoor",
+          "natural",
+          "terrain"
+        ],
+        "authors": {
+          "Dimitrios Savva": "Photography",
+          "Rico Cilliers": "Processing"
+        },
+        "date_published": 1635811200,
+        "sponsors": [
+          "540619"
+        ],
+        "dimensions": [
+          1799.9999523162842,
+          1800.0001907348633
+        ],
+        "max_resolution": [
+          16384,
+          16384
+        ],
+        "files_hash": "d0ca2468d0a2b2453c93e504016641249b400e4d",
+        "description": "Free 16K texture of a dry, weathered rock boulder with rough, chipped and cracked surfaces, small pits and uneven, eroded pale sandy-gray tones.",
+        "category_id": "78e4c120-24c3-5f41-b48a-01617c52bc26",
+        "category": "Stone/Rock & Cliffs/Boulder Surfaces",
+        "attributes": {
+          "surface_use": "object",
+          "condition": [
+            "weathered",
+            "cracked",
+            "damaged"
+          ],
+          "origin": "natural",
+          "setting": "outdoor"
+        },
+        "img_version": "5a624d4f",
+        "download_count": 144204,
+        "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/rock_boulder_dry.png?width=256&height=256&format=webp&v=5a624d4f"
+      }
+    },
+    "grey_plaster": {
+      "title": "Grey Plaster",
+      "author": "Rob Tuytel",
+      "source_url": "https://polyhaven.com/a/grey_plaster",
+      "provider_dimensions_m": [
+        1.0,
+        1.0
+      ],
+      "displacement_scale_m": 0.007000000216066837,
+      "displacement_midlevel": 0.6499999761581421,
+      "uv_crop": [
+        0.33999999999999997,
+        0.33999999999999997,
+        0.66,
+        0.66
+      ],
+      "grid_vertices_per_axis": 1025,
+      "use": "grey render surface, mortar composition unverified",
+      "maps": {
+        "Diffuse": {
+          "bytes": 103291664,
+          "sha256": "3bcf3610c46699edc3b2d3a0bd9cd32c6094a1bf06ed1a2f851fc10ba2ee563c",
+          "size": 103291664,
+          "md5": "4051abbb734840d614be2fa6f2fe03fe",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/grey_plaster/grey_plaster_diff_8k.exr"
+        },
+        "Rough": {
+          "bytes": 67813033,
+          "sha256": "7d37bd4a905813a5928a8cc7bb9b5ee6371976059c6f3558fa64235091c2364e",
+          "size": 67813033,
+          "md5": "99552cbff0eb3a6422a1d299489b027a",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/grey_plaster/grey_plaster_rough_8k.exr"
+        },
+        "Displacement": {
+          "bytes": 12781480,
+          "sha256": "d1ba7d9d9493820c3213fbfd21f8e847be24120470e60e2d25be38ab40838d50",
+          "size": 12781480,
+          "md5": "c05eca02e1eb72a64dff1f43d3ddc9ed",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/grey_plaster/grey_plaster_disp_8k.png"
+        },
+        "nor_gl": {
+          "bytes": 29580115,
+          "sha256": "04bc906193effcf0e2c41d71bbe245d113622e2e3a72c2caa9250f9a0c18e23d",
+          "size": 29580115,
+          "md5": "c3d9dd84cd14e35f892e3f93847f81f1",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/grey_plaster/grey_plaster_nor_gl_8k.exr"
+        },
+        "source": {
+          "bytes": 278191,
+          "sha256": "2bbd01b18270e041327b81300466c6adb49f11962e6ec4d3345a058de96055cd",
+          "size": 278191,
+          "md5": "0284ce60e6541e00e7250f5e8392a7f5",
+          "include": {
+            "textures/grey_plaster_diff_8k.jpg": {
+              "size": 37926632,
+              "md5": "ca4c81c9a5aae35f82ab8cb6408d2eee",
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/grey_plaster/grey_plaster_diff_8k.jpg"
+            },
+            "textures/grey_plaster_nor_gl_8k.exr": {
+              "size": 29580115,
+              "md5": "c3d9dd84cd14e35f892e3f93847f81f1",
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/exr/8k/grey_plaster/grey_plaster_nor_gl_8k.exr"
+            },
+            "textures/grey_plaster_rough_8k.jpg": {
+              "size": 37354251,
+              "md5": "f5417659ec86cf02093626518f8a927f",
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/grey_plaster/grey_plaster_rough_8k.jpg"
+            },
+            "textures/grey_plaster_disp_8k.png": {
+              "size": 12781480,
+              "md5": "c05eca02e1eb72a64dff1f43d3ddc9ed",
+              "url": "https://dl.polyhaven.org/file/ph-assets/Textures/png/8k/grey_plaster/grey_plaster_disp_8k.png"
+            }
+          },
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/grey_plaster/grey_plaster_8k.blend"
+        }
+      },
+      "provider_api_metadata": {
+        "date_published": 1529359200,
+        "name": "Grey Plaster",
+        "categories": [
+          "plaster",
+          "outdoor",
+          "indoor",
+          "man made",
+          "wall",
+          "floor",
+          "plaster-concrete"
+        ],
+        "type": 1,
+        "dimensions": [
+          1000,
+          1000
+        ],
+        "tags": [
+          "moss",
+          "plain",
+          "bare"
+        ],
+        "authors": {
+          "Rob Tuytel": "All"
+        },
+        "max_resolution": [
+          8192,
+          8192
+        ],
+        "files_hash": "a50b917a248abd0044b4c81bd68baa02d6584b66",
+        "description": "Free 8K texture of grey plaster with subtle mossing and weathered, porous surface - rough, matte finish with soft discoloration and fine granular detail.",
+        "category_id": "ebaa964c-b45c-52e2-bd50-892d64616d87",
+        "category": "Concrete/Plaster & Stucco/Bare Plaster",
+        "attributes": {
+          "surface_use": "wall",
+          "condition": [
+            "weathered",
+            "mossy"
+          ],
+          "origin": "man_made",
+          "setting": "either"
+        },
+        "img_version": "367870e9",
+        "download_count": 126372,
+        "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/grey_plaster.png?width=256&height=256&format=webp&v=367870e9"
+      }
+    }
+  }
+}

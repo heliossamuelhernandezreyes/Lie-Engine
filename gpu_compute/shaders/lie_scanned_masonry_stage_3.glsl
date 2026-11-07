@@ -75,7 +75,7 @@ vec3 material_color(Sample s,Instance inst) {
 
 
 void main() {
-    uint i=gl_GlobalInvocationID.x,pixels=uint(parameters.counts.z*parameters.counts.w);
+    uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x,pixels=uint(parameters.counts.z*parameters.counts.w);
     const int stage=3;
 
         if(i>=uint(parameters.counts.x))return;

@@ -68,6 +68,9 @@ def material_maps(mesh: trimesh.Trimesh) -> tuple[Image.Image | None, Image.Imag
 
 
 def load_source(source: Path) -> list[trimesh.Trimesh]:
+    if source.name.endswith('.heightfield.json'):
+        from lie_heightfield_source import load_heightfield
+        return load_heightfield(source)
     if not source.is_file() or source.suffix.lower() not in SUPPORTED:
         raise ValueError("Input must be an existing .glb, .gltf or .obj file (extract any downloaded ZIP first)")
     try:
@@ -158,19 +161,22 @@ def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
     colored = "lie_vertex_colors_linear" in mesh.metadata
     uv = None if colored else np.einsum("ijk,ij->ik", np.asarray(mesh.visual.uv)[face], weights)
 
-    diffuse, mr, factor = material_maps(mesh)
-    rgb = (np.einsum("ijk,ij->ik", np.asarray(mesh.metadata["lie_vertex_colors_linear"])[face], weights)
-           if colored else uv_sample(diffuse, uv))
-    material = getattr(mesh.visual, "material", None)
-    base_factor = getattr(material, "baseColorFactor", None)
-    if base_factor is not None:
-        rgb *= (np.asarray(base_factor[:3], dtype=np.float32) / 255. if
-                max(base_factor[:3]) > 1 else np.asarray(base_factor[:3], dtype=np.float32))
-    # glTF COLOR_0 already stores LINEAR radiometric vertex color.
-    # UV photographic color textures are sRGB and need linear conversion.
-    rgb = np.clip(rgb, 0, 1) if colored else linear_srgb(np.clip(rgb, 0, 1))
-    rough = (np.clip(uv_sample(mr, uv)[:, 1] * factor, .18, .98) if (mr is not None and uv is not None)
-             else np.full(count, np.clip(factor, .18, .98), dtype=np.float32))
+    if 'lie_photographic_linear_maps' in mesh.metadata:
+        from lie_heightfield_source import sample_material
+        rgb,rough=sample_material(mesh,uv)
+    else:
+        diffuse, mr, factor = material_maps(mesh)
+        rgb = (np.einsum("ijk,ij->ik", np.asarray(mesh.metadata["lie_vertex_colors_linear"])[face], weights)
+               if colored else uv_sample(diffuse, uv))
+        material = getattr(mesh.visual, "material", None)
+        base_factor = getattr(material, "baseColorFactor", None)
+        if base_factor is not None:
+            rgb *= (np.asarray(base_factor[:3], dtype=np.float32) / 255. if
+                    max(base_factor[:3]) > 1 else np.asarray(base_factor[:3], dtype=np.float32))
+        # glTF COLOR_0 is linear; photographic UV color textures are sRGB.
+        rgb = np.clip(rgb, 0, 1) if colored else linear_srgb(np.clip(rgb, 0, 1))
+        rough = (np.clip(uv_sample(mr, uv)[:, 1] * factor, .18, .98) if (mr is not None and uv is not None)
+                 else np.full(count, np.clip(factor, .18, .98), dtype=np.float32))
     world = ((position - center)[:, perm] * scale).astype(np.float32)
     normals = normalized(nr[:, perm]).astype(np.float32)
     if basis is not None:
@@ -321,6 +327,11 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     metadata['asset_frame']=frame_info
     metadata['optical_material']=material_info
     metadata['source_material_policy']='legacy_declared_clay' if asset_profile is None else asset_profile.get('source_material_policy','preserve_source')
+    if any('lie_heightfield_declaration' in m.metadata for m in meshes):
+        metadata.update(source_color_representation='original EXR linear RGB, bilinear UV sampling',
+                        source_kind='photographic material on explicitly authored displaced surface',
+                        whole_object_scan=False,tangent_normal_map_consumed=False,
+                        displacement_scale_is_certified_measurement=False)
     contract=inspect_bank(raw,metadata)
     output.mkdir(parents=True, exist_ok=True)
     (output/"asset-contract.json").write_text(json.dumps(contract,indent=2)+"\n")

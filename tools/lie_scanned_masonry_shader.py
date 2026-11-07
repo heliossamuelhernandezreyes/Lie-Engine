@@ -5,6 +5,8 @@ from lie_brick_reference_shader import dedicated
 ROOT=Path(__file__).resolve().parents[1]
 def outputs():
     source=(ROOT/'gpu_compute/shaders/lie30_masonry.glsl').read_text()
+    assert source.count('uint i=gl_GlobalInvocationID.x')==1
+    source=source.replace('uint i=gl_GlobalInvocationID.x','uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x')
     # Large authored roof/floor surfaces need their full projected support.
     # No image dilation: every pixel still passes source-face clipping/depth.
     source=source.replace('clamp(sqrt(max(xx,yy)),.5,8)','clamp(sqrt(max(xx,yy)),.5,64)')
