@@ -27,7 +27,7 @@ func alpha_at(lab: Node,data: Dictionary,p: Vector3) -> float:
     if uv.x<0 or uv.x>=1 or uv.y<0 or uv.y>=1:return 0
     return data.color[(int(uv.y*data.output_size)*data.output_size+int(uv.x*data.output_size))*4+3]
 func run() -> void:
-    var lab=load("res://lie_hq_construction_lab.tscn").instantiate();root.add_child(lab);await settle(18)
+    var lab=load("res://lie_hq_construction_lab.tscn").instantiate();lab.state.field_lighting=false;root.add_child(lab);await settle(18)
     check(lab.effect.capture_loaded,"all source contracts load: "+lab.effect.failure)
     if not lab.effect.capture_loaded:lab.queue_free();await settle();quit(1);return
     for mode in ["corner","opening","roof","door"]:

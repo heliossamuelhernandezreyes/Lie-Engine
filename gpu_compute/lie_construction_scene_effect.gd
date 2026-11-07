@@ -19,6 +19,16 @@ var _reverse_passes: bool=false
 var _job_signature:=PackedByteArray()
 var _translated_jobs:=PackedByteArray()
 var _plan_signature: String=""
+var _pending_field: Dictionary={}
+var _field_context: Dictionary={}
+var _field_receipt: Dictionary={}
+var _field_bound: Dictionary={}
+var _field_map:=RID()
+var _field_map_bytes: int=0
+var _field_map_stamp:=PackedByteArray()
+var _field_dummy_patch:=RID()
+var _field_dummy_light:=RID()
+var _field_dummy_image:=RID()
 func scene_root() -> String:return "res://captures/hq_construction/"
 func capture_root() -> String:return scene_root()+"banks/"+str(manifest.banks[0])+"/"
 func sample_stride() -> int:return 80
@@ -49,6 +59,43 @@ func _acquire_primary_source() -> bool:
 func _source_range_ok(instances: PackedByteArray,instance: int,start: int,count: int) -> bool:
     var bank: float=instances.decode_float(instance*96+68)
     return is_finite(bank) and bank==roundf(bank) and bank>=0 and bank<banks.size() and banks[int(bank)].index.entries.has(Pages.range_key(start,count))
+func clear_field() -> void:
+    _mutex.lock();_pending_field={};_mutex.unlock()
+func bind_field(transport: CompositorEffect,mapping: PackedByteArray,instances: PackedByteArray,identity: String,indirect: bool=true,primary_slot: int=0) -> bool:
+    if transport==null or identity!=manifest.scene_identity or mapping.size()<16 or instances.size()%96!=0:return false
+    var count: int=instances.size()/96;var nodes: int=transport._count
+    if mapping.decode_u32(0)!=count or mapping.decode_u32(4)!=nodes or nodes<1 or nodes>8192 or mapping.size()!=16+count*48+nodes*8 or primary_slot< -1 or primary_slot>=8:return false
+    if _pending_field.get("transport")==transport and _pending_field.get("instances")==instances and _pending_field.get("original")==mapping:
+        _mutex.lock();_pending_field.indirect=indirect;_pending_field.primary=primary_slot;_mutex.unlock();return true
+    var owners: PackedByteArray=transport._field_packets.get(24,PackedByteArray());var optics: PackedByteArray=transport._field_packets.get(19,PackedByteArray());var covered: int=0
+    if owners.size()!=nodes*4 or optics.size()!=16+nodes*64:return false
+    for i in range(count):
+        var at: int=i*96;var basis:=Basis(Vector3(instances.decode_float(at),instances.decode_float(at+4),instances.decode_float(at+8)),Vector3(instances.decode_float(at+16),instances.decode_float(at+20),instances.decode_float(at+24)),Vector3(instances.decode_float(at+32),instances.decode_float(at+36),instances.decode_float(at+40)))
+        if not basis.is_finite() or absf(basis.determinant())<1e-12:return false
+        var normal_basis: Basis=basis.inverse().transposed()
+        for face in range(6):
+            var offset: int=16+(i*6+face)*8;var first: int=mapping.decode_u32(offset);var size: int=mapping.decode_u32(offset+4);var expected: Vector3=(normal_basis[face/2]*(1. if face%2==0 else -1.)).normalized()
+            if size<1 or first!=covered or first+size>nodes:return false
+            for node in range(first,first+size):
+                var o: int=16+count*48+node*8;var n: int=16+node*64+48;var normal:=Vector3(optics.decode_float(n),optics.decode_float(n+4),optics.decode_float(n+8))
+                if owners.decode_u32(node*4)!=i or mapping.decode_u32(o)!=first or mapping.decode_u32(o+4)!=size or normal.dot(expected)<.999:return false
+            covered+=size
+    if covered!=nodes:return false
+    _mutex.lock();_pending_field={"transport":transport,"instances":instances.duplicate(),"original":mapping.duplicate(),"indirect":indirect,"primary":primary_slot};_mutex.unlock();return true
+func _frame_signature(next: Dictionary) -> PackedByteArray:
+    _mutex.lock();_field_context=_pending_field.duplicate();_mutex.unlock();_field_receipt={}
+    if not _field_context.is_empty() and _field_context.instances==next.instances:
+        _field_receipt=_field_context.transport.render_binding(_rd)
+    var signature: PackedByteArray=super._frame_signature(next);signature.append_array(var_to_bytes([_field_receipt.get("producer",0),_field_receipt.get("epoch",""),_field_receipt.get("solve",0),_field_context.get("indirect",false),_field_context.get("primary",-1)]));return signature
+func _sync_field() -> void:
+    var bytes:=PackedByteArray();bytes.resize(16)
+    if not _field_receipt.is_empty():
+        bytes=_field_context.original.duplicate();bytes.encode_u32(8,3 if _field_context.indirect else 1);bytes.encode_u32(12,0xffffffff if _field_context.primary<0 else _field_context.primary)
+    var stamp: PackedByteArray=bytes.duplicate();stamp.append_array(var_to_bytes([_field_receipt.get("producer",0),_field_receipt.get("epoch","")]))
+    if stamp==_field_map_stamp:return
+    _clear_sets()
+    if _field_map.is_valid():_rd.free_rid(_field_map);allocation_bytes-=_field_map_bytes
+    _field_map=_rd.storage_buffer_create(bytes.size(),bytes);_field_map_bytes=bytes.size();allocation_bytes+=bytes.size();_field_map_stamp=stamp;_field_bound=_field_receipt.duplicate();_make_set()
 func _clear_sets() -> void:
     for rid in _sets.values():
         if _rd.uniform_set_is_valid(rid):_rd.free_rid(rid)
@@ -60,6 +107,8 @@ func _make_set() -> void:
         for i in range(banks.size()):
             _params.append(_buffers[6] if i==0 else _rd.storage_buffer_create(256))
             if i>0:allocation_bytes+=256
+        var patch:=PackedByteArray();patch.resize(48);_field_dummy_patch=_rd.storage_buffer_create(48,patch);var light:=PackedByteArray();light.resize(272);_field_dummy_light=_rd.storage_buffer_create(272,light);var map:=PackedByteArray();map.resize(16);_field_map=_rd.storage_buffer_create(16,map);_field_map_bytes=16
+        var format:=RDTextureFormat.new();format.width=1;format.height=1;format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT;format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT;_field_dummy_image=_rd.texture_create(format,RDTextureView.new(),[]);allocation_bytes+=352
         _sources_ready=true
     if _kernels.is_empty():
         for stage in [1,2,3,4,7]:
@@ -70,11 +119,11 @@ func _make_set() -> void:
     for stage in _kernels:
         var order: Array=_resident_banks.keys() if stage in [2,3] else [0]
         for bank in order:
-            var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_params[bank];handles[14]=_dummy;handles[15]=_dummy_limits
+            var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_params[bank];handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map;handles[17]=_field_bound.get("patches",_field_dummy_patch);handles[18]=_field_bound.get("irradiance",_field_dummy_image);handles[19]=_field_bound.get("direct",_field_dummy_light)
             if _resident_banks.has(bank):
                 var row: Dictionary=_resident_banks[bank];handles[0]=row.core.rid;handles[14]=row.optical.rid if row.has("optical") else _dummy;handles[15]=row.limits
             var uniforms: Array[RDUniform]=[]
-            for binding in Kernels.BINDINGS[stage]:uniforms.append(_uniform(binding,handles[binding],binding in [11,12]))
+            for binding in Kernels.BINDINGS[stage]:uniforms.append(_uniform(binding,handles[binding],binding in [11,12,18]))
             var set_rid: RID=_rd.uniform_set_create(uniforms,_kernels[stage].shader,0)
             if not set_rid.is_valid():failure="Scene descriptors";return
             _sets[str(bank)+":"+str(stage)]=set_rid
@@ -132,6 +181,7 @@ func _prepare_frame(next: Dictionary) -> Dictionary:
     var translated: PackedInt32Array=jobs.duplicate()
     for i in range(0,jobs.size(),4):
         var bank: int=int(instances.decode_float(jobs[i+2]*96+68));translated[i]=_resident_banks[bank].offsets[Pages.range_key(jobs[i],jobs[i+1])]
+    _sync_field()
     var result: Dictionary=next.duplicate();result.jobs=translated.to_byte_array();failure="";return result
 func _release_uncommitted(row: Dictionary) -> void:
     if row.get("core",{}).get("ok",false):SharedSamples.release_handle(_rd,row.core)
@@ -154,6 +204,7 @@ func _capture() -> void:
     if not gpu_ready:return
     var shadow: PackedByteArray=_rd.buffer_get_data(_buffers[13])
     _mutex.lock();_readback["library_bytes"]=total_source_bytes;_readback["exclusive_allocation_bytes"]=allocation_bytes-total_source_bytes;_readback["banks"]=banks.size();_readback["shadow"]=shadow;_readback["resident_banks"]=_resident_banks.size();_readback["catalog_source_bytes"]=catalog_source_bytes;_readback["page_io_bytes"]=page_io_bytes;_readback["residency_changes"]=residency_changes;_readback["projection_capacity"]=projection_capacity;_mutex.unlock()
+    _mutex.lock();_readback["field"]={"ready":not _field_receipt.is_empty(),"nodes":_field_receipt.get("nodes",0),"solve":_field_receipt.get("solve",0),"producer":_field_receipt.get("producer",0),"indirect":_field_context.get("indirect",false)};_readback["failure"]=failure;_mutex.unlock()
 func _release() -> void:
     _clear_sets()
     for stage in _kernels:
@@ -167,5 +218,8 @@ func _release() -> void:
     for rid in [_dummy,_dummy_limits]:
         if rid.is_valid():_rd.free_rid(rid)
     _dummy=RID();_dummy_limits=RID();_sources_ready=false
+    for rid in [_field_map,_field_dummy_patch,_field_dummy_light,_field_dummy_image]:
+        if rid.is_valid():_rd.free_rid(rid)
+    _field_map=RID();_field_dummy_patch=RID();_field_dummy_light=RID();_field_dummy_image=RID();_field_map_bytes=0;_field_map_stamp=PackedByteArray();_field_bound={}
     if _buffers.has(0) and _buffers[0].is_valid():_rd.free_rid(_buffers[0]);_buffers.erase(0)
     super._release()

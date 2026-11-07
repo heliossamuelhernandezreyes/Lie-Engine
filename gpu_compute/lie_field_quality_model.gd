@@ -1,6 +1,7 @@
 extends RefCounted
 ## Versioned transport policy; all areas in square meters, linear RGB power.
 const DEFAULTS={"angular_sectors":6,"area_budget":true,"reference_area":1.0,"roughness_split":.5,"dynamic_occluders":[],"visibility_revision":0}
+const MAX_PATCHES: int=8192
 static func integer_value(value: Variant,low: int,high: int) -> bool:
     return (value is int or value is float) and is_finite(float(value)) and float(value)==floor(float(value)) and value>=low and value<=high
 static func valid(options: Variant) -> bool:
@@ -25,7 +26,7 @@ static func valid(options: Variant) -> bool:
     return true
 
 static func packet(areas: Array,options: Dictionary) -> PackedByteArray:
-    if not valid(options) or areas.is_empty() or areas.size()>1024:return PackedByteArray()
+    if not valid(options) or areas.is_empty() or areas.size()>MAX_PATCHES:return PackedByteArray()
     var q: Dictionary=DEFAULTS.duplicate(true);q.merge(options,true)
     var bytes:=PackedInt32Array([q.angular_sectors,1 if q.area_budget else 0,q.dynamic_occluders.size(),q.visibility_revision]).to_byte_array()
     bytes.append_array(PackedFloat32Array([q.reference_area,q.roughness_split,0,0]).to_byte_array())
@@ -48,7 +49,7 @@ static func packet(areas: Array,options: Dictionary) -> PackedByteArray:
 static func with_edges(policy: PackedByteArray,gather: PackedByteArray,outgoing: PackedByteArray) -> PackedByteArray:
     if gather.size()<20 or outgoing.size()<20 or policy.is_empty():return PackedByteArray()
     var n: int=gather.decode_u32(0);var m: int=gather.decode_u32(4)
-    if n<1 or n>1024 or m>n*n or policy.size()!=32+(n+32)*16:return PackedByteArray()
+    if n<1 or n>MAX_PATCHES or m>mini(n*n,16777215) or policy.size()!=32+(n+32)*16:return PackedByteArray()
     var result: PackedByteArray=policy.duplicate();var begin: int=result.size()
     result.encode_float(24,float(m));result.resize(begin+2*m*16)
     for side in range(2):

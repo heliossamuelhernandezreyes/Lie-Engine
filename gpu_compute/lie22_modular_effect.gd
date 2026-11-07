@@ -58,6 +58,8 @@ func _projection_stride() -> int:return 96
 func _projection_target(work: int) -> int:return maxi(projection_capacity,mini(work_capacity(),ceili(float(work)/65536)*65536))
 func _image_bindings() -> Array:return [8,9,11,12]
 func _prepare_frame(next: Dictionary) -> Dictionary:return next
+func _frame_signature(next: Dictionary) -> PackedByteArray:
+    var signature: PackedByteArray=next.parameters.duplicate();signature.append_array(next.instances);signature.append_array(next.jobs);return signature
 
 func _init(size: int=384) -> void:
     output_size=clampi(size,128,512);render_size=output_size*2
@@ -170,7 +172,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _mutex.lock();var next: Dictionary=_pending.duplicate();_mutex.unlock()
     if next.is_empty():return
     _collect_profile()
-    var signature: PackedByteArray=next["parameters"].duplicate();signature.append_array(next["instances"]);signature.append_array(next["jobs"])
+    var signature: PackedByteArray=_frame_signature(next)
     if signature==_resident:return
     var work: int=next["work"]
     var target_capacity: int=_projection_target(work)

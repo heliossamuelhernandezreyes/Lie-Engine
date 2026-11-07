@@ -4,7 +4,7 @@ from pathlib import Path
 from lie_scanned_masonry_shader import outputs as masonry_outputs
 ROOT=Path(__file__).resolve().parents[1]
 def outputs():
-    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14,15],3:[0,1,2,3,4,5,6,7,13,14,15],4:[1,3,4,5,6,7,11,13],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
+    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14,15],3:[0,1,2,3,4,5,6,7,13,14,15],4:[1,3,4,5,6,7,11,13,16,17,18,19],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
     for stage in (1,2,3,4,6,7):
         s=original[f'gpu_compute/shaders/lie_scanned_masonry_stage_{stage}.glsl']
         if stage in (2,3):
@@ -34,6 +34,10 @@ bool covered(Projection p,vec2 xy)''')
             s=s.replace('imageStore(diffuse_image,xy,vec4(irradiance,1));\n        imageStore(specular_image,xy,vec4(specular,1));return;', 'imageStore(output_image,xy,vec4(max(base*irradiance+specular,vec3(0)),1));return;')
             # Unreachable stage-6 text still has to parse without removed images.
             a=s.index('    if(stage==6) {');s=s[:a]+'\n}\n'
+            shared=(ROOT/'gpu_compute/shaders/lib/lie_construction_field.glslinc').read_text()
+            for marker,filename in [('STENCIL','lie_irradiance_stencil.glslinc'),('DIRECT','lie_surface_direct.glslinc'),('BRDF','lie_opaque_brdf.glslinc')]:shared=shared.replace('// SHARED_'+marker,(ROOT/'gpu_compute/shaders/lib'/filename).read_text())
+            s=s.replace('void main() {',shared+'\nvoid main() {')
+            s=s.replace('imageStore(output_image,xy,vec4(max(base*irradiance+specular,vec3(0)),1));',                'vec3 radiance=base*irradiance+specular;\n        if((field_map.config.z&1u)!=0u)radiance=construction_field_radiance(point,p,v,n,base,roughness,shadow_factor)+base*ambient*.96;\n        imageStore(output_image,xy,vec4(max(radiance,vec3(0)),1));')
         path=f'shaders/lie_construction_scene_stage_{stage}.glsl' ;result['gpu_compute/'+path]=s;gd+=f'    {stage}:preload("res://{path}"),\n'
     gd+='}\nconst BINDINGS='+json.dumps(bindings,separators=(',',':')).replace('"','')+'\n';result['gpu_compute/lie_construction_scene_kernels.gd']=gd;return result
 if __name__=='__main__':

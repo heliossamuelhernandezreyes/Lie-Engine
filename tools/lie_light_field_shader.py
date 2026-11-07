@@ -149,6 +149,8 @@ void main() {''')
       '        vec4 frontier=ping==0?frontier_a.values[id]:frontier_b.values[id];\n        if(max(frontier.r,max(frontier.g,frontier.b))<=0.){angular_caps.values[id]=vec4(1,1,0,0);return true;}')
     s=replace(s,'            vec4 emitted=ping==0?frontier_a.values[packet]:frontier_b.values[packet];',
       '            vec4 emitted=ping==0?frontier_a.values[packet]:frontier_b.values[packet];\n            if(max(emitted.r,max(emitted.g,emitted.b))<=0.)continue;')
+    for variable in ('id','i'):
+        s=s.replace('ivec2(int('+variable+'),0)','ivec2(int('+variable+')%imageSize(irradiance).x,int('+variable+')/imageSize(irradiance).x)')
     return s
 
 if __name__=='__main__':

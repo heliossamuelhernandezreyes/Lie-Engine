@@ -21,6 +21,7 @@ func _init() -> void:
     super._init();cache_static_transport=true;profile_transport=true
 
 func _transport_file() -> RDShaderFile:return FieldShader
+func _output_dimensions() -> Vector2i:return Vector2i(mini(_count,1024),ceili(float(_count)/1024))
 
 func _valid_csr(bytes: PackedByteArray,n: int) -> bool:
     if bytes.size()<16+4*(n+1) or bytes.size()%4!=0:return false

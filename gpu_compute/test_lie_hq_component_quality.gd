@@ -1,6 +1,6 @@
 extends "res://test_lie_hq_construction.gd"
 func run() -> void:
-    var lab=load("res://lie_hq_construction_lab.tscn").instantiate();lab.state.mode="asset_mortar_bed";root.add_child(lab);await settle(18)
+    var lab=load("res://lie_hq_construction_lab.tscn").instantiate();lab.state.mode="asset_mortar_bed";lab.state.field_lighting=false;root.add_child(lab);await settle(18)
     check(lab.effect.capture_loaded,"quality source contracts")
     if not lab.effect.capture_loaded:lab.queue_free();await settle();quit(1);return
     for bank in lab.effect.banks:

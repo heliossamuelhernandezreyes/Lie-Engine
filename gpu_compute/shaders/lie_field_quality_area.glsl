@@ -175,7 +175,7 @@ bool field_step(uint id) {
         vec3 total=vec3(0);
         for(uint l=0u;l<L;l++)total+=channel_received.values[l*n+id].rgb;
         received.values[id]=vec4(total,0);
-        imageStore(irradiance,ivec2(int(id),0),vec4(total/max(patches.values[id].center_area.w,1e-8),1));
+        imageStore(irradiance,ivec2(int(id)%imageSize(irradiance).x,int(id)/imageSize(irradiance).x),vec4(total/max(patches.values[id].center_area.w,1e-8),1));
         return true;
     }
     if(id>=n*L)return true;
@@ -532,6 +532,6 @@ void main() {
     }
     if(phase.data.x==4) {
         vec3 e=received.values[i].rgb/max(patches.values[i].center_area.w,1e-8);
-        imageStore(irradiance,ivec2(int(i),0),vec4(e,1.0));
+        imageStore(irradiance,ivec2(int(i)%imageSize(irradiance).x,int(i)/imageSize(irradiance).x),vec4(e,1.0));
     }
 }

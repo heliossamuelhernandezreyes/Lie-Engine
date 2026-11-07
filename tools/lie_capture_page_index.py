@@ -4,6 +4,7 @@ No resampling, quantization, changed records or duplicated page payloads.
 """
 import argparse,hashlib,json
 from pathlib import Path
+import numpy as np
 from lie_asset_contract import inspect_bank
 from lie_optical_normals import inspect_optical
 
@@ -14,7 +15,9 @@ def build(root):
         if optical:assert inspect_optical(normal,catalog['sha256'],catalog['sample_count'])==optical
         entries={}
         for master,desc in catalog['masters'].items():
-            low=[c-s/2 for c,s in zip(desc.get('bounds_center',[0,0,0]),desc['bounds_size'])];high=[c+s/2 for c,s in zip(desc.get('bounds_center',[0,0,0]),desc['bounds_size'])]
+            # Preserve the accepted Godot Vector3 float32 low + size sequence.
+            # Recomputing high independently in float64 moves a few edge hits.
+            low=np.array([c-s/2 for c,s in zip(desc.get('bounds_center',[0,0,0]),desc['bounds_size'])],dtype='<f4');high=low+np.array(desc['bounds_size'],dtype='<f4');low=low.astype(float).tolist();high=high.astype(float).tolist()
             if 'modifications' in desc:
                 m=desc['modifications'];low=m['bounds_min'].copy();high=m['bounds_max'].copy();pivot=(low[0]+high[0])/2;low[0]-=pivot;high[0]-=pivot
             for lod,level in enumerate(desc['levels']):

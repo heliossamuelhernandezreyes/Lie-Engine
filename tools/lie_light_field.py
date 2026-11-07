@@ -79,10 +79,22 @@ def visible(a,b,node,model,packets,scan_caps=True):
         if k!=owners[node] and hit_box(a,b,boxes[k,:3],boxes[k,4:7],planes[k] if scan_caps else None):return False
     return True
 
+def visible_many(points,lamp,model,packets):
+    # Vector slabs are independent of the shader's scalar receiver loop.
+    from lie_field_visibility import clear_segments
+    owners=np.frombuffer(packets['owners'],dtype='<u4').astype('int64');owners=np.where(owners==0xffffffff,-1,owners)
+    raw=np.frombuffer(packets['boxes'],dtype='<f4')[4:].reshape(-1,8);count=int(np.frombuffer(packets['boxes'],dtype='<u4')[0]);boxes=raw[:count][:,[0,1,2,4,5,6]].reshape(-1,2,3)
+    planes=np.frombuffer(packets['planes'],dtype='<f4').reshape(-1,4)
+    # General clipped/triangle fixtures keep the original independent path.
+    if model.get('triangles') or any(np.any(plane[:3]!=[0,0,1]) or plane[3]<1e5 for plane in planes[:count]):return np.array([visible(p,lamp,i,model,packets) for i,p in enumerate(points)])
+    out=clear_segments(points,np.broadcast_to(lamp,points.shape),boxes,owners)
+    if model.get('blockers'):out &= clear_segments(points,np.broadcast_to(lamp,points.shape),model['blockers'])
+    return out
+
 def solve(model,packets,separate=True,scan_caps=True,emission_normals=None):
     if model.get('optical_sheets'):raise ValueError('Oracle covers opaque paths only')
     patches=model['patches'];n=len(patches);L=len(model['lights'])
-    if not 1<=n<=1024 or not 1<=L<=8:raise ValueError('Field capacity')
+    if not 1<=n<=8192 or not 1<=L<=8:raise ValueError('Field capacity')
     p=np.asarray([v['position'] for v in patches],dtype='<f4').astype(float)
     normals=np.asarray([v['normal'] for v in patches],dtype='<f4').astype(float)
     areas=np.asarray([v['area'] for v in patches],dtype='<f4').astype(float)
@@ -117,8 +129,10 @@ def solve(model,packets,separate=True,scan_caps=True,emission_normals=None):
         w=areas*cosine*fade/(4*math.pi*np.maximum(d2,.0025));w=np.where(d2>1e-10,w,0)
         if emission_normals is not None and emission_normals[light_index] is not None:
             w*=4*np.maximum(np.sum(unit(p-lamp)*np.asarray(emission_normals[light_index]),axis=1),0)
-        for i in range(n):
-            if w[i]>0 and not visible(p[i],lamp,i,model,packets,scan_caps):w[i]=0
+        if n>256 and scan_caps:w=np.where(visible_many(p,lamp,model,packets),w,0)
+        else:
+            for i in range(n):
+                if w[i]>0 and not visible(p[i],lamp,i,model,packets,scan_caps):w[i]=0
         flux=w[:,None]*power/max(1,float(w.sum()));direct.append(flux);travels.append(unit(p-lamp,fallback=-normals));parents.append(np.where(flux.max(1)>0,light['radius'],0))
     direct=np.asarray(direct);travels=np.asarray(travels);parents=np.asarray(parents)
     if not separate:

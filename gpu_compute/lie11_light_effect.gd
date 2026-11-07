@@ -131,6 +131,7 @@ func _initial_transport_buffer(binding: int, bytes: PackedByteArray) -> PackedBy
     # Specializations may reserve more frontier channels without copying the
     # renderer's allocation, cache, timestamp or RID-lifetime implementation.
     return bytes
+func _output_dimensions() -> Vector2i:return Vector2i(_count,1)
 
 func _initialize_gpu(data: Dictionary) -> bool:
     if _shader.is_valid() or not _buffers.is_empty():_release_gpu()
@@ -169,8 +170,8 @@ func _initialize_gpu(data: Dictionary) -> bool:
         _transport_uniforms.append(_uniform(binding+1 if binding>=10 else binding,rid))
     _factor_capacity=data[2].size()
     var format:=RDTextureFormat.new()
-    format.width=_count
-    format.height=1
+    var dimensions: Vector2i=_output_dimensions();format.width=dimensions.x;format.height=dimensions.y
+    if maxi(dimensions.x,dimensions.y)>_rd.limit_get(RenderingDevice.LIMIT_MAX_TEXTURE_SIZE_2D):failure="Light field texture capacity";return false
     format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT
     format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT|RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
     output_rid=_rd.texture_create(format,RDTextureView.new(),[])

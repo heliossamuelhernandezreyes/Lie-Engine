@@ -1,4 +1,5 @@
 extends RefCounted
+const MAX_PATCHES: int=8192
 const Optics=preload("res://lie13_optics_model.gd")
 ## Static spatial contract and reciprocal transfer cache. Runtime transport is GPU.
 
@@ -96,7 +97,7 @@ static func transfer_geometry_key(model: Dictionary) -> PackedByteArray:
         model.get("mesh_visibility",[]),model.get("factor_normalization","global")])
 
 static func sparse_factor_bytes(dense: PackedByteArray,count: int) -> PackedByteArray:
-    if count<1 or count>1024 or dense.size()!=count*count*4:return PackedByteArray()
+    if count<1 or count>MAX_PATCHES or dense.size()!=count*count*4:return PackedByteArray()
     var factors: PackedFloat32Array=dense.to_float32_array()
     for source in range(count):
         var total: float=0.0
@@ -208,7 +209,7 @@ static func valid(model: Dictionary) -> bool:
             for j in range(n):
                 if float(visibility[i*n+j])!=0.0 and float(visibility[i*n+j])!=1.0: return false
                 if visibility[i*n+j]!=visibility[j*n+i]: return false
-    if patches.is_empty() or patches.size()>1024 or lights.is_empty() or lights.size()>16 or boxes.size()>16:
+    if patches.is_empty() or patches.size()>MAX_PATCHES or lights.is_empty() or lights.size()>16 or boxes.size()>16:
         return false
     for p in patches:
         if not p is Dictionary or (p.get("position",[]) as Array).size()!=3 or (p.get("normal",[]) as Array).size()!=3:
