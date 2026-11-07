@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 def stage(data,out):
     if out.exists():raise ValueError('Use a fresh stage')
-    out.mkdir(parents=True);pending=['lie_hq_construction_lab.tscn','test_lie_hq_construction.gd','test_lie26_rig.gd','workshop/test_lie_agent_session.gd'];done=set();pattern=re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
+    out.mkdir(parents=True);pending=['test_lie_hq_component_quality.gd','lie_hq_construction_lab.tscn','test_lie_hq_construction.gd','test_lie26_rig.gd','workshop/test_lie_agent_session.gd'];done=set();pattern=re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
     while pending:
         name=pending.pop()
         if name in done:continue

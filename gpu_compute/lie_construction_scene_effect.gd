@@ -71,7 +71,7 @@ func _make_set() -> void:
     if not _sources_ready:
         _dummy=_rd.storage_buffer_create(16,PackedFloat32Array([0,0,1,0]).to_byte_array());allocation_bytes+=16
         for i in range(banks.size()):
-            var limits: PackedByteArray=_source_limits(banks[i].catalog);_limits.append(_rd.storage_buffer_create(limits.size(),limits));allocation_bytes+=limits.size()
+            var limits: PackedByteArray=_source_limits(banks[i].catalog);banks[i].limit_count=limits.size()/48;_limits.append(_rd.storage_buffer_create(limits.size(),limits));allocation_bytes+=limits.size()
             if i==0:_leases.append({"rid":_buffers[0]});_params.append(_buffers[6]);banks[i].bytes=_samples
             else:
                 var lease: Dictionary=SharedSamples.acquire(_rd,banks[i].bytes,banks[i].catalog.sha256,80)
@@ -103,7 +103,7 @@ func _make_set() -> void:
 func _update_parameters(parameters: PackedByteArray) -> void:
     _reverse_passes=parameters.decode_float(216)>.5
     for i in range(banks.size()):
-        var data: PackedByteArray=parameters.duplicate();data.encode_float(248,float(i));data.encode_float(252,parameters.decode_float(252) if not banks[i].normals.is_empty() else 0.)
+        var data: PackedByteArray=parameters.duplicate();data.encode_float(208,float(banks[i].limit_count));data.encode_float(248,float(i));data.encode_float(252,parameters.decode_float(252) if not banks[i].normals.is_empty() else 0.)
         _rd.buffer_update(_params[i],0,256,data)
 func _dispatch_stage(commands: int,count: int) -> void:
     var groups: int=int(ceil(float(count)/64));var x: int=mini(groups,32768)

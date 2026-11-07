@@ -37,7 +37,7 @@ def build(root):
                 # Recessed photographic mortar body is split around every real opening.
                 for a,b in subtract((0,cells),holes):
                     for low in range(a,b,2):
-                        high=min(low+2,b);length=(high-low)*half-g;pos=origin+Rwall@np.array([(low+high)*half/2-g/2,0,0])
+                        high=min(low+2,b);left=.015 if low==a else 0.;right=.015 if high==b else 0.;length=(high-low)*half-g-left-right;pos=origin+Rwall@np.array([(low+high)*half/2-g/2+(left-right)/2,0,0])
                         main.append(leaf('mortar/mortar_bed',f'backfill/{section}/{row}/{low}',pos,Rwall,scale=(length/.207519617,(y+g)/.008,.064/.094),lod=4))
                 if section==0 and row in (4,13):
                     courses[section,row].append((3,11,None));courses[section,row].sort(key=lambda item:item[0])

@@ -65,7 +65,8 @@ jobs:
           timeout 60 "$engine" --headless --path /tmp/hq/stage --script res://test_lie26_rig.gd 2>&1 | tee hq-construction-rig.log
           timeout 60 "$engine" --headless --path /tmp/hq/stage --script res://workshop/test_lie_agent_session.gd 2>&1 | tee hq-construction-agent.log
           timeout 600 xvfb-run -a "$engine" --path /tmp/hq/stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_hq_construction.gd 2>&1 | tee hq-construction-native.log
-          python tools/lie_hq_construction_verify.py --sources /tmp/hq/sources --stage /tmp/hq/stage --output /tmp/hq/comparison
+          timeout 600 xvfb-run -a "$engine" --path /tmp/hq/stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_hq_component_quality.gd 2>&1 | tee hq-construction-quality.log
+          python tools/lie_hq_construction_verify.py --sources /tmp/hq/sources --stage /tmp/hq/stage --output /tmp/hq/comparison --all-components
           python - <<'PY'
           from pathlib import Path
           for p in Path('.').glob('hq-construction-*.log'):
@@ -85,5 +86,6 @@ jobs:
             /tmp/hq/sources/mortar-region-review.json
             /tmp/hq/stage/*.png
             /tmp/hq/stage/hq-construction-native.json
+            /tmp/hq/stage/component-quality-native.json
             /tmp/hq/comparison
           if-no-files-found: warn

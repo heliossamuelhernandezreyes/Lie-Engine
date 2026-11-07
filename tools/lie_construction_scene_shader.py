@@ -12,7 +12,7 @@ def outputs():
             s=s.replace('bool covered(Projection p,vec2 xy)', '''struct SourceBounds { uvec4 interval; vec4 low; vec4 high; };
 layout(set=0,binding=15,std430) readonly buffer SourceLimits {SourceBounds v[];} source_limits;
 bool in_source(uint sid,vec3 local) {
-    uint lo=0u,hi=uint(source_limits.v.length());
+    uint lo=0u,hi=uint(parameters.iris.x);
     while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(source_limits.v[mid].interval.x<=sid)lo=mid;else hi=mid;}
     SourceBounds b=source_limits.v[lo];
     return sid<b.interval.y && all(greaterThanEqual(local,b.low.xyz-vec3(.000002))) && all(lessThanEqual(local,b.high.xyz+vec3(.000002)));
