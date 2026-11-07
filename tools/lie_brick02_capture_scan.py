@@ -68,6 +68,9 @@ def material_maps(mesh: trimesh.Trimesh) -> tuple[Image.Image | None, Image.Imag
 
 
 def load_source(source: Path) -> list[trimesh.Trimesh]:
+    if source.name.endswith('.photomesh.json'):
+        from lie_photographic_mesh_source import load_photomesh
+        return load_photomesh(source)
     if source.name.endswith('.heightfield.json'):
         from lie_heightfield_source import load_heightfield
         return load_heightfield(source)
@@ -138,7 +141,7 @@ def frame_for_brick(meshes: list[trimesh.Trimesh], length_m: float) -> tuple[np.
 
 def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
                  perm: np.ndarray, scale: float, center: np.ndarray,
-                 radius: float, basis=None) -> np.ndarray:
+                 radius: float, basis=None, optical_collector=None) -> np.ndarray:
     triangles = mesh.faces
     areas = np.asarray(mesh.area_faces, dtype=np.float64)
     positive = np.where(areas > 1e-14, areas, 0.)
@@ -182,6 +185,11 @@ def _sample_mesh(mesh: trimesh.Trimesh, count: int, rng: np.random.Generator,
     if basis is not None:
         world=((position-center)@basis.T*scale).astype(np.float32)
         normals=normalized(nr@basis.T).astype(np.float32)
+    if optical_collector is not None:
+        from lie_optical_normals import sample_optical
+        optical=sample_optical(mesh,uv,face,nr)
+        optical[:,:3]=normalized(optical[:,:3]@basis.T if basis is not None else optical[:,:3][:,perm])
+        optical_collector.append(optical)
     out = np.zeros((count, 20), dtype="<f4")
     out[:, :3] = world
     out[:, 3] = radius
@@ -264,6 +272,8 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
 
     envelope_size = (true_size + .003 * 2).tolist()
     samples = []
+    optical_samples=[]
+    capture_optical=bool(asset_profile is not None and asset_profile.get('capture_optical_normals',False))
     ranges = []
     reports = []
     byte_count = 0
@@ -271,17 +281,20 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
         rng = np.random.default_rng(seed + 7919 * lod)
         per_mesh = rng.multinomial(target, surface_areas / surface_areas.sum())
         sampled = []
+        optical=[]
         for mesh, allocated in zip(meshes, per_mesh):
             if not allocated:
                 continue
             area_m2 = float(mesh.area) * scale ** 2
             radius = float(np.clip(1.55 * np.sqrt(area_m2 / allocated), .00020, max_radius))
-            sampled.append(_sample_mesh(mesh, int(allocated), rng, perm, scale, center, radius,basis))
+            sampled.append(_sample_mesh(mesh,int(allocated),rng,perm,scale,center,radius,basis,optical if capture_optical else None))
         data = np.concatenate(sampled)
         if asset_profile is not None:data[:,8]=zone
         if asset_profile is not None and asset_profile.get('clip_support_to_source_aabb',False):
             bound_source_support(data,bounds_center-true_size/2,bounds_center+true_size/2)
-        rng.shuffle(data)
+        if capture_optical:
+            order=np.arange(len(data));rng.shuffle(order);data=data[order];optical_samples.append(np.concatenate(optical)[order])
+        else:rng.shuffle(data)
         if len(data) != target:
             raise ValueError("Incorrect captured sample count")
         if (np.max(np.abs(data[:, :3]-bounds_center), axis=0).max() > max(true_size) + .02):
@@ -327,6 +340,13 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     metadata['asset_frame']=frame_info
     metadata['optical_material']=material_info
     metadata['source_material_policy']='legacy_declared_clay' if asset_profile is None else asset_profile.get('source_material_policy','preserve_source')
+    if capture_optical:
+        from lie_optical_normals import inspect_optical
+        optical_raw=b''.join(a.tobytes() for a in optical_samples)
+        metadata['optical_normal_sidecar']=inspect_optical(optical_raw,bank_sha,sum(counts))
+        metadata['tangent_normal_map_consumed']=any('lie_optical_normal_map' in m.metadata for m in meshes)
+    if any('lie_photographic_mesh_declaration' in m.metadata for m in meshes):
+        metadata.update(source_kind='authored detailed 3D shape with photographed material',whole_object_scan=False,source_color_representation='source EXR encoding explicitly decoded before UV filtering')
     if any('lie_heightfield_declaration' in m.metadata for m in meshes):
         metadata.update(source_color_representation='original EXR RGB, explicitly declared encoding decoded to linear before bilinear UV filtering',
                         source_kind='photographic material on explicitly authored displaced surface',
@@ -336,6 +356,7 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     output.mkdir(parents=True, exist_ok=True)
     (output/"asset-contract.json").write_text(json.dumps(contract,indent=2)+"\n")
     (output / "library.bin").write_bytes(raw)
+    if capture_optical:(output/'optical-normals.bin').write_bytes(optical_raw)
     (output / "catalog.json").write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
     print("LIE-BRICK02:" if asset_profile is None else "LIE-ASSET:", metadata["source_original_triangles"], "source triangles;",
           sum(counts), "captured LIE samples;", bank_sha, flush=True)

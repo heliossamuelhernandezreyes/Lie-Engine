@@ -46,6 +46,14 @@ func _bind_stage(_commands: int,_stage: int) -> void:pass
 func _run_stage(_stage: int) -> bool:return true
 func _dispatch_stage(commands: int,count: int) -> void:
     _rd.compute_list_dispatch(commands,int(ceil(float(count)/64)),1,1)
+func _record_stage(commands: int,stage: int,count: int) -> void:
+    _bind_stage(commands,stage)
+    _rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
+    _dispatch_stage(commands,count)
+func _update_parameters(parameters: PackedByteArray) -> void:
+    _rd.buffer_update(_buffers[6],0,256,parameters)
+func _source_range_ok(_instances: PackedByteArray,_instance: int,start: int,count: int) -> bool:
+    return start+count<=int(catalog.get("sample_count",0))
 
 func _init(size: int=384) -> void:
     output_size=clampi(size,128,512);render_size=output_size*2
@@ -77,7 +85,8 @@ func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: Pack
     if instances.is_empty() or jobs.is_empty() or parameters.decode_s32(80)!=work or parameters.decode_s32(84)!=jobs.size()/16 or parameters.decode_s32(88)!=render_size or parameters.decode_s32(92)!=render_size:return false
     var entries: PackedInt32Array=jobs.to_int32_array();var prefix: int=0
     for i in range(0,entries.size(),4):
-        if entries[i]<0 or entries[i+1]<1 or entries[i]+entries[i+1]>int(catalog.get("sample_count",0)) or entries[i+2]<0 or entries[i+2]>=instances.size()/96 or entries[i+3]!=prefix:return false
+        if entries[i]<0 or entries[i+1]<1 or entries[i+2]<0 or entries[i+2]>=instances.size()/96 or entries[i+3]!=prefix:return false
+        if not _source_range_ok(instances,entries[i+2],entries[i],entries[i+1]):return false
         prefix+=entries[i+1]
     if prefix!=work:return false
     _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":instances.duplicate(),"jobs":jobs.duplicate(),"work":work};_mutex.unlock();return true
@@ -157,17 +166,15 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         _rd.free_rid(_set);_set=RID()
         _rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=mini(work_capacity(),int(ceil(float(work)/65536))*65536)
         _buffer(3,projection_capacity*96);_make_set()
-    _rd.buffer_update(_buffers[6],0,256,next["parameters"])
+    _update_parameters(next["parameters"])
     _rd.buffer_update(_buffers[1],0,next["instances"].size(),next["instances"])
     _rd.buffer_update(_buffers[2],0,next["jobs"].size(),next["jobs"])
     _rd.capture_timestamp(_profile_marker("begin"))
     var list: int=_rd.compute_list_begin();_rd.compute_list_bind_compute_pipeline(list,_pipeline);_rd.compute_list_bind_uniform_set(list,_set,0)
     for stage in [1,2,3,4,6,7]:
         if not _run_stage(stage):continue
-        _bind_stage(list,stage)
         var count: int=work if stage in [2,3] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
-        _rd.compute_list_set_push_constant(list,PackedInt32Array([stage,2,0,0]).to_byte_array(),16)
-        _dispatch_stage(list,count);_rd.compute_list_add_barrier(list)
+        _record_stage(list,stage,count);_rd.compute_list_add_barrier(list)
     _rd.compute_list_end();_rd.capture_timestamp(_profile_marker("end"))
     _resident=signature;sample_invocations=work;instance_count=next["instances"].size()/96;frame_count+=1
 

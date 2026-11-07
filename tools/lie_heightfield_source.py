@@ -27,7 +27,7 @@ def read_map(path,kind):
         import OpenEXR
         f=OpenEXR.File(str(path));channels=f.channels()
         a=channels['RGB'].pixels if 'RGB' in channels else channels[next(iter(channels))].pixels
-        if kind!='Diffuse' and a.ndim==3:a=a[:,:,0]
+        if kind not in ('Diffuse','nor_gl') and a.ndim==3:a=a[:,:,0]
     else:
         if kind=='Displacement':
             with path.open('rb') as f:header=f.read(26)
