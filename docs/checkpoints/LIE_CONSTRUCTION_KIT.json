@@ -1,0 +1,164 @@
+{
+  "schema": "lie-construction-kit-checkpoint/1",
+  "code_commit": "9d9d07a82a25404f97da8a16c66fa55f8fbc7d81",
+  "base_commit": "6108ce1541cc6fd9b40615824e43ab2015ebd55d",
+  "proof": {
+    "schema": "lie-construction-kit-proof/1",
+    "previous_bank_prefix_unchanged": true,
+    "bank_sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+    "bytes": 60262400,
+    "masters": 13,
+    "new_assets": [
+      "mortar_bed",
+      "mortar_head",
+      "mortar_corner",
+      "concrete_lintel",
+      "concrete_sill",
+      "plaster_panel",
+      "timber_beam",
+      "ceramic_tile"
+    ],
+    "sets": 37,
+    "scenes": 46
+  },
+  "verification": {
+    "schema": "lie-construction-kit-verification/1",
+    "bank_sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+    "bytes": 60262400,
+    "masters": 13,
+    "new_sources_verified": 8,
+    "source_prefix_unchanged": true,
+    "sets_checked": 37,
+    "scenes": {
+      "wall-2102": {
+        "instances": 379,
+        "beds": 129,
+        "heads": 117
+      },
+      "wall-7319": {
+        "instances": 379,
+        "beds": 129,
+        "heads": 117
+      },
+      "house-2102": {
+        "instances": 7228,
+        "beds": 2421,
+        "heads": 2298
+      },
+      "house-7319": {
+        "instances": 7228,
+        "beds": 2421,
+        "heads": 2298
+      }
+    }
+  },
+  "native": {
+    "cases": {
+      "asset_ceramic_tile": {
+        "coverage": 101201,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "asset_concrete_lintel": {
+        "coverage": 31195,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "asset_concrete_sill": {
+        "coverage": 33687,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "asset_mortar_bed": {
+        "coverage": 39008,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "asset_mortar_corner": {
+        "coverage": 88855,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "asset_mortar_head": {
+        "coverage": 177420,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "asset_plaster_panel": {
+        "coverage": 209302,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "asset_timber_beam": {
+        "coverage": 29116,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "samples": 6000
+      },
+      "brick": {
+        "coverage_pixels": 85844,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 243069184,
+        "instances": 1,
+        "sample_invocations": 480000,
+        "shared_bank_bytes": 60262400,
+        "source_mesh_draws": 0
+      },
+      "house": {
+        "coverage_pixels": 207103,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 463270144,
+        "instances": 7228,
+        "sample_invocations": 2781760,
+        "shared_bank_bytes": 60262400,
+        "source_mesh_draws": 0
+      },
+      "wall": {
+        "coverage_pixels": 54997,
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_allocation_bytes": 255652096,
+        "instances": 379,
+        "sample_invocations": 594944,
+        "shared_bank_bytes": 60262400,
+        "source_mesh_draws": 0
+      }
+    },
+    "checks": 112,
+    "failed": false,
+    "physical_android_tested": false,
+    "shared_irradiance_integrated": false
+  },
+  "python": {
+    "total": 275,
+    "passed": 274,
+    "skipped": 1
+  },
+  "rig_checks": 247,
+  "agent_checks": 25,
+  "ci_run": 42341452152,
+  "ci_status": "success",
+  "ci": {
+    "run": 42341452152,
+    "job": 128309816943,
+    "conclusion": "success",
+    "legacy_native_checks": 42,
+    "construction_kit_native_checks": 112,
+    "python": {
+      "total": 275,
+      "passed": 274,
+      "skipped": 1
+    },
+    "bank_matches_local": true,
+    "device": "llvmpipe LLVM 21.1.8, software Vulkan",
+    "artifact": {
+      "id": 13561956327,
+      "bytes": 165068809,
+      "sha256": "f848ed1abf78606b36cc1843d3ba82a5933e354cc25014f0c1c0b4f56438e688"
+    }
+  },
+  "dataset_package": {
+    "filename": "LIE_Banco_Construccion_v3.zip",
+    "bytes": 81004413,
+    "sha256": "c9322d4548ba3321fd7b06d39c79d40ea20bddb27dc0ba636e2026036dcdf11e",
+    "files": 160
+  }
+}
