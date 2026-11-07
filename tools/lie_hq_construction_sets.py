@@ -35,13 +35,13 @@ def build(root):
                 for a,b in subtract((0,cells),holes):
                     for low in range(a,b,2):
                         high=min(low+2,b);length=(high-low)*half-g;pos=origin+Rwall@np.array([(low+high)*half/2-g/2,0,0])
-                        main.append(leaf('mortar/mortar_bed',f'backfill/{section}/{row}/{low}',pos,Rwall,scale=(length/.207519617,(y+g)/.008,.064/.094),lod=2))
+                        main.append(leaf('mortar/mortar_bed',f'backfill/{section}/{row}/{low}',pos,Rwall,scale=(length/.207519617,(y+g)/.008,.064/.094),lod=4))
                 if section==0 and row in (4,13):
                     courses[section,row].append((3,11,None));courses[section,row].sort(key=lambda item:item[0])
                 # Explicit head joints and horizontal beds remain separate pieces.
                 for (_,left,node),(right,_,other) in zip(courses[section,row],courses[section,row][1:]):
                     if left!=right:continue
-                    pos=origin+Rwall@np.array([left*half-g/2,0,0]);main.append(leaf('mortar/mortar_head',f'head/{section}/{row}/{left}',pos,Rwall,scale=(1,1,.073/.094),lod=2))
+                    pos=origin+Rwall@np.array([left*half-g/2,0,0]);main.append(leaf('mortar/mortar_head',f'head/{section}/{row}/{left}',pos,Rwall,scale=(1,1,.073/.094),lod=3))
                 lower=courses.get((section,row-1),courses[section,row])
                 overlap=[]
                 for a,b,_ in courses[section,row]:
@@ -56,11 +56,11 @@ def build(root):
                 for a,b in runs:
                     for low in range(a,b,2):
                         high=min(low+2,b);pos=origin+Rwall@np.array([(low+high)*half/2-g/2,-(y+g)/2,0])
-                        main.append(leaf('mortar/mortar_bed',f'bed/{section}/{row}/{low}',pos,Rwall,scale=((high-low)*half/.207519617,1,.073/.094),lod=2))
+                        main.append(leaf('mortar/mortar_bed',f'bed/{section}/{row}/{low}',pos,Rwall,scale=((high-low)*half/.207519617,1,.073/.094),lod=3))
         for row in range(18):
             center=[W/2-z/2,base+row*py+y/2,z/2+corner_gap/2] if row%2==0 else [W/2-half+corner_gap/2,base+row*py+y/2,0]
-            main.append(leaf('mortar/mortar_head','elbow/'+str(row),center,Rside if row%2==0 else np.eye(3),scale=(corner_gap/.008,1,.073/.094),lod=2))
-            main.append(leaf('mortar/mortar_return','corner-bed/'+str(row),[W/2-z/2,base+row*py-g/2,z/2],lod=2))
+            main.append(leaf('mortar/mortar_head','elbow/'+str(row),center,Rside if row%2==0 else np.eye(3),scale=(corner_gap/.008,1,.073/.094),lod=3))
+            main.append(leaf('mortar/mortar_return','corner-bed/'+str(row),[W/2-z/2,base+row*py-g/2,z/2],lod=3))
         # Structural replacements exactly occupy their authored half-module slots.
         opening_center=-W/2+7*half-g/2;lower=base+4*py+y/2;upper=base+13*py+y/2
         frame=[leaf('concrete/concrete_sill','sill',[opening_center,lower,0],scale=((8*half-g)/.68,1,1),lod=1),leaf('concrete/concrete_lintel','lintel',[opening_center,upper,0],scale=((8*half-g)/.82,1,1),lod=1)]

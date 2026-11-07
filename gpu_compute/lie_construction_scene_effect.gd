@@ -12,6 +12,7 @@ var _normals: Array=[]
 var _dummy:=RID()
 var _sources_ready: bool=false
 var total_source_bytes: int=0
+var _reverse_passes: bool=false
 func scene_root() -> String:return "res://captures/hq_construction/"
 func capture_root() -> String:return scene_root()+"banks/"+str(manifest.banks[0])+"/"
 func sample_stride() -> int:return 80
@@ -86,6 +87,7 @@ func _make_set() -> void:
             _sets[str(bank)+":"+str(stage)]=uniform_set
     _set=_sets["0:1"]
 func _update_parameters(parameters: PackedByteArray) -> void:
+    _reverse_passes=parameters.decode_float(216)>.5
     for i in range(banks.size()):
         var data: PackedByteArray=parameters.duplicate();data.encode_float(248,float(i));data.encode_float(252,parameters.decode_float(252) if not banks[i].normals.is_empty() else 0.)
         _rd.buffer_update(_params[i],0,256,data)
@@ -93,7 +95,9 @@ func _dispatch_stage(commands: int,count: int) -> void:
     var groups: int=int(ceil(float(count)/64));var x: int=mini(groups,32768)
     _rd.compute_list_dispatch(commands,x,int(ceil(float(groups)/x)),1)
 func _record_stage(commands: int,stage: int,count: int) -> void:
-    for i in range(banks.size() if stage in [2,3] else 1):
+    var order: Array=range(banks.size() if stage in [2,3] else 1)
+    if _reverse_passes and stage in [2,3]:order.reverse()
+    for i in order:
         _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline);_rd.compute_list_bind_uniform_set(commands,_sets[str(i)+":"+str(stage)],0)
         _rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,0,0]).to_byte_array(),16);_dispatch_stage(commands,count);_rd.compute_list_add_barrier(commands)
 func _capture() -> void:

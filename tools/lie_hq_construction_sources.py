@@ -27,16 +27,16 @@ RECTANGLES={'bed':[4300,632,5524,685],'head':[3790,105,3837,443]}
 def write(path,data):path.write_text(json.dumps(data,indent=2)+'\n')
 def acquire_mortar(root):
     root.mkdir(parents=True,exist_ok=True)
-    req=urllib.request.Request('https://api.polyhaven.com/files/brick_wall_04',headers={'User-Agent':'LIE detailed construction; Powered by Poly Haven'})
-    d=json.load(urllib.request.urlopen(req,timeout=60))
-    items=[(k,d[k]['8k'][fmt]) for k,fmt in [('Diffuse','exr'),('Rough','exr'),('Displacement','png'),('nor_gl','exr')]]+[('ColorReference',d['Diffuse']['8k']['jpg']),('source',d['blend']['8k']['blend'])]
+    pinned=Path(__file__).resolve().parents[1]/'gpu_compute/assets/hq_construction/mortar_maps.lock.json'
+    if not pinned.exists():raise ValueError('pinned_mortar_source_required')
+    items=list(json.loads(pinned.read_text()).items())
     def get(item):
         key,spec=item;path=root/(key+'.'+spec['url'].rsplit('.',1)[1])
         if not path.exists():
             req=urllib.request.Request(spec['url'],headers={'User-Agent':'LIE construction; Powered by Poly Haven'})
             with urllib.request.urlopen(req,timeout=180) as r,path.open('wb') as f:shutil.copyfileobj(r,f)
         with path.open('rb') as f:md5=hashlib.file_digest(f,'md5').hexdigest()
-        if md5!=spec['md5'] or path.stat().st_size!=spec['size']:raise ValueError('source_download_hash')
+        if md5!=spec['md5'] or path.stat().st_size!=spec['size'] or file_sha(path)!=spec['sha256']:raise ValueError('source_download_hash')
         print('SOURCE',key,path.stat().st_size,flush=True);return key,{**spec,'path':path.name,'sha256':file_sha(path)}
     with ThreadPoolExecutor(max_workers=4) as pool:lock=dict(pool.map(get,items))
     write(root/'maps.lock.json',lock)
