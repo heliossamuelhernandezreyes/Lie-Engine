@@ -10,8 +10,8 @@ import lie_hq_construction_stage as construction
 import lie_runtime_android_build as android
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE = 'org.lieengine.construction.v6'
-VERSION = '6.0.0-construction-field'
+PACKAGE = 'org.lieengine.construction.v601'
+VERSION = '6.0.1-auto-benchmark'
 
 
 def sha(path):
@@ -53,7 +53,7 @@ def stage(data, destination, require_probe=False):
         shutil.copytree(probe, destination / 'addons/lie_gpu_probe')
     elif require_probe:
         raise ValueError('Build the actual native telemetry module before exporting')
-    project = android.PROJECT.replace('LIE Pared', 'LIE Construccion 6').replace('0.1.0', '6.0.0').replace('lie_runtime_android_lab.tscn', 'lie_construction_mobile_lab.tscn')
+    project = android.PROJECT.replace('LIE Pared', 'LIE Benchmark 6.0.1').replace('0.1.0', '6.0.1').replace('lie_runtime_android_lab.tscn', 'lie_construction_mobile_lab.tscn')
     project = project.replace('pointing/emulate_mouse_from_touch=true', 'pointing/emulate_mouse_from_touch=false')
     project += '\n[editor]\nimport/use_multiple_threads=false\n'
     (destination / 'project.godot').write_text(project)
@@ -70,11 +70,11 @@ def stage(data, destination, require_probe=False):
     (destination / 'build-source.json').write_text(json.dumps(proof, indent=2) + '\n')
     filters = list(assets) + ['build-source.json', 'ATTRIBUTION.txt', 'addons/lie_gpu_probe/licenses/*.txt', 'addons/lie_gpu_probe/bin/*/build.json']
     preset = re.sub(r'^include_filter=.*$', 'include_filter=' + json.dumps(','.join(filters)), android.PRESET, flags=re.M)
-    preset = preset.replace('version/code=1\n', 'version/code=600\n').replace('0.1.0-runtime-lighting', VERSION).replace('org.lieengine.wallruntime', PACKAGE).replace('LIE Pared', 'LIE Construccion 6')
+    preset = preset.replace('version/code=1\n', 'version/code=601\n').replace('0.1.0-runtime-lighting', VERSION).replace('org.lieengine.wallruntime', PACKAGE).replace('LIE Pared', 'LIE Benchmark 6.0.1')
     preset = preset.replace('exclude_filter="test_*,*.log,*.apk"', 'exclude_filter="test_*,workshop/test_*,fixtures/*,*.log,*.apk,addons/lie_gpu_probe/bin/linux.x86_64/*"')
     (destination / 'export_presets.cfg').write_text(preset)
     (destination / 'ATTRIBUTION.txt').write_text(
-        'LIE Construccion 6.0.0, experimental capture reconstruction. Powered by Poly Haven.\n'
+        'LIE Benchmark 6.0.1, experimental capture reconstruction. Powered by Poly Haven.\n'
         'Stratford New Place Brick Ver 2 by Centre-of-Archaeology, CC BY 4.0.\n'
         'https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a\n'
         'https://creativecommons.org/licenses/by/4.0/\n'

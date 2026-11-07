@@ -1,7 +1,7 @@
 extends "res://lie_hq_construction_lab.gd"
 const Meter=preload("res://lie_construction_mobile_metrics.gd")
 const Hardware=preload("res://lie_hardware_diagnostics.gd")
-const APP_VERSION="6.0.0-construction-field"
+const APP_VERSION="6.0.1-auto-benchmark"
 var output_resolution: int=960
 var hardware=Hardware.new()
 var meter=Meter.new()
@@ -23,6 +23,9 @@ var _report_text: TextEdit
 var _save_dialog: FileDialog
 var _controls_scroll: ScrollContainer
 var _quality: OptionButton
+var _benchmark_button: Button
+var _copy_button: Button
+var _stop_button: Button
 var _message: String=""
 
 func _create_effect() -> CompositorEffect:return Effect.new(output_resolution)
@@ -38,6 +41,7 @@ func _ready() -> void:
     _telemetry=hardware.telemetry();_poll_clock=.5
     _last_frame=Time.get_ticks_usec()
     _sync_control_availability()
+    _refresh_quick_actions()
 
 func _label(parent: Node,text: String,size: int=19) -> Label:
     var label:=Label.new();label.text=text;label.add_theme_font_size_override("font_size",size);parent.add_child(label);return label
@@ -57,7 +61,16 @@ func _build_ui() -> void:
     layer.add_child(margin)
     var columns:=HBoxContainer.new();columns.add_theme_constant_override("separation",16);margin.add_child(columns)
     var left:=VBoxContainer.new();left.size_flags_horizontal=Control.SIZE_EXPAND_FILL;columns.add_child(left)
-    _label(left,"LIE · Construcción v6",28)
+    _label(left,"LIE · Benchmark 6.0.1",28)
+    var actions:=HBoxContainer.new();actions.add_theme_constant_override("separation",8);left.add_child(actions)
+    _benchmark_button=_button(actions,"Benchmark y copiar informe",func():run_comparison())
+    _benchmark_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL;_benchmark_button.custom_minimum_size.y=56;_benchmark_button.add_theme_font_size_override("font_size",20)
+    var emphasis:=StyleBoxFlat.new();emphasis.bg_color=Color(.07,.32,.24)
+    for corner in ["top_left","top_right","bottom_left","bottom_right"]:emphasis.set("corner_radius_"+corner,8)
+    _benchmark_button.add_theme_stylebox_override("normal",emphasis)
+    _copy_button=_button(actions,"Copiar informe",copy_report)
+    _stop_button=_button(actions,"Detener",func():command({"op":"cancel_test"}),false)
+    _label(left,"Al terminar: informe copiado. Vuelve a ChatGPT y pégalo.",16)
     picture=TextureRect.new();picture.expand_mode=TextureRect.EXPAND_IGNORE_SIZE;picture.stretch_mode=TextureRect.STRETCH_KEEP_ASPECT_CENTERED;picture.size_flags_vertical=Control.SIZE_EXPAND_FILL;picture.size_flags_horizontal=Control.SIZE_EXPAND_FILL;picture.mouse_filter=Control.MOUSE_FILTER_STOP;left.add_child(picture)
     _label(left,"Un dedo: girar · Dos dedos: acercar y desplazar",17)
     _status=_label(left,"Preparando capturas…",17);_status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART;_status.custom_minimum_size.y=72
@@ -158,6 +171,7 @@ func _process(delta: float) -> void:
     if _measuring:meter.collect(effect.diagnostics(),_light_owner(),_light_metrics())
     if _poll_clock<.5:return
     _poll_clock=0.;effect.request_diagnostics();var a: Dictionary=effect.diagnostics();_telemetry=hardware.telemetry()
+    _refresh_quick_actions()
     var total: int=int(a.get("allocation_bytes",0))+int(a.get("field",{}).get("bytes",0));var rss: Dictionary=_telemetry.get("process_memory",{}).get("rss",{})
     _status.text="Pantalla %d FPS · salida %d / interna %d\nRecursos LIE %.1f MiB · RSS %s\n%s" % [Engine.get_frames_per_second(),output_resolution,output_resolution*2,total/1048576.,("%.1f MiB" % (float(rss.bytes)/1048576.)) if rss.get("available",false) else "no disponible",str(metrics.get("error",a.get("failure","")))]
     if busy:_progress.text=_message
@@ -195,6 +209,12 @@ func _lock_controls(value: bool) -> void:
         elif control is BaseButton:control.disabled=value
     _fingers.clear();_mouse_drag=false
     _sync_control_availability()
+    _refresh_quick_actions()
+func _refresh_quick_actions() -> void:
+    if _benchmark_button==null:return
+    _benchmark_button.disabled=busy or not metrics.get("configured",false) or effect==null or not effect.gpu_ready
+    _copy_button.disabled=busy or _latest.is_empty()
+    _stop_button.disabled=not busy
 func _new_report(kind: String) -> Dictionary:
     return {"schema":"lie-construction-mobile-report/1","version":APP_VERSION,"kind":kind,"started_at":Time.get_datetime_string_from_system(),"device":OS.get_model_name(),"os":OS.get_name(),"gpu":RenderingServer.get_video_adapter_name(),"engine":Engine.get_version_info(),"scene_identity":effect.manifest.get("scene_identity",""),"output_size":output_resolution,"internal_size":output_resolution*2,"blocks":[],"warm_up":[],"cancelled":false,"error":"","complete":false,"physical_android_session":OS.has_feature("android"),"scope":"Measurements from this runtime only. Software Vulkan is not Android performance. Resource accounting excludes driver/cache/CPU allocations. RSS and PSS are separate process metrics, not dedicated GPU memory. Temperature is reported only when an explicitly named GPU sensor is readable."}
 func _persist_report() -> void:
@@ -203,6 +223,7 @@ func _persist_report() -> void:
 func _finish(backup: Dictionary) -> void:
     _measuring=false;_latest.cancelled=cancelled;_latest.restored=_set_values(backup);_latest.complete=not cancelled and _latest.error.is_empty();_latest.finished_at=Time.get_datetime_string_from_system();busy=false;_lock_controls(false);_persist_report()
     _progress.text="Prueba detenida; ajustes restaurados. Informe disponible." if cancelled else "Prueba terminada; ajustes restaurados. Abre Informe." if _latest.complete else "Prueba incompleta: "+_latest.error
+    if _latest.complete and _latest.restored:copy_report()
 func run_comparison(events: int=24) -> void:
     if busy or not metrics.get("configured",false):return
     busy=true;cancelled=false;_lock_controls(true);var backup: Dictionary=state.duplicate();_latest=_new_report("paired_direct_vs_two_bounces")
@@ -253,6 +274,14 @@ func portable_report() -> Dictionary:
     for warm in result.get("warm_up",[]):warm.resources.erase("profile")
     result.copy_scope="Summary with percentiles and resource/thermal boundaries; export the complete JSON for raw GPU interval rows."
     return result
+func copy_report() -> bool:
+    if busy or _latest.is_empty():return false
+    _report_text.text=JSON.stringify(portable_report(),"\t",true,true)
+    if not DisplayServer.has_feature(DisplayServer.FEATURE_CLIPBOARD):
+        _progress.text="Informe listo. Abre Informe / copiar para seleccionar el texto.";return false
+    DisplayServer.clipboard_set(_report_text.text)
+    _progress.text="Informe copiado. Vuelve a ChatGPT y pégalo."
+    return true
 func _show_report() -> void:
     _report_text.text=JSON.stringify(portable_report(),"\t",true,true) if not _latest.is_empty() else "Primero ejecuta una medición. Los datos se guardan en el dispositivo; no se envían automáticamente."
     _report_dialog.popup_centered(Vector2i(900,600))

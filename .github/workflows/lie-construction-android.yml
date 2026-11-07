@@ -1,4 +1,4 @@
-name: LIE construction v6 touch laboratory APK
+name: LIE construction 6.0.1 automatic benchmark APK
 on:
   push:
     branches: [work/lie-construction-android]
@@ -77,13 +77,13 @@ jobs:
       - name: Export, sign, align and independently verify complete APK
         run: |
           keytool -genkeypair -keystore /tmp/lie-construction-debug.keystore -storepass android -keypass android -alias androiddebugkey -dname 'CN=LIE Construction Laboratory,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
-          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.apk"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.apk > apk/badging.txt
-          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.apk --badging apk/badging.txt
+          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.0.1.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.0.1.apk > apk/badging.txt
+          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.0.1.apk --badging apk/badging.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lie-construction-v6-apk-and-evidence
+          name: lie-construction-v601-apk-and-evidence
           compression-level: 6
           path: |
             apk/
