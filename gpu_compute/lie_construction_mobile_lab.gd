@@ -22,6 +22,7 @@ var _report_dialog: AcceptDialog
 var _report_text: TextEdit
 var _save_dialog: FileDialog
 var _controls_scroll: ScrollContainer
+var _quality: OptionButton
 var _message: String=""
 
 func _create_effect() -> CompositorEffect:return Effect.new(output_resolution)
@@ -36,6 +37,7 @@ func _ready() -> void:
     RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(),true)
     _telemetry=hardware.telemetry();_poll_clock=.5
     _last_frame=Time.get_ticks_usec()
+    _sync_control_availability()
 
 func _label(parent: Node,text: String,size: int=19) -> Label:
     var label:=Label.new();label.text=text;label.add_theme_font_size_override("font_size",size);parent.add_child(label);return label
@@ -68,7 +70,7 @@ func _build_ui() -> void:
         for mode in effect.manifest.modes:selector.add_item(mode.replace("asset_","").replace("_"," "))
         selector.item_selected.connect(func(i: int):command({"op":"set_values","values":{"mode":effect.manifest.modes[i]}}))
     box.add_child(selector)
-    var quality:=OptionButton.new();quality.custom_minimum_size.y=48
+    var quality:=OptionButton.new();quality.custom_minimum_size.y=48;_quality=quality
     for size in [480,720,960]:quality.add_item("Salida %d · interna %d" % [size,size*2])
     quality.select([480,720,960].find(output_resolution));quality.item_selected.connect(func(i: int):command({"op":"set_resolution","value":[480,720,960][i]}));box.add_child(quality);_buttons.append(quality)
     _button(box,"Cambiar semilla 2102 / 7319",func():command({"op":"set_values","values":{"seed":7319 if state.seed==2102 else 2102}}))
@@ -83,7 +85,7 @@ func _build_ui() -> void:
     _button(box,"Sesión de 10 minutos",func():run_session(600.))
     _button(box,"Detener prueba",func():cancelled=true,false)
     _button(box,"Informe / copiar",_show_report,false)
-    var note:=_label(box,"Mismas capturas y LOD de v5.\nLa resolución se elige explícitamente.\nPowered by Poly Haven\nLadrillo: Centre-of-Archaeology",15);note.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
+    var note:=_label(box,"Mismas capturas y LOD de v5.\nLa resolución se elige explícitamente.\nReferencia: una luz; comparación: dos.\nPowered by Poly Haven\nLadrillo: Centre-of-Archaeology",15);note.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
     _report_dialog=AcceptDialog.new();_report_dialog.title="Informe LIE v6";_report_dialog.min_size=Vector2i(800,530);layer.add_child(_report_dialog)
     _report_text=TextEdit.new();_report_text.editable=false;_report_text.custom_minimum_size=Vector2(760,450);_report_dialog.add_child(_report_text)
     var copy:=_report_dialog.add_button("Copiar resumen",false,"copy");copy.custom_minimum_size.y=44
@@ -108,8 +110,16 @@ func command(request: Dictionary) -> Dictionary:
         if texture!=null:texture.texture_rd_rid=RID()
         picture.texture=null;texture=null;output_resolution=size;effect=_create_effect()
         world_environment.compositor.compositor_effects=[transport,effect] if transport!=null else [effect]
-        previous.shutdown();revision+=1;update_scene();return {"ok":true,"revision":revision}
-    return super.command(request)
+        previous.shutdown();revision+=1;update_scene();_quality.select([480,720,960].find(size));return {"ok":true,"revision":revision}
+    var result: Dictionary=super.command(request)
+    if result.get("ok",false):_sync_control_availability()
+    return result
+func _sync_control_availability() -> void:
+    for key in ["indirect","key_enabled","fill_enabled","energy_radius","fill_power","bounces"]:
+        if not controls.has(key):continue
+        var enabled: bool=not busy and state.field_lighting
+        if controls[key] is HSlider:controls[key].editable=enabled
+        else:controls[key].disabled=not enabled
 func _set_values(values: Dictionary) -> bool:
     _internal=true;var result: Dictionary=command({"op":"set_values","values":values});_internal=false;return result.ok
 
@@ -184,6 +194,7 @@ func _lock_controls(value: bool) -> void:
         if control is HSlider:control.editable=not value
         elif control is BaseButton:control.disabled=value
     _fingers.clear();_mouse_drag=false
+    _sync_control_availability()
 func _new_report(kind: String) -> Dictionary:
     return {"schema":"lie-construction-mobile-report/1","version":APP_VERSION,"kind":kind,"started_at":Time.get_datetime_string_from_system(),"device":OS.get_model_name(),"os":OS.get_name(),"gpu":RenderingServer.get_video_adapter_name(),"engine":Engine.get_version_info(),"scene_identity":effect.manifest.get("scene_identity",""),"output_size":output_resolution,"internal_size":output_resolution*2,"blocks":[],"warm_up":[],"cancelled":false,"error":"","complete":false,"physical_android_session":OS.has_feature("android"),"scope":"Measurements from this runtime only. Software Vulkan is not Android performance. Resource accounting excludes driver/cache/CPU allocations. RSS and PSS are separate process metrics, not dedicated GPU memory. Temperature is reported only when an explicitly named GPU sensor is readable."}
 func _persist_report() -> void:
