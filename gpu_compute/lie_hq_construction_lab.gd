@@ -26,10 +26,18 @@ var revision: int=0
 var metrics: Dictionary={}
 var recipe: Dictionary={}
 func _ready() -> void:
-    effect=Effect.new(960)
+    effect=_create_effect()
     if not effect.capture_loaded:metrics={"error":effect.failure};return
     camera=Camera3D.new();add_child(camera);camera.current=true
     world_environment=WorldEnvironment.new();add_child(world_environment);world_environment.environment=Environment.new();world_environment.compositor=Compositor.new();world_environment.compositor.compositor_effects=[effect]
+    _build_ui()
+    light_world=World.new();add_child(light_world);light_world.begin_update();key_emitter=Emitter.new();key_emitter.light_id="key";light_world.add_child(key_emitter);fill_emitter=Emitter.new();fill_emitter.light_id="fill";light_world.add_child(fill_emitter);light_world.end_update();light_world.codes_changed.connect(_accept_light_snapshot)
+    var source: Variant=JSON.parse_string(FileAccess.get_file_as_string(effect.scene_root()+"fields/materials.json"))
+    if source is Dictionary and source.get("scene_identity")==effect.manifest.scene_identity:_materials=source.get("materials",{})
+    update_scene()
+func _create_effect() -> CompositorEffect:return Effect.new(960)
+func _create_field() -> CompositorEffect:return Field.new()
+func _build_ui() -> void:
     var layer:=CanvasLayer.new();add_child(layer);var bg:=ColorRect.new();bg.color=Color(.03,.037,.047);bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT);layer.add_child(bg)
     picture=TextureRect.new();picture.position=Vector2(10,10);picture.size=Vector2(800,800);layer.add_child(picture)
     var scroll:=ScrollContainer.new();scroll.position=Vector2(825,10);scroll.size=Vector2(320,800);layer.add_child(scroll);var box:=VBoxContainer.new();box.custom_minimum_size=Vector2(295,0);box.size_flags_horizontal=Control.SIZE_EXPAND_FILL;scroll.add_child(box)
@@ -45,10 +53,6 @@ func _ready() -> void:
         var checkbox:=CheckBox.new();checkbox.text={"field_lighting":"Usar campo de luz LIE","indirect":"Luz indirecta","key_enabled":"Luz principal","fill_enabled":"Segunda luz","energy_radius":"Radio energético","normals":"Relieve fino","shadows":"Sombras"}[key];checkbox.button_pressed=state[key];checkbox.toggled.connect(func(value: bool):command({"op":"set_values","values":{key:value}}));box.add_child(checkbox);controls[key]=checkbox
     var button:=Button.new();button.text="Semilla 2102 / 7319";button.pressed.connect(func():command({"op":"set_values","values":{"seed":7319 if state.seed==2102 else 2102}}));box.add_child(button)
     var credit:=Label.new();credit.text="Powered by Poly Haven\nLadrillo: Centre-of-Archaeology\nPerfiles nuevos: autoría LIE";box.add_child(credit)
-    light_world=World.new();add_child(light_world);light_world.begin_update();key_emitter=Emitter.new();key_emitter.light_id="key";light_world.add_child(key_emitter);fill_emitter=Emitter.new();fill_emitter.light_id="fill";light_world.add_child(fill_emitter);light_world.end_update();light_world.codes_changed.connect(_accept_light_snapshot)
-    var source: Variant=JSON.parse_string(FileAccess.get_file_as_string(effect.scene_root()+"fields/materials.json"))
-    if source is Dictionary and source.get("scene_identity")==effect.manifest.scene_identity:_materials=source.get("materials",{})
-    update_scene()
 func command(request: Dictionary) -> Dictionary:
     if request.get("op")=="snapshot":return {"ok":true,"revision":revision,"state":state.duplicate(),"metrics":metrics.duplicate()}
     if request.get("op")!="set_values" or not request.get("values") is Dictionary:return {"ok":false,"error":"command"}
@@ -140,7 +144,7 @@ func _configure_field(entries: Array,instances: PackedByteArray) -> bool:
         if state.mode=="corner":data=Adapter.load_corner(effect.scene_root()+"fields/corner-"+str(state.seed)+"/",effect.scene_root()+"corner-"+str(state.seed)+".json",effect.manifest.scene_identity)
         else:data=Adapter.small_scene(entries,_materials)
         if data.is_empty():return false
-        var next: CompositorEffect=Field.new();var model: Dictionary=data.model;model.lights=light_world.render_snapshot().lights;model.bounces=state.bounces
+        var next: CompositorEffect=_create_field();var model: Dictionary=data.model;model.lights=light_world.render_snapshot().lights;model.bounces=state.bounces
         if state.energy_radius:model.secondary_radii={"mode":"irradiance","radius_max":12.,"radius_decay":.8,"irradiance_cutoff":.01}
         if not next.bind_sources(model,data.sources) or not next.configure(model):next.shutdown();return false
         next.set_direct_shadow_enabled(state.shadows)

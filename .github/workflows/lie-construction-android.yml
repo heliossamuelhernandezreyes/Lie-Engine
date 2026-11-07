@@ -1,0 +1,97 @@
+name: LIE construction v6 touch laboratory APK
+on:
+  push:
+    branches: [work/lie-construction-android]
+    paths-ignore: ["docs/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: construction-android-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-and-apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONPATH: tools
+      OPENBLAS_NUM_THREADS: '2'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: CPU regressions and pinned immutable v6 input
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python -m pip install --timeout 30 --retries 2 -r requirements-hq.txt
+          python -m unittest discover -s tests -p 'test_*.py' -q
+          gh api repos/${{ github.repository }}/actions/artifacts/13572886857/zip > /tmp/v6.zip
+          python tools/lie_construction_android_input.py --archive /tmp/v6.zip --output /tmp/hq-scene
+          python tools/lie_light_field.py
+          python tools/lie_field_quality_cases.py
+      - name: Native engine, Vulkan and telemetry module
+        run: |
+          timeout 180 sudo apt-get update -qq
+          timeout 180 sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1
+          curl --fail --location --retry 2 --max-time 120 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform linux.x86_64 > native-probe-build.log 2>&1
+          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-ci
+      - name: Compile, controls, actual native construction and mobile comparison
+        run: |
+          set -o pipefail
+          engine=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          timeout 120 "$engine" --headless --path /tmp/mobile-ci --editor --import --quit 2>&1 | tee mobile-import.log
+          for script in test_lie_construction_mobile_metrics test_lie_hardware_probe test_lie26_rig workshop/test_lie_agent_session; do
+            timeout 90 "$engine" --headless --path /tmp/mobile-ci --script "res://$script.gd" 2>&1 | tee "mobile-${script##*/}.log"
+          done
+          for script in test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile; do
+            timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/mobile-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script "res://$script.gd" 2>&1 | tee "mobile-$script.log"
+          done
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('.').glob('mobile-*.log'):
+              text=p.read_text();assert not any(x in text for x in ['ERROR:','SCRIPT ERROR','were leaked at exit']),(str(p),text[-15000:])
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+        with:
+          cmdline-tools-version: '12266719'
+          packages: 'platform-tools build-tools;36.0.0 ndk;28.2.13676358'
+          log-accepted-android-sdk-licenses: false
+      - name: Build ARM64 module and verify official Android template
+        run: |
+          python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform android.arm64 --ndk "$ANDROID_HOME/ndk/28.2.13676358" > native-android-build.log 2>&1
+          curl --fail --location --retry 2 --max-time 180 -o /tmp/godot-templates.tpz https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_export_templates.tpz
+          echo 'f298490b8d44d934be425a5a65a51bf15f422428b229a06a6e11d9ffea248011  /tmp/godot-templates.tpz' | sha256sum -c -
+          mkdir -p "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+          unzip -j -q /tmp/godot-templates.tpz templates/android_debug.apk -d "$HOME/.local/share/godot/export_templates/4.7.2.stable"
+      - name: Export, sign, align and independently verify complete APK
+        run: |
+          keytool -genkeypair -keystore /tmp/lie-construction-debug.keystore -storepass android -keypass android -alias androiddebugkey -dname 'CN=LIE Construction Laboratory,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
+          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.apk > apk/badging.txt
+          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.apk --badging apk/badging.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-construction-v6-apk-and-evidence
+          compression-level: 6
+          path: |
+            apk/
+            *.log
+            /tmp/mobile-ci/construction-mobile-ui.png
+            /tmp/mobile-ci/construction-mobile-native.json
+            /tmp/mobile-ci/hq-construction-native.json
+            /tmp/mobile-ci/construction-field-native.json
+            /tmp/mobile-ci/hardware-probe-native.json
+            gpu_compute/addons/lie_gpu_probe/bin/*/build.json
+          if-no-files-found: warn

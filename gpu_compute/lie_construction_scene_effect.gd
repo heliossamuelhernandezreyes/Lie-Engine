@@ -29,6 +29,25 @@ var _field_map_stamp:=PackedByteArray()
 var _field_dummy_patch:=RID()
 var _field_dummy_light:=RID()
 var _field_dummy_image:=RID()
+var _diagnostic_snapshot: Dictionary={}
+func request_diagnostics() -> void:
+    RenderingServer.call_on_render_thread(Callable(self,"_publish_diagnostics"))
+func diagnostics() -> Dictionary:
+    _mutex.lock();var result: Dictionary=_diagnostic_snapshot.duplicate(true);_mutex.unlock();return result
+func _publish_diagnostics() -> void:
+    if gpu_ready:_collect_profile()
+    # Metadata and asynchronous timestamps only: no buffer/texture readback,
+    # submit, fence wait or synthetic timing for an idle cached frame.
+    var result: Dictionary={"ready":gpu_ready,"failure":failure,"frames":frame_count,"owner":get_instance_id(),
+        "allocation_bytes":allocation_bytes,"source_bytes":total_source_bytes,
+        "exclusive_bytes":allocation_bytes-total_source_bytes,"page_io_bytes":page_io_bytes,
+        "asset_uploads":asset_uploads,"instances":instance_count,"samples":sample_invocations,
+        "output_size":output_size,"internal_size":render_size,"field":{},
+        "profile":_profiles.duplicate(true),"snapshot_usec":Time.get_ticks_usec()}
+    if gpu_ready:result.device=_rd.get_device_name()
+    for key in ["producer","epoch","solve","nodes","bytes"]:
+        if _field_receipt.has(key):result.field[key]=_field_receipt[key]
+    _mutex.lock();_diagnostic_snapshot=result;_mutex.unlock()
 func scene_root() -> String:return "res://captures/hq_construction/"
 func capture_root() -> String:return scene_root()+"banks/"+str(manifest.banks[0])+"/"
 func sample_stride() -> int:return 80

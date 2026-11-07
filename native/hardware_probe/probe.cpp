@@ -18,6 +18,7 @@
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -59,7 +60,19 @@ Dictionary telemetry_data(){
         dlclose(library);
     }
 #endif
-    result["thermal_status"]=policy;return result;
+    result["thermal_status"]=policy;
+    Dictionary memory;memory["source"]="/proc/self/status and /proc/self/smaps_rollup";
+    memory["scope"]="process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory";
+    for(const auto &entry:std::vector<std::pair<std::string,std::string>>{{"/proc/self/status","VmRSS:"},{"/proc/self/smaps_rollup","Pss:"}}){
+        Dictionary metric=unavailable("Process memory metric is not readable by this app");
+        std::ifstream stream(entry.first);std::string line;
+        while(std::getline(stream,line)){
+            std::istringstream row(line);std::string key,unit;int64_t kb=0;
+            if((row>>key>>kb>>unit) && key==entry.second && unit=="kB" && kb>=0){metric["available"]=true;metric.erase("reason");metric["bytes"]=kb*1024;break;}
+        }
+        memory[entry.second=="Pss:"?"pss":"rss"]=metric;
+    }
+    result["process_memory"]=memory;return result;
 }
 }
 class LieGPUProbe: public RefCounted {

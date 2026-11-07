@@ -23,5 +23,9 @@ func run() -> void:
     for key in ["gpu_frequency","gpu_temperature","thermal_status"]:
         check(telemetry.has(key),"telemetry availability explicit "+key)
         if not telemetry.get(key,{}).get("available",false):check(not telemetry[key].has("value") and telemetry[key].has("reason"),"missing telemetry is not zero "+key)
+    for key in ["rss","pss"]:
+        var memory: Dictionary=telemetry.get("process_memory",{}).get(key,{})
+        check(memory.has("available"),"process memory availability explicit "+key)
+        check((memory.get("bytes",-1)>=0) if memory.get("available",false) else (not memory.has("bytes") and memory.has("reason")),"memory is measured or explicitly unavailable "+key)
     var file:=FileAccess.open("res://hardware-probe-native.json",FileAccess.WRITE);file.store_string(JSON.stringify({"checks":checks,"failed":failed,"status":status,"telemetry":telemetry,"physical_android_tested":false},"  ",true,true));file.close()
     print("HARDWARE PROBE ",checks," ","FAIL" if failed else "PASS");quit(1 if failed else 0)
