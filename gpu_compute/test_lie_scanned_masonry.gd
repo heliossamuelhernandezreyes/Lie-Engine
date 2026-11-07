@@ -62,6 +62,7 @@ func run() -> void:
             lab.command({"op":"set_values","values":{"yaw":30.0,"elevation":24.0}})
         if mode=="house":
             lab.command({"op":"set_values","values":{"roof":false,"yaw":25.0,"elevation":42.0}});var interior: Dictionary=await capture(lab);save(interior,"house-open-roof")
+    if lab.effect.catalog.has("assembly_version"):await construction_checks(lab)
     var revision: int=lab.revision
     check(not lab.command({"op":"set_values","expected_revision":revision-1,"values":{"seed":2102}}).ok,"stale revision")
     check(not lab.command({"op":"set_values","values":{"seed":true}}).ok,"bool seed rejected")
@@ -78,3 +79,34 @@ func run() -> void:
     root.get_texture().get_image().save_png("res://scanned-masonry-window.png")
     var report:=FileAccess.open("res://scanned-masonry-native.json",FileAccess.WRITE);report.store_string(JSON.stringify({"checks":checks,"failed":failed,"cases":rows,"physical_android_tested":false,"shared_irradiance_integrated":false},"  "));report.close()
     lab.queue_free();await settle(16);print("SCANNED MASONRY ","FAIL" if failed else "PASS"," ",checks);quit(1 if failed else 0)
+func construction_checks(lab: Node) -> void:
+    for mode in ["wall","house"]:
+        var images: Dictionary={}
+        for style in ["legacy","uniform","varied"]:
+            check(lab.command({"op":"set_values","values":{"mode":mode,"style":style,"seed":2102,"yaw":30.0,"elevation":24.0,"roof":true}}).ok,"construction style command")
+            var data: Dictionary=await capture(lab);save(data,mode+"-"+style);images[style]=data.color
+            check(data.asset_uploads==1,"styles reuse one immutable source bank")
+            if style=="varied":
+                var orientations: Dictionary={};var tones: Dictionary={};var half_count: int=0
+                for entry in lab.recipe.instances:
+                    if entry.master in ["scanned_brick","half_left","half_right"]:
+                        orientations[entry.orientation]=true;tones[str(entry.tint)]=true
+                        if entry.master!="scanned_brick":half_count+=1
+                check(orientations.size()==4 and tones.size()>20,"four real rotations and authored per-piece tone")
+                check(half_count>0,"actual saw-cut boundary masters")
+                var packet: PackedFloat32Array=lab.effect._pending.instances.to_float32_array();var tinted: bool=false
+                for i in range(0,packet.size(),24):tinted=tinted or abs(packet[i+20]-1)>.001
+                check(tinted,"authored tint reaches actual GPU instance packet")
+        check(difference(images.legacy,images.varied)>.01,"construction visibly changes native reconstruction")
+        check(difference(images.uniform,images.varied)>.01,"material/orientation variation visibly changes output")
+        lab.command({"op":"set_values","values":{"style":"uniform"}});await capture(lab);lab.command({"op":"set_values","values":{"style":"varied"}})
+        var restored: Dictionary=await capture(lab);check(difference(images.varied,restored.color)<1e-6,"style restoration deterministic")
+    var first:=PackedFloat32Array()
+    for face in range(4):
+        check(lab.command({"op":"set_values","values":{"mode":"brick","face":face}}).ok,"source-face command")
+        var data: Dictionary=await capture(lab);save(data,"brick-face-"+str(face))
+        if face==0:first=data.color
+        else:check(difference(first,data.color)>.01,"original source faces differ without deformation")
+    var revision: int=lab.revision
+    check(not lab.command({"op":"set_values","values":{"face":true}}).ok and lab.revision==revision,"bool orientation rejected atomically")
+    lab.command({"op":"set_values","values":{"mode":"house","face":0}})

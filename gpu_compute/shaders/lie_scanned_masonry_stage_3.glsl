@@ -50,6 +50,8 @@ bool covered(Projection p,vec2 xy) {
     vec2 uv=xy/vec2(parameters.counts.zw);
     vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
     vec3 local=inverse(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz))*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
+    if(inst.meta.z>0. && local.x>inst.meta.w+1e-7)return false;
+    if(inst.meta.z<0. && local.x<inst.meta.w-1e-7)return false;
     vec3 n=abs(s.normal_gray.xyz);
     vec2 q=n.x>=n.y && n.x>=n.z?local.zy:n.y>=n.z?local.xz:local.xy;
     return all(greaterThanEqual(q,s.support.xy-vec2(.000002))) && all(lessThanEqual(q,s.support.zw+vec2(.000002)));
@@ -109,7 +111,8 @@ void main() {
                     vec3 local_hit=inverse(basis)*(parameters.light.xyz+ray*z-inst.origin.xyz);
                     vec3 axis=abs(s.normal_gray.xyz);vec2 support_point=axis.x>=axis.y && axis.x>=axis.z?local_hit.zy:axis.y>=axis.z?local_hit.xz:local_hit.xy;
                     bool face_support=all(greaterThanEqual(support_point,s.support.xy-vec2(.000002))) && all(lessThanEqual(support_point,s.support.zw+vec2(.000002)));
-                    if(face_support && z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
+                    bool cut_support=(inst.meta.z==0.) || (inst.meta.z>0.?local_hit.x<=inst.meta.w+1e-7:local_hit.x>=inst.meta.w-1e-7);
+                    if(face_support && cut_support && z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
                 }
             }
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.015) {

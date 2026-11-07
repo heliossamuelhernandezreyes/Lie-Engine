@@ -1,7 +1,7 @@
 name: LIE whole scanned brick and seeded masonry
 on:
   push:
-    branches: [work/lie-scanned-masonry]
+    branches: [work/lie-scanned-masonry, work/lie-masonry-bond]
     paths-ignore: ["docs/**"]
   workflow_dispatch:
 permissions:
@@ -42,6 +42,23 @@ jobs:
           python tools/lie_scanned_brick_prepare.py --source /tmp/scanned-source/brick.glb --provenance gpu_compute/assets/scanned_masonry/source_provenance.json --output /tmp/scanned-capture
           python tools/lie_scanned_masonry.py --capture /tmp/scanned-capture --output /tmp/scanned-masonry
           python tools/lie_scanned_masonry_stage.py --bank /tmp/scanned-masonry --stage /tmp/scanned-stage
+      - name: Genuine saw-cut derivatives and running bond
+        if: github.ref_name == 'work/lie-masonry-bond'
+        run: |
+          curl --fail --location --retry 2 --max-time 180 -o /tmp/blender.tar.xz https://download.blender.org/release/Blender4.3/blender-4.3.2-linux-x64.tar.xz
+          curl --fail --location --retry 2 --max-time 60 -o /tmp/blender.sha256 https://download.blender.org/release/Blender4.3/blender-4.3.2.sha256
+          python - <<'PYHASH'
+          import hashlib
+          from pathlib import Path
+          expected=next(row.split()[0] for row in Path('/tmp/blender.sha256').read_text().splitlines() if row.strip().endswith('blender-4.3.2-linux-x64.tar.xz'))
+          assert hashlib.sha256(Path('/tmp/blender.tar.xz').read_bytes()).hexdigest()==expected
+          PYHASH
+          mkdir /tmp/blender-bin
+          tar -xf /tmp/blender.tar.xz -C /tmp/blender-bin --strip-components=1
+          timeout 180 /tmp/blender-bin/blender -b -t 4 --python tools/lie_masonry_half_blender.py -- --canonical /tmp/scanned-capture/source-canonical.npz --output /tmp/bond-halves
+          python tools/lie_masonry_bond.py --base /tmp/scanned-masonry --half-sources /tmp/bond-halves --output /tmp/bond-bank
+          python tools/lie_masonry_bond_verify.py --base /tmp/scanned-masonry --bank /tmp/bond-bank --half-sources /tmp/bond-halves
+          python tools/lie_scanned_masonry_stage.py --bank /tmp/bond-bank --stage /tmp/bond-stage
       - name: Native import, rig, agent and real captured renderer
         run: |
           set -o pipefail
@@ -50,6 +67,10 @@ jobs:
           timeout 60 "$engine" --headless --path /tmp/scanned-stage --script res://test_lie26_rig.gd 2>&1 | tee scanned-rig.log
           timeout 60 "$engine" --headless --path /tmp/scanned-stage --script res://workshop/test_lie_agent_session.gd 2>&1 | tee scanned-agent.log
           timeout 360 xvfb-run -a "$engine" --path /tmp/scanned-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_scanned_masonry.gd 2>&1 | tee scanned-native.log
+          if test -d /tmp/bond-stage; then
+            timeout 90 "$engine" --headless --path /tmp/bond-stage --editor --import --quit 2>&1 | tee scanned-bond-import.log
+            timeout 360 xvfb-run -a "$engine" --path /tmp/bond-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_scanned_masonry.gd 2>&1 | tee scanned-bond-native.log
+          fi
           python - <<'PY'
           from pathlib import Path
           for p in Path('.').glob('scanned-*.log'):
@@ -67,6 +88,11 @@ jobs:
             /tmp/scanned-stage/*.rgba32f
             /tmp/scanned-stage/scanned-masonry-native.json
             /tmp/scanned-masonry
+            /tmp/bond-bank
+            /tmp/bond-halves
+            /tmp/bond-stage/*.png
+            /tmp/bond-stage/*.rgba32f
+            /tmp/bond-stage/scanned-masonry-native.json
             /tmp/scanned-capture/asset-profile.json
             /tmp/scanned-capture/provenance.json
           if-no-files-found: error
