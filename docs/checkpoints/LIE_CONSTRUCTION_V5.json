@@ -1,0 +1,371 @@
+{
+  "schema": "lie-construction-v5-checkpoint/1",
+  "date": "2026-11-07",
+  "code_branch": "work/lie-hq-corner",
+  "behavior_commit": "b7fcbebd62f9731762c0fc8aba73aa130513a0d8",
+  "native": {
+    "cases": {
+      "corner": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_bytes": 453680304,
+        "instances": 781,
+        "pixels": 323807,
+        "samples": 1165568,
+        "source_bytes": 273159680
+      },
+      "door": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_bytes": 453680304,
+        "instances": 4,
+        "pixels": 193115,
+        "samples": 552000,
+        "source_bytes": 273159680
+      },
+      "opening": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_bytes": 453680304,
+        "instances": 6,
+        "pixels": 174389,
+        "samples": 144000,
+        "source_bytes": 273159680
+      },
+      "roof": {
+        "device": "llvmpipe (LLVM 19.1.7, 256 bits)",
+        "exclusive_bytes": 453680304,
+        "instances": 22,
+        "pixels": 281567,
+        "samples": 528000,
+        "source_bytes": 273159680
+      }
+    },
+    "checks": 49,
+    "failed": false,
+    "physical_android_tested": false,
+    "shared_indirect_field_integrated": false
+  },
+  "individual_native": {
+    "checks": 49,
+    "failed": false,
+    "physical_android_tested": false,
+    "views": 24
+  },
+  "source_comparison": {
+    "schema": "lie-photographic-construction-reference/1",
+    "passed": true,
+    "components": {
+      "quality_mortar_bed_front": {
+        "source_triangles": 69572,
+        "interior_pixels": 88499,
+        "interior_coverage": 0.9977174883332015,
+        "rgb_psnr_db": 31.600852767163513,
+        "depth_rmse_m": 0.00020512521543179438,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_mortar_bed_back": {
+        "source_triangles": 69572,
+        "interior_pixels": 89968,
+        "interior_coverage": 0.9975991463631514,
+        "rgb_psnr_db": 33.077056479497216,
+        "depth_rmse_m": 0.00020208935782693794,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_mortar_head_front": {
+        "source_triangles": 29172,
+        "interior_pixels": 173816,
+        "interior_coverage": 0.9987630597873614,
+        "rgb_psnr_db": 33.524885217136735,
+        "depth_rmse_m": 8.58491167195434e-05,
+        "outside_coverage_fraction": 4.138290637669204e-06,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_mortar_head_back": {
+        "source_triangles": 29172,
+        "interior_pixels": 215089,
+        "interior_coverage": 0.9980054768026259,
+        "rgb_psnr_db": 40.344678958933514,
+        "depth_rmse_m": 7.023783232315087e-05,
+        "outside_coverage_fraction": 2.930995571265692e-06,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_mortar_return_front": {
+        "source_triangles": 30800,
+        "interior_pixels": 53834,
+        "interior_coverage": 0.998681130883828,
+        "rgb_psnr_db": 33.03337412676381,
+        "depth_rmse_m": 9.708569668470107e-05,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_mortar_return_back": {
+        "source_triangles": 30800,
+        "interior_pixels": 101561,
+        "interior_coverage": 0.9983261291243686,
+        "rgb_psnr_db": 32.846837422531515,
+        "depth_rmse_m": 8.479217452558551e-05,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_concrete_lintel_front": {
+        "source_triangles": 403856,
+        "interior_pixels": 57164,
+        "interior_coverage": 0.9979882443495907,
+        "rgb_psnr_db": 25.10859777972852,
+        "depth_rmse_m": 0.0006549652052119155,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_concrete_lintel_back": {
+        "source_triangles": 403856,
+        "interior_pixels": 56486,
+        "interior_coverage": 0.9986368303650462,
+        "rgb_psnr_db": 26.118219316436097,
+        "depth_rmse_m": 0.0006524254665199675,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_concrete_sill_front": {
+        "source_triangles": 326120,
+        "interior_pixels": 64394,
+        "interior_coverage": 0.9984781190794173,
+        "rgb_psnr_db": 25.280309085762894,
+        "depth_rmse_m": 0.000656667670512197,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_concrete_sill_back": {
+        "source_triangles": 326120,
+        "interior_pixels": 59453,
+        "interior_coverage": 0.9978133988192354,
+        "rgb_psnr_db": 25.784095546568565,
+        "depth_rmse_m": 0.0006287493136126976,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_concrete_plinth_front": {
+        "source_triangles": 1092276,
+        "interior_pixels": 38052,
+        "interior_coverage": 0.9987911279302008,
+        "rgb_psnr_db": 25.174726097896777,
+        "depth_rmse_m": 0.0013318513924151546,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_concrete_plinth_back": {
+        "source_triangles": 1092276,
+        "interior_pixels": 37749,
+        "interior_coverage": 0.9983575723860235,
+        "rgb_psnr_db": 25.99742808209146,
+        "depth_rmse_m": 0.0013406842639470862,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_head_front": {
+        "source_triangles": 160184,
+        "interior_pixels": 34088,
+        "interior_coverage": 0.9981518422905421,
+        "rgb_psnr_db": 29.886200685905035,
+        "depth_rmse_m": 0.00043030245786776885,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_head_back": {
+        "source_triangles": 160184,
+        "interior_pixels": 33436,
+        "interior_coverage": 0.99838497427922,
+        "rgb_psnr_db": 30.82704995755005,
+        "depth_rmse_m": 0.00043968365568350067,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_jamb_front": {
+        "source_triangles": 126704,
+        "interior_pixels": 46137,
+        "interior_coverage": 0.9979409151006784,
+        "rgb_psnr_db": 29.905359116293923,
+        "depth_rmse_m": 0.000342523201174025,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_jamb_back": {
+        "source_triangles": 126704,
+        "interior_pixels": 45285,
+        "interior_coverage": 0.9978800927459424,
+        "rgb_psnr_db": 30.631582247083806,
+        "depth_rmse_m": 0.0003457301307674611,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_door_jamb_front": {
+        "source_triangles": 635120,
+        "interior_pixels": 11326,
+        "interior_coverage": 0.9972629348401907,
+        "rgb_psnr_db": 29.091932081293443,
+        "depth_rmse_m": 0.0011534007461509138,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_door_jamb_back": {
+        "source_triangles": 635120,
+        "interior_pixels": 11126,
+        "interior_coverage": 0.997932770088082,
+        "rgb_psnr_db": 31.118347059116577,
+        "depth_rmse_m": 0.0012458647399441643,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_beam_front": {
+        "source_triangles": 360108,
+        "interior_pixels": 37466,
+        "interior_coverage": 0.9975444402925319,
+        "rgb_psnr_db": 29.421307099604398,
+        "depth_rmse_m": 0.0005524193756276029,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_beam_back": {
+        "source_triangles": 360108,
+        "interior_pixels": 36114,
+        "interior_coverage": 0.9983662845433904,
+        "rgb_psnr_db": 32.237401025462596,
+        "depth_rmse_m": 0.0005789952813994842,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_door_leaf_front": {
+        "source_triangles": 2650224,
+        "interior_pixels": 176655,
+        "interior_coverage": 0.9984036681667657,
+        "rgb_psnr_db": 30.751607182741406,
+        "depth_rmse_m": 0.00023982746602474502,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_door_leaf_back": {
+        "source_triangles": 2650224,
+        "interior_pixels": 161595,
+        "interior_coverage": 0.9983724743958662,
+        "rgb_psnr_db": 39.57588775402978,
+        "depth_rmse_m": 0.00037276982162692324,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_shingle_front": {
+        "source_triangles": 138464,
+        "interior_pixels": 131572,
+        "interior_coverage": 0.9982519077007266,
+        "rgb_psnr_db": 31.688897803087677,
+        "depth_rmse_m": 0.000285875581398288,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      },
+      "quality_wood_shingle_back": {
+        "source_triangles": 138464,
+        "interior_pixels": 131058,
+        "interior_coverage": 0.997932213218575,
+        "rgb_psnr_db": 27.02545012453735,
+        "depth_rmse_m": 0.0002830126748018228,
+        "outside_coverage_fraction": 0.0,
+        "source_model": "original triangle mesh, photographic albedo/roughness/OpenGL normals; GGX F0=.04; no shadows",
+        "passed": true
+      }
+    },
+    "whole_object_scan": false,
+    "hero_quality_certification": false,
+    "physical_android_tested": false
+  },
+  "data_audit": {
+    "schema": "lie-construction-data-audit/1",
+    "banks": {
+      "brick": {
+        "core_sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+        "bytes": 60262400,
+        "optical_bytes": 0
+      },
+      "mortar": {
+        "core_sha256": "8b060c904961dd645e60e41f66db4cba79151d4e04ae1d720fe98d286715f8b0",
+        "bytes": 36153600,
+        "optical_bytes": 7230720
+      },
+      "concrete": {
+        "core_sha256": "3f19c51f6590631467a752669a822364cab19e2658276d5324170491f05dc3b3",
+        "bytes": 36153600,
+        "optical_bytes": 7230720
+      },
+      "wood": {
+        "core_sha256": "5fea091b66d409971e8a4b3d676f350e56321c806ff734a73e5ebeaa34971dd9",
+        "bytes": 60256000,
+        "optical_bytes": 12051200
+      },
+      "door": {
+        "core_sha256": "129ae84dc95a683a1c3958fe1a6466444d4aeeb1888643944224c530a9610e8d",
+        "bytes": 44851200,
+        "optical_bytes": 8970240
+      }
+    },
+    "source_masters": 12,
+    "closed_source_components": 16,
+    "source_sha256_verified": true,
+    "original_brick_bank_unchanged": true,
+    "corners": {
+      "2102": {
+        "bricks": 198,
+        "rigid_proper_rotations": true,
+        "conservative_brick_boxes_nonoverlapping": true,
+        "minimum_axis_separation_m": 0.003144156499999995,
+        "corner_gap_m": 0.003144156500000009
+      },
+      "7319": {
+        "bricks": 198,
+        "rigid_proper_rotations": true,
+        "conservative_brick_boxes_nonoverlapping": true,
+        "minimum_axis_separation_m": 0.003144156499999995,
+        "corner_gap_m": 0.003144156500000009
+      }
+    },
+    "scope": "scan box non-overlap only; intentional mortar/frame/foundation contacts are not globally nonintersecting",
+    "passed": true
+  },
+  "cpu_regression": {
+    "ran": 282,
+    "passed": 281,
+    "skipped": 1,
+    "rig_checks": 247,
+    "agent_checks": 25
+  },
+  "sources_zip": {
+    "filename": "LIE_Fuentes_Construccion_v5.zip",
+    "bytes": 359947503,
+    "sha256": "9a451b52d0e3e3e838a917a25e137f3ca9a16c254add4fb7b3276d8f1a81321e"
+  },
+  "runtime_photo_fidelity": "validated bounded reconstruction; microdetail loss remains; not hyperrealism certification",
+  "whole_object_scans_added": 0,
+  "authored_photographic_masters_added": 12,
+  "shared_indirect_field_integrated": false,
+  "physical_android_tested": false,
+  "new_apk_built": false
+}
