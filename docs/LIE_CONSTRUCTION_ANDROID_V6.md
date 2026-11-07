@@ -2,6 +2,14 @@
 
 La aplicación reúne el banco fotográfico v5, la residencia por intervalos exactos de v6 y su campo indirecto común. Es un laboratorio de construcción, iluminación y medición; todavía no es una casa completa. La APK es independiente de las antiguas aplicaciones de pared.
 
+## Entrega aceptada
+
+[Ejecución de GitHub Actions 42391062122](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42391062122), código de la APK `33c4486689f3a2c63d8131656b8e9d2c0eabc640`: todas las etapas aprobadas. APK `LIE-Construccion-v6.apk`, **216 770 741 bytes**, SHA-256 `3fbb3026d2fdab731bfdafb70a945d5f7290422088ad4308fcdc327370e99ac4`.
+
+Se aprobaron 284 pruebas Python y se omitió una, 98 comprobaciones Vulkan del consumidor actual (49 de construcción, 26 del campo y 23 móviles), seis de resumen de métricas, 16 del módulo nativo, 247 del rig y 25 de la sesión de agente. Se verificaron los 90 archivos de datos dentro de la APK, firma, alineación, registro de la extensión, tres bibliotecas ARM64 y atribuciones. El manifiesto no solicita permisos de Internet ni de almacenamiento general.
+
+La esquina completa conserva **336.98 MiB de recursos RenderingDevice contabilizados**: 12 335 104 bytes de capturas residentes, 316 911 568 de apariencia y 24 105 544 del campo. Se conserva la resolución 960/1920 y los 4 742 parches. No son mediciones de memoria total ni de un Android físico. El registro de entrega reproducible está en `docs/checkpoints/LIE_CONSTRUCTION_ANDROID_V6.json`.
+
 ## Uso en el teléfono
 
 1. Descargar `LIE-Construccion-v6.apk` e instalarla. Android puede pedir habilitar la instalación desde la aplicación que abre el archivo.

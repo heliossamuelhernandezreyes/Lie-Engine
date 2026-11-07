@@ -1,0 +1,128 @@
+{
+  "schema": "lie-construction-android-release/1",
+  "run_id": 42391062122,
+  "job_id": 128458536066,
+  "artifact_sha256": "df8f1b5580f80c123f92b4e51554046c4feb8cf8f87c90a482192edebc9cc822",
+  "apk": {
+    "schema": "lie-construction-apk-proof/1",
+    "filename": "LIE-Construccion-v6.apk",
+    "apk_bytes": 216770741,
+    "apk_sha256": "3fbb3026d2fdab731bfdafb70a945d5f7290422088ad4308fcdc327370e99ac4",
+    "package": "org.lieengine.construction.v6",
+    "version": "6.0.0-construction-field",
+    "code_commit": "33c4486689f3a2c63d8131656b8e9d2c0eabc640",
+    "verified_capture_and_metadata_files": 90,
+    "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+    "bank_bindings": {
+      "brick": {
+        "sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+        "optical": null
+      },
+      "mortar": {
+        "sha256": "8b060c904961dd645e60e41f66db4cba79151d4e04ae1d720fe98d286715f8b0",
+        "optical": "18677055e3803443610883bea7b1b8e0e8f6ee9620201777b36459abeb17597e"
+      },
+      "concrete": {
+        "sha256": "3f19c51f6590631467a752669a822364cab19e2658276d5324170491f05dc3b3",
+        "optical": "4c3b7df7787d305811236d899d0083e10b80f9fc032c5b11e56c916ebe98a02c"
+      },
+      "wood": {
+        "sha256": "5fea091b66d409971e8a4b3d676f350e56321c806ff734a73e5ebeaa34971dd9",
+        "optical": "9b17b8ba92fbfad27bdd0af014ec13a5ef77c389496c4f38928f51f1c45e769f"
+      },
+      "door": {
+        "sha256": "129ae84dc95a683a1c3958fe1a6466444d4aeeb1888643944224c530a9610e8d",
+        "optical": "b9ed23c30aeb62d9946fd2fa21cd377d4861765edac8841d63bf79416c66e5f4"
+      }
+    },
+    "native_libraries": [
+      {
+        "file": "lib/arm64-v8a/libc++_shared.so",
+        "sha256": "c4c2fe5cbcb1fba0003a31fc7ab29a9bb12df6cc187ec45a806462540e83d93b",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/libgodot_android.so",
+        "sha256": "6517cb725565b0b3f009e6a559d8c0a5f66093384a6f48b5d18e2dc0998e1159",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/liblie_gpu_probe.so",
+        "sha256": "7cc40f3d752da8f48a7f9d1bde761e475ff627f776d6d2626d1a1beb03adc9ed",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      }
+    ],
+    "permissions": [],
+    "source_resampling": false,
+    "physical_android_tested": false
+  },
+  "native_checks": {
+    "construction": 49,
+    "field": 26,
+    "mobile": 23,
+    "hardware": 16,
+    "mobile_metrics": 6,
+    "rig": 247,
+    "agent": 25
+  },
+  "full_quality": {
+    "appearance_bytes": 316911568,
+    "field": {
+      "bytes": 24105544,
+      "indirect": true,
+      "nodes": 4742,
+      "producer": -9223371929262487343,
+      "ready": true,
+      "solve": 1
+    },
+    "output_size": 960,
+    "source_bytes": 12335104
+  },
+  "physical_android_tested": false,
+  "native_registration_in_apk": true,
+  "failed_first_export_run": 42390170223,
+  "ci": {
+    "conclusion": "success",
+    "run_url": "https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42391062122",
+    "artifact_id": 13581098878,
+    "code_commit": "33c4486689f3a2c63d8131656b8e9d2c0eabc640"
+  },
+  "python_regressions": {
+    "ran": 285,
+    "passed": 284,
+    "skipped": 1
+  },
+  "vulkan_checks": 98,
+  "resources_scope": "requested RenderingDevice resources, not total RAM or physical Android measurements",
+  "requested_rd_total_bytes": 353352216,
+  "new_apk_built": true,
+  "artifact_files": [
+    {
+      "filename": "LIE-Construccion-v6.apk",
+      "bytes": 216770741,
+      "sha256": "3fbb3026d2fdab731bfdafb70a945d5f7290422088ad4308fcdc327370e99ac4"
+    },
+    {
+      "filename": "LIE_Construccion_v6_Guia.md",
+      "bytes": 3713,
+      "sha256": "db30152ec03a7f8e77cf5c0f8aa1ca712e22b14584cf6a9cf4c2f2bf9011319d"
+    },
+    {
+      "filename": "LIE_Construccion_v6_Pruebas.zip",
+      "bytes": 420415,
+      "sha256": "b743af0015ec4555809a9ec75e70c50865cd5f60d4b8704550df49fd8f149a48"
+    }
+  ]
+}

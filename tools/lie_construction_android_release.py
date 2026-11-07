@@ -1,0 +1,60 @@
+"""Assemble user deliverables only from a complete, SHA-verified CI artifact."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import shutil
+import zipfile
+
+def digest(path):
+    with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
+def release(artifact,expected,guide,output,run_id,job_id):
+    if digest(artifact)!=expected:raise ValueError('actions_artifact_sha256')
+    output.mkdir(parents=True,exist_ok=True)
+    with zipfile.ZipFile(artifact) as source:
+        names=source.namelist()
+        if any(Path(n).is_absolute() or '..' in Path(n).parts for n in names):raise ValueError('artifact_path_escape')
+        def unique(suffix):
+            matches=[n for n in names if n.endswith('/'+suffix) or n==suffix]
+            if len(matches)!=1:raise ValueError('expected_one:'+suffix)
+            return matches[0]
+        proof=json.loads(source.read(unique('LIE-Construccion-v6.proof.json')))
+        native=json.loads(source.read(unique('construction-mobile-native.json')))
+        field=json.loads(source.read(unique('construction-field-native.json')))
+        construction=json.loads(source.read(unique('hq-construction-native.json')))
+        hardware=json.loads(source.read(unique('hardware-probe-native.json')))
+        assert not any(d['failed'] for d in [native,field,construction,hardware])
+        assert native['checks']==23 and native['report']['complete'] and native['report']['restored']
+        assert proof['verified_capture_and_metadata_files']==90 and not proof['source_resampling']
+        apk=output/'LIE-Construccion-v6.apk'
+        with source.open(unique(apk.name)) as src,apk.open('wb') as dest:shutil.copyfileobj(src,dest)
+        assert digest(apk)==proof['apk_sha256'] and apk.stat().st_size==proof['apk_bytes']
+        # Verify registration, not just the presence of a native .so file.
+        with zipfile.ZipFile(apk) as packaged:
+            descriptor=packaged.read('assets/addons/lie_gpu_probe/lie_gpu_probe.gdextension').decode()
+            assert 'android.arm64' in descriptor
+            registration=packaged.read('assets/.godot/extension_list.cfg')
+            assert b'lie_gpu_probe.gdextension' in registration
+        checkpoint={'schema':'lie-construction-android-release/1','run_id':run_id,'job_id':job_id,
+                    'artifact_sha256':expected,'apk':proof,'native_checks':{'construction':construction['checks'],
+                    'field':field['checks'],'mobile':native['checks'],'hardware':hardware['checks'],
+                    'mobile_metrics':6,'rig':247,'agent':25},'full_quality':native['full_quality'],
+                    'physical_android_tested':False,'native_registration_in_apk':True,
+                    'failed_first_export_run':42390170223}
+        (output/'LIE_Construccion_v6_Verificacion.json').write_text(json.dumps(checkpoint,indent=2)+'\n')
+        preview=source.read(unique('construction-mobile-ui.png'));(output/'LIE_Construccion_v6_Interfaz.png').write_bytes(preview)
+        target_guide=output/'LIE_Construccion_v6_Guia.md'
+        if guide.resolve()!=target_guide.resolve():shutil.copyfile(guide,target_guide)
+        evidence=output/'LIE_Construccion_v6_Pruebas.zip'
+        with zipfile.ZipFile(evidence,'w',zipfile.ZIP_DEFLATED,compresslevel=6) as dest:
+            for name in names:
+                if name.endswith('/') or name.endswith('.apk'):continue
+                dest.writestr('CI/'+name,source.read(name))
+            dest.write(output/'LIE_Construccion_v6_Verificacion.json','LIE_Construccion_v6_Verificacion.json')
+            dest.write(target_guide,target_guide.name)
+        with zipfile.ZipFile(evidence) as check:assert check.testzip() is None
+    print(json.dumps({'apk':str(apk),'bytes':apk.stat().st_size,'sha256':proof['apk_sha256'],
+                      'evidence':str(evidence),'evidence_bytes':evidence.stat().st_size,'run_id':run_id}))
+    return checkpoint
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('--artifact',type=Path,required=True);p.add_argument('--sha256',required=True);p.add_argument('--guide',type=Path,required=True);p.add_argument('--output',type=Path,required=True);p.add_argument('--run-id',type=int,required=True);p.add_argument('--job-id',type=int,required=True);a=p.parse_args();release(a.artifact,a.sha256,a.guide,a.output,a.run_id,a.job_id)
