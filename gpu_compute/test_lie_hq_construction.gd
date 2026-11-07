@@ -57,6 +57,19 @@ func run() -> void:
         lab.command({"op":"set_values","values":{"normals":false}});var b: Dictionary=await capture(lab);save(b,mode+"-geometry")
         check(a.depth==b.depth and a.shadow==b.shadow,"optical normals never alter depth or caster geometry")
         check(difference(a.color,b.color)>.001,"normal channel changes shading")
+        lab.command({"op":"set_values","values":{"normals":true,"shadows":false}});var reference: Dictionary=await capture(lab)
+        save(reference,mode+"-reference-probe")
+        for field in ["color","depth"]:
+            var raw:=FileAccess.open("res://"+mode+"-"+field+".f32",FileAccess.WRITE);raw.store_buffer(reference[field].to_byte_array());raw.close()
+        var parameters:=FileAccess.open("res://"+mode+"-parameters.bin",FileAccess.WRITE);parameters.store_buffer(lab.effect._pending.parameters);parameters.close()
+        for level in [1,2]:
+            lab.command({"op":"set_values","values":{"lod":level}});var coarse: Dictionary=await capture(lab);save(coarse,mode+"-lod"+str(level));var interior: int=0;var retained: int=0
+            for pixel in range(0,reference.color.size(),4):
+                if reference.color[pixel+3]>.99:
+                    interior+=1
+                    if coarse.color[pixel+3]>.95:retained+=1
+            check(float(retained)/maxi(interior,1)>.98,"selected component LOD retains captured coverage")
+        lab.command({"op":"set_values","values":{"lod":-1}})
     lab.command({"op":"set_values","values":{"mode":"shadow","yaw":15.,"elevation":55.,"normals":true,"shadows":true,"occluder":true}});var shaded: Dictionary=await capture(lab);save(shaded,"shared-shadow")
     lab.command({"op":"set_values","values":{"shadows":false}});var unshadowed: Dictionary=await capture(lab);save(unshadowed,"without-shadow")
     check(shaded.depth==unshadowed.depth and difference(shaded.color,unshadowed.color)>.005,"wood casts into common concrete receiver depth/shadow scene")

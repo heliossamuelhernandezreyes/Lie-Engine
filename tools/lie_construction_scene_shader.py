@@ -4,11 +4,22 @@ from pathlib import Path
 from lie_scanned_masonry_shader import outputs as masonry_outputs
 ROOT=Path(__file__).resolve().parents[1]
 def outputs():
-    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14],3:[0,1,2,3,4,5,6,7,13,14],4:[1,3,4,5,6,7,8,9,11,13],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
+    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14,15],3:[0,1,2,3,4,5,6,7,13,14,15],4:[1,3,4,5,6,7,8,9,11,13],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
     for stage in (1,2,3,4,6,7):
         s=original[f'gpu_compute/shaders/lie_scanned_masonry_stage_{stage}.glsl']
         if stage in (2,3):
             s=s.replace('layout(set=0,binding=0,std430)','layout(set=0,binding=14,std430) readonly buffer OpticalNormals {vec4 v[];} optical_normals;\nlayout(set=0,binding=0,std430)',1)
+            s=s.replace('bool covered(Projection p,vec2 xy)', '''struct SourceBounds { uvec4 interval; vec4 low; vec4 high; };
+layout(set=0,binding=15,std430) readonly buffer SourceLimits {SourceBounds v[];} source_limits;
+bool in_source(uint sid,vec3 local) {
+    uint lo=0u,hi=uint(source_limits.v.length());
+    while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(source_limits.v[mid].interval.x<=sid)lo=mid;else hi=mid;}
+    SourceBounds b=source_limits.v[lo];
+    return sid<b.interval.y && all(greaterThanEqual(local,b.low.xyz-vec3(.000002))) && all(lessThanEqual(local,b.high.xyz+vec3(.000002)));
+}
+bool covered(Projection p,vec2 xy)''')
+            s=s.replace('if(inst.meta.z>0. && local.x>', 'if(!in_source(uint(p.gradient.w),local))return false;\n    if(inst.meta.z>0. && local.x>')
+            s=s.replace('if(face_support && cut_support && z>', 'if(face_support && cut_support && in_source(sid,local_hit) && z>')
             s=s.replace('Sample s=samples.v[sid];Instance inst=instances.v[job.z];','Instance inst=instances.v[job.z];\n        if(int(inst.meta.y)!=int(parameters.settings.z))return;\n        Sample s=samples.v[sid];')
             s=s.replace('p.world=vec4(world,1);p.normal=vec4(n,front);','''vec3 shading=n;
             if(parameters.settings.w>.5) {vec4 optical=optical_normals.v[sid];if(optical.w>.5)shading=normalize(transpose(inverse(basis))*optical.xyz);}

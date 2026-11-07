@@ -9,6 +9,7 @@ var _kernels: Dictionary={}
 var _leases: Array=[]
 var _params: Array=[]
 var _normals: Array=[]
+var _limits: Array=[]
 var _dummy:=RID()
 var _sources_ready: bool=false
 var total_source_bytes: int=0
@@ -51,6 +52,18 @@ func _init(size: int=960) -> void:
 func _source_range_ok(instances: PackedByteArray,instance: int,start: int,count: int) -> bool:
     var bank: float=instances.decode_float(instance*96+68)
     return is_finite(bank) and bank==roundf(bank) and bank>=0 and bank<banks.size() and start+count<=int(banks[int(bank)].catalog.sample_count)
+func _source_limits(cat: Dictionary) -> PackedByteArray:
+    var intervals: Array=[]
+    for name in cat.masters:
+        var master: Dictionary=cat.masters[name];var size: Array=master.bounds_size;var center: Array=master.get("bounds_center",[0,0,0]);var low:=Vector3(center[0]-size[0]/2.,center[1]-size[1]/2.,center[2]-size[2]/2.);var high:=low+Vector3(size[0],size[1],size[2])
+        if master.has("modifications"):
+            var cut: Dictionary=master.modifications;var a: Array=cut.bounds_min;var b: Array=cut.bounds_max;var pivot: float=(a[0]+b[0])/2.;low=Vector3(a[0]-pivot,a[1],a[2]);high=Vector3(b[0]-pivot,b[1],b[2])
+        for level in master.levels:intervals.append({"start":int(level.start),"end":int(level.start+level.count),"low":low,"high":high})
+    intervals.sort_custom(func(a: Dictionary,b: Dictionary):return a.start<b.start)
+    var data:=PackedByteArray()
+    for item in intervals:
+        data.append_array(PackedInt32Array([item.start,item.end,0,0]).to_byte_array());data.append_array(PackedFloat32Array([item.low.x,item.low.y,item.low.z,0,item.high.x,item.high.y,item.high.z,0]).to_byte_array())
+    return data
 func _make_set() -> void:
     for rid in _sets.values():
         if _rd.uniform_set_is_valid(rid):_rd.free_rid(rid)
@@ -58,6 +71,7 @@ func _make_set() -> void:
     if not _sources_ready:
         _dummy=_rd.storage_buffer_create(16,PackedFloat32Array([0,0,1,0]).to_byte_array());allocation_bytes+=16
         for i in range(banks.size()):
+            var limits: PackedByteArray=_source_limits(banks[i].catalog);_limits.append(_rd.storage_buffer_create(limits.size(),limits));allocation_bytes+=limits.size()
             if i==0:_leases.append({"rid":_buffers[0]});_params.append(_buffers[6]);banks[i].bytes=_samples
             else:
                 var lease: Dictionary=SharedSamples.acquire(_rd,banks[i].bytes,banks[i].catalog.sha256,80)
@@ -78,7 +92,7 @@ func _make_set() -> void:
             var pipeline: RID=_pipeline if stage==1 else _rd.compute_pipeline_create(shader)
             _kernels[stage]={"shader":shader,"pipeline":pipeline}
     for bank in range(banks.size()):
-        var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[0]=_leases[bank].rid;handles[6]=_params[bank];handles[14]=_normals[bank].rid
+        var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[0]=_leases[bank].rid;handles[6]=_params[bank];handles[14]=_normals[bank].rid;handles[15]=_limits[bank]
         for stage in _kernels:
             var uniforms: Array[RDUniform]=[]
             for binding in Kernels.BINDINGS[stage]:uniforms.append(_uniform(binding,handles[binding],binding in [8,9,11,12]))
@@ -116,6 +130,8 @@ func _release() -> void:
         if i>0:SharedSamples.release_handle(_rd,_leases[i]);_rd.free_rid(_params[i])
     for lease in _normals:
         if lease.has("key"):SharedSamples.release_handle(_rd,lease)
+    for rid in _limits:_rd.free_rid(rid)
+    _limits.clear()
     _leases.clear();_params.clear();_normals.clear()
     if _dummy.is_valid():_rd.free_rid(_dummy)
     _dummy=RID();_sources_ready=false;super._release()

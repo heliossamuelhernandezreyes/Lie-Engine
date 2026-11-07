@@ -25,7 +25,10 @@ def build(root):
                 courses[section,row]=[];centers[section,row]=(origin,Rwall,cells)
                 for a,b in intervals:
                     for low,high in subtract((a,b),holes):
-                        master='scanned_brick' if high-low==2 else 'half_left' if low==a else 'half_right'
+                        # Retain the original scanned end at exposed boundaries.
+                        # A clipped left remnant has its authored cut on +X;
+                        # a right remnant has its cut on -X, toward the joint.
+                        master='scanned_brick' if high-low==2 else 'half_right' if high==cells or low>a else 'half_left'
                         code=min(3,int(noise(seed,section,row,low,30)*4)) if master=='scanned_brick' else 0
                         R=Rwall@FLIPS[code];position=origin+Rwall@np.array([(low+high)*half/2-g/2,0,0])
                         gain=.94+.12*noise(seed,section,row,low,50);warm=(noise(seed,section,row,low,51)-.5)*.04
@@ -74,7 +77,7 @@ def build(root):
         main.append(leaf('concrete/concrete_plinth','foundation/return',[W/2-z/2,.04,(side_end+z/2)/2],Rside,scale=((side_end-z/2)/1.66,1,1),lod=1))
         doc['sets']['corner-'+str(seed)]={'nodes':main}
         pitch=.23;roof=[];slope=turn(0,math.radians(20))
-        for i in (-1,1):roof.append(leaf('wood/wood_beam','beam/'+str(i),[0,.02,i*.33],lod=1))
+        for i in (-1,1):roof.append(leaf('wood/wood_beam','beam/'+str(i),slope@np.array([0,.039,i*.33]),slope,lod=1))
         for row in range(4):
             for col in range(5):
                 pos=slope@np.array([(col-2)*.172,.08+row*.012,(row-1.5)*pitch]);roof.append(leaf('wood/wood_shingle',f'shingle/{row}/{col}',pos,slope,lod=1))

@@ -42,6 +42,14 @@ float footprint_distance(Projection p,vec2 xy) {
     vec2 q=xy-p.screen.xy;
     return q.x*q.x*p.ellipse.x+2*q.x*q.y*p.ellipse.y+q.y*q.y*p.ellipse.z;
 }
+struct SourceBounds { uvec4 interval; vec4 low; vec4 high; };
+layout(set=0,binding=15,std430) readonly buffer SourceLimits {SourceBounds v[];} source_limits;
+bool in_source(uint sid,vec3 local) {
+    uint lo=0u,hi=uint(source_limits.v.length());
+    while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(source_limits.v[mid].interval.x<=sid)lo=mid;else hi=mid;}
+    SourceBounds b=source_limits.v[lo];
+    return sid<b.interval.y && all(greaterThanEqual(local,b.low.xyz-vec3(.000002))) && all(lessThanEqual(local,b.high.xyz+vec3(.000002)));
+}
 bool covered(Projection p,vec2 xy) {
     if(footprint_distance(p,xy)>1) return false;
     // Keep coarse samples on their original source face. In particular, a
@@ -51,6 +59,7 @@ bool covered(Projection p,vec2 xy) {
     vec2 uv=xy/vec2(parameters.counts.zw);
     vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
     vec3 local=inverse(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz))*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
+    if(!in_source(uint(p.gradient.w),local))return false;
     if(inst.meta.z>0. && local.x>inst.meta.w+1e-7)return false;
     if(inst.meta.z<0. && local.x<inst.meta.w-1e-7)return false;
     vec3 n=abs(s.normal_gray.xyz);
@@ -117,7 +126,7 @@ void main() {
                     vec3 axis=abs(s.normal_gray.xyz);vec2 support_point=axis.x>=axis.y && axis.x>=axis.z?local_hit.zy:axis.y>=axis.z?local_hit.xz:local_hit.xy;
                     bool face_support=all(greaterThanEqual(support_point,s.support.xy-vec2(.000002))) && all(lessThanEqual(support_point,s.support.zw+vec2(.000002)));
                     bool cut_support=(inst.meta.z==0.) || (inst.meta.z>0.?local_hit.x<=inst.meta.w+1e-7:local_hit.x>=inst.meta.w-1e-7);
-                    if(face_support && cut_support && z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
+                    if(face_support && cut_support && in_source(sid,local_hit) && z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
                 }
             }
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.015) {
