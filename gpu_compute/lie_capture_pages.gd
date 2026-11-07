@@ -3,7 +3,7 @@ extends RefCounted
 const Identity=preload("res://lie_asset_catalog.gd")
 static func open_bank(path: String,expected: Dictionary) -> Dictionary:
     var c: Variant=JSON.parse_string(FileAccess.get_file_as_string(path+"catalog.json"));var index: Variant=JSON.parse_string(FileAccess.get_file_as_string(path+"pages.json"))
-    if not c is Dictionary or not index is Dictionary or index.get("schema")!="lie-capture-page-index/1" or c.get("sha256")!=expected.get("sha256") or index.get("bank_sha256")!=c.get("sha256") or c.get("stride")!=80:return {}
+    if not c is Dictionary or not index is Dictionary or index.get("schema")!="lie-capture-page-index/1" or c.get("sha256")!=expected.get("sha256") or index.get("bank_sha256")!=c.get("sha256") or c.get("stride")!=80 or c.get("bytes",0)>64*1024*1024:return {}
     if not Identity.validate(JSON.parse_string(FileAccess.get_file_as_string(path+"asset-contract.json")),c).get("ok",false):return {}
     var optical: Dictionary=c.get("optical_normal_sidecar",{})
     if optical.get("sha256")!=expected.get("optical") or index.get("optical_sha256")!=expected.get("optical") or index.get("core_bytes")!=c.get("bytes") or index.get("optical_bytes")!=optical.get("bytes",0):return {}

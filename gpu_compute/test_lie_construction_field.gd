@@ -1,4 +1,5 @@
 extends "res://test_lie_hq_construction.gd"
+const LightModel=preload("res://lie11_model.gd")
 func field_data(lab: Node) -> Dictionary:
     lab.transport.request_readback()
     for i in range(240):
@@ -16,9 +17,16 @@ func run() -> void:
     if not lab.metrics.get("configured",false):lab.queue_free();await settle();quit(1);return
     var both: Dictionary=await capture(lab);save(both,"field-corner-both");var flux: Dictionary=await field_data(lab)
     check(both.field.ready and both.field.nodes>1024 and lab.transport._output_dimensions().y>1,"real multi-row field beyond 1024 source-owned patches")
+    var texture_error: float=0.
+    var patch_bytes: PackedByteArray=LightModel.patch_bytes(lab.light_model)
+    for node in range(both.field.nodes):
+        for c in range(3):
+            var expected: float=flux.flux[node*4+c]/patch_bytes.decode_float(node*48+12);texture_error=maxf(texture_error,absf(flux.irradiance[node*4+c]-expected)/maxf(1.,absf(expected)))
+    check(texture_error<.00001,"every solved patch reaches the matching multi-row texture coordinate")
     var f:=FileAccess.open("res://construction-field-model.json",FileAccess.WRITE);f.store_string(JSON.stringify(lab.light_model,"  "));f.close()
     f=FileAccess.open("res://construction-field-flux.f32",FileAccess.WRITE);f.store_buffer(flux.flux.to_byte_array());f.close()
     var io: int=both.page_io_bytes;var uploads: int=both.asset_uploads;var revision: int=lab.revision;var solves: int=lab.transport.frame_count
+    print("CONSTRUCTION FIELD initial receipt ready")
     lab.command({"op":"set_values","values":{"indirect":false}});var direct: Dictionary=await capture(lab);save(direct,"field-corner-direct")
     check(both.depth==direct.depth and difference(both.color,direct.color)>.00001,"indirect affects radiance without changing captured geometry")
     check(lab.transport.frame_count==solves and direct.page_io_bytes==io and direct.asset_uploads==uploads,"indirect switch reuses field and exact source pages")
@@ -36,6 +44,15 @@ func run() -> void:
     check(max_flux==0. and max_rgb==0. and dark.depth==both.depth,"disabled sources leave no residual field energy")
     lab.command({"op":"set_values","values":{"key_enabled":true,"fill_enabled":true,"ambient":1.}});var restored: Dictionary=await capture(lab)
     check(difference(restored.color,both.color)<.00001,"light restoration returns the same image")
+    var removed=lab.fill_emitter;lab.light_world.remove_child(removed);lab.light_world.refresh();await capture(lab);var deleted: Dictionary=await field_data(lab)
+    check(difference(deleted.flux,key.flux)<.00001,"deleting an emitter leaves no contribution in its stable slot")
+    lab.light_world.add_child(removed);lab.light_world.refresh();var reattached: Dictionary=await capture(lab)
+    check(difference(reattached.color,both.color)<.00001,"reattached emitter restores its contribution")
+    lab.command({"op":"set_values","values":{"energy_radius":true}});var bounded: Dictionary=await capture(lab)
+    check(bounded.field.ready and lab.light_model.has("secondary_radii"),"area-weighted code radius uses the existing field policy")
+    lab.command({"op":"set_values","values":{"energy_radius":false}});var unbounded: Dictionary=await capture(lab)
+    check(difference(unbounded.color,both.color)<.00001,"removing the energy cutoff restores the unbounded field")
+    print("CONSTRUCTION FIELD source lifetime and radius accepted")
     var previous_solves: int=lab.transport.frame_count;var before: int=lab.effect.frame_count;await settle(12)
     check(lab.transport.frame_count==previous_solves and lab.effect.frame_count==before,"idle field and appearance stay cached")
     lab.command({"op":"set_values","values":{"yaw":-30.}});await capture(lab)
@@ -55,6 +72,6 @@ func run() -> void:
     check(moved.field.ready and moved.page_io_bytes==door_io and moved.asset_uploads==door_uploads,"door motion preserves source-bank residency")
     lab.transport.shutdown();await settle(12);var released: Dictionary=await capture(lab)
     check(not released.field.ready and released.failure.is_empty(),"released producer cannot leave a borrowed field descriptor active")
-    var report: Dictionary={"checks":checks,"failed":failed,"source_superposition_max_error":superposition,"corner":both.duplicate(),"physical_android_tested":false};report.corner.erase("color");report.corner.erase("depth");report.corner.erase("shadow")
+    var report: Dictionary={"checks":checks,"failed":failed,"source_superposition_max_error":superposition,"texture_relative_error":texture_error,"corner":both.duplicate(),"physical_android_tested":false};report.corner.erase("color");report.corner.erase("depth");report.corner.erase("shadow")
     f=FileAccess.open("res://construction-field-native.json",FileAccess.WRITE);f.store_string(JSON.stringify(report,"  "));f.close()
     lab.queue_free();await settle(20);print("CONSTRUCTION FIELD ","FAIL" if failed else "PASS"," ",checks);quit(1 if failed else 0)

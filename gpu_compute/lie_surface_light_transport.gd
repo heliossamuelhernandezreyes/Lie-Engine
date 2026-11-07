@@ -18,7 +18,7 @@ func render_binding(rd: RenderingDevice) -> Dictionary:
     # Render-thread-only receipt, refreshed every consuming frame. No GPU
     # readback; no scene-node access; no borrowed RID outlives its producer.
     if not gpu_ready or _rd!=rd or not _surface_codes.is_valid() or not output_rid.is_valid():return {}
-    return {"producer":get_instance_id(),"epoch":str(output_rid.get_id())+":"+str(_surface_codes.get_id()),"solve":frame_count,"nodes":_count,"irradiance":output_rid,"direct":_surface_codes,"patches":_buffers[0]}
+    return {"producer":get_instance_id(),"epoch":str(output_rid.get_id())+":"+str(_surface_codes.get_id()),"solve":frame_count,"nodes":_count,"bytes":allocation_bytes,"irradiance":output_rid,"direct":_surface_codes,"patches":_buffers[0]}
 func _release_gpu() -> void:
     super._release_gpu()
     if _surface_codes.is_valid():_rd.free_rid(_surface_codes)

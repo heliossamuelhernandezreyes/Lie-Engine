@@ -49,7 +49,7 @@ static func packet(areas: Array,options: Dictionary) -> PackedByteArray:
 static func with_edges(policy: PackedByteArray,gather: PackedByteArray,outgoing: PackedByteArray) -> PackedByteArray:
     if gather.size()<20 or outgoing.size()<20 or policy.is_empty():return PackedByteArray()
     var n: int=gather.decode_u32(0);var m: int=gather.decode_u32(4)
-    if n<1 or n>MAX_PATCHES or m>mini(n*n,16777215) or policy.size()!=32+(n+32)*16:return PackedByteArray()
+    if n<1 or n>MAX_PATCHES or m>mini(n*n,1048576) or policy.size()!=32+(n+32)*16:return PackedByteArray()
     var result: PackedByteArray=policy.duplicate();var begin: int=result.size()
     result.encode_float(24,float(m));result.resize(begin+2*m*16)
     for side in range(2):

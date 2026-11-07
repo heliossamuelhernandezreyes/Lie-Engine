@@ -178,7 +178,7 @@ func _initialize_gpu(data: Dictionary) -> bool:
     if not output_rid.is_valid():
         failure="Unable to allocate LIE-11 irradiance texture"
         return false
-    allocation_bytes+=_count*16
+    allocation_bytes+=format.width*format.height*16
     _transport_uniforms.append(_uniform(10,output_rid,true))
     _transport_uniforms.append_array(_extra_transport_uniforms())
     _set=_rd.uniform_set_create(_transport_uniforms,_shader,0)

@@ -119,7 +119,9 @@ func _make_set() -> void:
     for stage in _kernels:
         var order: Array=_resident_banks.keys() if stage in [2,3] else [0]
         for bank in order:
-            var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_params[bank];handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map;handles[17]=_field_bound.get("patches",_field_dummy_patch);handles[18]=_field_bound.get("irradiance",_field_dummy_image);handles[19]=_field_bound.get("direct",_field_dummy_light)
+            # Resizing can rebuild sets before _sync_field. Always use this
+            # frame's validated producer receipt, never a previous producer RID.
+            var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_params[bank];handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map;handles[17]=_field_receipt.get("patches",_field_dummy_patch);handles[18]=_field_receipt.get("irradiance",_field_dummy_image);handles[19]=_field_receipt.get("direct",_field_dummy_light)
             if _resident_banks.has(bank):
                 var row: Dictionary=_resident_banks[bank];handles[0]=row.core.rid;handles[14]=row.optical.rid if row.has("optical") else _dummy;handles[15]=row.limits
             var uniforms: Array[RDUniform]=[]
@@ -204,7 +206,7 @@ func _capture() -> void:
     if not gpu_ready:return
     var shadow: PackedByteArray=_rd.buffer_get_data(_buffers[13])
     _mutex.lock();_readback["library_bytes"]=total_source_bytes;_readback["exclusive_allocation_bytes"]=allocation_bytes-total_source_bytes;_readback["banks"]=banks.size();_readback["shadow"]=shadow;_readback["resident_banks"]=_resident_banks.size();_readback["catalog_source_bytes"]=catalog_source_bytes;_readback["page_io_bytes"]=page_io_bytes;_readback["residency_changes"]=residency_changes;_readback["projection_capacity"]=projection_capacity;_mutex.unlock()
-    _mutex.lock();_readback["field"]={"ready":not _field_receipt.is_empty(),"nodes":_field_receipt.get("nodes",0),"solve":_field_receipt.get("solve",0),"producer":_field_receipt.get("producer",0),"indirect":_field_context.get("indirect",false)};_readback["failure"]=failure;_mutex.unlock()
+    _mutex.lock();_readback["field"]={"ready":not _field_receipt.is_empty(),"nodes":_field_receipt.get("nodes",0),"bytes":_field_receipt.get("bytes",0),"solve":_field_receipt.get("solve",0),"producer":_field_receipt.get("producer",0),"indirect":_field_context.get("indirect",false)};_readback["failure"]=failure;_mutex.unlock()
 func _release() -> void:
     _clear_sets()
     for stage in _kernels:
@@ -220,6 +222,6 @@ func _release() -> void:
     _dummy=RID();_dummy_limits=RID();_sources_ready=false
     for rid in [_field_map,_field_dummy_patch,_field_dummy_light,_field_dummy_image]:
         if rid.is_valid():_rd.free_rid(rid)
-    _field_map=RID();_field_dummy_patch=RID();_field_dummy_light=RID();_field_dummy_image=RID();_field_map_bytes=0;_field_map_stamp=PackedByteArray();_field_bound={}
+    _field_map=RID();_field_dummy_patch=RID();_field_dummy_light=RID();_field_dummy_image=RID();_field_map_bytes=0;_field_map_stamp=PackedByteArray();_field_bound={};_field_receipt={};_field_context={}
     if _buffers.has(0) and _buffers[0].is_valid():_rd.free_rid(_buffers[0]);_buffers.erase(0)
     super._release()

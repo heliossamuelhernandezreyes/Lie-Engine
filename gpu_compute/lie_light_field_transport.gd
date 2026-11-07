@@ -26,7 +26,7 @@ func _output_dimensions() -> Vector2i:return Vector2i(mini(_count,1024),ceili(fl
 func _valid_csr(bytes: PackedByteArray,n: int) -> bool:
     if bytes.size()<16+4*(n+1) or bytes.size()%4!=0:return false
     var edges: int=bytes.decode_u32(4)
-    if bytes.decode_u32(0)!=n or bytes.decode_u32(8)!=4 or bytes.decode_u32(12)!=n+5 or bytes.size()!=4*(n+5)+8*edges:return false
+    if edges>1048576 or bytes.decode_u32(0)!=n or bytes.decode_u32(8)!=4 or bytes.decode_u32(12)!=n+5 or bytes.size()!=4*(n+5)+8*edges:return false
     if bytes.decode_u32(16)!=0 or bytes.decode_u32(16+4*n)!=edges:return false
     for i in range(n):
         if bytes.decode_u32(16+4*i)>bytes.decode_u32(20+4*i):return false

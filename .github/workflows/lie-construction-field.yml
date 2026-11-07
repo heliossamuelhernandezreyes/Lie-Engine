@@ -1,0 +1,93 @@
+name: LIE construction residency and quality field
+on:
+  push:
+    branches: [work/lie-construction-field]
+    paths-ignore: ["docs/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: construction-field-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-construction:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONPATH: tools
+      OPENBLAS_NUM_THREADS: '2'
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Dependencies and CPU regressions
+        run: |
+          python -m pip install --timeout 30 --retries 2 -r requirements-hq.txt
+          python -m unittest discover -s tests -p 'test_*.py' -q
+      - name: Native engine and attributed v3 brick bank
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          timeout 180 sudo apt-get update -qq
+          timeout 180 sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1 libxi6 libxfixes3 libxrender1 libxxf86vm1 libsm6 libgl1 libegl1 libxkbcommon0
+          curl --fail --location --retry 2 --max-time 90 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          gh api repos/${{ github.repository }}/actions/artifacts/13570706700/zip > /tmp/v5.zip
+          python tools/lie_construction_field_ci_input.py --archive /tmp/v5.zip --output /tmp/hq/scene
+      - name: Immutable range indices and source-owned field packets
+        run: |
+          python tools/lie_capture_page_index.py --root /tmp/hq/scene
+          python tools/lie_construction_field.py --root /tmp/hq/scene --output /tmp/hq/scene/fields
+          python tools/lie_light_field.py
+          python tools/lie_field_quality_cases.py
+          python tools/lie_hq_construction_stage.py --data /tmp/hq/scene --output /tmp/hq/stage
+      - uses: actions/checkout@v4
+        with:
+          ref: 963fd4ce3cfe6790422937807ddaec51852be488
+          path: baseline-source
+      - name: Frozen v5 stage
+        run: |
+          python baseline-source/tools/lie_hq_construction_stage.py --data /tmp/hq/scene --output /tmp/hq/baseline
+      - name: Native rig, agent, multi-bank depth, optical normals and joint checks
+        run: |
+          set -o pipefail
+          engine=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          timeout 120 "$engine" --headless --path /tmp/hq/stage --editor --import --quit 2>&1 | tee hq-construction-import.log
+          timeout 60 "$engine" --headless --path /tmp/hq/stage --script res://test_lie26_rig.gd 2>&1 | tee hq-construction-rig.log
+          timeout 60 "$engine" --headless --path /tmp/hq/stage --script res://workshop/test_lie_agent_session.gd 2>&1 | tee hq-construction-agent.log
+          timeout 120 "$engine" --headless --path /tmp/hq/baseline --editor --import --quit 2>&1 | tee hq-construction-baseline-import.log
+          timeout 600 xvfb-run -a "$engine" --path /tmp/hq/baseline --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_hq_component_quality.gd 2>&1 | tee hq-construction-baseline.log
+          timeout 600 xvfb-run -a "$engine" --path /tmp/hq/stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_hq_construction.gd 2>&1 | tee hq-construction-native.log
+          timeout 600 xvfb-run -a "$engine" --path /tmp/hq/stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_hq_component_quality.gd 2>&1 | tee hq-construction-quality.log
+          for script in test_lie_light_field_gpu test_lie_surface_field_gpu test_lie_field_quality_gpu test_lie_construction_field; do
+            timeout 600 xvfb-run -a "$engine" --path /tmp/hq/stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script "res://$script.gd" 2>&1 | tee "hq-construction-$script.log"
+          done
+          timeout 60 "$engine" --headless --path /tmp/hq/stage --script res://test_lie_field_quality_commands.gd 2>&1 | tee hq-construction-field-commands.log
+          python tools/lie_construction_field_verify.py --stage /tmp/hq/stage --fields /tmp/hq/scene/fields --baseline /tmp/hq/baseline --output /tmp/hq/comparison
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('.').glob('hq-construction-*.log'):
+              t=p.read_text();assert not any(x in t for x in ('ERROR:','SCRIPT ERROR','were leaked at exit')),t[-6000:]
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-construction-field
+          compression-level: 6
+          path: |
+            hq-construction-*.log
+            /tmp/hq/scene/banks
+            /tmp/hq/scene/*.json
+            /tmp/hq/scene/fields
+            /tmp/hq/stage/*.png
+            /tmp/hq/stage/hq-construction-native.json
+            /tmp/hq/stage/component-quality-native.json
+            /tmp/hq/stage/construction-field-*.json
+            /tmp/hq/stage/field-*.json
+            /tmp/hq/stage/light-field-native.json
+            /tmp/hq/comparison
+          if-no-files-found: warn

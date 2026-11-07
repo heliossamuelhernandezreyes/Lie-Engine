@@ -152,7 +152,9 @@ func _configure_field(entries: Array,instances: PackedByteArray) -> bool:
         light_model.lights=light_world.render_snapshot().lights;light_model.bounces=state.bounces
         if state.energy_radius:light_model.secondary_radii={"mode":"irradiance","radius_max":12.,"radius_decay":.8,"irradiance_cutoff":.01}
         else:light_model.erase("secondary_radii")
-        if changed and not transport.configure(light_model):return false
+        if changed or not transport.gpu_ready or transport.optical_metrics().lights!=light_model.lights.size():
+            if not transport.configure(light_model):return false
+        else:transport.set_light_codes(light_model)
         transport.set_direct_shadow_enabled(state.shadows)
         if not effect.bind_field(transport,transport.get_meta("mapping"),instances,effect.manifest.scene_identity,state.indirect,light_world.render_snapshot().ids.find("key")):return false
     return true
