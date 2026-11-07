@@ -1,0 +1,358 @@
+{
+  "schema": "lie-construction-field-v6-checkpoint/1",
+  "date": "2026-11-07",
+  "runtime_commit": "0e9c6759992d3a61abc231274b8ea7c6fce3247c",
+  "frozen_v5_commit": "963fd4ce3cfe6790422937807ddaec51852be488",
+  "branch": "work/lie-construction-field",
+  "ci": {
+    "run_id": 42368614346,
+    "job_id": 128391886699,
+    "conclusion": "success",
+    "artifact_id": 13572886857,
+    "artifact_sha256": "2b1ddcb8bdf1aa59482f92418792cefae349797847216b1e2a60c3de498738e0"
+  },
+  "resources": {
+    "scope": "requested RenderingDevice resources; excludes process/driver/cache memory",
+    "output_size": 960,
+    "internal_size": 1920,
+    "v5": {
+      "source": 273159680,
+      "appearance": 453680304,
+      "field": 0,
+      "total": 726839984
+    },
+    "v6": {
+      "source": 12335104,
+      "appearance": 316911568,
+      "field": 24105544,
+      "total": 353352216
+    },
+    "reduction_percent": 51.385143390790674
+  },
+  "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+  "native": {
+    "checks": 26,
+    "corner": {
+      "allocation_bytes": 329246672,
+      "asset_uploads": 7,
+      "banks": 5,
+      "catalog_source_bytes": 273159680,
+      "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "exclusive_allocation_bytes": 316911568,
+      "failure": "",
+      "field": {
+        "bytes": 24105544,
+        "indirect": true,
+        "nodes": 4742,
+        "producer": -9223371990096673119,
+        "ready": true,
+        "solve": 1
+      },
+      "frames": 1,
+      "instances": 781,
+      "internal_size": 1920,
+      "library_bytes": 12335104,
+      "output_size": 960,
+      "page_io_bytes": 12335104,
+      "profile": [
+        {
+          "gpu_ns": 15779442859,
+          "marker_frame": 1,
+          "owner_instance_id": -9223371995079506472,
+          "serial": 1
+        }
+      ],
+      "projection_capacity": 1179648,
+      "residency_changes": 1,
+      "resident_banks": 4,
+      "sample_bank_bindings": 4,
+      "sample_invocations": 1165568,
+      "shared_samples": {
+        "live_banks": 7,
+        "live_references": 7,
+        "physical_uploads_total": 7,
+        "scope": "immutable sample buffers on this RenderingDevice, not engine/process RAM",
+        "unique_resident_bytes": 12335104
+      }
+    },
+    "failed": false,
+    "physical_android_tested": false,
+    "source_superposition_max_error": 1.86264514923096e-09,
+    "texture_relative_error": 5.82260636981934e-08
+  },
+  "field_reference": {
+    "schema": "lie-construction-field-reference/1",
+    "nodes": 4742,
+    "edges": 7228,
+    "max_error": 7.69285890545035e-09,
+    "mean_error": 1.0127759686788307e-10,
+    "reference_generation_totals_rgb": [
+      [
+        4.903701613489475,
+        5.28154270739874,
+        5.61883357751145
+      ],
+      [
+        0.056688270050533604,
+        0.03887288882716414,
+        0.03095601770205446
+      ],
+      [
+        0.004057982053851481,
+        0.0018910505251868354,
+        0.0011603525713958524
+      ]
+    ],
+    "reference_channel_totals": [
+      [
+        [
+          4.0550614915698935,
+          3.8928589141507977,
+          3.6901061129351427
+        ],
+        [
+          0.8486401219195814,
+          1.3886837932479432,
+          1.9287274645763068
+        ]
+      ],
+      [
+        [
+          0.05123222228981122,
+          0.03284208410051135,
+          0.02440269983381837
+        ],
+        [
+          0.005456047760722387,
+          0.006030804726652789,
+          0.006553317868236088
+        ]
+      ],
+      [
+        [
+          0.0035172461918771825,
+          0.0014645069269007907,
+          0.0007924913393921805
+        ],
+        [
+          0.0005407358619742987,
+          0.00042654359828604477,
+          0.00036786123200367195
+        ]
+      ]
+    ],
+    "actual_total_flux_rgb": [
+      4.9644477342473,
+      5.322306527319293,
+      5.650949819726074
+    ],
+    "passed": true,
+    "reference": "float64 independent scatter with vector segment-box injection; same explicit coarse surface contract",
+    "physical_android_tested": false
+  },
+  "compatibility": {
+    "schema": "lie-construction-range-compatibility/1",
+    "views": 24,
+    "peak_rgba_difference": 0.0,
+    "passed": true,
+    "cases": {
+      "quality_concrete_lintel_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "bd2f7358876ef6ea46ad95f2d91dc317a975aaac0c73f6753715d21a39d8081d",
+        "new_rgba_sha256": "bd2f7358876ef6ea46ad95f2d91dc317a975aaac0c73f6753715d21a39d8081d"
+      },
+      "quality_concrete_lintel_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "f6f76e7fee95f4bf675c3df9c0830d41872c5756f7417fac65f9788a25e21544",
+        "new_rgba_sha256": "f6f76e7fee95f4bf675c3df9c0830d41872c5756f7417fac65f9788a25e21544"
+      },
+      "quality_concrete_plinth_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "84c362cde6fdfe4a704a516958d3de2c9920bdf02fdf1969411ad95c588f294d",
+        "new_rgba_sha256": "84c362cde6fdfe4a704a516958d3de2c9920bdf02fdf1969411ad95c588f294d"
+      },
+      "quality_concrete_plinth_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "8c97d519485f86df7c69433691fc7509a6257658f894b7b05acb144654435a2b",
+        "new_rgba_sha256": "8c97d519485f86df7c69433691fc7509a6257658f894b7b05acb144654435a2b"
+      },
+      "quality_concrete_sill_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "74e2bfeb1924c5c39a3d0dbc772e4eaad097a594d529df8f5c91cbcf09811e16",
+        "new_rgba_sha256": "74e2bfeb1924c5c39a3d0dbc772e4eaad097a594d529df8f5c91cbcf09811e16"
+      },
+      "quality_concrete_sill_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "17efbc7d79358af911055ae965b60e8ac81102bed98bf5b246d5f3a4d2079ca1",
+        "new_rgba_sha256": "17efbc7d79358af911055ae965b60e8ac81102bed98bf5b246d5f3a4d2079ca1"
+      },
+      "quality_mortar_bed_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "1ab6cc65bf0050eb9c00b50d4e91f49d7df39d2015c97719221f3c715d75e390",
+        "new_rgba_sha256": "1ab6cc65bf0050eb9c00b50d4e91f49d7df39d2015c97719221f3c715d75e390"
+      },
+      "quality_mortar_bed_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "3dfdd05cea0daa1ae3aa65727385937a76bbac4650f710d086c484ab64c13994",
+        "new_rgba_sha256": "3dfdd05cea0daa1ae3aa65727385937a76bbac4650f710d086c484ab64c13994"
+      },
+      "quality_mortar_head_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "c8223b5719e06b6d233ded2aae392e2609b143803a150946f34dac05bd9ab44d",
+        "new_rgba_sha256": "c8223b5719e06b6d233ded2aae392e2609b143803a150946f34dac05bd9ab44d"
+      },
+      "quality_mortar_head_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "1f3aa7637c5acf0ff532aa5d254fc39dd2ad5910ef0356ff06dd460620b8b636",
+        "new_rgba_sha256": "1f3aa7637c5acf0ff532aa5d254fc39dd2ad5910ef0356ff06dd460620b8b636"
+      },
+      "quality_mortar_return_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "75e5212d3b71604b23f5f97c3ff977152ff68f6afe3e6fc73bb6fc505eb59ebb",
+        "new_rgba_sha256": "75e5212d3b71604b23f5f97c3ff977152ff68f6afe3e6fc73bb6fc505eb59ebb"
+      },
+      "quality_mortar_return_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "4df945af03514d721d77b09c633b830bd50fcb87bb3d882a1fe3fae029ad8fb9",
+        "new_rgba_sha256": "4df945af03514d721d77b09c633b830bd50fcb87bb3d882a1fe3fae029ad8fb9"
+      },
+      "quality_wood_beam_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "7f1a42d7a2927fabf5135e9c70460710bff02984519f7a48b0b1c61f73aa5cdc",
+        "new_rgba_sha256": "7f1a42d7a2927fabf5135e9c70460710bff02984519f7a48b0b1c61f73aa5cdc"
+      },
+      "quality_wood_beam_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "fdb2fea5f3240877a707272c031e6ad2638e1391d982c0913934c214f9b35a12",
+        "new_rgba_sha256": "fdb2fea5f3240877a707272c031e6ad2638e1391d982c0913934c214f9b35a12"
+      },
+      "quality_wood_door_jamb_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "7a1d2daa09725d9c1a60fa0947143fabbd71318ade686cfe5b3e79c23b0bc9a6",
+        "new_rgba_sha256": "7a1d2daa09725d9c1a60fa0947143fabbd71318ade686cfe5b3e79c23b0bc9a6"
+      },
+      "quality_wood_door_jamb_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "33cd0cd9e44d5c2856b83736b8ec82de61f391cc6106cf8a03b05d512a09342e",
+        "new_rgba_sha256": "33cd0cd9e44d5c2856b83736b8ec82de61f391cc6106cf8a03b05d512a09342e"
+      },
+      "quality_wood_door_leaf_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "a436c9b55779f44fbfa86b4c149d498a139627c0ddd0e2f9cf530786e3df92bf",
+        "new_rgba_sha256": "a436c9b55779f44fbfa86b4c149d498a139627c0ddd0e2f9cf530786e3df92bf"
+      },
+      "quality_wood_door_leaf_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "a49b940aa51afaa83315f8b6caa1c626e70743a9c45fb31bde086117f467be25",
+        "new_rgba_sha256": "a49b940aa51afaa83315f8b6caa1c626e70743a9c45fb31bde086117f467be25"
+      },
+      "quality_wood_head_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "f2b05bf8f7cd25c128b7bed5828d840862033f6cb9681f54d06daa925fddafd4",
+        "new_rgba_sha256": "f2b05bf8f7cd25c128b7bed5828d840862033f6cb9681f54d06daa925fddafd4"
+      },
+      "quality_wood_head_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "197ba37fae72a4a7e2a3c6f8bbd7196d33b430505cfe3b95155281d4db367326",
+        "new_rgba_sha256": "197ba37fae72a4a7e2a3c6f8bbd7196d33b430505cfe3b95155281d4db367326"
+      },
+      "quality_wood_jamb_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "db099c0e55c036d156d8ff098eaceb8240a43ed447aace1a19e2f7b615b33dc8",
+        "new_rgba_sha256": "db099c0e55c036d156d8ff098eaceb8240a43ed447aace1a19e2f7b615b33dc8"
+      },
+      "quality_wood_jamb_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "7d50c77150f46ae390abb2ccf860cbfac9891d6925bf1ca4e0d7e48288cadb62",
+        "new_rgba_sha256": "7d50c77150f46ae390abb2ccf860cbfac9891d6925bf1ca4e0d7e48288cadb62"
+      },
+      "quality_wood_shingle_back-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "3a2708c45063b5cd20ae3c26718de0676d5f187a34c46161a0cf0ed78a6348ca",
+        "new_rgba_sha256": "3a2708c45063b5cd20ae3c26718de0676d5f187a34c46161a0cf0ed78a6348ca"
+      },
+      "quality_wood_shingle_front-color": {
+        "rgba_bit_exact": true,
+        "depth_bit_exact": true,
+        "peak_rgba_difference": 0.0,
+        "v5_rgba_sha256": "2df1b8bdc3f2ffaf749686f301bf53aeabbfba724b1a8759f4ee3bfedd2abc66",
+        "new_rgba_sha256": "2df1b8bdc3f2ffaf749686f301bf53aeabbfba724b1a8759f4ee3bfedd2abc66"
+      }
+    },
+    "scope": "same selected captures, settings, resolution, device and driver; field mode disabled; not a cross-GPU bit-identity promise"
+  },
+  "verification": {
+    "python_ran": 285,
+    "python_passed": 284,
+    "python_skipped": 1,
+    "vulkan_checks": 1849,
+    "rig_checks": 247,
+    "agent_checks": 25,
+    "control_checks": 24
+  },
+  "images": {
+    "direct": "field-corner-direct.png",
+    "indirect": "field-corner-both.png",
+    "scope": "native CI PNGs; same camera/material/sources/ambient=1; indirect toggled"
+  },
+  "immutable_v5_captures": true,
+  "source_resampling": false,
+  "new_whole_object_scans": 0,
+  "shared_indirect_field_integrated": true,
+  "physical_android_tested": false,
+  "new_apk_built": false,
+  "limits": [
+    "conservative profile AABB visibility",
+    "32 facing candidates before visibility; truncated sparse graph",
+    "indirect diffuse only",
+    "no automatic native Godot geometry participation",
+    "existing v5 microdetail loss remains",
+    "resource bytes are not mobile FPS or total RAM"
+  ]
+}
