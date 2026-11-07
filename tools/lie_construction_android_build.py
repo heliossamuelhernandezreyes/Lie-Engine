@@ -29,6 +29,10 @@ def stage(data, destination, require_probe=False):
         assert (folder / 'pages.json').is_file()
     assert json.loads((data / 'fields/materials.json').read_text())['scene_identity'] == manifest['scene_identity']
     construction.stage(data, destination)
+    # Desktop staging deliberately hides immutable data from editor import.
+    # Android export must enumerate it: .gdignore also suppresses explicit
+    # include-filter paths. Remove only this staging marker, never source data.
+    (destination / 'captures/hq_construction/.gdignore').unlink()
     pending = ['lie_construction_mobile_lab.tscn', 'test_lie_construction_mobile.gd',
                'test_lie_construction_mobile_metrics.gd', 'test_lie_hardware_probe.gd']
     copied = set()
