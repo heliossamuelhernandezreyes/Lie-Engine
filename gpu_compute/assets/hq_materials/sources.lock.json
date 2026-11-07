@@ -83,6 +83,13 @@
           "size": 216971,
           "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/concrete_layers/concrete_layers_8k.blend",
           "md5": "9cdf36150ac3b3f3887a3440eac0a0de"
+        },
+        "ColorReference": {
+          "size": 45700805,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/concrete_layers/concrete_layers_diff_8k.jpg",
+          "md5": "92446749924af310d6204918070c931b",
+          "sha256": "d46e1c4212d95ae3cf8b0d51cc9720e50862ae4fdb969a94405e5073676954ff",
+          "bytes": 45700805
         }
       },
       "provider_api_metadata": {
@@ -142,7 +149,9 @@
         "img_version": "541112bf",
         "download_count": 47659,
         "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/concrete_layers.png?width=256&height=256&format=webp&v=541112bf"
-      }
+      },
+      "diffuse_encoding": "srgb",
+      "diffuse_encoding_basis": "8K EXR pixel values compared against provider 8K JPEG, assigned sRGB in original Blender material"
     },
     "wood_table_worn": {
       "title": "Wood Table Worn",
@@ -219,6 +228,13 @@
           "size": 219347,
           "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/wood_table_worn/wood_table_worn_8k.blend",
           "md5": "2e41d402d100baa56434f474b28b5185"
+        },
+        "ColorReference": {
+          "size": 41177258,
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/wood_table_worn/wood_table_worn_diff_8k.jpg",
+          "md5": "594cce098bdfc7df2020e267d8c08847",
+          "sha256": "ddd429aed0fa613c2047b5986e91adf330764628eee3980b3661f55330350ebd",
+          "bytes": 41177258
         }
       },
       "provider_api_metadata": {
@@ -280,7 +296,9 @@
         "img_version": "ba59696d",
         "download_count": 419394,
         "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/wood_table_worn.png?width=256&height=256&format=webp&v=ba59696d"
-      }
+      },
+      "diffuse_encoding": "srgb",
+      "diffuse_encoding_basis": "8K EXR pixel values compared against provider 8K JPEG, assigned sRGB in original Blender material"
     },
     "rock_boulder_dry": {
       "title": "Rock Boulder Dry",
@@ -357,6 +375,13 @@
           "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/rock_boulder_dry/rock_boulder_dry_8k.blend",
           "size": 278532,
           "md5": "350015419b37385f6e03a454f68f46a2"
+        },
+        "ColorReference": {
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/rock_boulder_dry/rock_boulder_dry_diff_8k.jpg",
+          "size": 57786987,
+          "md5": "264d5fffc8324af1b0c3e318f08a0b26",
+          "sha256": "8626225ff30359db35c8b858cff3b48b986ca168b6cec3642437e524200eedae",
+          "bytes": 57786987
         }
       },
       "provider_api_metadata": {
@@ -414,7 +439,9 @@
         "img_version": "5a624d4f",
         "download_count": 144204,
         "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/rock_boulder_dry.png?width=256&height=256&format=webp&v=5a624d4f"
-      }
+      },
+      "diffuse_encoding": "srgb",
+      "diffuse_encoding_basis": "8K EXR pixel values compared against provider 8K JPEG, assigned sRGB in original Blender material"
     },
     "grey_plaster": {
       "title": "Grey Plaster",
@@ -491,6 +518,13 @@
             }
           },
           "url": "https://dl.polyhaven.org/file/ph-assets/Textures/blend/8k/grey_plaster/grey_plaster_8k.blend"
+        },
+        "ColorReference": {
+          "size": 37926632,
+          "md5": "ca4c81c9a5aae35f82ab8cb6408d2eee",
+          "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/8k/grey_plaster/grey_plaster_diff_8k.jpg",
+          "sha256": "07f6ebc69747d7e80b74d3aef37e92ea90e25431365971c0100f12d1d9d6c998",
+          "bytes": 37926632
         }
       },
       "provider_api_metadata": {
@@ -538,7 +572,9 @@
         "img_version": "367870e9",
         "download_count": 126372,
         "thumbnail_url": "https://cdn.polyhaven.com/asset_img/thumbs/grey_plaster.png?width=256&height=256&format=webp&v=367870e9"
-      }
+      },
+      "diffuse_encoding": "srgb",
+      "diffuse_encoding_basis": "8K EXR pixel values compared against provider 8K JPEG, assigned sRGB in original Blender material"
     }
   }
 }

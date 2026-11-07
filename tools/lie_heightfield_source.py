@@ -45,11 +45,22 @@ def read_map(path,kind):
             else:
                 with Image.open(path) as im:a=np.asarray(im).astype(np.float32)/65535.
                 if a.ndim!=2:raise ValueError('height_requires_original_16bit_scalar')
-        else:raise ValueError('photographic_color_requires_linear_EXR')
+        else:raise ValueError('photographic_color_requires_EXR_with_declared_encoding')
     # Provider EXR DWAA compression can overshoot [0,1] very slightly. Preserve
     # the original file and clamp the bounded opaque derivative explicitly.
     if not np.isfinite(a).all() or a.min()<-.02 or a.max()>1.02:raise ValueError('source_map_out_of_range: '+str(path)+' '+str((a.min(),a.max())))
     return a
+
+def linear_albedo(pixels,encoding):
+    if encoding not in ('linear','srgb'):raise ValueError('explicit_diffuse_encoding_required')
+    if encoding=='linear':return pixels
+    # Decode each texel before UV filtering. EXR is a container, not a
+    # reliable declaration of color encoding for these provider files.
+    result=np.empty(pixels.shape,dtype=np.float32)
+    for row in range(0,len(pixels),128):
+        p=np.clip(pixels[row:row+128].astype(np.float32),0,1)
+        result[row:row+128]=np.where(p<=.04045,p/12.92,((p+.055)/1.055)**2.4)
+    return result
 
 def load_heightfield(source):
     d=json.loads(Path(source).read_text());root=Path(source).parent
@@ -62,6 +73,7 @@ def load_heightfield(source):
         if kind in ('Diffuse','Rough','Displacement'):maps[kind]=read_map(path,kind)
     if set(maps)!={'Diffuse','Rough','Displacement'}:raise ValueError('heightfield_missing_maps')
     if 'source_resolution' in d and any(list(a.shape[:2])!=d['source_resolution'][::-1] for a in maps.values()):raise ValueError('heightfield_source_resolution')
+    maps['Diffuse']=linear_albedo(maps['Diffuse'],d.get('diffuse_encoding'))
     dims=np.asarray(d['provider_dimensions_m'],float);crop=np.asarray(d['uv_crop'],float);n=d['grid_vertices_per_axis']
     if dims.shape!=(2,) or (dims<=0).any() or crop.shape!=(4,) or not np.isfinite([*dims,*crop]).all() or not (0<=crop[0]<crop[2]<=1 and 0<=crop[1]<crop[3]<=1) or type(n) is not int or not 3<=n<=2049:raise ValueError('heightfield_geometry_declaration')
     scale=float(d['displacement_scale_m']);mid=float(d['displacement_midlevel'])

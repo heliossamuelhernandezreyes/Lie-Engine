@@ -328,7 +328,7 @@ def capture(source: Path, provenance: Path, output: Path, length_m: float = .203
     metadata['optical_material']=material_info
     metadata['source_material_policy']='legacy_declared_clay' if asset_profile is None else asset_profile.get('source_material_policy','preserve_source')
     if any('lie_heightfield_declaration' in m.metadata for m in meshes):
-        metadata.update(source_color_representation='original EXR linear RGB, bilinear UV sampling',
+        metadata.update(source_color_representation='original EXR RGB, explicitly declared encoding decoded to linear before bilinear UV filtering',
                         source_kind='photographic material on explicitly authored displaced surface',
                         whole_object_scan=False,tangent_normal_map_consumed=False,
                         displacement_scale_is_certified_measurement=False)

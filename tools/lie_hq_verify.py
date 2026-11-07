@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont
 from scipy.ndimage import binary_erosion
-from lie_heightfield_source import read_map,sample_array
+from lie_heightfield_source import read_map,sample_array,linear_albedo
 
 def norm(a):return a/np.maximum(np.linalg.norm(a,axis=-1,keepdims=True),1e-12)
 def srgb(a):return np.where(a<=.0031308,a*12.92,1.055*np.maximum(a,0)**(1/2.4)-.055)
@@ -30,7 +30,7 @@ def source_reference(src,n=1024):
         t=(low+high)/2;value,_=surface(x*t,y*t);above=distance-t>value;low=np.where(above,t,low);high=np.where(above,high,t)
     t=(low+high)/2;px=x*t;py=y*t;pz=distance-t;_,normal=surface(px,py);mask=(abs(px)<size[0]/2)&(abs(py)<size[1]/2)
     uv=np.stack([px/dims[0]+(crop[0]+crop[2])/2,py/dims[1]+(crop[1]+crop[3])/2],axis=-1).reshape(-1,2)
-    color=np.clip(sample_array(read_map(src/'Diffuse.exr','Diffuse'),uv),0,1).reshape(n,n,3)
+    color=np.clip(sample_array(linear_albedo(read_map(src/'Diffuse.exr','Diffuse'),d['diffuse_encoding']),uv),0,1).reshape(n,n,3)
     rough=np.clip(sample_array(read_map(src/'Rough.exr','Rough'),uv),.2,.95).reshape(n,n)
     point=np.stack([px,py,pz],axis=-1);eye=np.array([0,0,distance]);r=distance*.7;angle=math.radians(-35);light=np.array([math.sin(angle)*r,r*.9,math.cos(angle)*r]);delta=light-point;distance2=(delta**2).sum(-1);l=norm(delta);v=norm(eye-point);half=norm(v+l)
     nl=np.maximum((normal*l).sum(-1),0);nv=np.maximum((normal*v).sum(-1),1e-5);nh=np.maximum((normal*half).sum(-1),0);vh=np.maximum((v*half).sum(-1),0);F=.025+.975*(1-vh)**5;a2=rough**4;denom=nh**2*(a2-1)+1;D=a2/(np.pi*denom**2)

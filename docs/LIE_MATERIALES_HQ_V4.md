@@ -34,8 +34,11 @@ perfectamente continuo. Se conserva el material completo para nuevas extraccione
 
 El compilador compartido recibe una declaración explícita de escala, pivote,
 orientación X derecha / Y arriba / Z frente, procedencia y material opaco.
-Captura color lineal y rugosidad mediante UV bilineales directamente desde
-los EXR originales. El relieve y sus normales geométricas se obtienen del
+Captura color lineal y rugosidad mediante UV bilineales desde los EXR originales.
+El espacio de color se declara explícitamente: la comparación con el JPEG 8K
+del proveedor y el material Blender identifica estos albedos EXR como sRGB.
+Se convierte cada texel a lineal antes del filtrado. La extensión EXR por sí
+sola no demuestra codificación lineal. El relieve y sus normales se obtienen del
 mapa de altura, sin confundirlo con las normales ópticas.
 
 La altura RGB16 de la piedra necesita OpenImageIO: Pillow la convertiría

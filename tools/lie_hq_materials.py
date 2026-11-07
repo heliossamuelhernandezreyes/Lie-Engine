@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 from lie_asset_capture import capture
-from lie_heightfield_source import file_sha
+from lie_heightfield_source import file_sha,read_map
 from lie_asset_sets import compile_set
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -16,6 +16,15 @@ LOCK=ROOT/'gpu_compute/assets/hq_materials/sources.lock.json'
 COUNTS=(512000,128000,32000)
 
 def write(path,data):path.write_text(json.dumps(data,indent=2)+'\n')
+
+def verify_color_encoding(src,encoding):
+    raw=read_map(src/'Diffuse.exr','Diffuse')[4::8,4::8].astype(np.float32)
+    with Image.open(src/'ColorReference.jpg') as im:ref=np.asarray(im)[4::8,4::8].astype(np.float32)/255.
+    converted=np.where(raw<=.0031308,raw*12.92,1.055*np.maximum(raw,0)**(1/2.4)-.055)
+    raw_mae=float(np.mean(abs(raw-ref)));converted_mae=float(np.mean(abs(converted-ref)))
+    claimed,alternate=(raw_mae,converted_mae) if encoding=='srgb' else (converted_mae,raw_mae)
+    if claimed>=.03 or claimed*2>=alternate:raise ValueError('diffuse_encoding_does_not_match_provider_sRGB_reference')
+    return {'encoding':encoding,'reference':'provider original 8K JPEG; sRGB assigned in provider Blender material','encoded_EXR_vs_JPEG_mae':raw_mae,'linear_EXR_hypothesis_to_sRGB_vs_JPEG_mae':converted_mae,'passed':True}
 
 def write_sets(bank,name,meta):
     leaf=lambda lod:{'id':'surface','asset':name,'lod':lod}
@@ -47,7 +56,7 @@ def prepare(sources,output,lock,only=None):
     for name,item in lock['materials'].items():
         if only and name!=only:continue
         src=sources/name;src.mkdir(parents=True,exist_ok=True);bank=output/name
-        declaration={k:item[k] for k in ('provider_dimensions_m','displacement_scale_m','displacement_midlevel','uv_crop','grid_vertices_per_axis')}
+        declaration={k:item[k] for k in ('provider_dimensions_m','displacement_scale_m','displacement_midlevel','uv_crop','grid_vertices_per_axis','diffuse_encoding')}
         declaration.update(schema='lie-photographic-heightfield/1',normal_policy=lock['normal_policy'],
                            source_resolution=lock['source_resolution'],
                            maps={k:{'path':k+'.'+v['url'].rsplit('.',1)[1],'sha256':v['sha256']} for k,v in item['maps'].items() if k!='source'})
@@ -57,7 +66,9 @@ def prepare(sources,output,lock,only=None):
         write(src/'provenance.json',provenance)
         profile={'master':name,'source_to_lie':np.eye(3).tolist(),'meters_per_source_unit':1.,'source_pivot':[0,0,0],'material_zone':10,'source_material_policy':'declared_opaque_override','optical_material':{'metallic':0.,'transmission':0.,'ior':1.5,'roughness_origin':'source_map'},'clip_support_to_source_aabb':True}
         write(src/'asset-profile.json',profile)
+        encoding_report=verify_color_encoding(src,item['diffuse_encoding'])
         meta=capture(source,src/'provenance.json',bank,counts=COUNTS,asset_profile=profile)
+        write(bank/'color-encoding.json',encoding_report)
         meta.update(material_source=item,credit=lock['credit'],source_resolution=lock['source_resolution'],
                     tile_size_m=[.32,.32],crop_is_seamless=False,full_source_maps_retained=True,
                     geometry_role='open surface patch; no side or back invented',
