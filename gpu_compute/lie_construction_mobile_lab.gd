@@ -1,7 +1,7 @@
 extends "res://lie_hq_construction_lab.gd"
 const Meter=preload("res://lie_construction_mobile_metrics.gd")
 const Hardware=preload("res://lie_hardware_diagnostics.gd")
-const APP_VERSION="6.1.0-reconstruction"
+const APP_VERSION="6.2.0-invisible-wall-physics"
 var output_resolution: int=960
 var hardware=Hardware.new()
 var meter=Meter.new()
@@ -61,7 +61,7 @@ func _build_ui() -> void:
     layer.add_child(margin)
     var columns:=HBoxContainer.new();columns.add_theme_constant_override("separation",16);margin.add_child(columns)
     var left:=VBoxContainer.new();left.size_flags_horizontal=Control.SIZE_EXPAND_FILL;columns.add_child(left)
-    _label(left,"LIE · Benchmark 6.1.0",28)
+    _label(left,"LIE · Benchmark 6.2.0",28)
     var actions:=HBoxContainer.new();actions.add_theme_constant_override("separation",8);left.add_child(actions)
     _benchmark_button=_button(actions,"Benchmark y copiar informe",func():run_comparison())
     _benchmark_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL;_benchmark_button.custom_minimum_size.y=56;_benchmark_button.add_theme_font_size_override("font_size",20)

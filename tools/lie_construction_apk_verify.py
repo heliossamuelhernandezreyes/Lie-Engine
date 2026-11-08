@@ -12,11 +12,11 @@ def verify(path,badging):
         assert archive.testzip() is None
         names=archive.namelist()
         proof=json.loads(archive.read('assets/build-source.json'))
-        assert proof['package']=='org.lieengine.construction.v610' and proof['version']=='6.1.0-reconstruction'
+        assert proof['package']=='org.lieengine.construction.v620' and proof['version']=='6.2.0-invisible-wall-physics'
         for name,expected in proof['source_files_sha256'].items():
             with archive.open('assets/'+name) as stream:
                 assert hashlib.file_digest(stream,'sha256').hexdigest()==expected,name
-        assert b'lie_construction_mobile_lab.tscn' in archive.read('assets/project.binary')
+        assert b'lie_construction_proxy_lab.tscn' in archive.read('assets/project.binary')
         binaries=[name for name in names if name.startswith('lib/') and name.endswith('.so')]
         assert binaries and all(name.startswith('lib/arm64-v8a/') for name in binaries)
         assert any(name.endswith('/liblie_gpu_probe.so') for name in binaries)
@@ -34,7 +34,7 @@ def verify(path,badging):
         credits=archive.read('assets/ATTRIBUTION.txt')
         assert b'Centre-of-Archaeology' in credits and b'Poly Haven' in credits and b'Godot' in credits
     text=badging.read_text()
-    assert "name='org.lieengine.construction.v610'" in text and "versionName='6.1.0-reconstruction'" in text
+    assert "name='org.lieengine.construction.v620'" in text and "versionName='6.2.0-invisible-wall-physics'" in text
     permissions=re.findall(r"uses-permission(?:-sdk-23)?: name='([^']+)'",text)
     assert not any(name in permissions for name in ['android.permission.INTERNET','android.permission.READ_EXTERNAL_STORAGE','android.permission.WRITE_EXTERNAL_STORAGE']),permissions
     with path.open('rb') as stream:checksum=hashlib.file_digest(stream,'sha256').hexdigest()

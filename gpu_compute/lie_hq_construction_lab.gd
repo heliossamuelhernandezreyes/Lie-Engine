@@ -57,6 +57,8 @@ func _build_ui() -> void:
         var checkbox:=CheckBox.new();checkbox.text={"field_lighting":"Usar campo de luz LIE","indirect":"Luz indirecta","key_enabled":"Luz principal","fill_enabled":"Segunda luz","energy_radius":"Radio energético","normals":"Relieve fino","shadows":"Sombras"}[key];checkbox.button_pressed=state[key];checkbox.toggled.connect(func(value: bool):command({"op":"set_values","values":{key:value}}));box.add_child(checkbox);controls[key]=checkbox
     var button:=Button.new();button.text="Semilla 2102 / 7319";button.pressed.connect(func():command({"op":"set_values","values":{"seed":7319 if state.seed==2102 else 2102}}));box.add_child(button)
     var credit:=Label.new();credit.text="Powered by Poly Haven\nLadrillo: Centre-of-Archaeology\nPerfiles nuevos: autoría LIE";box.add_child(credit)
+func _extra_boolean_controls() -> Array:return []
+func _before_camera_packet(_target: Vector3) -> void:pass
 func command(request: Dictionary) -> Dictionary:
     if request.get("op")=="snapshot":return {"ok":true,"revision":revision,"state":state.duplicate(),"metrics":metrics.duplicate()}
     if request.get("op")!="set_values" or not request.get("values") is Dictionary:return {"ok":false,"error":"command"}
@@ -68,7 +70,7 @@ func command(request: Dictionary) -> Dictionary:
             if not value is String or value not in effect.manifest.modes:return {"ok":false,"error":"mode"}
         elif key=="seed":
             if not value is int or value not in [2102,7319]:return {"ok":false,"error":"seed"}
-        elif key in ["normals","shadows","occluder","reverse_banks","field_lighting","indirect","key_enabled","fill_enabled","energy_radius"]:
+        elif key in ["normals","shadows","occluder","reverse_banks","field_lighting","indirect","key_enabled","fill_enabled","energy_radius"] or key in _extra_boolean_controls():
             if not value is bool:return {"ok":false,"error":"boolean"}
         elif key=="bounces":
             if not value is int or value<0 or value>4:return {"ok":false,"error":"bounces"}
@@ -106,6 +108,7 @@ func update_scene() -> void:
         if built.is_empty():metrics={"error":"geometry"};return
         _geometry=built;_geometry_key=geometry_key
     var instances: PackedByteArray=_geometry.instances;var jobs: PackedByteArray=_geometry.jobs;var work: int=_geometry.work
+    _before_camera_packet(target)
     var packet:=PackedFloat32Array()
     for v in [camera.position,camera.basis.x,camera.basis.y,-camera.basis.z]:packet.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
     packet.append_array(PackedFloat32Array([tan(deg_to_rad(camera.fov)*.5),1,.0005,100]));var bytes: PackedByteArray=packet.to_byte_array();bytes.append_array(PackedInt32Array([work,instances.size()/96,effect.render_size,effect.render_size]).to_byte_array())
