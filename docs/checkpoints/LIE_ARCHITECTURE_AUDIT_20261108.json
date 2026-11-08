@@ -1,0 +1,3501 @@
+{
+  "schema": "lie-architecture-audit/1",
+  "date": "2026-11-08",
+  "runtime_commit": "3aacb5e58034042f9a8e9c19a7bcf4e8b7823054",
+  "research_commit": "e12ad5f85fc6d9afaecb88228e6aff0997344377",
+  "production_kernels_changed": false,
+  "capture_sources_changed": false,
+  "physical_android_v630_measured": false,
+  "control_runs": [
+    {
+      "run_id": 42515358681,
+      "job_id": 128837079317,
+      "artifact_id": 13630734555,
+      "artifact_sha256": "507eae2fe45279e575285c0e1b7a80a497084381285f9be7a2954335a62b922e",
+      "result": {
+        "schema": "lie-godot-native-kernel-control/1",
+        "failed": false,
+        "cases": [
+          {
+            "case": "whole",
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "logical_samples": 1165568,
+            "camera_samples": 1165568,
+            "internal_size": 1920,
+            "exact_buffers": {
+              "4": true,
+              "5": true,
+              "7": true
+            },
+            "godot_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2268.401742,
+              "min_ms": 2246.583144,
+              "max_ms": 2776.893852
+            },
+            "native_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2247.599156,
+              "min_ms": 2238.914482,
+              "max_ms": 2252.2121
+            },
+            "godot_record_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.031,
+              "min_ms": 0.03,
+              "max_ms": 0.046
+            },
+            "native_record_clear_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.010209,
+              "min_ms": 0.009538,
+              "max_ms": 0.01072
+            },
+            "godot_callback_cpu": {
+              "samples": 5,
+              "median_ms": 0.375,
+              "min_ms": 0.354,
+              "max_ms": 0.572
+            },
+            "capabilities": {
+              "api_version": 4211023,
+              "driver_version": 109051912,
+              "timestamp_valid_bits": 64,
+              "max_storage_buffer_range": 134217728,
+              "max_storage_buffers_per_stage": 1000000
+            },
+            "raw_godot_gpu_ns": [
+              {
+                "clear": 15937664,
+                "material_accumulation": 1172709438,
+                "output": 13005444,
+                "projection_depth": 1604184414,
+                "shading": 69153784,
+                "shadow": 236036909
+              },
+              {
+                "clear": 16462633,
+                "material_accumulation": 977647103,
+                "output": 11960336,
+                "projection_depth": 1485501670,
+                "shading": 63656124,
+                "shadow": 235332855
+              },
+              {
+                "clear": 12486596,
+                "material_accumulation": 963376942,
+                "output": 9501603,
+                "projection_depth": 1283206202,
+                "shading": 65629577,
+                "shadow": 186598339
+              },
+              {
+                "clear": 12931758,
+                "material_accumulation": 979884093,
+                "output": 9561868,
+                "projection_depth": 1283448161,
+                "shading": 64407132,
+                "shadow": 176783798
+              },
+              {
+                "clear": 12706483,
+                "material_accumulation": 961899516,
+                "output": 9465298,
+                "projection_depth": 1306502226,
+                "shading": 62814609,
+                "shadow": 180400456
+              }
+            ],
+            "raw_native_rows": [
+              {
+                "iteration": 1,
+                "warm_up": false,
+                "record_cpu_ms": 0.01072,
+                "submit_and_wait_ms": 2252.18129,
+                "clear_ms": 13.127622,
+                "projection_depth_ms": 1276.451065,
+                "material_accumulation_ms": 962.463417
+              },
+              {
+                "iteration": 2,
+                "warm_up": false,
+                "record_cpu_ms": 0.01072,
+                "submit_and_wait_ms": 2252.875191,
+                "clear_ms": 12.678901,
+                "projection_depth_ms": 1280.202158,
+                "material_accumulation_ms": 959.840022
+              },
+              {
+                "iteration": 3,
+                "warm_up": false,
+                "record_cpu_ms": 0.010079,
+                "submit_and_wait_ms": 2260.613473,
+                "clear_ms": 12.862697,
+                "projection_depth_ms": 1280.589171,
+                "material_accumulation_ms": 967.009985
+              },
+              {
+                "iteration": 4,
+                "warm_up": false,
+                "record_cpu_ms": 0.009538,
+                "submit_and_wait_ms": 2265.327298,
+                "clear_ms": 12.931906,
+                "projection_depth_ms": 1286.690608,
+                "material_accumulation_ms": 965.521492
+              },
+              {
+                "iteration": 5,
+                "warm_up": false,
+                "record_cpu_ms": 0.010209,
+                "submit_and_wait_ms": 2263.237059,
+                "clear_ms": 12.893674,
+                "projection_depth_ms": 1293.61789,
+                "material_accumulation_ms": 956.577838
+              }
+            ]
+          },
+          {
+            "case": "close",
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "logical_samples": 1165568,
+            "camera_samples": 392960,
+            "internal_size": 1920,
+            "exact_buffers": {
+              "4": true,
+              "5": true,
+              "7": true
+            },
+            "godot_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2385.512404,
+              "min_ms": 2363.11315,
+              "max_ms": 2664.615165
+            },
+            "native_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2355.982161,
+              "min_ms": 2330.350689,
+              "max_ms": 2392.5246509999997
+            },
+            "godot_record_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.026,
+              "min_ms": 0.024,
+              "max_ms": 0.046
+            },
+            "native_record_clear_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.009978,
+              "min_ms": 0.008816,
+              "max_ms": 0.010379
+            },
+            "godot_callback_cpu": {
+              "samples": 5,
+              "median_ms": 0.346,
+              "min_ms": 0.344,
+              "max_ms": 0.382
+            },
+            "capabilities": {
+              "api_version": 4211023,
+              "driver_version": 109051912,
+              "timestamp_valid_bits": 64,
+              "max_storage_buffer_range": 134217728,
+              "max_storage_buffers_per_stage": 1000000
+            },
+            "raw_godot_gpu_ns": [
+              {
+                "clear": 13186183,
+                "material_accumulation": 1059236183,
+                "output": 10283056,
+                "projection_depth": 1303876967,
+                "shading": 85789813,
+                "shadow": 4340235634
+              },
+              {
+                "clear": 12851570,
+                "material_accumulation": 1094700042,
+                "output": 10193061,
+                "projection_depth": 1290812362,
+                "shading": 84740008,
+                "shadow": 4327980083
+              },
+              {
+                "clear": 12834796,
+                "material_accumulation": 1075503426,
+                "output": 10190741,
+                "projection_depth": 1307091357,
+                "shading": 85648603,
+                "shadow": 4259318743
+              },
+              {
+                "clear": 12801658,
+                "material_accumulation": 1222727086,
+                "output": 11563973,
+                "projection_depth": 1441888079,
+                "shading": 85036791,
+                "shadow": 4317727637
+              },
+              {
+                "clear": 12831475,
+                "material_accumulation": 1094048592,
+                "output": 10229104,
+                "projection_depth": 1311193387,
+                "shading": 84844526,
+                "shadow": 4288104850
+              }
+            ],
+            "raw_native_rows": [
+              {
+                "iteration": 1,
+                "warm_up": false,
+                "record_cpu_ms": 0.009978,
+                "submit_and_wait_ms": 2371.135347,
+                "clear_ms": 15.00846,
+                "projection_depth_ms": 1320.122239,
+                "material_accumulation_ms": 1035.859922
+              },
+              {
+                "iteration": 2,
+                "warm_up": false,
+                "record_cpu_ms": 0.010379,
+                "submit_and_wait_ms": 2365.323756,
+                "clear_ms": 12.776126,
+                "projection_depth_ms": 1320.446708,
+                "material_accumulation_ms": 1031.947213
+              },
+              {
+                "iteration": 3,
+                "warm_up": false,
+                "record_cpu_ms": 0.010199,
+                "submit_and_wait_ms": 2384.479888,
+                "clear_ms": 12.850294,
+                "projection_depth_ms": 1327.359758,
+                "material_accumulation_ms": 1044.122608
+              },
+              {
+                "iteration": 4,
+                "warm_up": false,
+                "record_cpu_ms": 0.008816,
+                "submit_and_wait_ms": 2345.015491,
+                "clear_ms": 14.538608,
+                "projection_depth_ms": 1287.23394,
+                "material_accumulation_ms": 1043.116749
+              },
+              {
+                "iteration": 5,
+                "warm_up": false,
+                "record_cpu_ms": 0.008877,
+                "submit_and_wait_ms": 2407.205691,
+                "clear_ms": 14.520304,
+                "projection_depth_ms": 1321.806259,
+                "material_accumulation_ms": 1070.718392
+              }
+            ]
+          }
+        ],
+        "physical_android_tested": false,
+        "scope": "Same host/device, exact Godot-compiled SPIR-V and input bytes. Buffer equality covers depth, winner ownership and material accumulation. GPU intervals are paired before aggregation. Five hot samples are diagnostic, not a sustained game benchmark. Godot samples alternate bank order at a fixed camera; native does the same. Native omits field, shadows, shading and presentation. CPU intervals have explicitly different scopes. Host-visible replay buffers are experimental and are not a production mobile memory design. Software Vulkan timings do not establish Mali performance."
+      }
+    },
+    {
+      "run_id": 42516527201,
+      "job_id": 128840645673,
+      "artifact_id": 13631178047,
+      "artifact_sha256": "3c0c74953622d09748bace1ed04717881c7a1e8edc20c6b6aac0609d1310f3c7",
+      "result": {
+        "schema": "lie-godot-native-kernel-control/1",
+        "failed": false,
+        "cases": [
+          {
+            "case": "whole",
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "logical_samples": 1165568,
+            "camera_samples": 1165568,
+            "internal_size": 1920,
+            "exact_buffers": {
+              "4": true,
+              "5": true,
+              "7": true
+            },
+            "godot_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2253.636743,
+              "min_ms": 2238.746801,
+              "max_ms": 2266.651524
+            },
+            "native_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2249.652835,
+              "min_ms": 2231.662308,
+              "max_ms": 2263.087363
+            },
+            "godot_record_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.033,
+              "min_ms": 0.03,
+              "max_ms": 0.035
+            },
+            "native_record_clear_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.010168,
+              "min_ms": 0.008506,
+              "max_ms": 0.011361
+            },
+            "godot_callback_cpu": {
+              "samples": 5,
+              "median_ms": 0.372,
+              "min_ms": 0.348,
+              "max_ms": 0.4
+            },
+            "capabilities": {
+              "api_version": 4211023,
+              "driver_version": 109051912,
+              "timestamp_valid_bits": 64,
+              "max_storage_buffer_range": 134217728,
+              "max_storage_buffers_per_stage": 1000000
+            },
+            "raw_godot_gpu_ns": [
+              {
+                "clear": 12917077,
+                "material_accumulation": 966067121,
+                "output": 9964490,
+                "projection_depth": 1275759052,
+                "shading": 62416497,
+                "shadow": 192848243
+              },
+              {
+                "clear": 12891000,
+                "material_accumulation": 975807442,
+                "output": 9462236,
+                "projection_depth": 1277829301,
+                "shading": 51801560,
+                "shadow": 177685361
+              },
+              {
+                "clear": 12893574,
+                "material_accumulation": 973055439,
+                "output": 11143632,
+                "projection_depth": 1293596085,
+                "shading": 65923846,
+                "shadow": 177393970
+              },
+              {
+                "clear": 15844810,
+                "material_accumulation": 970465769,
+                "output": 11332635,
+                "projection_depth": 1268281032,
+                "shading": 64169455,
+                "shadow": 178448000
+              },
+              {
+                "clear": 13799862,
+                "material_accumulation": 964712169,
+                "output": 11844292,
+                "projection_depth": 1298097497,
+                "shading": 61828074,
+                "shadow": 183426987
+              }
+            ],
+            "raw_native_rows": [
+              {
+                "iteration": 1,
+                "warm_up": false,
+                "record_cpu_ms": 0.011361,
+                "submit_and_wait_ms": 2261.71914,
+                "clear_ms": 13.151094,
+                "projection_depth_ms": 1284.4806,
+                "material_accumulation_ms": 963.942458
+              },
+              {
+                "iteration": 2,
+                "warm_up": false,
+                "record_cpu_ms": 0.008506,
+                "submit_and_wait_ms": 2276.067109,
+                "clear_ms": 12.812168,
+                "projection_depth_ms": 1294.713857,
+                "material_accumulation_ms": 968.373506
+              },
+              {
+                "iteration": 3,
+                "warm_up": false,
+                "record_cpu_ms": 0.01071,
+                "submit_and_wait_ms": 2262.664425,
+                "clear_ms": 12.891996,
+                "projection_depth_ms": 1289.498097,
+                "material_accumulation_ms": 960.154738
+              },
+              {
+                "iteration": 4,
+                "warm_up": false,
+                "record_cpu_ms": 0.010168,
+                "submit_and_wait_ms": 2244.362087,
+                "clear_ms": 12.512351,
+                "projection_depth_ms": 1261.759894,
+                "material_accumulation_ms": 969.902414
+              },
+              {
+                "iteration": 5,
+                "warm_up": false,
+                "record_cpu_ms": 0.009708,
+                "submit_and_wait_ms": 2264.719966,
+                "clear_ms": 12.376075,
+                "projection_depth_ms": 1292.84004,
+                "material_accumulation_ms": 959.363306
+              }
+            ],
+            "candidates": [
+              {
+                "variant": "hoist",
+                "exact_buffers": {
+                  "4": true,
+                  "5": true,
+                  "7": true
+                },
+                "exact": true,
+                "paired_gpu": {
+                  "samples": 5,
+                  "median_ms": 2164.265512,
+                  "min_ms": 2155.142374,
+                  "max_ms": 2247.8197950000003
+                },
+                "raw_rows": [
+                  {
+                    "iteration": 1,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.014447,
+                    "submit_and_wait_ms": 2264.002906,
+                    "clear_ms": 16.052376,
+                    "projection_depth_ms": 1360.607046,
+                    "material_accumulation_ms": 887.212749
+                  },
+                  {
+                    "iteration": 2,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.01067,
+                    "submit_and_wait_ms": 2176.449842,
+                    "clear_ms": 14.572452,
+                    "projection_depth_ms": 1282.792223,
+                    "material_accumulation_ms": 878.933164
+                  },
+                  {
+                    "iteration": 3,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.012874,
+                    "submit_and_wait_ms": 2177.468253,
+                    "clear_ms": 13.028389,
+                    "projection_depth_ms": 1280.708167,
+                    "material_accumulation_ms": 883.557345
+                  },
+                  {
+                    "iteration": 4,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.011251,
+                    "submit_and_wait_ms": 2168.103659,
+                    "clear_ms": 12.824028,
+                    "projection_depth_ms": 1264.825277,
+                    "material_accumulation_ms": 890.317097
+                  },
+                  {
+                    "iteration": 5,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.011822,
+                    "submit_and_wait_ms": 2187.914733,
+                    "clear_ms": 12.930296,
+                    "projection_depth_ms": 1286.763629,
+                    "material_accumulation_ms": 888.067136
+                  }
+                ],
+                "adopted": false,
+                "scope": "Exploratory shader rewrite. Even exact buffers and a software timing improvement do not qualify it for Android adoption."
+              },
+              {
+                "variant": "cache",
+                "exact_buffers": {
+                  "4": true,
+                  "5": true,
+                  "7": true
+                },
+                "exact": true,
+                "paired_gpu": {
+                  "samples": 5,
+                  "median_ms": 1995.8259239999998,
+                  "min_ms": 1979.271721,
+                  "max_ms": 2009.6972
+                },
+                "raw_rows": [
+                  {
+                    "iteration": 1,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.011041,
+                    "submit_and_wait_ms": 1992.369978,
+                    "clear_ms": 12.973456,
+                    "projection_depth_ms": 1099.822483,
+                    "material_accumulation_ms": 879.449238
+                  },
+                  {
+                    "iteration": 2,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.010169,
+                    "submit_and_wait_ms": 2006.693769,
+                    "clear_ms": 14.567996,
+                    "projection_depth_ms": 1102.82828,
+                    "material_accumulation_ms": 889.147906
+                  },
+                  {
+                    "iteration": 3,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.011782,
+                    "submit_and_wait_ms": 2022.682565,
+                    "clear_ms": 12.845976,
+                    "projection_depth_ms": 1128.691893,
+                    "material_accumulation_ms": 881.005307
+                  },
+                  {
+                    "iteration": 4,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.010069,
+                    "submit_and_wait_ms": 2018.560476,
+                    "clear_ms": 14.585107,
+                    "projection_depth_ms": 1122.974319,
+                    "material_accumulation_ms": 880.859909
+                  },
+                  {
+                    "iteration": 5,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.010279,
+                    "submit_and_wait_ms": 2010.679559,
+                    "clear_ms": 14.711051,
+                    "projection_depth_ms": 1106.940954,
+                    "material_accumulation_ms": 888.88497
+                  }
+                ],
+                "adopted": false,
+                "scope": "Exploratory shader rewrite. Even exact buffers and a software timing improvement do not qualify it for Android adoption."
+              }
+            ]
+          },
+          {
+            "case": "close",
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "logical_samples": 1165568,
+            "camera_samples": 392960,
+            "internal_size": 1920,
+            "exact_buffers": {
+              "4": true,
+              "5": true,
+              "7": true
+            },
+            "godot_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2396.766846,
+              "min_ms": 2361.189303,
+              "max_ms": 2429.606774
+            },
+            "native_paired_gpu": {
+              "samples": 5,
+              "median_ms": 2401.195888,
+              "min_ms": 2373.4923799999997,
+              "max_ms": 2426.504307
+            },
+            "godot_record_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.026,
+              "min_ms": 0.025,
+              "max_ms": 0.027999999999999997
+            },
+            "native_record_clear_projection_material_cpu": {
+              "samples": 5,
+              "median_ms": 0.009989,
+              "min_ms": 0.009036,
+              "max_ms": 0.012193
+            },
+            "godot_callback_cpu": {
+              "samples": 5,
+              "median_ms": 0.347,
+              "min_ms": 0.346,
+              "max_ms": 0.394
+            },
+            "capabilities": {
+              "api_version": 4211023,
+              "driver_version": 109051912,
+              "timestamp_valid_bits": 64,
+              "max_storage_buffer_range": 134217728,
+              "max_storage_buffers_per_stage": 1000000
+            },
+            "raw_godot_gpu_ns": [
+              {
+                "clear": 13132897,
+                "material_accumulation": 1047131030,
+                "output": 10265923,
+                "projection_depth": 1334378122,
+                "shading": 85230294,
+                "shadow": 4181142867
+              },
+              {
+                "clear": 12754843,
+                "material_accumulation": 1087924496,
+                "output": 12500398,
+                "projection_depth": 1341682278,
+                "shading": 85084757,
+                "shadow": 4247954774
+              },
+              {
+                "clear": 15361687,
+                "material_accumulation": 1085122926,
+                "output": 10642851,
+                "projection_depth": 1332287961,
+                "shading": 83439209,
+                "shadow": 4271557939
+              },
+              {
+                "clear": 12766910,
+                "material_accumulation": 1047126305,
+                "output": 10318939,
+                "projection_depth": 1314062998,
+                "shading": 84542400,
+                "shadow": 4261147863
+              },
+              {
+                "clear": 12749999,
+                "material_accumulation": 1084373934,
+                "output": 11575048,
+                "projection_depth": 1312392912,
+                "shading": 84380410,
+                "shadow": 4262777705
+              }
+            ],
+            "raw_native_rows": [
+              {
+                "iteration": 1,
+                "warm_up": false,
+                "record_cpu_ms": 0.012193,
+                "submit_and_wait_ms": 2416.98986,
+                "clear_ms": 13.472053,
+                "projection_depth_ms": 1323.68724,
+                "material_accumulation_ms": 1079.699257
+              },
+              {
+                "iteration": 2,
+                "warm_up": false,
+                "record_cpu_ms": 0.009989,
+                "submit_and_wait_ms": 2414.185231,
+                "clear_ms": 12.844613,
+                "projection_depth_ms": 1328.215155,
+                "material_accumulation_ms": 1072.980733
+              },
+              {
+                "iteration": 3,
+                "warm_up": false,
+                "record_cpu_ms": 0.010179,
+                "submit_and_wait_ms": 2440.190794,
+                "clear_ms": 13.554181,
+                "projection_depth_ms": 1327.31109,
+                "material_accumulation_ms": 1099.193217
+              },
+              {
+                "iteration": 4,
+                "warm_up": false,
+                "record_cpu_ms": 0.009748,
+                "submit_and_wait_ms": 2390.756198,
+                "clear_ms": 12.81168,
+                "projection_depth_ms": 1303.010858,
+                "material_accumulation_ms": 1074.769356
+              },
+              {
+                "iteration": 5,
+                "warm_up": false,
+                "record_cpu_ms": 0.009036,
+                "submit_and_wait_ms": 2386.66408,
+                "clear_ms": 13.030767,
+                "projection_depth_ms": 1301.590189,
+                "material_accumulation_ms": 1071.902191
+              }
+            ],
+            "candidates": [
+              {
+                "variant": "hoist",
+                "exact_buffers": {
+                  "4": true,
+                  "5": true,
+                  "7": true
+                },
+                "exact": true,
+                "paired_gpu": {
+                  "samples": 5,
+                  "median_ms": 2266.410365,
+                  "min_ms": 2247.7907960000002,
+                  "max_ms": 2283.216234
+                },
+                "raw_rows": [
+                  {
+                    "iteration": 1,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.010399,
+                    "submit_and_wait_ms": 2288.21175,
+                    "clear_ms": 12.885559,
+                    "projection_depth_ms": 1343.685195,
+                    "material_accumulation_ms": 931.514271
+                  },
+                  {
+                    "iteration": 2,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.01084,
+                    "submit_and_wait_ms": 2260.971804,
+                    "clear_ms": 13.045745,
+                    "projection_depth_ms": 1321.607663,
+                    "material_accumulation_ms": 926.183133
+                  },
+                  {
+                    "iteration": 3,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.01104,
+                    "submit_and_wait_ms": 2278.56615,
+                    "clear_ms": 13.254454,
+                    "projection_depth_ms": 1328.904441,
+                    "material_accumulation_ms": 936.251184
+                  },
+                  {
+                    "iteration": 4,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.015208,
+                    "submit_and_wait_ms": 2296.467358,
+                    "clear_ms": 13.015467,
+                    "projection_depth_ms": 1346.493092,
+                    "material_accumulation_ms": 936.723142
+                  },
+                  {
+                    "iteration": 5,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.01032,
+                    "submit_and_wait_ms": 2279.764772,
+                    "clear_ms": 13.225246,
+                    "projection_depth_ms": 1326.767896,
+                    "material_accumulation_ms": 939.642469
+                  }
+                ],
+                "adopted": false,
+                "scope": "Exploratory shader rewrite. Even exact buffers and a software timing improvement do not qualify it for Android adoption."
+              },
+              {
+                "variant": "cache",
+                "exact_buffers": {
+                  "4": true,
+                  "5": true,
+                  "7": true
+                },
+                "exact": true,
+                "paired_gpu": {
+                  "samples": 5,
+                  "median_ms": 2087.649364,
+                  "min_ms": 2065.7896570000003,
+                  "max_ms": 2213.488644
+                },
+                "raw_rows": [
+                  {
+                    "iteration": 1,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.010049,
+                    "submit_and_wait_ms": 2083.528772,
+                    "clear_ms": 12.394691,
+                    "projection_depth_ms": 1183.175764,
+                    "material_accumulation_ms": 887.83589
+                  },
+                  {
+                    "iteration": 2,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.009979,
+                    "submit_and_wait_ms": 2226.480282,
+                    "clear_ms": 12.856821,
+                    "projection_depth_ms": 1180.835459,
+                    "material_accumulation_ms": 1032.653185
+                  },
+                  {
+                    "iteration": 3,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.012603,
+                    "submit_and_wait_ms": 2175.39845,
+                    "clear_ms": 17.072285,
+                    "projection_depth_ms": 1268.930741,
+                    "material_accumulation_ms": 889.252706
+                  },
+                  {
+                    "iteration": 4,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.011952,
+                    "submit_and_wait_ms": 2101.091885,
+                    "clear_ms": 13.294594,
+                    "projection_depth_ms": 1164.79932,
+                    "material_accumulation_ms": 922.850044
+                  },
+                  {
+                    "iteration": 5,
+                    "warm_up": false,
+                    "record_cpu_ms": 0.010369,
+                    "submit_and_wait_ms": 2078.815389,
+                    "clear_ms": 12.886232,
+                    "projection_depth_ms": 1144.987642,
+                    "material_accumulation_ms": 920.802015
+                  }
+                ],
+                "adopted": false,
+                "scope": "Exploratory shader rewrite. Even exact buffers and a software timing improvement do not qualify it for Android adoption."
+              }
+            ]
+          }
+        ],
+        "physical_android_tested": false,
+        "scope": "Same host/device, exact Godot-compiled SPIR-V and input bytes. Buffer equality covers depth, winner ownership and material accumulation. GPU intervals are paired before aggregation. Five hot samples are diagnostic, not a sustained game benchmark. Godot samples alternate bank order at a fixed camera; native does the same. Native omits field, shadows, shading and presentation. CPU intervals have explicitly different scopes. Host-visible replay buffers are experimental and are not a production mobile memory design. Software Vulkan timings do not establish Mali performance."
+      }
+    }
+  ],
+  "static_arm_compiler": {
+    "schema": "lie-mali-static-shader-audit/1",
+    "compiler": "Mali Offline Compiler v2026.5.0 (Build 922df8)\nCopyright (c) 2007-2026 Arm Limited. All rights reserved.",
+    "compiler_sha256": "131666b9e89b35b2d454add172c3baf003f2edcb414f22221498d5210283412a",
+    "physical_android_tested": false,
+    "rows": [
+      {
+        "core": "Mali-G720",
+        "stage": 1,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54",
+        "spirv_bytes": 3964,
+        "properties": {
+          "work_registers_used": 12,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 16,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": null,
+          "fp16_idle_lanes": null
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.359375,
+              0.0,
+              0.34375,
+              0.0625,
+              6.0,
+              0.0
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.109375,
+              0.0625,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.359375,
+              0.0,
+              0.34375,
+              0.0625,
+              5.059999942779541,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 2,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "0631b40ff3502034bf48cf48fbb56eac8baeb32251f2a7476e70046438f725b4",
+        "spirv_bytes": 39008,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 66,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.09375,
+              0.0,
+              0.078125,
+              0.0625,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              4.310937404632568,
+              2.328125,
+              3.450000047683716,
+              2.0625,
+              24.100000381469727,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 3,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "de59d8c50968c8af856834f16cd02638e994e25b2420c7281247c2936a4a5465",
+        "spirv_bytes": 38996,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 60,
+          "shared_storage_size": 0,
+          "stack_size": 48,
+          "has_stack_spilling": true,
+          "stack_spill_bytes": 40,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 96,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 96,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.09375,
+              0.0,
+              0.078125,
+              0.0625,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              3.184375047683716,
+              0.9437500238418579,
+              2.887500047683716,
+              1.1875,
+              31.700000762939453,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 4,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "e9c1315cd64989e03e613c667433ecd29d9b5583da1b6fcf38c7ffe75a7e3325",
+        "spirv_bytes": 39704,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 96,
+          "shared_storage_size": 0,
+          "stack_size": 16,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 12,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.09375,
+              0.0,
+              0.078125,
+              0.0625,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              7.34375,
+              3.84375,
+              5.75,
+              5.0,
+              50.099998474121094,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 7,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131",
+        "spirv_bytes": 5592,
+        "properties": {
+          "work_registers_used": 27,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 18,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.09375,
+              0.0,
+              0.078125,
+              0.0625,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              1.265625,
+              0.28125,
+              1.0,
+              1.0625,
+              5.059999942779541,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 8,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "a5c25a2ba6df0c66365cbfe219b9e62ce987ca3feceb451b0999f77ecf1cf675",
+        "spirv_bytes": 20948,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 44,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.09375,
+              0.0,
+              0.078125,
+              0.0625,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              2.5171875953674316,
+              1.296875,
+              2.112499952316284,
+              1.3125,
+              16.100000381469727,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 1,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54",
+        "spirv_bytes": 3964,
+        "properties": {
+          "work_registers_used": 12,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 16,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": null,
+          "fp16_idle_lanes": null
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.359375,
+              0.0,
+              0.328125,
+              0.125,
+              6.0,
+              0.0
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.09375,
+              0.125,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.359375,
+              0.0,
+              0.328125,
+              0.125,
+              5.25,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 2,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "0631b40ff3502034bf48cf48fbb56eac8baeb32251f2a7476e70046438f725b4",
+        "spirv_bytes": 39008,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 66,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.0625,
+              0.125,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              8.625,
+              4.65625,
+              3.25,
+              2.875,
+              24.200000762939453,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 3,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "de59d8c50968c8af856834f16cd02638e994e25b2420c7281247c2936a4a5465",
+        "spirv_bytes": 38996,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 58,
+          "shared_storage_size": 0,
+          "stack_size": 48,
+          "has_stack_spilling": true,
+          "stack_spill_bytes": 40,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 96,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 96,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.0625,
+              0.125,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              5.078125,
+              1.8875000476837158,
+              2.674999952316284,
+              2.0625,
+              33.79999923706055,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 4,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "e9c1315cd64989e03e613c667433ecd29d9b5583da1b6fcf38c7ffe75a7e3325",
+        "spirv_bytes": 39704,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 96,
+          "shared_storage_size": 0,
+          "stack_size": 16,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 12,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.0625,
+              0.125,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              14.6875,
+              7.6875,
+              5.65625,
+              5.375,
+              50.5,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 7,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131",
+        "spirv_bytes": 5592,
+        "properties": {
+          "work_registers_used": 27,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 16,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.0625,
+              0.125,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              1.8468749523162842,
+              0.5625,
+              0.987500011920929,
+              1.1875,
+              5.25,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 8,
+        "driver_model": "r56p1-00rel0",
+        "spirv_sha256": "a5c25a2ba6df0c66365cbfe219b9e62ce987ca3feceb451b0999f77ecf1cf675",
+        "spirv_bytes": 20948,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 44,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "stack_usage": 0,
+          "stack_alloca_usage": 0,
+          "stack_spill_usage": 0,
+          "fp16_arithmetic": 0,
+          "fp16_idle_lanes": -1
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.0625,
+              0.125,
+              1.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              5.018750190734863,
+              2.5625,
+              2.049999952316284,
+              1.625,
+              16.200000762939453,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 1,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54",
+        "spirv_bytes": 3964,
+        "properties": {
+          "work_registers_used": 12,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 16,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": null
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.65625,
+              0.0,
+              0.65625,
+              0.125,
+              5.0,
+              0.0
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arith_total",
+              "arith_cvt"
+            ],
+            "cycle_count": [
+              0.1875,
+              0.0,
+              0.1875,
+              0.125,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              0.65625,
+              0.0,
+              0.65625,
+              0.125,
+              5.0,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 2,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "0631b40ff3502034bf48cf48fbb56eac8baeb32251f2a7476e70046438f725b4",
+        "spirv_bytes": 39008,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 66,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arith_total",
+              "arith_cvt",
+              "arith_sfu"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.125,
+              0.125,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              8.274999618530273,
+              8.274999618530273,
+              5.625,
+              4.5,
+              23.0,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 3,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "de59d8c50968c8af856834f16cd02638e994e25b2420c7281247c2936a4a5465",
+        "spirv_bytes": 38996,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 62,
+          "shared_storage_size": 0,
+          "stack_size": 64,
+          "has_stack_spilling": true,
+          "stack_spill_bytes": 56,
+          "stack_alloca_bytes": 8,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arith_total",
+              "arith_cvt",
+              "arith_sfu"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.125,
+              0.125,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              6.0,
+              3.7750000953674316,
+              6.0,
+              3.625,
+              35.79999923706055,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 4,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "e9c1315cd64989e03e613c667433ecd29d9b5583da1b6fcf38c7ffe75a7e3325",
+        "spirv_bytes": 39704,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 100,
+          "shared_storage_size": 0,
+          "stack_size": 32,
+          "has_stack_spilling": true,
+          "stack_spill_bytes": 16,
+          "stack_alloca_bytes": 16,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arith_total",
+              "arith_cvt",
+              "arith_sfu"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.125,
+              0.125,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              15.375,
+              15.375,
+              12.399999618530273,
+              12.375,
+              54.20000076293945,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 7,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131",
+        "spirv_bytes": 5592,
+        "properties": {
+          "work_registers_used": 23,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 16,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arith_total",
+              "arith_cvt",
+              "arith_sfu"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.125,
+              0.125,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              2.25,
+              1.125,
+              2.0625,
+              2.25,
+              5.0,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 8,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "a5c25a2ba6df0c66365cbfe219b9e62ce987ca3feceb451b0999f77ecf1cf675",
+        "spirv_bytes": 20948,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 48,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null,
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arith_total",
+            "arith_fma",
+            "arith_cvt",
+            "arith_sfu",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arith_total",
+              "arith_cvt",
+              "arith_sfu"
+            ],
+            "cycle_count": [
+              0.125,
+              0.0,
+              0.125,
+              0.125,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              5.224999904632568,
+              5.224999904632568,
+              4.224999904632568,
+              3.0,
+              16.0,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 1,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54",
+        "spirv_bytes": 3964,
+        "properties": {
+          "work_registers_used": 11,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 14,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": null
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              1.875,
+              5.0,
+              0.0
+            ]
+          },
+          "pipelines": [
+            "arithmetic",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              1.25,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              1.875,
+              5.0,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 2,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "0631b40ff3502034bf48cf48fbb56eac8baeb32251f2a7476e70046438f725b4",
+        "spirv_bytes": 39008,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 62,
+          "shared_storage_size": 0,
+          "stack_size": 4,
+          "has_stack_spilling": true,
+          "stack_spill_bytes": 4,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arithmetic",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              0.5,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              45.5,
+              23.5,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 3,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "de59d8c50968c8af856834f16cd02638e994e25b2420c7281247c2936a4a5465",
+        "spirv_bytes": 38996,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 62,
+          "shared_storage_size": 0,
+          "stack_size": 144,
+          "has_stack_spilling": true,
+          "stack_spill_bytes": 124,
+          "stack_alloca_bytes": 20,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arithmetic",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              0.5,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "load_store"
+            ],
+            "cycle_count": [
+              30.25,
+              42.79999923706055,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 4,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "e9c1315cd64989e03e613c667433ecd29d9b5583da1b6fcf38c7ffe75a7e3325",
+        "spirv_bytes": 39704,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 116,
+          "shared_storage_size": 0,
+          "stack_size": 48,
+          "has_stack_spilling": true,
+          "stack_spill_bytes": 36,
+          "stack_alloca_bytes": 12,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arithmetic",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              0.5,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              77.5,
+              50.20000076293945,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 7,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131",
+        "spirv_bytes": 5592,
+        "properties": {
+          "work_registers_used": 28,
+          "thread_occupancy": 100,
+          "uniform_registers_used": 12,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arithmetic",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              0.5,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              9.399999618530273,
+              5.0,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 8,
+        "driver_model": "r51p0-00rel0",
+        "spirv_sha256": "a5c25a2ba6df0c66365cbfe219b9e62ce987ca3feceb451b0999f77ecf1cf675",
+        "spirv_bytes": 20948,
+        "properties": {
+          "work_registers_used": 64,
+          "thread_occupancy": 50,
+          "uniform_registers_used": 44,
+          "shared_storage_size": 0,
+          "stack_size": 0,
+          "has_stack_spilling": false,
+          "stack_spill_bytes": 0,
+          "stack_alloca_bytes": 0,
+          "fp16_arithmetic": 0
+        },
+        "performance": {
+          "longest_path_cycles": {
+            "bound_pipelines": [
+              null
+            ],
+            "cycle_count": [
+              null,
+              null,
+              null
+            ]
+          },
+          "pipelines": [
+            "arithmetic",
+            "load_store",
+            "texture"
+          ],
+          "shortest_path_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              0.5,
+              0.0,
+              0.0
+            ]
+          },
+          "total_cycles": {
+            "bound_pipelines": [
+              "arithmetic"
+            ],
+            "cycle_count": [
+              31.25,
+              16.0,
+              0.0
+            ]
+          }
+        },
+        "warnings": [],
+        "notes": []
+      }
+    ],
+    "scope": "Static compilation of the original Godot-produced SPIR-V for four Arm core/compiler models. Loop trip counts, actual memory contention, driver version, thermal limits and frame times are not measured. Successful compilation is not device compatibility certification."
+  },
+  "candidate_static_reports": [
+    {
+      "report": "Mali-G31-both.json",
+      "driver_model": "r51p0-00rel0",
+      "core": "Mali-G31",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 62,
+        "shared_storage_size": 0,
+        "stack_size": 56,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 56,
+        "stack_alloca_bytes": 0,
+        "fp16_arithmetic": 0
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arithmetic",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "arithmetic"
+          ],
+          "cycle_count": [
+            0.5,
+            0.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            30.0,
+            38.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G31-cache-2.json",
+      "driver_model": "r51p0-00rel0",
+      "core": "Mali-G31",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 70,
+        "shared_storage_size": 0,
+        "stack_size": 64,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 52,
+        "stack_alloca_bytes": 12,
+        "fp16_arithmetic": 0
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arithmetic",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "arithmetic"
+          ],
+          "cycle_count": [
+            0.5,
+            0.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "arithmetic"
+          ],
+          "cycle_count": [
+            50.5,
+            29.200000762939453,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G31-cache-3.json",
+      "driver_model": "r51p0-00rel0",
+      "core": "Mali-G31",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 52,
+        "shared_storage_size": 0,
+        "stack_size": 112,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 88,
+        "stack_alloca_bytes": 24,
+        "fp16_arithmetic": 0
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arithmetic",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "arithmetic"
+          ],
+          "cycle_count": [
+            0.5,
+            0.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            25.100000381469727,
+            37.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G31-hoist.json",
+      "driver_model": "r51p0-00rel0",
+      "core": "Mali-G31",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 62,
+        "shared_storage_size": 0,
+        "stack_size": 56,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 56,
+        "stack_alloca_bytes": 0,
+        "fp16_arithmetic": 0
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arithmetic",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "arithmetic"
+          ],
+          "cycle_count": [
+            0.5,
+            0.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            30.0,
+            38.0,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G31-restrict.json",
+      "driver_model": "r51p0-00rel0",
+      "core": "Mali-G31",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 62,
+        "shared_storage_size": 0,
+        "stack_size": 144,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 124,
+        "stack_alloca_bytes": 20,
+        "fp16_arithmetic": 0
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arithmetic",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "arithmetic"
+          ],
+          "cycle_count": [
+            0.5,
+            0.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            30.25,
+            42.79999923706055,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G57-cache-2.json",
+      "driver_model": "r51p0-00rel0",
+      "core": "Mali-G57",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 74,
+        "shared_storage_size": 0,
+        "stack_size": 16,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 16,
+        "stack_alloca_bytes": 0,
+        "fp16_arithmetic": 0
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "arith_total",
+            "arith_cvt",
+            "arith_sfu"
+          ],
+          "cycle_count": [
+            0.125,
+            0.0,
+            0.125,
+            0.125,
+            0.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            8.649999618530273,
+            8.649999618530273,
+            6.625,
+            5.875,
+            25.799999237060547,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G57-cache-3.json",
+      "driver_model": "r51p0-00rel0",
+      "core": "Mali-G57",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 54,
+        "shared_storage_size": 0,
+        "stack_size": 20,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 20,
+        "stack_alloca_bytes": 0,
+        "fp16_arithmetic": 0
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "arith_total",
+            "arith_cvt",
+            "arith_sfu"
+          ],
+          "cycle_count": [
+            0.125,
+            0.0,
+            0.125,
+            0.125,
+            0.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            4.6875,
+            3.4000000953674316,
+            4.6875,
+            2.25,
+            31.5,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G610-cache-2.json",
+      "driver_model": "r56p1-00rel0",
+      "core": "Mali-G610",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 74,
+        "shared_storage_size": 0,
+        "stack_size": 32,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 24,
+        "stack_alloca_bytes": 0,
+        "stack_usage": 116,
+        "stack_alloca_usage": 0,
+        "stack_spill_usage": 116,
+        "fp16_arithmetic": 0,
+        "fp16_idle_lanes": -1
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            0.125,
+            0.0,
+            0.0625,
+            0.125,
+            1.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            9.809374809265137,
+            4.84375,
+            4.074999809265137,
+            3.5625,
+            29.200000762939453,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G610-cache-3.json",
+      "driver_model": "r56p1-00rel0",
+      "core": "Mali-G610",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 48,
+        "shared_storage_size": 0,
+        "stack_size": 24,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 24,
+        "stack_alloca_bytes": 0,
+        "stack_usage": 72,
+        "stack_alloca_usage": 0,
+        "stack_spill_usage": 72,
+        "fp16_arithmetic": 0,
+        "fp16_idle_lanes": -1
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            0.125,
+            0.0,
+            0.0625,
+            0.125,
+            1.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            5.909375190734863,
+            2.40625,
+            3.049999952316284,
+            1.8125,
+            43.79999923706055,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G720-both.json",
+      "driver_model": "r56p1-00rel0",
+      "core": "Mali-G720",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 58,
+        "shared_storage_size": 0,
+        "stack_size": 24,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 24,
+        "stack_alloca_bytes": 0,
+        "stack_usage": 72,
+        "stack_alloca_usage": 0,
+        "stack_spill_usage": 72,
+        "fp16_arithmetic": 0,
+        "fp16_idle_lanes": -1
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            0.09375,
+            0.0,
+            0.078125,
+            0.0625,
+            1.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            4.140625,
+            1.296875,
+            3.8125,
+            1.3125,
+            42.20000076293945,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G720-cache-2.json",
+      "driver_model": "r56p1-00rel0",
+      "core": "Mali-G720",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 74,
+        "shared_storage_size": 0,
+        "stack_size": 32,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 24,
+        "stack_alloca_bytes": 0,
+        "stack_usage": 116,
+        "stack_alloca_usage": 0,
+        "stack_spill_usage": 116,
+        "fp16_arithmetic": 0,
+        "fp16_idle_lanes": -1
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            0.09375,
+            0.0,
+            0.078125,
+            0.0625,
+            1.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            4.981249809265137,
+            2.421875,
+            4.387499809265137,
+            2.375,
+            26.799999237060547,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G720-cache-3.json",
+      "driver_model": "r56p1-00rel0",
+      "core": "Mali-G720",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 50,
+        "shared_storage_size": 0,
+        "stack_size": 24,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 24,
+        "stack_alloca_bytes": 0,
+        "stack_usage": 72,
+        "stack_alloca_usage": 0,
+        "stack_spill_usage": 72,
+        "fp16_arithmetic": 0,
+        "fp16_idle_lanes": -1
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            0.09375,
+            0.0,
+            0.078125,
+            0.0625,
+            1.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            3.46875,
+            1.203125,
+            3.21875,
+            1.0,
+            40.20000076293945,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G720-hoist.json",
+      "driver_model": "r56p1-00rel0",
+      "core": "Mali-G720",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 58,
+        "shared_storage_size": 0,
+        "stack_size": 24,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 24,
+        "stack_alloca_bytes": 0,
+        "stack_usage": 72,
+        "stack_alloca_usage": 0,
+        "stack_spill_usage": 72,
+        "fp16_arithmetic": 0,
+        "fp16_idle_lanes": -1
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            0.09375,
+            0.0,
+            0.078125,
+            0.0625,
+            1.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            4.140625,
+            1.296875,
+            3.8125,
+            1.3125,
+            42.20000076293945,
+            0.0
+          ]
+        }
+      }
+    },
+    {
+      "report": "Mali-G720-restrict.json",
+      "driver_model": "r56p1-00rel0",
+      "core": "Mali-G720",
+      "properties": {
+        "work_registers_used": 64,
+        "thread_occupancy": 50,
+        "uniform_registers_used": 60,
+        "shared_storage_size": 0,
+        "stack_size": 48,
+        "has_stack_spilling": true,
+        "stack_spill_bytes": 40,
+        "stack_alloca_bytes": 0,
+        "stack_usage": 96,
+        "stack_alloca_usage": 0,
+        "stack_spill_usage": 96,
+        "fp16_arithmetic": 0,
+        "fp16_idle_lanes": -1
+      },
+      "performance": {
+        "longest_path_cycles": {
+          "bound_pipelines": [
+            null
+          ],
+          "cycle_count": [
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        },
+        "pipelines": [
+          "arith_total",
+          "arith_fma",
+          "arith_cvt",
+          "arith_sfu",
+          "load_store",
+          "texture"
+        ],
+        "shortest_path_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            0.09375,
+            0.0,
+            0.078125,
+            0.0625,
+            1.0,
+            0.0
+          ]
+        },
+        "total_cycles": {
+          "bound_pipelines": [
+            "load_store"
+          ],
+          "cycle_count": [
+            3.184375047683716,
+            0.9437500238418579,
+            2.887500047683716,
+            1.1875,
+            31.700000762939453,
+            0.0
+          ]
+        }
+      }
+    }
+  ],
+  "script_export_mode_verification": {
+    "engine": {
+      "build": "official",
+      "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+      "hex": 263938,
+      "major": 4,
+      "minor": 7,
+      "patch": 2,
+      "status": "stable",
+      "string": "4.7.2-stable (official)",
+      "timestamp": 0
+    },
+    "script_export_constants": {
+      "MODE_SCRIPT_BINARY_TOKENS": 1,
+      "MODE_SCRIPT_BINARY_TOKENS_COMPRESSED": 2,
+      "MODE_SCRIPT_TEXT": 0
+    }
+  },
+  "requested_resource_bytes": {
+    "exclusive_appearance": 316937840,
+    "resident_sources": 12335104,
+    "field": 24105544,
+    "total": 353378488,
+    "accumulator": 117964800,
+    "depth_owner": 29491200,
+    "projection_capacity": 94371840,
+    "internal_image": 58982400,
+    "output_image": 14745600,
+    "shadow": 1048576,
+    "view_clear_logical_bytes": 147456000
+  },
+  "compatibility_gaps": {
+    "current_storage_buffer_bindings": 12,
+    "vulkan_core_minimum_storage_bindings": 4,
+    "webgpu_default_storage_bindings": 8,
+    "vulkan_minimum_storage_buffer_range": 134217728,
+    "maximum_configured_projection_bytes": 240000000,
+    "apk_min_android_api": 24,
+    "apk_target_api": 36,
+    "apk_abis": [
+      "arm64-v8a"
+    ],
+    "original_replay_shader_headers": [
+      {
+        "stage": 1,
+        "version_hex": "0x00010400",
+        "version": "1.4",
+        "bytes": 3964,
+        "sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54"
+      },
+      {
+        "stage": 2,
+        "version_hex": "0x00010400",
+        "version": "1.4",
+        "bytes": 39008,
+        "sha256": "0631b40ff3502034bf48cf48fbb56eac8baeb32251f2a7476e70046438f725b4"
+      },
+      {
+        "stage": 3,
+        "version_hex": "0x00010400",
+        "version": "1.4",
+        "bytes": 38996,
+        "sha256": "de59d8c50968c8af856834f16cd02638e994e25b2420c7281247c2936a4a5465"
+      }
+    ],
+    "unchanged_spirv_binary_requirement": "Vulkan 1.2, or Vulkan 1.1 with VK_KHR_spirv_1_4 and dependencies enabled; other compile targets and backends require validation",
+    "spirv_requirement_reference": "https://docs.vulkan.org/refpages/latest/refpages/source/VK_KHR_spirv_1_4.html"
+  },
+  "regressions": {
+    "python": 285,
+    "python_skipped": 1,
+    "rig": 247,
+    "agent": 25,
+    "metrics": 8,
+    "construction_ci_run": 42516527080,
+    "construction_ci_job": 128840645759,
+    "construction_ci_success": true
+  },
+  "physical_v601_user_report": {
+    "scope": "User-pasted physical Android summary for 6.0.1 only; no raw per-pass GPU intervals were supplied. These numbers are not v6.3 measurements.",
+    "device": "2412DPC0AG",
+    "gpu": "Mali-G720 MC7",
+    "output": 960,
+    "internal": 1920,
+    "samples": 1165568,
+    "rows": [
+      {
+        "event": "camera",
+        "bounces": 0,
+        "appearance_p50_ms": 511.608639,
+        "command_elapsed_p50_ms": 50.065
+      },
+      {
+        "event": "light",
+        "bounces": 0,
+        "appearance_p50_ms": 513.957178,
+        "field_p50_ms": 2.157846,
+        "command_elapsed_p50_ms": 57.054
+      },
+      {
+        "event": "camera",
+        "bounces": 2,
+        "appearance_p50_ms": 516.707946,
+        "command_elapsed_p50_ms": 56.634
+      },
+      {
+        "event": "light",
+        "bounces": 2,
+        "appearance_p50_ms": 515.881562,
+        "field_p50_ms": 4.837308,
+        "command_elapsed_p50_ms": 57.171
+      }
+    ]
+  }
+}
