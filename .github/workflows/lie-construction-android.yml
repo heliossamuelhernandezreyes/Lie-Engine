@@ -1,4 +1,4 @@
-name: LIE construction 6.2.0 reconstruction repair APK
+name: LIE construction 6.2.0 invisible wall physics APK
 on:
   push:
     branches: [work/lie-construction-android]

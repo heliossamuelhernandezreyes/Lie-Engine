@@ -104,3 +104,22 @@ Fuentes primarias:
 - [Godot: PhysicsDirectSpaceState3D y límites de cast_motion](https://docs.godotengine.org/en/stable/classes/class_physicsdirectspacestate3d.html)
 - [Godot: PhysicsBody3D](https://docs.godotengine.org/en/stable/classes/class_physicsbody3d.html)
 - [Godot: occlusion culling](https://docs.godotengine.org/en/stable/tutorials/3d/occlusion_culling.html)
+
+## Entrega verificada
+
+Runtime `f7bc5162d2dbf391a021a8d9672b18ac7b5e6744`;
+[CI 42490840482](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42490840482) aprobado.
+50 comprobaciones de física y 15 de integración de proxy/cámara aprobadas.
+Diez estados contra 6.1: profundidad y alpha exactos, error RGBA máximo 0.0.
+Se conservan las 1,165,568 muestras y los mismos bancos; el experimento reutilizó
+apariencia y campo. APK ARM64 de 216,783,846 bytes, SHA256
+`2b07e7ab1cab05c19027f300e9278c863b20076cd9915d3e2912b503a4446705`.
+
+La envolvente modifica la precisión física. En el recorrido axial de 0.8 m
+probado, la cámara se detiene aproximadamente 6 cm antes con el agrupado,
+porque el volumen conservador incorpora salientes de otras piezas. No se
+afirma equivalencia exacta de contactos. Separar zócalos o ajustar espesores
+sería una siguiente mejora, manteniendo pocas formas. En las 32 consultas del
+host CI se observaron medianas de 0.004 ms por pieza y 0.001 ms agrupado; son
+mediciones cortas de otro procesador, con resolución de microsegundos. No
+certifican ese factor de mejora en el Poco ni una ganancia de FPS.

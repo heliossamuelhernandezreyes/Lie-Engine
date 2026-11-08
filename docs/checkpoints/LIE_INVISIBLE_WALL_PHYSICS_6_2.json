@@ -1,0 +1,1000 @@
+{
+  "schema": "lie-construction-android-release/1",
+  "run_id": 42490840482,
+  "job_id": 128762713201,
+  "artifact_sha256": "f529ed04c8a5f76aa699eee55e9751373e4ec34b67c64dd07c1ff7310b58e6b6",
+  "apk": {
+    "schema": "lie-construction-apk-proof/1",
+    "filename": "LIE-Construccion-v6.2.0.apk",
+    "apk_bytes": 216783846,
+    "apk_sha256": "2b07e7ab1cab05c19027f300e9278c863b20076cd9915d3e2912b503a4446705",
+    "package": "org.lieengine.construction.v620",
+    "version": "6.2.0-invisible-wall-physics",
+    "code_commit": "f7bc5162d2dbf391a021a8d9672b18ac7b5e6744",
+    "verified_capture_and_metadata_files": 90,
+    "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+    "bank_bindings": {
+      "brick": {
+        "sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+        "optical": null
+      },
+      "mortar": {
+        "sha256": "8b060c904961dd645e60e41f66db4cba79151d4e04ae1d720fe98d286715f8b0",
+        "optical": "18677055e3803443610883bea7b1b8e0e8f6ee9620201777b36459abeb17597e"
+      },
+      "concrete": {
+        "sha256": "3f19c51f6590631467a752669a822364cab19e2658276d5324170491f05dc3b3",
+        "optical": "4c3b7df7787d305811236d899d0083e10b80f9fc032c5b11e56c916ebe98a02c"
+      },
+      "wood": {
+        "sha256": "5fea091b66d409971e8a4b3d676f350e56321c806ff734a73e5ebeaa34971dd9",
+        "optical": "9b17b8ba92fbfad27bdd0af014ec13a5ef77c389496c4f38928f51f1c45e769f"
+      },
+      "door": {
+        "sha256": "129ae84dc95a683a1c3958fe1a6466444d4aeeb1888643944224c530a9610e8d",
+        "optical": "b9ed23c30aeb62d9946fd2fa21cd377d4861765edac8841d63bf79416c66e5f4"
+      }
+    },
+    "native_libraries": [
+      {
+        "file": "lib/arm64-v8a/libc++_shared.so",
+        "sha256": "c4c2fe5cbcb1fba0003a31fc7ab29a9bb12df6cc187ec45a806462540e83d93b",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/libgodot_android.so",
+        "sha256": "6517cb725565b0b3f009e6a559d8c0a5f66093384a6f48b5d18e2dc0998e1159",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/liblie_gpu_probe.so",
+        "sha256": "7cc40f3d752da8f48a7f9d1bde761e475ff627f776d6d2626d1a1beb03adc9ed",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      }
+    ],
+    "permissions": [],
+    "source_resampling": false,
+    "physical_android_tested": false
+  },
+  "native_checks": {
+    "construction": 49,
+    "field": 26,
+    "mobile": 28,
+    "hardware": 16,
+    "mobile_metrics": 8,
+    "rig": 247,
+    "agent": 25
+  },
+  "full_quality": {
+    "appearance_bytes": 316924064,
+    "field": {
+      "bytes": 24105544,
+      "indirect": true,
+      "nodes": 4742,
+      "producer": -9223371879383824158,
+      "ready": true,
+      "solve": 1
+    },
+    "output_size": 960,
+    "source_bytes": 12335104
+  },
+  "physical_android_tested": false,
+  "native_registration_in_apk": true,
+  "automatically_copies_completed_report": true,
+  "cancellation_preserves_clipboard": true,
+  "reconstruction_comparison": {
+    "schema": "lie-construction-reconstruction-comparison/1",
+    "cases": [
+      {
+        "case": 0,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.438,
+        "candidate_command_ms": 0.434,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 3388258834,
+          "marker_frame": 1,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 39919115,
+            "material_accumulation": 1122138010,
+            "output": 36346863,
+            "projection_depth": 1210122159,
+            "shading": 621763720,
+            "shadow": 357578265
+          },
+          "serial": 1
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2273520444,
+          "marker_frame": 1,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 13207903,
+            "material_accumulation": 911526885,
+            "output": 19622105,
+            "projection_depth": 946044662,
+            "shading": 193781380,
+            "shadow": 188896878
+          },
+          "serial": 1
+        }
+      },
+      {
+        "case": 1,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.469,
+        "candidate_command_ms": 0.459,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 367205218,
+          "marker_frame": 27,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 4352372,
+            "output": 9629062,
+            "shading": 149963350,
+            "shadow": 202957229
+          },
+          "serial": 2
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 384628138,
+          "marker_frame": 27,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 4329056,
+            "output": 11752377,
+            "shading": 164158963,
+            "shadow": 204048162
+          },
+          "serial": 2
+        }
+      },
+      {
+        "case": 2,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.492,
+        "candidate_command_ms": 0.593,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1876303000,
+          "marker_frame": 34,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 14702183,
+            "material_accumulation": 799266782,
+            "output": 11946804,
+            "projection_depth": 897650510,
+            "shading": 152355057
+          },
+          "serial": 3
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1875726158,
+          "marker_frame": 34,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12848659,
+            "material_accumulation": 784378786,
+            "output": 11025834,
+            "projection_depth": 909753231,
+            "shading": 157320221
+          },
+          "serial": 3
+        }
+      },
+      {
+        "case": 3,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.473,
+        "candidate_command_ms": 0.456,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1859007065,
+          "marker_frame": 41,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 13309139,
+            "material_accumulation": 790180923,
+            "output": 10879231,
+            "projection_depth": 896397760,
+            "shading": 147842778
+          },
+          "serial": 4
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1904575422,
+          "marker_frame": 41,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12880468,
+            "material_accumulation": 804136882,
+            "output": 10055121,
+            "projection_depth": 919939375,
+            "shading": 157160342
+          },
+          "serial": 4
+        }
+      },
+      {
+        "case": 4,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 21.904,
+        "candidate_command_ms": 22.022,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 480968702,
+          "marker_frame": 48,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 13326812,
+            "material_accumulation": 254041282,
+            "output": 10728993,
+            "projection_depth": 82229044,
+            "shading": 105130721,
+            "shadow": 15071191
+          },
+          "serial": 5
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 489062834,
+          "marker_frame": 48,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 14653111,
+            "material_accumulation": 261241566,
+            "output": 9150198,
+            "projection_depth": 81436630,
+            "shading": 105936056,
+            "shadow": 16168543
+          },
+          "serial": 5
+        }
+      },
+      {
+        "case": 5,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 10.228,
+        "candidate_command_ms": 10.331,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1489348589,
+          "marker_frame": 55,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 14692666,
+            "material_accumulation": 726199946,
+            "output": 10113871,
+            "projection_depth": 252529485,
+            "shading": 466577447,
+            "shadow": 18796278
+          },
+          "serial": 6
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1479171792,
+          "marker_frame": 55,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12757771,
+            "material_accumulation": 721587691,
+            "output": 9547110,
+            "projection_depth": 248952928,
+            "shading": 468354238,
+            "shadow": 17531969
+          },
+          "serial": 6
+        }
+      },
+      {
+        "case": 6,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 179.918,
+        "candidate_command_ms": 175.083,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2794088358,
+          "marker_frame": 62,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 12815143,
+            "material_accumulation": 1045356335,
+            "output": 11682414,
+            "projection_depth": 1355408084,
+            "shading": 160606509,
+            "shadow": 207740147
+          },
+          "serial": 7
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2792680463,
+          "marker_frame": 62,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12623109,
+            "material_accumulation": 1023139336,
+            "output": 13552367,
+            "projection_depth": 1352474695,
+            "shading": 181517529,
+            "shadow": 208870751
+          },
+          "serial": 7
+        }
+      },
+      {
+        "case": 7,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.476,
+        "candidate_command_ms": 0.571,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1786133838,
+          "marker_frame": 69,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 12924363,
+            "material_accumulation": 743706062,
+            "output": 10325618,
+            "projection_depth": 875926946,
+            "shading": 142840021
+          },
+          "serial": 8
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1778803760,
+          "marker_frame": 69,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 13197154,
+            "material_accumulation": 745986954,
+            "output": 9706688,
+            "projection_depth": 866254489,
+            "shading": 143310167
+          },
+          "serial": 8
+        }
+      },
+      {
+        "case": 8,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 63.754,
+        "candidate_command_ms": 68.908,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 107389765,
+          "marker_frame": 76,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "output": 10395552,
+            "shading": 96793251
+          },
+          "serial": 9
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 101271645,
+          "marker_frame": 76,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "output": 9809483,
+            "shading": 91257451
+          },
+          "serial": 9
+        }
+      },
+      {
+        "case": 9,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 66.902,
+        "candidate_command_ms": 62.656,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 160846545,
+          "marker_frame": 83,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "output": 9725178,
+            "shading": 150909033
+          },
+          "serial": 10
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 169393225,
+          "marker_frame": 83,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "output": 10931528,
+            "shading": 158279533
+          },
+          "serial": 10
+        }
+      }
+    ],
+    "physical_android_tested": false,
+    "same_source_samples_and_lod": true,
+    "scope": "Same attributed capture banks, controls, 960 output / 1920 internal. Software Vulkan correctness and host observations only."
+  },
+  "native_reconstruction_checks": 28,
+  "proxy_physics": {
+    "cases": [
+      {
+        "grouped": false,
+        "metrics": {
+          "approximation": "one oriented source-bounds box per piece; geometric relief is visual only",
+          "equivalent_box_triangles": 9372,
+          "generation": 1,
+          "grouped": false,
+          "physics_bodies": 781,
+          "physics_shapes": 781,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.40234375,
+        "seed": 2102,
+        "wall_fraction": 0.403365221792978,
+        "window_clear": true
+      },
+      {
+        "grouped": true,
+        "metrics": {
+          "approximation": "authored wall envelope: fills small joints and relief; preserves declared clear window; not an exact union or visual occluder",
+          "equivalent_box_triangles": 60,
+          "generation": 2,
+          "grouped": true,
+          "physics_bodies": 5,
+          "physics_shapes": 5,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.328125,
+        "seed": 2102,
+        "wall_fraction": 0.32847842218759,
+        "window_clear": true
+      },
+      {
+        "grouped": false,
+        "metrics": {
+          "approximation": "one oriented source-bounds box per piece; geometric relief is visual only",
+          "equivalent_box_triangles": 9372,
+          "generation": 3,
+          "grouped": false,
+          "physics_bodies": 781,
+          "physics_shapes": 781,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.40234375,
+        "seed": 7319,
+        "wall_fraction": 0.403365221792978,
+        "window_clear": true
+      },
+      {
+        "grouped": true,
+        "metrics": {
+          "approximation": "authored wall envelope: fills small joints and relief; preserves declared clear window; not an exact union or visual occluder",
+          "equivalent_box_triangles": 60,
+          "generation": 4,
+          "grouped": true,
+          "physics_bodies": 5,
+          "physics_shapes": 5,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.328125,
+        "seed": 7319,
+        "wall_fraction": 0.32847842218759,
+        "window_clear": true
+      }
+    ],
+    "checks": 50,
+    "failed": false,
+    "physical_android_tested": false,
+    "physics_engine": "DEFAULT"
+  },
+  "proxy_native": {
+    "checks": 15,
+    "depth_exact": true,
+    "failed": false,
+    "physical_android_tested": false,
+    "report": {
+      "appearance_reused": true,
+      "blocks": [],
+      "cancelled": false,
+      "complete": true,
+      "copy_scope": "Summary with percentiles and resource/thermal boundaries; export the complete JSON for raw GPU interval rows.",
+      "device": "GenericDevice",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938.0,
+        "major": 4.0,
+        "minor": 7.0,
+        "patch": 2.0,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0.0
+      },
+      "error": "",
+      "field_reused": true,
+      "finished_at": "2026-11-08T14:42:04",
+      "gpu": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "internal_size": 512.0,
+      "kind": "invisible_wall_proxy_A_B",
+      "os": "Linux",
+      "output_size": 256.0,
+      "physical_android_session": false,
+      "physics": [
+        {
+          "contract": {
+            "camera_queries_start_clear": true,
+            "camera_wall_blocked": true,
+            "camera_wall_fraction": 0.403365221792978,
+            "camera_window_clear": true,
+            "passed": true,
+            "wall_blocks_ray": true,
+            "wall_sphere_motion": [
+              0.40234375,
+              0.40625
+            ],
+            "window_passes_ray": true,
+            "window_sphere_motion": [
+              1.0,
+              1.0
+            ]
+          },
+          "grouped": false,
+          "proxy": {
+            "approximation": "one oriented source-bounds box per piece; geometric relief is visual only",
+            "equivalent_box_triangles": 9372.0,
+            "generation": 2.0,
+            "grouped": false,
+            "physics_bodies": 781.0,
+            "physics_shapes": 781.0,
+            "rendered_proxy_triangles": 0.0,
+            "source_pieces": 781.0
+          },
+          "resources": {
+            "allocation_bytes": 123803808.0,
+            "asset_uploads": 7.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111468704.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "8409545965740:8448200671265",
+              "nodes": 4742.0,
+              "producer": -9.223371973537561e+18,
+              "solve": 1.0
+            },
+            "frames": 2.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371988687387e+18,
+            "page_io_bytes": 12335104.0,
+            "pass_counts": {
+              "clear": 2.0,
+              "material_accumulation": 2.0,
+              "output": 2.0,
+              "projection_depth": 2.0,
+              "shading": 2.0,
+              "shadow": 2.0
+            },
+            "profile": [
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 785211565.0,
+                "marker_frame": 1.0,
+                "owner_instance_id": -9.223371988687387e+18,
+                "passes_ns": {
+                  "clear": 1581274.0,
+                  "material_accumulation": 235127629.0,
+                  "output": 1482338.0,
+                  "projection_depth": 342543293.0,
+                  "shading": 16876177.0,
+                  "shadow": 187176348.0
+                },
+                "serial": 1.0
+              },
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 771704322.0,
+                "marker_frame": 34.0,
+                "owner_instance_id": -9.223371988687387e+18,
+                "passes_ns": {
+                  "clear": 1012211.0,
+                  "material_accumulation": 234452645.0,
+                  "output": 848312.0,
+                  "projection_depth": 342176321.0,
+                  "shading": 14717553.0,
+                  "shadow": 178101016.0
+                },
+                "serial": 2.0
+              }
+            ],
+            "ready": true,
+            "samples": 1165568.0,
+            "snapshot_usec": 4872318.0,
+            "source_bytes": 12335104.0
+          },
+          "timing": {
+            "elapsed_ms": 0.156,
+            "hits": 16.0,
+            "queries": 32.0,
+            "ray_cpu_ms": {
+              "max_ms": 0.01,
+              "p50_ms": 0.004,
+              "p95_ms": 0.006,
+              "samples": 32.0
+            },
+            "scope": "Actual PhysicsDirectSpaceState3D ray calls after physics-frame synchronization; CPU wall time only, not GPU rendering or FPS."
+          }
+        },
+        {
+          "contract": {
+            "camera_queries_start_clear": true,
+            "camera_wall_blocked": true,
+            "camera_wall_fraction": 0.32847842218759,
+            "camera_window_clear": true,
+            "passed": true,
+            "wall_blocks_ray": true,
+            "wall_sphere_motion": [
+              0.328125,
+              0.33203125
+            ],
+            "window_passes_ray": true,
+            "window_sphere_motion": [
+              1.0,
+              1.0
+            ]
+          },
+          "grouped": true,
+          "proxy": {
+            "approximation": "authored wall envelope: fills small joints and relief; preserves declared clear window; not an exact union or visual occluder",
+            "equivalent_box_triangles": 60.0,
+            "generation": 3.0,
+            "grouped": true,
+            "physics_bodies": 5.0,
+            "physics_shapes": 5.0,
+            "rendered_proxy_triangles": 0.0,
+            "source_pieces": 781.0
+          },
+          "resources": {
+            "allocation_bytes": 123803808.0,
+            "asset_uploads": 7.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111468704.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "8409545965740:8448200671265",
+              "nodes": 4742.0,
+              "producer": -9.223371973537561e+18,
+              "solve": 1.0
+            },
+            "frames": 2.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371988687387e+18,
+            "page_io_bytes": 12335104.0,
+            "pass_counts": {
+              "clear": 2.0,
+              "material_accumulation": 2.0,
+              "output": 2.0,
+              "projection_depth": 2.0,
+              "shading": 2.0,
+              "shadow": 2.0
+            },
+            "profile": [
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 785211565.0,
+                "marker_frame": 1.0,
+                "owner_instance_id": -9.223371988687387e+18,
+                "passes_ns": {
+                  "clear": 1581274.0,
+                  "material_accumulation": 235127629.0,
+                  "output": 1482338.0,
+                  "projection_depth": 342543293.0,
+                  "shading": 16876177.0,
+                  "shadow": 187176348.0
+                },
+                "serial": 1.0
+              },
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 771704322.0,
+                "marker_frame": 34.0,
+                "owner_instance_id": -9.223371988687387e+18,
+                "passes_ns": {
+                  "clear": 1012211.0,
+                  "material_accumulation": 234452645.0,
+                  "output": 848312.0,
+                  "projection_depth": 342176321.0,
+                  "shading": 14717553.0,
+                  "shadow": 178101016.0
+                },
+                "serial": 2.0
+              }
+            ],
+            "ready": true,
+            "samples": 1165568.0,
+            "snapshot_usec": 4984984.0,
+            "source_bytes": 12335104.0
+          },
+          "timing": {
+            "elapsed_ms": 0.067,
+            "hits": 16.0,
+            "queries": 32.0,
+            "ray_cpu_ms": {
+              "max_ms": 0.004,
+              "p50_ms": 0.001,
+              "p95_ms": 0.002,
+              "samples": 32.0
+            },
+            "scope": "Actual PhysicsDirectSpaceState3D ray calls after physics-frame synchronization; CPU wall time only, not GPU rendering or FPS."
+          }
+        }
+      ],
+      "restored": true,
+      "sample_invocations": 1165568.0,
+      "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+      "schema": "lie-construction-mobile-report/1",
+      "scope": "Invisible physics/camera experiment. Grouped wall envelopes approximate joints and relief, preserve the declared window, and do not render triangles. Capture banks, light-field ownership, LOD and render sample jobs are unchanged. No GPU image readbacks are requested by this benchmark. No rendering speedup is inferred from fewer colliders.",
+      "started_at": "2026-11-08T14:42:04",
+      "version": "6.2.0-invisible-wall-physics",
+      "warm_up": [
+        {
+          "elapsed_ms": 151.592,
+          "resources": {
+            "allocation_bytes": 123803808.0,
+            "asset_uploads": 7.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111468704.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "8409545965740:8448200671265",
+              "nodes": 4742.0,
+              "producer": -9.223371973537561e+18,
+              "solve": 1.0
+            },
+            "frames": 2.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371988687387e+18,
+            "page_io_bytes": 12335104.0,
+            "pass_counts": {
+              "clear": 2.0,
+              "material_accumulation": 2.0,
+              "output": 2.0,
+              "projection_depth": 2.0,
+              "shading": 2.0,
+              "shadow": 2.0
+            },
+            "ready": true,
+            "samples": 1165568.0,
+            "snapshot_usec": 4757855.0,
+            "source_bytes": 12335104.0
+          }
+        }
+      ]
+    },
+    "rgba_exact": true
+  },
+  "preserved_negative_reconstruction_run": 42436770047,
+  "artifact_id": 13622145094,
+  "tested_runtime_commit": "f7bc5162d2dbf391a021a8d9672b18ac7b5e6744",
+  "python_tests": {
+    "run": 285,
+    "skipped": 1,
+    "failed": 0
+  },
+  "physical_android_followup_pending": true,
+  "cancelled_first_run": 42490687283,
+  "observed_camera_proxy_margin_difference_m": 0.05990943968431042
+}
