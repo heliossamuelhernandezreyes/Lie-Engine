@@ -1,7 +1,7 @@
 extends "res://lie_hq_construction_lab.gd"
 const Meter=preload("res://lie_construction_mobile_metrics.gd")
 const Hardware=preload("res://lie_hardware_diagnostics.gd")
-const APP_VERSION="6.0.1-auto-benchmark"
+const APP_VERSION="6.1.0-reconstruction"
 var output_resolution: int=960
 var hardware=Hardware.new()
 var meter=Meter.new()
@@ -61,7 +61,7 @@ func _build_ui() -> void:
     layer.add_child(margin)
     var columns:=HBoxContainer.new();columns.add_theme_constant_override("separation",16);margin.add_child(columns)
     var left:=VBoxContainer.new();left.size_flags_horizontal=Control.SIZE_EXPAND_FILL;columns.add_child(left)
-    _label(left,"LIE · Benchmark 6.0.1",28)
+    _label(left,"LIE · Benchmark 6.1.0",28)
     var actions:=HBoxContainer.new();actions.add_theme_constant_override("separation",8);left.add_child(actions)
     _benchmark_button=_button(actions,"Benchmark y copiar informe",func():run_comparison())
     _benchmark_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL;_benchmark_button.custom_minimum_size.y=56;_benchmark_button.add_theme_font_size_override("font_size",20)
@@ -173,7 +173,10 @@ func _process(delta: float) -> void:
     _poll_clock=0.;effect.request_diagnostics();var a: Dictionary=effect.diagnostics();_telemetry=hardware.telemetry()
     _refresh_quick_actions()
     var total: int=int(a.get("allocation_bytes",0))+int(a.get("field",{}).get("bytes",0));var rss: Dictionary=_telemetry.get("process_memory",{}).get("rss",{})
-    _status.text="Pantalla %d FPS · salida %d / interna %d\nRecursos LIE %.1f MiB · RSS %s\n%s" % [Engine.get_frames_per_second(),output_resolution,output_resolution*2,total/1048576.,("%.1f MiB" % (float(rss.bytes)/1048576.)) if rss.get("available",false) else "no disponible",str(metrics.get("error",a.get("failure","")))]
+    var reconstruction: String="sin imagen nueva"
+    var profiles: Array=a.get("profile",[])
+    if not profiles.is_empty():reconstruction="Última reconstrucción GPU %.2f ms" % (float(profiles[-1].gpu_ns)/1e6)
+    _status.text="Presentación %d FPS (incluye imagen reutilizada) · salida %d / interna %d\n%s · Recursos LIE %.1f MiB · RSS %s\n%s" % [Engine.get_frames_per_second(),output_resolution,output_resolution*2,reconstruction,total/1048576.,("%.1f MiB" % (float(rss.bytes)/1048576.)) if rss.get("available",false) else "no disponible",str(metrics.get("error",a.get("failure","")))]
     if busy:_progress.text=_message
 
 func _sync_metrics() -> Dictionary:

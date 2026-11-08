@@ -6,7 +6,7 @@ def stage(data,out):
     for name in ['light-field-reference.json','field-quality-reference.json']:
         if not (ROOT/'gpu_compute/fixtures'/name).is_file():raise ValueError('Generate common field fixtures first: tools/lie_light_field.py and tools/lie_field_quality_cases.py')
     if out.exists():raise ValueError('Use a fresh stage')
-    out.mkdir(parents=True);pending=['test_lie_construction_field.gd','test_lie_light_field_gpu.gd','test_lie_surface_field_gpu.gd','test_lie_field_quality_gpu.gd','test_lie_field_quality_commands.gd','test_lie_hq_component_quality.gd','lie_hq_construction_lab.tscn','test_lie_hq_construction.gd','test_lie26_rig.gd','workshop/test_lie_agent_session.gd'];done=set();pattern=re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
+    out.mkdir(parents=True);pending=['test_lie_construction_reconstruction.gd','test_lie_construction_field.gd','test_lie_light_field_gpu.gd','test_lie_surface_field_gpu.gd','test_lie_field_quality_gpu.gd','test_lie_field_quality_commands.gd','test_lie_hq_component_quality.gd','lie_hq_construction_lab.tscn','test_lie_hq_construction.gd','test_lie26_rig.gd','workshop/test_lie_agent_session.gd'];done=set();pattern=re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
     while pending:
         name=pending.pop()
         if name in done:continue

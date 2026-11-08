@@ -44,22 +44,22 @@ float footprint_distance(Projection p,vec2 xy) {
 }
 struct SourceBounds { uvec4 interval; vec4 low; vec4 high; };
 layout(set=0,binding=15,std430) readonly buffer SourceLimits {SourceBounds v[];} source_limits;
-bool in_source(uint sid,vec3 local) {
+SourceBounds source_bounds(uint sid) {
     uint lo=0u,hi=uint(parameters.iris.x);
     while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(source_limits.v[mid].interval.x<=sid)lo=mid;else hi=mid;}
-    SourceBounds b=source_limits.v[lo];
+    return source_limits.v[lo];
+}
+bool in_source(SourceBounds b,uint sid,vec3 local) {
     return sid<b.interval.y && all(greaterThanEqual(local,b.low.xyz-vec3(.000002))) && all(lessThanEqual(local,b.high.xyz+vec3(.000002)));
 }
-bool covered(Projection p,vec2 xy) {
+bool covered(Projection p,vec2 xy,Sample s,Instance inst,mat3 inverse_basis,SourceBounds bounds) {
     if(footprint_distance(p,xy)>1) return false;
     // Keep coarse samples on their original source face. In particular, a
     // brick's projected discs cannot cover adjacent mortar or an opening.
-    Sample s=samples.v[uint(p.gradient.w)];
-    Instance inst=instances.v[uint(p.gradient.z)];
     vec2 uv=xy/vec2(parameters.counts.zw);
     vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
-    vec3 local=inverse(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz))*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
-    if(!in_source(uint(p.gradient.w),local))return false;
+    vec3 local=inverse_basis*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
+    if(!in_source(bounds,uint(p.gradient.w),local))return false;
     if(inst.meta.z>0. && local.x>inst.meta.w+1e-7)return false;
     if(inst.meta.z<0. && local.x<inst.meta.w-1e-7)return false;
     vec3 n=abs(s.normal_gray.xyz);
@@ -70,9 +70,10 @@ bool covered(Projection p,vec2 xy) {
 
 
 
+layout(set=0,binding=20,std430) readonly buffer BankJobs {uvec4 v[];} bank_jobs;
 uint job_index(uint invocation) {
     uint lo=0u,hi=uint(parameters.counts.y);
-    while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(jobs.v[mid].w<=invocation)lo=mid;else hi=mid;}
+    while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(bank_jobs.v[mid].x<=invocation)lo=mid;else hi=mid;}
     return lo;
 }
 uint hash(uint x) {x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
@@ -84,16 +85,33 @@ vec3 material_color(Sample s,Instance inst) {
 }
 
 
+// Conservative row intervals for the SAME projected ellipse and pixel grid.
+// Final covered() and all depth/ownership rules remain authoritative.
+ivec2 lie_splat_row(Projection p,ivec2 center,int y,int bound) {
+    float dy=float(y)+.5-p.screen.y;
+    float A=p.ellipse.x,B=p.ellipse.y,C=p.ellipse.z;
+    float cross_section=1.-(C-B*B/A)*dy*dy;
+    if(A<=0. || isnan(cross_section) || isinf(cross_section))return ivec2(center.x-bound,center.x+bound);
+    // A one-pixel guard on both ends preserves floating-point boundary cases.
+    // Even a slightly negative section receives a conservative candidate.
+    float span=sqrt(max(cross_section,0.)/A);
+    float middle=p.screen.x-B*dy/A-.5;
+    return ivec2(max(center.x-bound,int(floor(middle-span))-1),
+                 min(center.x+bound,int(ceil(middle+span))+1));
+}
+
 void main() {
     uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x,pixels=uint(parameters.counts.z*parameters.counts.w);
     const int stage=2;
 
         if(i>=uint(parameters.counts.x))return;
-        uint j=job_index(i);uvec4 job=jobs.v[j];uint sid=job.x+i-job.w;
+        uint j=job_index(i);uvec4 address=bank_jobs.v[j];i=address.y+i-address.x;
+        uvec4 job=jobs.v[address.z];uint sid=job.x+i-job.w;
         Instance inst=instances.v[job.z];
         if(int(inst.meta.y)!=int(parameters.settings.z))return;
         Sample s=samples.v[sid];
         mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);
+        mat3 inverse_basis=inverse(basis);SourceBounds bounds=source_bounds(sid);
         Projection p;
         if(stage==2) {
             vec3 local=s.position_radius.xyz;float radius=s.position_radius.w;
@@ -105,30 +123,13 @@ void main() {
                 } else if(int(s.attributes.x)==2) {local.xy*=parameters.iris.w/inner;radius*=parameters.iris.w/inner;}
             }
             vec3 world=basis*local+inst.origin.xyz;
-            vec3 n=normalize(transpose(inverse(basis))*s.normal_gray.xyz);
+            vec3 n=normalize(transpose(inverse_basis)*s.normal_gray.xyz);
             radius*=max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
             vec3 delta=world-parameters.eye.xyz;float depth=dot(delta,parameters.forward.xyz);
             float front=dot(n,normalize(-delta));
             vec3 shading=n;
-            if(parameters.settings.w>.5) {vec4 optical=optical_normals.v[sid];if(optical.w>.5)shading=normalize(transpose(inverse(basis))*optical.xyz);}
+            if(parameters.settings.w>.5) {vec4 optical=optical_normals.v[sid];if(optical.w>.5)shading=normalize(transpose(inverse_basis)*optical.xyz);}
             p.normal=vec4(shading,front);p.screen=vec4(0);p.gradient=vec4(0,0,float(job.z),float(sid));p.geometry=vec4(n,s.attributes.x);p.ellipse=vec4(0);
-            vec3 ld=world-parameters.light.xyz;float lz=dot(ld,parameters.shadow_forward.xyz);
-            if(lz>.00001 && dot(n,normalize(-ld))>.05) {
-                vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
-                float plane=dot(n,ld);vec2 gradient=vec2(2*1.25*dot(n,parameters.shadow_right.xyz),-2*1.25*dot(n,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*plane);
-                float offset_ratio=max(abs(dot(ld,parameters.shadow_right.xyz)),abs(dot(ld,parameters.shadow_up.xyz)))/lz;
-                int shadow_bound=min(SHADOW_SIZE,int(ceil(radius*(1.+offset_ratio)*float(SHADOW_SIZE)/(2.*1.25*max(lz-radius,1e-6)))+1.));
-                for(int y=-shadow_bound;y<=shadow_bound;y++)for(int x=-shadow_bound;x<=shadow_bound;x++) {
-                    ivec2 q=ivec2(xy)+ivec2(x,y);float z=1.0/(1.0/lz+dot(gradient,vec2(q)+.5-xy));
-                    vec2 uv=(vec2(q)+.5)/float(SHADOW_SIZE);
-                    vec3 ray=parameters.shadow_forward.xyz+parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
-                    vec3 local_hit=inverse(basis)*(parameters.light.xyz+ray*z-inst.origin.xyz);
-                    vec3 axis=abs(s.normal_gray.xyz);vec2 support_point=axis.x>=axis.y && axis.x>=axis.z?local_hit.zy:axis.y>=axis.z?local_hit.xz:local_hit.xy;
-                    bool face_support=all(greaterThanEqual(support_point,s.support.xy-vec2(.000002))) && all(lessThanEqual(support_point,s.support.zw+vec2(.000002)));
-                    bool cut_support=(inst.meta.z==0.) || (inst.meta.z>0.?local_hit.x<=inst.meta.w+1e-7:local_hit.x>=inst.meta.w-1e-7);
-                    if(face_support && cut_support && in_source(sid,local_hit) && z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
-                }
-            }
             if(depth>parameters.lens.z && depth<parameters.lens.w && front>.015) {
                 vec2 xy=project(world,parameters.eye.xyz,parameters.right.xyz,parameters.up.xyz,parameters.forward.xyz,parameters.lens.x,vec2(parameters.counts.zw));
                 vec3 tangent=normalize(cross(n,abs(n.y)<.9?vec3(0,1,0):vec3(1,0,0)));vec3 bitangent=cross(n,tangent);
@@ -142,11 +143,17 @@ void main() {
         }else p=projected.v[i];
         if(p.screen.z<=0)return;
         int bound=int(ceil(p.screen.w));
-        for(int y=-bound;y<=bound;y++)for(int x=-bound;x<=bound;x++) {
-            ivec2 q=ivec2(floor(p.screen.xy))+ivec2(x,y);if(!inside(q)||!covered(p,vec2(q)+.5))continue;
+        ivec2 center=ivec2(floor(p.screen.xy));
+        for(int y=max(0,center.y-bound);y<=min(parameters.counts.w-1,center.y+bound);y++) {
+          ivec2 span=lie_splat_row(p,center,y,bound);
+          for(int x=max(0,span.x);x<=min(parameters.counts.z-1,span.y);x++) {
+            ivec2 q=ivec2(x,y);if(footprint_distance(p,vec2(q)+.5)>1.)continue;
             float z=pixel_depth(p,vec2(q)+.5);if(z<=parameters.lens.z||isnan(z)||isinf(z))continue;
             uint pixel=uint(q.y*parameters.counts.z+q.x),bits=floatBitsToUint(z);
-            if(stage==2)atomicMin(depths.v[pixel],bits);
+            if(stage==2) {
+                if(!covered(p,vec2(q)+.5,s,inst,inverse_basis,bounds))continue;
+                atomicMin(depths.v[pixel],bits);
+            }
             else {
                 if(depths.v[pixel]==bits)atomicMin(winners.v[pixel],i);
                 if(abs(z-uintBitsToFloat(depths.v[pixel]))>parameters.options.w)continue;
@@ -157,6 +164,7 @@ void main() {
                 if(int(s.attributes.x)==3 || int(s.attributes.x)==6) {uint id=uint(max(inst.meta.x,0));if(inst.meta.y>.5)id+=uint(int(s.attributes.y)%2+6*(int(s.attributes.y)/2));rough=clamp(rough+(variation(id)-.5)*parameters.wall.w*.3,.2,.95);}
                 atomicAdd(accumulated.v[pixel].normal_roughness.w,uint(round(rough*float(w))));
             }
+          }
         }return;
 
 }

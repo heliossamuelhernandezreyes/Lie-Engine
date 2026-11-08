@@ -30,6 +30,95 @@ var _field_dummy_patch:=RID()
 var _field_dummy_light:=RID()
 var _field_dummy_image:=RID()
 var _diagnostic_snapshot: Dictionary={}
+var _bank_jobs: Dictionary={}
+var _bank_job_bytes: int=0
+var _view_stamp:=PackedByteArray()
+var _shadow_stamp:=PackedByteArray()
+var _uploaded_geometry:=PackedByteArray()
+var _validated_instances:=PackedByteArray()
+var _validated_jobs:=PackedByteArray()
+var _validated_work: int=0
+var _frame_passes: Dictionary={}
+var _pass_counts: Dictionary={}
+var _reset_view: bool=true
+var _reset_shadow: bool=true
+const PASS_NAMES={1:"clear",8:"shadow",2:"projection_depth",3:"material_accumulation",4:"shading",7:"output"}
+
+func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
+    # Reuse validation only for byte-identical immutable geometry. Dimensions
+    # and count fields still have to match this consumer on every transaction.
+    if parameters.size()!=256:return false
+    if parameters.decode_s32(80)!=work or parameters.decode_s32(84)!=jobs.size()/16 or parameters.decode_s32(88)!=render_size or parameters.decode_s32(92)!=render_size:return false
+    if work>0 and work==_validated_work and instances==_validated_instances and jobs==_validated_jobs:
+        _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":instances.duplicate(),"jobs":jobs.duplicate(),"work":work};_mutex.unlock();return true
+    if not super.configure(parameters,instances,jobs,work):return false
+    _validated_instances=instances.duplicate();_validated_jobs=jobs.duplicate();_validated_work=work;return true
+
+func _collect_profile() -> void:
+    if frame_count==0:return
+    var frame: int=_rd.get_captured_timestamps_frame();var intervals: Dictionary={}
+    for i in range(_rd.get_captured_timestamps_count()):
+        var parts: PackedStringArray=_rd.get_captured_timestamp_name(i).split("|")
+        if parts.size()!=4 or parts[0]!="lie22" or parts[1]!=str(get_instance_id()):continue
+        var serial: int=int(parts[2])
+        if not intervals.has(serial):intervals[serial]={}
+        intervals[serial][parts[3]]=_rd.get_captured_timestamp_gpu_time(i)
+    _mutex.lock()
+    for serial in intervals:
+        var row: Dictionary=intervals[serial]
+        if serial<=_last_profile_serial or not row.has_all(["begin","end"]) or row.end<=row.begin:continue
+        var passes: Dictionary={}
+        for name in _frame_passes.get(serial,[]):
+            var a: String=name+"_begin";var b: String=name+"_end"
+            if row.has(a) and row.has(b) and row[b]>row[a]:passes[name]=row[b]-row[a]
+        _profiles.append({"owner_instance_id":get_instance_id(),"serial":serial,"marker_frame":frame,"gpu_ns":row.end-row.begin,"passes_ns":passes,"executed_passes":_frame_passes.get(serial,[]).duplicate()})
+        _last_profile_serial=serial
+    if _profiles.size()>120:_profiles=_profiles.slice(_profiles.size()-120)
+    for serial in _frame_passes.keys():
+        if serial<frame_count-120:_frame_passes.erase(serial)
+    _mutex.unlock()
+
+func _render_callback(_type: int,_data: RenderData) -> void:
+    if not capture_loaded or (not gpu_ready and not _initialize()):return
+    _mutex.lock();var next: Dictionary=_pending.duplicate();_mutex.unlock()
+    if next.is_empty():return
+    _collect_profile()
+    var signature: PackedByteArray=_frame_signature(next)
+    if signature==_resident:return
+    var work: int=next.work;var capacity: int=_projection_target(work)
+    if capacity!=projection_capacity:
+        _clear_sets();_rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=capacity
+        _buffer(3,projection_capacity*_projection_stride());_make_set();_view_stamp=PackedByteArray()
+    next=_prepare_frame(next)
+    if next.is_empty():return
+    var geometry: PackedByteArray=next.instances.duplicate();geometry.append_array(next.jobs)
+    var p: PackedByteArray=next.parameters
+    var view: PackedByteArray=geometry.duplicate();view.append_array(p.slice(0,96));view.append_array(p.slice(208,256))
+    var shadow: PackedByteArray=geometry.duplicate();shadow.append_array(p.slice(96,112));shadow.append_array(p.slice(160,208))
+    # Reverse-bank diagnostics deliberately rerun both paths, so order tests
+    # continue to exercise rasterization instead of accidentally testing a hit.
+    view.append_array(p.slice(216,220));shadow.append_array(p.slice(216,220))
+    _reset_view=view!=_view_stamp;_reset_shadow=shadow!=_shadow_stamp
+    _update_parameters(p)
+    if geometry!=_uploaded_geometry:
+        _rd.buffer_update(_buffers[1],0,next.instances.size(),next.instances)
+        _rd.buffer_update(_buffers[2],0,next.jobs.size(),next.jobs)
+        _uploaded_geometry=geometry
+    var stages: Array=[]
+    if _reset_view or _reset_shadow:stages.append(1)
+    if _reset_shadow:stages.append(8)
+    if _reset_view:stages.append_array([2,3])
+    stages.append_array([4,7])
+    var names: Array=[];_rd.capture_timestamp(_profile_marker("begin"))
+    for stage in stages:
+        var name: String=PASS_NAMES[stage];names.append(name)
+        _rd.capture_timestamp(_profile_marker(name+"_begin"))
+        var commands: int=_rd.compute_list_begin()
+        var count: int=work if stage in [2,3,8] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
+        _record_stage(commands,stage,count);_rd.compute_list_end()
+        _rd.capture_timestamp(_profile_marker(name+"_end"));_pass_counts[name]=int(_pass_counts.get(name,0))+1
+    _rd.capture_timestamp(_profile_marker("end"));_frame_passes[frame_count+1]=names
+    _resident=signature;_view_stamp=view;_shadow_stamp=shadow;sample_invocations=work;instance_count=next.instances.size()/96;frame_count+=1
 func request_diagnostics() -> void:
     RenderingServer.call_on_render_thread(Callable(self,"_publish_diagnostics"))
 func diagnostics() -> Dictionary:
@@ -43,7 +132,8 @@ func _publish_diagnostics() -> void:
         "exclusive_bytes":allocation_bytes-total_source_bytes,"page_io_bytes":page_io_bytes,
         "asset_uploads":asset_uploads,"instances":instance_count,"samples":sample_invocations,
         "output_size":output_size,"internal_size":render_size,"field":{},
-        "profile":_profiles.duplicate(true),"snapshot_usec":Time.get_ticks_usec()}
+        "profile":_profiles.duplicate(true),"pass_counts":_pass_counts.duplicate(),"bank_dispatch_samples":{},"snapshot_usec":Time.get_ticks_usec()}
+    for bank in _bank_jobs:result.bank_dispatch_samples[str(bank)]=_bank_jobs[bank].work
     if gpu_ready:result.device=_rd.get_device_name()
     for key in ["producer","epoch","solve","nodes","bytes"]:
         if _field_receipt.has(key):result.field[key]=_field_receipt[key]
@@ -130,17 +220,18 @@ func _make_set() -> void:
         var format:=RDTextureFormat.new();format.width=1;format.height=1;format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT;format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT;_field_dummy_image=_rd.texture_create(format,RDTextureView.new(),[]);allocation_bytes+=352
         _sources_ready=true
     if _kernels.is_empty():
-        for stage in [1,2,3,4,7]:
+        for stage in [1,2,3,4,7,8]:
             var spirv: RDShaderSPIRV=Kernels.SHADERS[stage].get_spirv()
             if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure="Scene kernel compile";return
             var shader: RID=_shader if stage==1 else _rd.shader_create_from_spirv(spirv);var pipeline: RID=_pipeline if stage==1 else _rd.compute_pipeline_create(shader)
             _kernels[stage]={"shader":shader,"pipeline":pipeline}
     for stage in _kernels:
-        var order: Array=_resident_banks.keys() if stage in [2,3] else [0]
+        var order: Array=_resident_banks.keys() if stage in [2,3,8] else [0]
         for bank in order:
             # Resizing can rebuild sets before _sync_field. Always use this
             # frame's validated producer receipt, never a previous producer RID.
             var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_params[bank];handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map;handles[17]=_field_receipt.get("patches",_field_dummy_patch);handles[18]=_field_receipt.get("irradiance",_field_dummy_image);handles[19]=_field_receipt.get("direct",_field_dummy_light)
+            handles[20]=_bank_jobs[bank].rid if _bank_jobs.has(bank) else _dummy
             if _resident_banks.has(bank):
                 var row: Dictionary=_resident_banks[bank];handles[0]=row.core.rid;handles[14]=row.optical.rid if row.has("optical") else _dummy;handles[15]=row.limits
             var uniforms: Array[RDUniform]=[]
@@ -154,6 +245,9 @@ func _release_bank(row: Dictionary) -> void:
     if row.has("optical"):SharedSamples.release_handle(_rd,row.optical)
     _rd.free_rid(row.limits);allocation_bytes-=int(row.bytes)+int(row.limit_bytes);total_source_bytes-=int(row.bytes)
 func _prepare_frame(next: Dictionary) -> Dictionary:
+    var geometry_stamp: PackedByteArray=next.instances.duplicate();geometry_stamp.append_array(next.jobs)
+    if geometry_stamp==_job_signature:
+        _sync_field();var cached: Dictionary=next.duplicate();cached.jobs=_translated_jobs;return cached
     var jobs: PackedInt32Array=next.jobs.to_int32_array();var instances: PackedByteArray=next.instances;var plans: Dictionary={}
     for i in range(0,jobs.size(),4):
         var bank: int=int(instances.decode_float(jobs[i+2]*96+68));var key: String=Pages.range_key(jobs[i],jobs[i+1])
@@ -202,8 +296,21 @@ func _prepare_frame(next: Dictionary) -> Dictionary:
     var translated: PackedInt32Array=jobs.duplicate()
     for i in range(0,jobs.size(),4):
         var bank: int=int(instances.decode_float(jobs[i+2]*96+68));translated[i]=_resident_banks[bank].offsets[Pages.range_key(jobs[i],jobs[i+1])]
+    _clear_sets()
+    for row in _bank_jobs.values():_rd.free_rid(row.rid)
+    _bank_jobs.clear();allocation_bytes-=_bank_job_bytes;_bank_job_bytes=0
+    var dispatches: Dictionary={}
+    for i in range(0,jobs.size(),4):
+        var bank: int=int(instances.decode_float(jobs[i+2]*96+68))
+        if not dispatches.has(bank):dispatches[bank]={"data":PackedInt32Array(),"work":0}
+        var row: Dictionary=dispatches[bank];row.data.append_array(PackedInt32Array([row.work,jobs[i+3],i/4,0]));row.work+=jobs[i+1]
+    for bank in dispatches:
+        var row: Dictionary=dispatches[bank];var data: PackedByteArray=row.data.to_byte_array()
+        _bank_jobs[bank]={"rid":_rd.storage_buffer_create(data.size(),data),"work":row.work,"jobs":row.data.size()/4};_bank_job_bytes+=data.size()
+    allocation_bytes+=_bank_job_bytes;_make_set()
     _sync_field()
-    var result: Dictionary=next.duplicate();result.jobs=translated.to_byte_array();failure="";return result
+    _job_signature=geometry_stamp;_translated_jobs=translated.to_byte_array()
+    var result: Dictionary=next.duplicate();result.jobs=_translated_jobs;failure="";return result
 func _release_uncommitted(row: Dictionary) -> void:
     if row.get("core",{}).get("ok",false):SharedSamples.release_handle(_rd,row.core)
     if row.get("optical",{}).get("ok",false):SharedSamples.release_handle(_rd,row.optical)
@@ -212,22 +319,26 @@ func _update_parameters(parameters: PackedByteArray) -> void:
     _reverse_passes=parameters.decode_float(216)>.5
     for i in range(banks.size()):
         var row: Dictionary=_resident_banks.get(i,{});var data: PackedByteArray=parameters.duplicate();data.encode_float(208,float(row.get("limit_count",0)));data.encode_float(248,float(i));data.encode_float(252,parameters.decode_float(252) if row.has("optical") else 0.)
+        if _bank_jobs.has(i):data.encode_s32(80,_bank_jobs[i].work);data.encode_s32(84,_bank_jobs[i].jobs)
         _rd.buffer_update(_params[i],0,256,data)
 func _dispatch_stage(commands: int,count: int) -> void:
     var groups: int=ceili(float(count)/64);var x: int=mini(groups,32768);_rd.compute_list_dispatch(commands,x,ceili(float(groups)/x),1)
 func _record_stage(commands: int,stage: int,count: int) -> void:
-    var order: Array=_resident_banks.keys() if stage in [2,3] else [0];order.sort()
-    if _reverse_passes and stage in [2,3]:order.reverse()
+    var order: Array=_resident_banks.keys() if stage in [2,3,8] else [0];order.sort()
+    if _reverse_passes and stage in [2,3,8]:order.reverse()
     for i in order:
-        _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline);_rd.compute_list_bind_uniform_set(commands,_sets[str(i)+":"+str(stage)],0);_rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,0,0]).to_byte_array(),16);_dispatch_stage(commands,count);_rd.compute_list_add_barrier(commands)
+        _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline);_rd.compute_list_bind_uniform_set(commands,_sets[str(i)+":"+str(stage)],0);_rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,int(_reset_view),int(_reset_shadow)]).to_byte_array(),16);_dispatch_stage(commands,_bank_jobs[i].work if stage in [2,3,8] else count);_rd.compute_list_add_barrier(commands)
 func _capture() -> void:
     super._capture()
     if not gpu_ready:return
     var shadow: PackedByteArray=_rd.buffer_get_data(_buffers[13])
-    _mutex.lock();_readback["library_bytes"]=total_source_bytes;_readback["exclusive_allocation_bytes"]=allocation_bytes-total_source_bytes;_readback["banks"]=banks.size();_readback["shadow"]=shadow;_readback["resident_banks"]=_resident_banks.size();_readback["catalog_source_bytes"]=catalog_source_bytes;_readback["page_io_bytes"]=page_io_bytes;_readback["residency_changes"]=residency_changes;_readback["projection_capacity"]=projection_capacity;_mutex.unlock()
+    _mutex.lock();_readback["library_bytes"]=total_source_bytes;_readback["exclusive_allocation_bytes"]=allocation_bytes-total_source_bytes;_readback["banks"]=banks.size();_readback["shadow"]=shadow;_readback["resident_banks"]=_resident_banks.size();_readback["catalog_source_bytes"]=catalog_source_bytes;_readback["page_io_bytes"]=page_io_bytes;_readback["residency_changes"]=residency_changes;_readback["projection_capacity"]=projection_capacity;_readback["pass_counts"]=_pass_counts.duplicate();_mutex.unlock()
     _mutex.lock();_readback["field"]={"ready":not _field_receipt.is_empty(),"nodes":_field_receipt.get("nodes",0),"bytes":_field_receipt.get("bytes",0),"solve":_field_receipt.get("solve",0),"producer":_field_receipt.get("producer",0),"indirect":_field_context.get("indirect",false)};_readback["failure"]=failure;_mutex.unlock()
 func _release() -> void:
     _clear_sets()
+    for row in _bank_jobs.values():_rd.free_rid(row.rid)
+    _bank_jobs.clear();allocation_bytes-=_bank_job_bytes;_bank_job_bytes=0
+    _job_signature=PackedByteArray();_translated_jobs=PackedByteArray();_view_stamp=PackedByteArray();_shadow_stamp=PackedByteArray();_uploaded_geometry=PackedByteArray();_frame_passes.clear();_pass_counts.clear()
     for stage in _kernels:
         if stage!=1:_rd.free_rid(_kernels[stage].pipeline);_rd.free_rid(_kernels[stage].shader)
     _kernels.clear()

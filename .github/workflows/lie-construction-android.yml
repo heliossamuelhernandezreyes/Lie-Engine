@@ -1,4 +1,4 @@
-name: LIE construction 6.0.1 automatic benchmark APK
+name: LIE construction 6.1.0 reconstruction repair APK
 on:
   push:
     branches: [work/lie-construction-android]
@@ -42,17 +42,28 @@ jobs:
           chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
           python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform linux.x86_64 > native-probe-build.log 2>&1
           python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-ci
+      - name: Restore pinned 6.0.1 code for independent image comparison
+        run: |
+          git fetch origin 2e35cc33ff65c8352b1e4e9a79ac4c1fe9f34be6 --depth=1
+          git worktree add --detach /tmp/lie-baseline 2e35cc33ff65c8352b1e4e9a79ac4c1fe9f34be6
+          PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_light_field.py
+          PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_field_quality_cases.py
+          PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/baseline-ci
+          cp gpu_compute/test_lie_construction_reconstruction.gd /tmp/baseline-ci/
       - name: Compile, controls, actual native construction and mobile comparison
         run: |
           set -o pipefail
           engine=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
           timeout 120 "$engine" --headless --path /tmp/mobile-ci --editor --import --quit 2>&1 | tee mobile-import.log
+          timeout 120 "$engine" --headless --path /tmp/baseline-ci --editor --import --quit 2>&1 | tee mobile-baseline-import.log
+          timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/baseline-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_construction_reconstruction.gd 2>&1 | tee mobile-baseline-reconstruction.log
           for script in test_lie_construction_mobile_metrics test_lie_hardware_probe test_lie26_rig workshop/test_lie_agent_session; do
             timeout 90 "$engine" --headless --path /tmp/mobile-ci --script "res://$script.gd" 2>&1 | tee "mobile-${script##*/}.log"
           done
-          for script in test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile; do
+          for script in test_lie_construction_reconstruction test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile; do
             timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/mobile-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script "res://$script.gd" 2>&1 | tee "mobile-$script.log"
           done
+          python tools/lie_construction_reconstruction_compare.py --baseline /tmp/baseline-ci --candidate /tmp/mobile-ci --output reconstruction-comparison.json
           python - <<'PY'
           from pathlib import Path
           for p in Path('.').glob('mobile-*.log'):
@@ -77,13 +88,13 @@ jobs:
       - name: Export, sign, align and independently verify complete APK
         run: |
           keytool -genkeypair -keystore /tmp/lie-construction-debug.keystore -storepass android -keypass android -alias androiddebugkey -dname 'CN=LIE Construction Laboratory,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
-          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.0.1.apk"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.0.1.apk > apk/badging.txt
-          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.0.1.apk --badging apk/badging.txt
+          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.1.0.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.1.0.apk > apk/badging.txt
+          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.1.0.apk --badging apk/badging.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lie-construction-v601-apk-and-evidence
+          name: lie-construction-v610-apk-and-evidence
           compression-level: 6
           path: |
             apk/
@@ -93,5 +104,10 @@ jobs:
             /tmp/mobile-ci/hq-construction-native.json
             /tmp/mobile-ci/construction-field-native.json
             /tmp/mobile-ci/hardware-probe-native.json
+            /tmp/mobile-ci/construction-reconstruction-native.json
+            /tmp/mobile-ci/reconstruction-case*.png
+            /tmp/baseline-ci/construction-reconstruction-native.json
+            /tmp/baseline-ci/reconstruction-case*.png
+            reconstruction-comparison.json
             gpu_compute/addons/lie_gpu_probe/bin/*/build.json
           if-no-files-found: warn

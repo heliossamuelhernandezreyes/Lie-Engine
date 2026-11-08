@@ -1,0 +1,122 @@
+#[compute]
+#version 450
+// LIE28: source RGB albedo and roughness captured without lighting.
+// Geometric normals remain independent of material maps. No source mesh draw.
+layout(local_size_x=64) in;
+struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
+struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
+struct Projection { vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
+layout(set=0,binding=14,std430) readonly buffer OpticalNormals {vec4 v[];} optical_normals;
+layout(set=0,binding=0,std430) readonly buffer Samples { Sample v[]; } samples;
+layout(set=0,binding=1,std430) readonly buffer Instances { Instance v[]; } instances;
+layout(set=0,binding=2,std430) readonly buffer Jobs { uvec4 v[]; } jobs;
+layout(set=0,binding=3,std430) buffer Projected { Projection v[]; } projected;
+layout(set=0,binding=4,std430) buffer Depth { uint v[]; } depths;
+layout(set=0,binding=5,std430) buffer Winner { uint v[]; } winners;
+layout(set=0,binding=6,std430) readonly buffer Parameters {
+    vec4 eye; vec4 right; vec4 up; vec4 forward; vec4 lens; ivec4 counts;
+    vec4 light; vec4 light_color; vec4 ambient; vec4 options;
+    vec4 shadow_right; vec4 shadow_up; vec4 shadow_forward;
+    vec4 iris; vec4 wall; vec4 settings;
+} parameters;
+layout(set=0,binding=7,std430) buffer Accumulated { Accumulator v[]; } accumulated;
+
+
+
+
+layout(set=0,binding=13,std430) buffer Shadow { uint v[]; } shadow;
+layout(push_constant,std430) uniform Phase { ivec4 value; } phase;
+const float PI=3.141592653589793;
+const uint EMPTY=0xffffffffu;
+const int SHADOW_SIZE=512;
+vec2 project(vec3 p,vec3 eye,vec3 right,vec3 up,vec3 forward,float tangent,vec2 size) {
+    vec3 d=p-eye;float z=dot(d,forward);
+    return vec2((dot(d,right)/(z*tangent)+1)*.5,(1-dot(d,up)/(z*tangent))*.5)*size;
+}
+bool inside(ivec2 p) { return all(greaterThanEqual(p,ivec2(0))) && all(lessThan(p,parameters.counts.zw)); }
+float pixel_depth(Projection p,vec2 xy) {
+    return 1.0/(1.0/p.screen.z+dot(p.gradient.xy,xy-p.screen.xy));
+}
+float footprint_distance(Projection p,vec2 xy) {
+    vec2 q=xy-p.screen.xy;
+    return q.x*q.x*p.ellipse.x+2*q.x*q.y*p.ellipse.y+q.y*q.y*p.ellipse.z;
+}
+struct SourceBounds { uvec4 interval; vec4 low; vec4 high; };
+layout(set=0,binding=15,std430) readonly buffer SourceLimits {SourceBounds v[];} source_limits;
+SourceBounds source_bounds(uint sid) {
+    uint lo=0u,hi=uint(parameters.iris.x);
+    while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(source_limits.v[mid].interval.x<=sid)lo=mid;else hi=mid;}
+    return source_limits.v[lo];
+}
+bool in_source(SourceBounds b,uint sid,vec3 local) {
+    return sid<b.interval.y && all(greaterThanEqual(local,b.low.xyz-vec3(.000002))) && all(lessThanEqual(local,b.high.xyz+vec3(.000002)));
+}
+bool covered(Projection p,vec2 xy,Sample s,Instance inst,mat3 inverse_basis,SourceBounds bounds) {
+    if(footprint_distance(p,xy)>1) return false;
+    // Keep coarse samples on their original source face. In particular, a
+    // brick's projected discs cannot cover adjacent mortar or an opening.
+    vec2 uv=xy/vec2(parameters.counts.zw);
+    vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
+    vec3 local=inverse_basis*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
+    if(!in_source(bounds,uint(p.gradient.w),local))return false;
+    if(inst.meta.z>0. && local.x>inst.meta.w+1e-7)return false;
+    if(inst.meta.z<0. && local.x<inst.meta.w-1e-7)return false;
+    vec3 n=abs(s.normal_gray.xyz);
+    vec2 q=n.x>=n.y && n.x>=n.z?local.zy:n.y>=n.z?local.xz:local.xy;
+    return all(greaterThanEqual(q,s.support.xy-vec2(.000002))) && all(lessThanEqual(q,s.support.zw+vec2(.000002)));
+}
+
+
+
+
+layout(set=0,binding=20,std430) readonly buffer BankJobs {uvec4 v[];} bank_jobs;
+uint job_index(uint invocation) {
+    uint lo=0u,hi=uint(parameters.counts.y);
+    while(lo+1u<hi) {uint mid=(lo+hi)/2u;if(bank_jobs.v[mid].x<=invocation)lo=mid;else hi=mid;}
+    return lo;
+}
+uint hash(uint x) {x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);}
+float variation(uint id) {return float(hash(id+uint(parameters.settings.x))&65535u)/65535.0;}
+vec3 material_color(Sample s,Instance inst) {
+    uint id=uint(max(inst.meta.x,0))+uint(max(s.attributes.y,0));
+    float v=(variation(id)-.5)*parameters.wall.w;
+    return clamp(s.albedo.rgb*inst.tint.rgb*(1+v),vec3(0),vec3(1));
+}
+
+
+void main() {
+    uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x;
+        if(i>=uint(parameters.counts.x))return;
+        uint j=job_index(i);uvec4 address=bank_jobs.v[j];i=address.y+i-address.x;
+        uvec4 job=jobs.v[address.z];uint sid=job.x+i-job.w;
+        Instance inst=instances.v[job.z];
+        if(int(inst.meta.y)!=int(parameters.settings.z))return;
+        Sample s=samples.v[sid];
+        mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz);
+        mat3 inverse_basis=inverse(basis);SourceBounds bounds=source_bounds(sid);
+
+        vec3 world=basis*s.position_radius.xyz+inst.origin.xyz;
+        vec3 n=normalize(transpose(inverse_basis)*s.normal_gray.xyz);
+        float radius=s.position_radius.w*max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
+            vec3 ld=world-parameters.light.xyz;float lz=dot(ld,parameters.shadow_forward.xyz);
+            if(lz>.00001 && dot(n,normalize(-ld))>.05) {
+                vec2 xy=project(world,parameters.light.xyz,parameters.shadow_right.xyz,parameters.shadow_up.xyz,parameters.shadow_forward.xyz,1.25,vec2(SHADOW_SIZE));
+                float plane=dot(n,ld);vec2 gradient=vec2(2*1.25*dot(n,parameters.shadow_right.xyz),-2*1.25*dot(n,parameters.shadow_up.xyz))/(float(SHADOW_SIZE)*plane);
+                float offset_ratio=max(abs(dot(ld,parameters.shadow_right.xyz)),abs(dot(ld,parameters.shadow_up.xyz)))/lz;
+                int shadow_bound=min(SHADOW_SIZE,int(ceil(radius*(1.+offset_ratio)*float(SHADOW_SIZE)/(2.*1.25*max(lz-radius,1e-6)))+1.));
+                ivec2 center=ivec2(xy);
+                for(int y=max(-shadow_bound,-center.y);y<=min(shadow_bound,SHADOW_SIZE-1-center.y);y++)
+                for(int x=max(-shadow_bound,-center.x);x<=min(shadow_bound,SHADOW_SIZE-1-center.x);x++) {
+                    ivec2 q=center+ivec2(x,y);float z=1.0/(1.0/lz+dot(gradient,vec2(q)+.5-xy));
+                    vec2 uv=(vec2(q)+.5)/float(SHADOW_SIZE);
+                    vec3 ray=parameters.shadow_forward.xyz+parameters.shadow_right.xyz*((2*uv.x-1)*1.25)+parameters.shadow_up.xyz*((1-2*uv.y)*1.25);
+                    vec3 local_hit=inverse_basis*(parameters.light.xyz+ray*z-inst.origin.xyz);
+                    vec3 axis=abs(s.normal_gray.xyz);vec2 support_point=axis.x>=axis.y && axis.x>=axis.z?local_hit.zy:axis.y>=axis.z?local_hit.xz:local_hit.xy;
+                    bool face_support=all(greaterThanEqual(support_point,s.support.xy-vec2(.000002))) && all(lessThanEqual(support_point,s.support.zw+vec2(.000002)));
+                    bool cut_support=(inst.meta.z==0.) || (inst.meta.z>0.?local_hit.x<=inst.meta.w+1e-7:local_hit.x>=inst.meta.w-1e-7);
+                    if(face_support && cut_support && in_source(bounds,sid,local_hit) && z>.00001 && length(parameters.light.xyz+ray*z-world)<=radius+lz*1.25/float(SHADOW_SIZE) && all(greaterThanEqual(q,ivec2(0))) && all(lessThan(q,ivec2(SHADOW_SIZE))))atomicMin(shadow.v[q.y*SHADOW_SIZE+q.x],floatBitsToUint(z));
+                }
+            }
+
+}

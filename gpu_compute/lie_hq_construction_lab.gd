@@ -25,6 +25,10 @@ var state: Dictionary={"mode":"corner","seed":2102,"yaw":32.,"elevation":22.,"li
 var revision: int=0
 var metrics: Dictionary={}
 var recipe: Dictionary={}
+var _recipe_key: String=""
+var _geometry_key: String=""
+var _geometry: Dictionary={}
+var geometry_builds: int=0
 func _ready() -> void:
     effect=_create_effect()
     if not effect.capture_loaded:metrics={"error":effect.failure};return
@@ -82,8 +86,11 @@ func command(request: Dictionary) -> Dictionary:
     if not FileAccess.file_exists(effect.scene_root()+candidate.mode+"-"+str(candidate.seed)+".json"):return {"ok":false,"error":"scene"}
     state=candidate;revision+=1;update_scene();return {"ok":true,"revision":revision}
 func update_scene() -> void:
-    recipe=JSON.parse_string(FileAccess.get_file_as_string(effect.scene_root()+state.mode+"-"+str(state.seed)+".json"))
-    if recipe.scene_identity!=effect.manifest.scene_identity or recipe.bank_bindings!=effect.manifest.bank_bindings:metrics={"error":"scene_bank_identity"};return
+    var recipe_key: String=state.mode+"-"+str(state.seed)
+    if recipe_key!=_recipe_key:
+        var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(effect.scene_root()+recipe_key+".json"))
+        if not parsed is Dictionary or parsed.scene_identity!=effect.manifest.scene_identity or parsed.bank_bindings!=effect.manifest.bank_bindings:metrics={"error":"scene_bank_identity"};return
+        recipe=parsed;_recipe_key=recipe_key
     selector.select(effect.manifest.modes.find(state.mode))
     for key in controls:
         if controls[key] is HSlider:controls[key].set_value_no_signal(state[key])
@@ -93,11 +100,28 @@ func update_scene() -> void:
     camera.position=target+Vector3(sin(yaw)*cos(elevation),sin(elevation),cos(yaw)*cos(elevation))*distance
     # Keep a valid camera basis even for exact overhead commands.
     camera.look_at(target,Vector3.FORWARD if absf(cos(elevation))<.0001 else Vector3.UP)
+    var geometry_key: String=JSON.stringify([state.mode,state.seed,state.lod,state.occluder,state.door_angle if state.mode=="door" else 0.])
+    if geometry_key!=_geometry_key:
+        var built: Dictionary=_build_geometry()
+        if built.is_empty():metrics={"error":"geometry"};return
+        _geometry=built;_geometry_key=geometry_key
+    var instances: PackedByteArray=_geometry.instances;var jobs: PackedByteArray=_geometry.jobs;var work: int=_geometry.work
+    var packet:=PackedFloat32Array()
+    for v in [camera.position,camera.basis.x,camera.basis.y,-camera.basis.z]:packet.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
+    packet.append_array(PackedFloat32Array([tan(deg_to_rad(camera.fov)*.5),1,.0005,100]));var bytes: PackedByteArray=packet.to_byte_array();bytes.append_array(PackedInt32Array([work,instances.size()/96,effect.render_size,effect.render_size]).to_byte_array())
+    var angle: float=deg_to_rad(state.light);var r: float=distance*.8;var light: Vector3=target+Vector3(sin(angle)*r,.9*r,cos(angle)*r);var pose:=Transform3D(Basis.IDENTITY,light).looking_at(target,Vector3.UP)
+    var values:=PackedFloat32Array([light.x,light.y,light.z,55*r*r,1,.96,.91,0,.32*state.ambient,.35*state.ambient,.40*state.ambient,1.6,1 if state.shadows else 0,1,.0007,.00022])
+    for v in [pose.basis.x,pose.basis.y,-pose.basis.z]:values.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
+    values.append_array(PackedFloat32Array([1,1,1 if state.reverse_banks else 0,0,1,1,1,0,2102,1,0,1 if state.normals else 0]));bytes.append_array(values.to_byte_array())
+    _building=true;light_world.begin_update();key_emitter.position=light;key_emitter.power_rgb_linear=Vector3(1,.96,.91)*55*r*r;key_emitter.radius_m=12.;key_emitter.enabled=state.key_enabled;fill_emitter.position=target+Vector3(r*.7,.6*r,-r*.5);fill_emitter.power_rgb_linear=Vector3(.44,.72,1)*55*r*r*state.fill_power;fill_emitter.radius_m=12.;fill_emitter.enabled=state.fill_enabled;light_world.end_update();_building=false
+    if not _configure_field(_geometry.entries,instances):metrics={"error":"field source or ownership contract"};return
+    metrics={"configured":effect.configure(bytes,instances,jobs,work),"instances":instances.size()/96,"work":work,"source_mesh_draws":0,"banks":effect.banks.size()}
+func _build_geometry() -> Dictionary:
     var entries: Array=[];var levels: Array=[];var work: int=0
     for e in recipe.instances:
         if String(e.id).ends_with("/occluder") and not state.occluder:continue
         var bank: int=effect.manifest.banks.find(e.bank)
-        if bank<0:metrics={"error":"bank"};return
+        if bank<0:return {}
         var ranges: Array=effect.banks[bank].catalog.masters[e.master].levels;var level: int=mini(state.lod if state.lod>=0 else e.lod,ranges.size()-1)
         entries.append(e);levels.append(level);work+=int(ranges[level].count)
     while work>effect.work_capacity():
@@ -106,7 +130,7 @@ func update_scene() -> void:
             var bank: int=effect.manifest.banks.find(entries[i].bank);var ranges: Array=effect.banks[bank].catalog.masters[entries[i].master].levels
             if levels[i]+1<ranges.size():work-=int(ranges[levels[i]].count)-int(ranges[levels[i]+1].count);levels[i]+=1;changed=true
             if work<=effect.work_capacity():break
-        if not changed:metrics={"error":"work_budget"};return
+        if not changed:return {}
     var instances:=PackedFloat32Array();var jobs:=PackedInt32Array();var field_entries: Array=[];work=0
     for i in range(entries.size()):
         var e: Dictionary=entries[i];var bank: int=effect.manifest.banks.find(e.bank);var c: Array=e.basis_columns;var basis:=Basis(Vector3(c[0][0],c[0][1],c[0][2]),Vector3(c[1][0],c[1][1],c[1][2]),Vector3(c[2][0],c[2][1],c[2][2]));var s: Array=e.scale;basis=basis.scaled_local(Vector3(s[0],s[1],s[2]));var p: Array=e.origin;var origin:=Vector3(p[0],p[1],p[2])
@@ -117,16 +141,8 @@ func update_scene() -> void:
         var tint: Array=e.tint;var clip: Dictionary=effect.banks[bank].catalog.masters[e.master].get("cut_clip",{})
         instances.append_array(PackedFloat32Array([i*8,bank,clip.get("sense",0),clip.get("plane_m",0),tint[0],tint[1],tint[2],e.roughness_delta]))
         var range_data: Dictionary=effect.banks[bank].catalog.masters[e.master].levels[levels[i]];jobs.append_array(PackedInt32Array([range_data.start,range_data.count,i,work]));work+=int(range_data.count)
-    var packet:=PackedFloat32Array()
-    for v in [camera.position,camera.basis.x,camera.basis.y,-camera.basis.z]:packet.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
-    packet.append_array(PackedFloat32Array([tan(deg_to_rad(camera.fov)*.5),1,.0005,100]));var bytes: PackedByteArray=packet.to_byte_array();bytes.append_array(PackedInt32Array([work,entries.size(),effect.render_size,effect.render_size]).to_byte_array())
-    var angle: float=deg_to_rad(state.light);var r: float=distance*.8;var light: Vector3=target+Vector3(sin(angle)*r,.9*r,cos(angle)*r);var pose:=Transform3D(Basis.IDENTITY,light).looking_at(target,Vector3.UP)
-    var values:=PackedFloat32Array([light.x,light.y,light.z,55*r*r,1,.96,.91,0,.32*state.ambient,.35*state.ambient,.40*state.ambient,1.6,1 if state.shadows else 0,1,.0007,.00022])
-    for v in [pose.basis.x,pose.basis.y,-pose.basis.z]:values.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
-    values.append_array(PackedFloat32Array([1,1,1 if state.reverse_banks else 0,0,1,1,1,0,2102,1,0,1 if state.normals else 0]));bytes.append_array(values.to_byte_array())
-    _building=true;light_world.begin_update();key_emitter.position=light;key_emitter.power_rgb_linear=Vector3(1,.96,.91)*55*r*r;key_emitter.radius_m=12.;key_emitter.enabled=state.key_enabled;fill_emitter.position=target+Vector3(r*.7,.6*r,-r*.5);fill_emitter.power_rgb_linear=Vector3(.44,.72,1)*55*r*r*state.fill_power;fill_emitter.radius_m=12.;fill_emitter.enabled=state.fill_enabled;light_world.end_update();_building=false
-    if not _configure_field(field_entries,instances.to_byte_array()):metrics={"error":"field source or ownership contract"};return
-    metrics={"configured":effect.configure(bytes,instances.to_byte_array(),jobs.to_byte_array(),work),"instances":entries.size(),"work":work,"source_mesh_draws":0,"banks":effect.banks.size()}
+    geometry_builds+=1
+    return {"instances":instances.to_byte_array(),"jobs":jobs.to_byte_array(),"entries":field_entries,"work":work}
 func _accept_light_snapshot(snapshot: Dictionary) -> void:
     _last_light_snapshot=snapshot
     if _building or transport==null or light_model.is_empty():return

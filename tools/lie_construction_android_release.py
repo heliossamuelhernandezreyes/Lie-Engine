@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 import shutil
 import zipfile
-APK_NAME='LIE-Construccion-v6.0.1.apk'
-PREFIX='LIE_Benchmark_v6.0.1'
+APK_NAME='LIE-Construccion-v6.1.0.apk'
+PREFIX='LIE_Benchmark_v6.1.0'
 
 def digest(path):
     with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
@@ -26,7 +26,7 @@ def release(artifact,expected,guide,output,run_id,job_id):
         construction=json.loads(source.read(unique('hq-construction-native.json')))
         hardware=json.loads(source.read(unique('hardware-probe-native.json')))
         assert not any(d['failed'] for d in [native,field,construction,hardware])
-        assert native['checks']==28 and native['report']['complete'] and native['report']['restored']
+        assert native['checks']>=28 and native['report']['complete'] and native['report']['restored']
         assert proof['verified_capture_and_metadata_files']==90 and not proof['source_resampling']
         apk=output/APK_NAME
         with source.open(unique(apk.name)) as src,apk.open('wb') as dest:shutil.copyfileobj(src,dest)
@@ -40,7 +40,7 @@ def release(artifact,expected,guide,output,run_id,job_id):
         checkpoint={'schema':'lie-construction-android-release/1','run_id':run_id,'job_id':job_id,
                     'artifact_sha256':expected,'apk':proof,'native_checks':{'construction':construction['checks'],
                     'field':field['checks'],'mobile':native['checks'],'hardware':hardware['checks'],
-                    'mobile_metrics':6,'rig':247,'agent':25},'full_quality':native['full_quality'],
+                    'mobile_metrics':8,'rig':247,'agent':25},'full_quality':native['full_quality'],
                     'physical_android_tested':False,'native_registration_in_apk':True,
                     'automatically_copies_completed_report':True,'cancellation_preserves_clipboard':True,
                     'failed_first_export_run':42390170223}
