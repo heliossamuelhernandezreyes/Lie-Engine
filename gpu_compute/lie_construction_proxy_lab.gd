@@ -36,7 +36,7 @@ func _before_camera_packet(target: Vector3) -> void:
     if state.camera_guard and _have_previous_camera:
         _camera_result=Proxy.camera_sweep(_previous_camera,proposed,proxy_world.graph.volumes)
         camera.position=_camera_result.position
-        if camera.position.distance_squared_to(target)>1e-10:camera.look_at(target,Vector3.FORWARD if absf(camera.basis.z.y)>.9999 else Vector3.UP)
+        if camera.position.distance_squared_to(target)>1e-10:camera.look_at(target,Vector3.FORWARD if absf((camera.position-target).normalized().y)>.9999 else Vector3.UP)
     _previous_camera=camera.position;_have_previous_camera=true
     if _proxy_status!=null:
         var p: Dictionary=proxy_world.metrics()
