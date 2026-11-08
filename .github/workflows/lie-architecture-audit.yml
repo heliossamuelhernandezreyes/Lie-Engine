@@ -1,0 +1,78 @@
+name: LIE exact shader replay outside Godot
+on:
+  push:
+    branches: [work/lie-construction-android]
+    paths:
+      - .github/workflows/lie-architecture-audit.yml
+      - native/architecture_audit/**
+      - gpu_compute/lie_architecture_audit_effect.gd
+      - gpu_compute/test_lie_architecture_audit.gd
+      - tools/lie_architecture_audit.py
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: lie-architecture-audit-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  identical-kernel-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: tools
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      OPENBLAS_NUM_THREADS: '2'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Restore exact accepted source captures and build fixtures
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python -m pip install --timeout 30 --retries 2 numpy
+          gh api repos/${{ github.repository }}/actions/artifacts/13624923793/zip > /tmp/v630.zip
+          python tools/lie_architecture_audit.py --artifact /tmp/v630.zip --restore /tmp/audit-data --output architecture-source.json
+          python tools/lie_light_field.py
+          python tools/lie_field_quality_cases.py
+          python tools/lie_construction_android_build.py --data /tmp/audit-data --stage /tmp/audit-stage
+          cp gpu_compute/lie_architecture_audit_effect.gd gpu_compute/test_lie_architecture_audit.gd /tmp/audit-stage/
+      - name: Native Vulkan compiler and official Godot
+        run: |
+          timeout 180 sudo apt-get update -qq
+          timeout 180 sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1 libvulkan-dev g++
+          g++ -O2 -std=c++17 -Wall -Wextra -Wno-missing-field-initializers native/architecture_audit/replay.cpp -lvulkan -o /tmp/lie-native-replay
+          curl --fail --location --retry 2 --max-time 120 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
+          unzip -q /tmp/godot.zip -d /tmp/godot-bin
+          chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+      - name: Export exact shaders, GPU buffers and timestamp intervals from Godot
+        run: |
+          set -o pipefail
+          engine=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
+          timeout 180 "$engine" --headless --path /tmp/audit-stage --editor --import --quit 2>&1 | tee architecture-import.log
+          timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/audit-stage --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_architecture_audit.gd 2>&1 | tee architecture-godot.log
+      - name: Replay identical binaries and inputs without Godot and compare every byte
+        run: |
+          set -o pipefail
+          for view in whole close; do
+            timeout 600 /tmp/lie-native-replay "/tmp/audit-stage/architecture-fixtures/$view" | tee "architecture-native-$view.log"
+          done
+          python tools/lie_architecture_audit.py --compare /tmp/audit-stage --output architecture-comparison.json
+          python - <<'PY'
+          from pathlib import Path
+          for p in Path('.').glob('architecture-*.log'):
+              text=p.read_text();assert not any(x in text for x in ['ERROR:','SCRIPT ERROR','were leaked at exit']),(str(p),text[-10000:])
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lie-architecture-identical-shader-evidence
+          path: |
+            architecture-*.json
+            architecture-*.log
+            /tmp/audit-stage/architecture-godot.json
+            /tmp/audit-stage/architecture-fixtures/*/fixture.json
+            /tmp/audit-stage/architecture-fixtures/*/native-replay.json
+          if-no-files-found: warn
