@@ -25,6 +25,10 @@ def release(artifact,expected,guide,output,run_id,job_id):
         field=json.loads(source.read(unique('construction-field-native.json')))
         construction=json.loads(source.read(unique('hq-construction-native.json')))
         hardware=json.loads(source.read(unique('hardware-probe-native.json')))
+        comparison=json.loads(source.read(unique('reconstruction-comparison.json')))
+        reconstruction=json.loads(source.read(unique('mobile-ci/construction-reconstruction-native.json')))
+        assert not reconstruction['failed'] and len(comparison['cases'])==10
+        assert all(r['depth_bit_exact'] and r['alpha_bit_exact'] and r['peak_rgba_error']<=1e-6 for r in comparison['cases'])
         assert not any(d['failed'] for d in [native,field,construction,hardware])
         assert native['checks']>=28 and native['report']['complete'] and native['report']['restored']
         assert proof['verified_capture_and_metadata_files']==90 and not proof['source_resampling']
@@ -43,7 +47,9 @@ def release(artifact,expected,guide,output,run_id,job_id):
                     'mobile_metrics':8,'rig':247,'agent':25},'full_quality':native['full_quality'],
                     'physical_android_tested':False,'native_registration_in_apk':True,
                     'automatically_copies_completed_report':True,'cancellation_preserves_clipboard':True,
-                    'failed_first_export_run':42390170223}
+                    'reconstruction_comparison':comparison,
+                    'native_reconstruction_checks':reconstruction['checks'],
+                    'preserved_negative_reconstruction_run':42436770047}
         (output/(PREFIX+'_Verificacion.json')).write_text(json.dumps(checkpoint,indent=2)+'\n')
         preview=source.read(unique('construction-mobile-ui.png'));(output/(PREFIX+'_Interfaz.png')).write_bytes(preview)
         target_guide=output/(PREFIX+'_Guia.md')
