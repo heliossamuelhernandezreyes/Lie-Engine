@@ -97,6 +97,7 @@ static func camera_move(start: Vector3,finish: Vector3,volumes: Array,radius: fl
         var best: float=INF;var candidate: Vector3=point
         for box in volumes:
             var local: Vector3=box.pose.affine_inverse()*point;var h: Vector3=box.size*.5+Vector3.ONE*(radius+.002)
+            if absf(local.x)>=h.x or absf(local.y)>=h.y or absf(local.z)>=h.z:continue
             for axis in range(3):
                 for sign_value in [-1.,1.]:
                     var q: Vector3=local;q[axis]=h[axis]*sign_value;q=box.pose*q

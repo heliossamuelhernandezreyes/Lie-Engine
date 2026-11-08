@@ -1,5 +1,6 @@
 extends SceneTree
 const Proxy=preload("res://lie_construction_proxy.gd")
+const Hierarchy=preload("res://lie_construction_hierarchy.gd")
 var checks: int=0
 var failed: bool=false
 func _initialize() -> void:call_deferred("run")
@@ -55,6 +56,14 @@ func run() -> void:
     var seam: Dictionary=Proxy.camera_move(Vector3(1,0,0),Vector3(1,0,.2),corner)
     check(seam.recovered and not Proxy.camera_overlaps(seam.position,corner) and not world.sphere_overlaps(seam.position),"union-aware overlap recovery escapes intersecting boxes")
     check(Proxy.camera_move(Vector3(0,0,.4),Vector3(0,0,-4),boxes).position.z>.074,"large camera step cannot tunnel through wall")
+    var tree: Dictionary=Hierarchy.build([{"id":"front/piece","bounds":AABB(Vector3(-.05,-.05,-1),Vector3(.1,.1,.1))},{"id":"front/offscreen","bounds":AABB(Vector3(10,0,-1),Vector3.ONE*.1)},{"id":"front/near","bounds":AABB(Vector3(-.01,-.01,-.01),Vector3.ONE*.02)}])
+    check(tree.root.members.size()==3 and tree.walls==1 and tree.segments>=2,"hierarchy retains every leaf and wall/segment parents")
+    var selection: Dictionary=Hierarchy.select(tree,Transform3D.IDENTITY,42.,1920)
+    check(selection.mask==PackedByteArray([1,0,1]),"source crossing the near plane retained; only entirely offscreen leaf discarded")
+    var away: Dictionary=Hierarchy.select(tree,Transform3D(Basis.IDENTITY,Vector3(100,100,0)),42.,1920)
+    check(away.selected_jobs==0 and away.visited_nodes==1,"offscreen hierarchy rejected at root")
+    var contain: Dictionary=Hierarchy.select(Hierarchy.build([{"id":"piece","bounds":AABB(Vector3(-.1,-.1,-1.1),Vector3(.2,.2,.2))}]),Transform3D.IDENTITY,42.,1920)
+    check(contain.selected_jobs==1 and contain.visited_nodes==1 and contain.accepted_nodes==1,"fully contained hierarchy accepted at root")
     var door: Dictionary=read("door-2102.json");var entries: Array=door.instances.duplicate(true)
     world.configure(Proxy.build(door,entries,catalogs,true));await settle()
     check(not world.ray(Vector3(0,1.025,.4),Vector3(0,1.025,-.4)).is_empty(),"closed independent leaf blocks doorway")

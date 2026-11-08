@@ -17,6 +17,9 @@ func run() -> void:
         var full: Dictionary=await capture(lab);var solves: int=lab.transport.frame_count
         lab.command({"op":"set_values","values":{"camera_culling":true}});var selected: Dictionary=await capture(lab)
         var peak: float=difference(full.color,selected.color)
+        if name=="close_edge":
+            lab.command({"op":"set_values","values":{"reverse_banks":true}});var cold: Dictionary=await capture(lab)
+            check(cold.color==full.color and cold.depth==full.depth and cold.shadow==full.shadow,"independent cold shadow pass keeps offscreen casters with camera selection")
         check(peak==0. and full.depth==selected.depth and full.shadow==selected.shadow,"camera selection exact RGBA, depth and shadow "+name)
         check(lab.transport.frame_count==solves and full.sample_invocations==selected.sample_invocations and selected.shadow_samples==selected.sample_invocations,"camera culling preserves all lighting owners and full shadow jobs "+name)
         check(selected.camera_samples<=full.camera_samples and full.camera_samples==full.sample_invocations,"camera dispatch counts report actual selected work "+name)
