@@ -60,9 +60,11 @@ jobs:
           for script in test_lie_proxy_physics test_lie_construction_mobile_metrics test_lie_hardware_probe test_lie26_rig workshop/test_lie_agent_session; do
             timeout 90 "$engine" --headless --path /tmp/mobile-ci --script "res://$script.gd" 2>&1 | tee "mobile-${script##*/}.log"
           done
+          native_status=0
           for script in test_lie_proxy_gpu test_lie_hierarchy_gpu test_lie_construction_reconstruction test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile; do
-            timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/mobile-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script "res://$script.gd" 2>&1 | tee "mobile-$script.log"
+            if ! timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/mobile-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script "res://$script.gd" 2>&1 | tee "mobile-$script.log"; then native_status=1; fi
           done
+          test "$native_status" -eq 0
           python tools/lie_construction_reconstruction_compare.py --baseline /tmp/baseline-ci --candidate /tmp/mobile-ci --output reconstruction-comparison.json
           python - <<'PY'
           from pathlib import Path
