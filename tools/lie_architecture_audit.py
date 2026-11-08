@@ -85,6 +85,24 @@ def compare(stage, destination):
         godot_paired = [(r['passes_ns']['projection_depth'] + r['passes_ns']['material_accumulation']) / 1e6 for r in godot]
         native_paired = [r['projection_depth_ms'] + r['material_accumulation_ms'] for r in native_rows]
         godot_record = [sum(s['record_elapsed_ms'] for s in r['stages'] if s['stage'] in [2, 3]) for r in fixture['godot_cpu_samples']]
+        candidates = []
+        for variant in ['hoist', 'cache']:
+            candidate_path = root / f'candidate-{variant}-replay.json'
+            if not candidate_path.exists():
+                continue
+            candidate = json.loads(candidate_path.read_text())
+            candidate_rows = [r for r in candidate['rows'] if not r['warm_up']]
+            candidate_exact = {}
+            for binding in [4, 5, 7]:
+                actual = root / f'candidate-{variant}-{binding}.bin'
+                expected = fixture['reference'][str(binding)]
+                candidate_exact[str(binding)] = actual.stat().st_size == expected['bytes'] and sha(actual) == expected['sha256']
+            candidates.append({'variant': variant, 'exact_buffers': candidate_exact,
+                               'exact': all(candidate_exact.values()),
+                               'paired_gpu': stats([r['projection_depth_ms'] + r['material_accumulation_ms'] for r in candidate_rows]),
+                               'raw_rows': candidate_rows,
+                               'adopted': False,
+                               'scope': 'Exploratory shader rewrite. Even exact buffers and a software timing improvement do not qualify it for Android adoption.'})
         cases.append({'case': name, 'device': native['device'], 'logical_samples': fixture['samples'],
                       'camera_samples': fixture['camera_samples'], 'internal_size': fixture['internal_size'],
                       'exact_buffers': exact, 'godot_paired_gpu': stats(godot_paired),
@@ -93,7 +111,8 @@ def compare(stage, destination):
                       'native_record_clear_projection_material_cpu': stats([r['record_cpu_ms'] for r in native_rows]),
                       'godot_callback_cpu': stats([r['callback_elapsed_ms'] for r in fixture['godot_cpu_samples']]),
                       'capabilities': {k: native[k] for k in ['api_version', 'driver_version', 'timestamp_valid_bits', 'max_storage_buffer_range', 'max_storage_buffers_per_stage']},
-                      'raw_godot_gpu_ns': [r['passes_ns'] for r in godot], 'raw_native_rows': native_rows})
+                      'raw_godot_gpu_ns': [r['passes_ns'] for r in godot], 'raw_native_rows': native_rows,
+                      'candidates': candidates})
     result = {'schema': 'lie-godot-native-kernel-control/1', 'failed': False, 'cases': cases,
               'physical_android_tested': False,
               'scope': 'Same host/device, exact Godot-compiled SPIR-V and input bytes. Buffer equality covers depth, winner ownership and material accumulation. GPU intervals are paired before aggregation. Five hot samples are diagnostic, not a sustained game benchmark. Godot samples alternate bank order at a fixed camera; native does the same. Native omits field, shadows, shading and presentation. CPU intervals have explicitly different scopes. Host-visible replay buffers are experimental and are not a production mobile memory design. Software Vulkan timings do not establish Mali performance.'}

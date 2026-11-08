@@ -8,6 +8,7 @@ on:
       - gpu_compute/lie_architecture_audit_effect.gd
       - gpu_compute/test_lie_architecture_audit.gd
       - tools/lie_architecture_audit.py
+      - tools/lie_architecture_candidates.py
   workflow_dispatch:
 permissions:
   contents: read
@@ -39,6 +40,7 @@ jobs:
           python tools/lie_field_quality_cases.py
           python tools/lie_construction_android_build.py --data /tmp/audit-data --stage /tmp/audit-stage
           cp gpu_compute/lie_architecture_audit_effect.gd gpu_compute/test_lie_architecture_audit.gd /tmp/audit-stage/
+          python tools/lie_architecture_candidates.py --stage /tmp/audit-stage
       - name: Native Vulkan compiler and official Godot
         run: |
           timeout 180 sudo apt-get update -qq
@@ -58,6 +60,9 @@ jobs:
           set -o pipefail
           for view in whole close; do
             timeout 600 /tmp/lie-native-replay "/tmp/audit-stage/architecture-fixtures/$view" | tee "architecture-native-$view.log"
+            for variant in hoist cache; do
+              timeout 600 /tmp/lie-native-replay "/tmp/audit-stage/architecture-fixtures/$view" "/tmp/audit-stage/architecture-fixtures/$view/$variant" "candidate-$variant" | tee "architecture-$variant-$view.log"
+            done
           done
           python tools/lie_architecture_audit.py --compare /tmp/audit-stage --output architecture-comparison.json
           python - <<'PY'
@@ -75,4 +80,11 @@ jobs:
             /tmp/audit-stage/architecture-godot.json
             /tmp/audit-stage/architecture-fixtures/*/fixture.json
             /tmp/audit-stage/architecture-fixtures/*/native-replay.json
+            /tmp/audit-stage/architecture-fixtures/*/candidate-*-replay.json
+            /tmp/audit-stage/architecture-fixtures/*/layout.txt
+            /tmp/audit-stage/architecture-fixtures/*/common-*.bin
+            /tmp/audit-stage/architecture-fixtures/*/bank-*.bin
+            /tmp/audit-stage/architecture-fixtures/*/*.spv
+            /tmp/audit-stage/architecture-fixtures/*/*/*.spv
+            /tmp/audit-stage/ATTRIBUTION.txt
           if-no-files-found: warn

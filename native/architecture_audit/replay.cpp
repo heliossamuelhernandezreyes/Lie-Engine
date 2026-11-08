@@ -321,9 +321,15 @@ struct Bank {
 };
 int main(int argc, char **argv) {
   try {
-    if (argc != 2)
-      throw std::runtime_error("usage: replay FIXTURE_DIRECTORY");
+    if (argc != 2 && argc != 4)
+      throw std::runtime_error(
+          "usage: replay FIXTURE_DIRECTORY [SHADERS OUTPUT_PREFIX]");
     fs::path root = argv[1];
+    fs::path shaders = argc == 4 ? fs::path(argv[2]) : root;
+    std::string prefix = argc == 4 ? argv[3] : "native";
+    if (prefix != "native" && prefix != "candidate-hoist" &&
+        prefix != "candidate-cache")
+      throw std::runtime_error("unsupported output prefix");
     std::ifstream layout(root / "layout.txt");
     uint32_t size = 0, capacity = 0, n = 0;
     if (!(layout >> size >> capacity >> n) || size < 1 || size > 2048 ||
@@ -356,11 +362,11 @@ int main(int argc, char **argv) {
       banks.push_back({work, c.descriptors(bindings)});
     }
     for (int stage : {1, 2, 3})
-      c.shader(stage, root / ("stage-" + std::to_string(stage) + ".spv"));
+      c.shader(stage, shaders / ("stage-" + std::to_string(stage) + ".spv"));
     std::ostringstream report;
     report << std::setprecision(12)
            << "{\"schema\":\"lie-native-compute-replay/1\",\"device\":"
-           << quoted(c.props.deviceName)
+           << quoted(c.props.deviceName) << ",\"variant\":" << quoted(prefix)
            << ",\"api_version\":" << c.props.apiVersion
            << ",\"driver_version\":" << c.props.driverVersion
            << ",\"timestamp_valid_bits\":" << c.valid_bits
@@ -433,15 +439,16 @@ int main(int argc, char **argv) {
              << ",\"projection_depth_ms\":" << ms(1)
              << ",\"material_accumulation_ms\":" << ms(2) << '}';
     }
-    report << "],\"scope\":\"Same SPIR-V and SSBO inputs; only clear, "
+    report << "],\"scope\":\"Selected SPIR-V and exact captured SSBO inputs; "
+              "only clear, "
               "projection/depth and material accumulation. No Godot, window, "
               "physics, light field, shading or presentation. CPU buffer "
               "layout is an experimental replay path. Timings apply only to "
               "this device.\"}\n";
     for (int binding : {4, 5, 7})
       c.output(common.at(binding),
-               root / ("native-" + std::to_string(binding) + ".bin"));
-    std::ofstream file(root / "native-replay.json");
+               root / (prefix + "-" + std::to_string(binding) + ".bin"));
+    std::ofstream file(root / (prefix + "-replay.json"));
     file << report.str();
     std::cout << report.str();
     return 0;

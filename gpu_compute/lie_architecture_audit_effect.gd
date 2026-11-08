@@ -38,6 +38,12 @@ func _export_fixture(path: String,start_serial: int) -> void:
             var name: String="bank-%d-%d.bin" % [bank,binding];result.inputs[name]=_audit_write(path+"/"+name,_rd.buffer_get_data(handles[binding]))
     for stage in [1,2,3]:
         var name: String="stage-"+str(stage)+".spv";result.inputs[name]=_audit_write(path+"/"+name,Kernels.SHADERS[stage].get_spirv().get_stage_bytecode(RenderingDevice.SHADER_STAGE_COMPUTE))
+    for variant in ["hoist","cache"]:
+        if not ResourceLoader.exists("res://shaders/audit-"+variant+"-2.glsl"):continue
+        DirAccess.make_dir_recursive_absolute(path+"/"+variant)
+        for stage in [1,2,3]:
+            var shader: RDShaderFile=Kernels.SHADERS[1] if stage==1 else load("res://shaders/audit-"+variant+"-"+str(stage)+".glsl")
+            var name: String=variant+"/stage-"+str(stage)+".spv";result.inputs[name]=_audit_write(path+"/"+name,shader.get_spirv().get_stage_bytecode(RenderingDevice.SHADER_STAGE_COMPUTE))
     for binding in [4,5,7]:
         var bytes: PackedByteArray=_rd.buffer_get_data(_buffers[binding]);result.reference[str(binding)]={"bytes":bytes.size(),"sha256":_audit_hash(bytes)}
     _collect_profile()
