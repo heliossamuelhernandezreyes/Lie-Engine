@@ -5,7 +5,7 @@ from lie_scanned_masonry_shader import outputs as masonry_outputs
 from lie_construction_reconstruction_shader import optimize
 ROOT=Path(__file__).resolve().parents[1]
 def outputs():
-    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={8:[0,1,2,6,13,15,20],1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14,15,20],3:[0,1,2,3,4,5,6,7,13,14,15,20],4:[1,3,4,5,6,7,11,13,16,17,18,19],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
+    original=masonry_outputs();result={};gd='extends RefCounted\nconst SHADERS={\n';bindings={8:[0,1,2,3,4,5,6,7,13,14,15,20],1:[4,5,6,7,13],2:[0,1,2,3,4,5,6,7,13,14,15,20],3:[0,1,2,3,4,5,6,7,13,14,15,20],4:[1,3,4,5,6,7,11,13,16,17,18,19],6:[1,3,4,5,6,7,8,9,11,13],7:[6,11,12]}
     for stage in (1,2,3,4,6,7,8):
         s=original[f'gpu_compute/shaders/lie_scanned_masonry_stage_{2 if stage==8 else stage}.glsl']
         if stage in (2,3,8):
