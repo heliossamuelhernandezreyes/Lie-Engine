@@ -5,8 +5,8 @@ import json
 from pathlib import Path
 import shutil
 import zipfile
-APK_NAME='LIE-Construccion-v6.2.0.apk'
-PREFIX='LIE_Benchmark_v6.2.0'
+APK_NAME='LIE-Construccion-v6.3.0.apk'
+PREFIX='LIE_Benchmark_v6.3.0'
 
 def digest(path):
     with path.open('rb') as stream:return hashlib.file_digest(stream,'sha256').hexdigest()
@@ -29,9 +29,15 @@ def release(artifact,expected,guide,output,run_id,job_id):
         reconstruction=json.loads(source.read(unique('mobile-ci/construction-reconstruction-native.json')))
         proxy=json.loads(source.read(unique('construction-proxy-native.json')))
         physics=json.loads(source.read(unique('construction-proxy-physics.json')))
+        hierarchy=json.loads(source.read(unique('construction-hierarchy-native.json')))
+        assert not hierarchy['failed'] and hierarchy['reduced_cases']>=4 and hierarchy['zero_work_cases']>=1
+        assert all(c['rgba_error']==0 and c['depth_exact'] and c['shadow_exact'] for c in hierarchy['cases'])
+        assert hierarchy['report']['complete'] and hierarchy['report']['restored']
+        assert hierarchy['full_quality']['output']==960 and hierarchy['full_quality']['internal']==1920
+        assert all(hierarchy['full_quality'][k] for k in ['rgba_exact','depth_exact','shadow_exact'])
         assert not proxy['failed'] and not physics['failed'] and proxy['rgba_exact'] and proxy['depth_exact']
         assert proxy['report']['complete'] and proxy['report']['restored'] and proxy['report']['appearance_reused'] and proxy['report']['field_reused']
-        assert [row['proxy']['physics_shapes'] for row in proxy['report']['physics']]==[781,5]
+        assert [row['proxy']['physics_shapes'] for row in proxy['report']['physics']]==[781,13]
         assert not reconstruction['failed'] and len(comparison['cases'])==10
         assert all(r['depth_bit_exact'] and r['alpha_bit_exact'] and r['peak_rgba_error']<=1e-6 for r in comparison['cases'])
         assert not any(d['failed'] for d in [native,field,construction,hardware])
@@ -55,9 +61,10 @@ def release(artifact,expected,guide,output,run_id,job_id):
                     'reconstruction_comparison':comparison,
                     'native_reconstruction_checks':reconstruction['checks'],
                     'proxy_physics':physics,'proxy_native':proxy,
+                    'hierarchy_native':hierarchy,
                     'preserved_negative_reconstruction_run':42436770047}
         (output/(PREFIX+'_Verificacion.json')).write_text(json.dumps(checkpoint,indent=2)+'\n')
-        preview=source.read(unique('construction-proxy-ui.png'));(output/(PREFIX+'_Interfaz.png')).write_bytes(preview)
+        preview=source.read(unique('construction-hierarchy-ui.png'));(output/(PREFIX+'_Interfaz.png')).write_bytes(preview)
         target_guide=output/(PREFIX+'_Guia.md')
         if guide.resolve()!=target_guide.resolve():shutil.copyfile(guide,target_guide)
         evidence=output/(PREFIX+'_Pruebas.zip')

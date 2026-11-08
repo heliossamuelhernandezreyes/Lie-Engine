@@ -10,8 +10,8 @@ import lie_hq_construction_stage as construction
 import lie_runtime_android_build as android
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE = 'org.lieengine.construction.v620'
-VERSION = '6.2.0-invisible-wall-physics'
+PACKAGE = 'org.lieengine.construction.v630'
+VERSION = '6.3.0-hierarchical-camera'
 
 
 def sha(path):
@@ -33,7 +33,7 @@ def stage(data, destination, require_probe=False):
     # Android export must enumerate it: .gdignore also suppresses explicit
     # include-filter paths. Remove only this staging marker, never source data.
     (destination / 'captures/hq_construction/.gdignore').unlink()
-    pending = ['lie_construction_proxy_lab.tscn','test_lie_proxy_physics.gd','test_lie_proxy_gpu.gd','lie_construction_mobile_lab.tscn', 'test_lie_construction_mobile.gd',
+    pending = ['lie_construction_proxy_lab.tscn','test_lie_proxy_physics.gd','test_lie_proxy_gpu.gd','test_lie_hierarchy_gpu.gd','lie_construction_mobile_lab.tscn', 'test_lie_construction_mobile.gd',
                'test_lie_construction_mobile_metrics.gd', 'test_lie_hardware_probe.gd']
     copied = set()
     pattern = re.compile(r'(?:\bextends\s+|\b(?:preload|load)\s*\(\s*|\bpath\s*=\s*)"res://([^"]+)"')
@@ -53,7 +53,7 @@ def stage(data, destination, require_probe=False):
         shutil.copytree(probe, destination / 'addons/lie_gpu_probe')
     elif require_probe:
         raise ValueError('Build the actual native telemetry module before exporting')
-    project = android.PROJECT.replace('LIE Pared', 'LIE Benchmark 6.2.0').replace('0.1.0', '6.2.0').replace('lie_runtime_android_lab.tscn', 'lie_construction_proxy_lab.tscn')
+    project = android.PROJECT.replace('LIE Pared', 'LIE Benchmark 6.3.0').replace('0.1.0', '6.3.0').replace('lie_runtime_android_lab.tscn', 'lie_construction_proxy_lab.tscn')
     project = project.replace('pointing/emulate_mouse_from_touch=true', 'pointing/emulate_mouse_from_touch=false')
     project += '\n[editor]\nimport/use_multiple_threads=false\n'
     (destination / 'project.godot').write_text(project)
@@ -70,11 +70,11 @@ def stage(data, destination, require_probe=False):
     (destination / 'build-source.json').write_text(json.dumps(proof, indent=2) + '\n')
     filters = list(assets) + ['build-source.json', 'ATTRIBUTION.txt', 'addons/lie_gpu_probe/licenses/*.txt', 'addons/lie_gpu_probe/bin/*/build.json']
     preset = re.sub(r'^include_filter=.*$', 'include_filter=' + json.dumps(','.join(filters)), android.PRESET, flags=re.M)
-    preset = preset.replace('version/code=1\n', 'version/code=620\n').replace('0.1.0-runtime-lighting', VERSION).replace('org.lieengine.wallruntime', PACKAGE).replace('LIE Pared', 'LIE Benchmark 6.2.0')
+    preset = preset.replace('version/code=1\n', 'version/code=630\n').replace('0.1.0-runtime-lighting', VERSION).replace('org.lieengine.wallruntime', PACKAGE).replace('LIE Pared', 'LIE Benchmark 6.3.0')
     preset = preset.replace('exclude_filter="test_*,*.log,*.apk"', 'exclude_filter="test_*,workshop/test_*,fixtures/*,*.log,*.apk,addons/lie_gpu_probe/bin/linux.x86_64/*"')
     (destination / 'export_presets.cfg').write_text(preset)
     (destination / 'ATTRIBUTION.txt').write_text(
-        'LIE Benchmark 6.2.0, experimental capture reconstruction. Powered by Poly Haven.\n'
+        'LIE Benchmark 6.3.0, experimental capture reconstruction. Powered by Poly Haven.\n'
         'Stratford New Place Brick Ver 2 by Centre-of-Archaeology, CC BY 4.0.\n'
         'https://sketchfab.com/3d-models/stratford-new-place-brick-ver-2-6077f6801089403993f6a6612ff5739a\n'
         'https://creativecommons.org/licenses/by/4.0/\n'

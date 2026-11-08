@@ -1,4 +1,4 @@
-name: LIE construction 6.2.0 invisible wall physics APK
+name: LIE construction 6.3.0 hierarchical camera APK
 on:
   push:
     branches: [work/lie-construction-android]
@@ -42,10 +42,10 @@ jobs:
           chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
           python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform linux.x86_64 > native-probe-build.log 2>&1
           python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-ci
-      - name: Restore pinned 6.1.0 code for independent image comparison
+      - name: Restore pinned 6.2.0 code for independent image comparison
         run: |
-          git fetch origin 2eb63c9a877e6cef85ca5fe84ee95d5deb23ad7e --depth=1
-          git worktree add --detach /tmp/lie-baseline 2eb63c9a877e6cef85ca5fe84ee95d5deb23ad7e
+          git fetch origin f1c1ad9d9c5365d28c3272beb40e3027cf88024f --depth=1
+          git worktree add --detach /tmp/lie-baseline f1c1ad9d9c5365d28c3272beb40e3027cf88024f
           PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_light_field.py
           PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_field_quality_cases.py
           PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/baseline-ci
@@ -60,7 +60,7 @@ jobs:
           for script in test_lie_proxy_physics test_lie_construction_mobile_metrics test_lie_hardware_probe test_lie26_rig workshop/test_lie_agent_session; do
             timeout 90 "$engine" --headless --path /tmp/mobile-ci --script "res://$script.gd" 2>&1 | tee "mobile-${script##*/}.log"
           done
-          for script in test_lie_proxy_gpu test_lie_construction_reconstruction test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile; do
+          for script in test_lie_proxy_gpu test_lie_hierarchy_gpu test_lie_construction_reconstruction test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile; do
             timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/mobile-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script "res://$script.gd" 2>&1 | tee "mobile-$script.log"
           done
           python tools/lie_construction_reconstruction_compare.py --baseline /tmp/baseline-ci --candidate /tmp/mobile-ci --output reconstruction-comparison.json
@@ -88,13 +88,13 @@ jobs:
       - name: Export, sign, align and independently verify complete APK
         run: |
           keytool -genkeypair -keystore /tmp/lie-construction-debug.keystore -storepass android -keypass android -alias androiddebugkey -dname 'CN=LIE Construction Laboratory,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
-          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.2.0.apk"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.2.0.apk > apk/badging.txt
-          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.2.0.apk --badging apk/badging.txt
+          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.3.0.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.3.0.apk > apk/badging.txt
+          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.3.0.apk --badging apk/badging.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lie-construction-v620-apk-and-evidence
+          name: lie-construction-v630-apk-and-evidence
           compression-level: 6
           path: |
             apk/
@@ -112,5 +112,8 @@ jobs:
             /tmp/mobile-ci/construction-proxy-physics.json
             /tmp/mobile-ci/construction-proxy-native.json
             /tmp/mobile-ci/construction-proxy-ui.png
+            /tmp/mobile-ci/construction-hierarchy-native.json
+            /tmp/mobile-ci/construction-hierarchy-ui.png
+            /tmp/mobile-ci/hierarchy-case*.png
             gpu_compute/addons/lie_gpu_probe/bin/*/build.json
           if-no-files-found: warn

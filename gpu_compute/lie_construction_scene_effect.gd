@@ -32,6 +32,12 @@ var _field_dummy_image:=RID()
 var _diagnostic_snapshot: Dictionary={}
 var _bank_jobs: Dictionary={}
 var _bank_job_bytes: int=0
+var _camera_jobs: Dictionary={}
+var _camera_job_bytes: int=0
+var _camera_params: Array=[]
+var _camera_job_stamp:=PackedByteArray()
+var _camera_work: int=0
+var _camera_job_count: int=0
 var _view_stamp:=PackedByteArray()
 var _shadow_stamp:=PackedByteArray()
 var _uploaded_geometry:=PackedByteArray()
@@ -45,14 +51,29 @@ var _reset_shadow: bool=true
 const PASS_NAMES={1:"clear",8:"shadow",2:"projection_depth",3:"material_accumulation",4:"shading",7:"output"}
 
 func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
+    return configure_view(parameters,instances,jobs,work,PackedByteArray())
+
+func configure_view(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int,selection: PackedByteArray) -> bool:
     # Reuse validation only for byte-identical immutable geometry. Dimensions
     # and count fields still have to match this consumer on every transaction.
-    if parameters.size()!=256:return false
+    if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>instance_capacity()*96 or jobs.size()%16!=0 or jobs.size()>instance_capacity()*16 or work<1 or work>work_capacity():return false
+    if instances.is_empty() or jobs.is_empty():return false
+    if not selection.is_empty():
+        if selection.size()!=jobs.size()/16:return false
+        for bit in selection:
+            if bit>1:return false
     if parameters.decode_s32(80)!=work or parameters.decode_s32(84)!=jobs.size()/16 or parameters.decode_s32(88)!=render_size or parameters.decode_s32(92)!=render_size:return false
-    if work>0 and work==_validated_work and instances==_validated_instances and jobs==_validated_jobs:
-        _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":instances.duplicate(),"jobs":jobs.duplicate(),"work":work};_mutex.unlock();return true
-    if not super.configure(parameters,instances,jobs,work):return false
-    _validated_instances=instances.duplicate();_validated_jobs=jobs.duplicate();_validated_work=work;return true
+    if not (work==_validated_work and instances==_validated_instances and jobs==_validated_jobs):
+        var entries: PackedInt32Array=jobs.to_int32_array();var prefix: int=0
+        for i in range(0,entries.size(),4):
+            if entries[i]<0 or entries[i+1]<1 or entries[i+2]<0 or entries[i+2]>=instances.size()/96 or entries[i+3]!=prefix:return false
+            if not _source_range_ok(instances,entries[i+2],entries[i],entries[i+1]):return false
+            prefix+=entries[i+1]
+        if prefix!=work:return false
+        _validated_instances=instances.duplicate();_validated_jobs=jobs.duplicate();_validated_work=work
+    # Selection and geometry are published in ONE transaction. The render
+    # thread can never combine a new scene with an old visibility mask.
+    _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":instances.duplicate(),"jobs":jobs.duplicate(),"work":work,"selection":selection.duplicate()};_mutex.unlock();return true
 
 func _collect_profile() -> void:
     if frame_count==0:return
@@ -91,9 +112,11 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         _buffer(3,projection_capacity*_projection_stride());_make_set();_view_stamp=PackedByteArray()
     next=_prepare_frame(next)
     if next.is_empty():return
+    _prepare_camera_jobs(next)
     var geometry: PackedByteArray=next.instances.duplicate();geometry.append_array(next.jobs)
     var p: PackedByteArray=next.parameters
     var view: PackedByteArray=geometry.duplicate();view.append_array(p.slice(0,96));view.append_array(p.slice(208,256))
+    view.append_array(next.get("selection",PackedByteArray()))
     var shadow: PackedByteArray=geometry.duplicate();shadow.append_array(p.slice(96,112));shadow.append_array(p.slice(160,208))
     # Reverse-bank diagnostics deliberately rerun both paths, so order tests
     # continue to exercise rasterization instead of accidentally testing a hit.
@@ -132,7 +155,7 @@ func _publish_diagnostics() -> void:
         "exclusive_bytes":allocation_bytes-total_source_bytes,"page_io_bytes":page_io_bytes,
         "asset_uploads":asset_uploads,"instances":instance_count,"samples":sample_invocations,
         "output_size":output_size,"internal_size":render_size,"field":{},
-        "profile":_profiles.duplicate(true),"pass_counts":_pass_counts.duplicate(),"bank_dispatch_samples":{},"snapshot_usec":Time.get_ticks_usec()}
+        "profile":_profiles.duplicate(true),"pass_counts":_pass_counts.duplicate(),"bank_dispatch_samples":{},"camera_samples":_camera_work,"camera_jobs":_camera_job_count,"camera_skipped_samples":sample_invocations-_camera_work,"shadow_samples":sample_invocations,"snapshot_usec":Time.get_ticks_usec()}
     for bank in _bank_jobs:result.bank_dispatch_samples[str(bank)]=_bank_jobs[bank].work
     if gpu_ready:result.device=_rd.get_device_name()
     for key in ["producer","epoch","solve","nodes","bytes"]:
@@ -195,7 +218,7 @@ func _frame_signature(next: Dictionary) -> PackedByteArray:
     _mutex.lock();_field_context=_pending_field.duplicate();_mutex.unlock();_field_receipt={}
     if not _field_context.is_empty() and _field_context.instances==next.instances:
         _field_receipt=_field_context.transport.render_binding(_rd)
-    var signature: PackedByteArray=super._frame_signature(next);signature.append_array(var_to_bytes([_field_receipt.get("producer",0),_field_receipt.get("epoch",""),_field_receipt.get("solve",0),_field_context.get("indirect",false),_field_context.get("primary",-1)]));return signature
+    var signature: PackedByteArray=super._frame_signature(next);signature.append_array(next.get("selection",PackedByteArray()));signature.append_array(var_to_bytes([_field_receipt.get("producer",0),_field_receipt.get("epoch",""),_field_receipt.get("solve",0),_field_context.get("indirect",false),_field_context.get("primary",-1)]));return signature
 func _sync_field() -> void:
     var bytes:=PackedByteArray();bytes.resize(16)
     if not _field_receipt.is_empty():
@@ -215,6 +238,7 @@ func _make_set() -> void:
         _dummy=_rd.storage_buffer_create(16,PackedFloat32Array([0,0,1,0]).to_byte_array());var bytes:=PackedByteArray();bytes.resize(48);_dummy_limits=_rd.storage_buffer_create(48,bytes);allocation_bytes+=64
         for i in range(banks.size()):
             _params.append(_buffers[6] if i==0 else _rd.storage_buffer_create(256))
+            _camera_params.append(_rd.storage_buffer_create(256));allocation_bytes+=256
             if i>0:allocation_bytes+=256
         var patch:=PackedByteArray();patch.resize(48);_field_dummy_patch=_rd.storage_buffer_create(48,patch);var light:=PackedByteArray();light.resize(272);_field_dummy_light=_rd.storage_buffer_create(272,light);var map:=PackedByteArray();map.resize(16);_field_map=_rd.storage_buffer_create(16,map);_field_map_bytes=16
         var format:=RDTextureFormat.new();format.width=1;format.height=1;format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT;format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT;_field_dummy_image=_rd.texture_create(format,RDTextureView.new(),[]);allocation_bytes+=352
@@ -230,8 +254,9 @@ func _make_set() -> void:
         for bank in order:
             # Resizing can rebuild sets before _sync_field. Always use this
             # frame's validated producer receipt, never a previous producer RID.
-            var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_params[bank];handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map;handles[17]=_field_receipt.get("patches",_field_dummy_patch);handles[18]=_field_receipt.get("irradiance",_field_dummy_image);handles[19]=_field_receipt.get("direct",_field_dummy_light)
-            handles[20]=_bank_jobs[bank].rid if _bank_jobs.has(bank) else _dummy
+            var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_camera_params[bank] if stage in [2,3] else _params[bank];handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map;handles[17]=_field_receipt.get("patches",_field_dummy_patch);handles[18]=_field_receipt.get("irradiance",_field_dummy_image);handles[19]=_field_receipt.get("direct",_field_dummy_light)
+            var dispatch: Dictionary=_camera_jobs if stage in [2,3] else _bank_jobs
+            handles[20]=dispatch[bank].rid if dispatch.has(bank) else _dummy
             if _resident_banks.has(bank):
                 var row: Dictionary=_resident_banks[bank];handles[0]=row.core.rid;handles[14]=row.optical.rid if row.has("optical") else _dummy;handles[15]=row.limits
             var uniforms: Array[RDUniform]=[]
@@ -315,27 +340,54 @@ func _release_uncommitted(row: Dictionary) -> void:
     if row.get("core",{}).get("ok",false):SharedSamples.release_handle(_rd,row.core)
     if row.get("optical",{}).get("ok",false):SharedSamples.release_handle(_rd,row.optical)
     if row.get("limits",RID()).is_valid():_rd.free_rid(row.limits)
+func _prepare_camera_jobs(next: Dictionary) -> void:
+    var selection: PackedByteArray=next.get("selection",PackedByteArray())
+    var stamp: PackedByteArray=next.instances.duplicate();stamp.append_array(next.jobs);stamp.append_array(selection)
+    if stamp==_camera_job_stamp:return
+    _clear_sets()
+    for row in _camera_jobs.values():_rd.free_rid(row.rid)
+    _camera_jobs.clear();allocation_bytes-=_camera_job_bytes;_camera_job_bytes=0;_camera_work=0;_camera_job_count=0
+    var jobs: PackedInt32Array=next.jobs.to_int32_array();var dispatches: Dictionary={}
+    for j in range(jobs.size()/4):
+        if not selection.is_empty() and selection[j]==0:continue
+        var i: int=j*4;var bank: int=int(next.instances.decode_float(jobs[i+2]*96+68))
+        if not dispatches.has(bank):dispatches[bank]={"data":PackedInt32Array(),"work":0}
+        var row: Dictionary=dispatches[bank];row.data.append_array(PackedInt32Array([row.work,jobs[i+3],j,0]));row.work+=jobs[i+1]
+        _camera_work+=jobs[i+1];_camera_job_count+=1
+    for bank in dispatches:
+        var row: Dictionary=dispatches[bank];var data: PackedByteArray=row.data.to_byte_array()
+        _camera_jobs[bank]={"rid":_rd.storage_buffer_create(data.size(),data),"work":row.work,"jobs":row.data.size()/4};_camera_job_bytes+=data.size()
+    allocation_bytes+=_camera_job_bytes;_camera_job_stamp=stamp;_make_set()
 func _update_parameters(parameters: PackedByteArray) -> void:
     _reverse_passes=parameters.decode_float(216)>.5
     for i in range(banks.size()):
         var row: Dictionary=_resident_banks.get(i,{});var data: PackedByteArray=parameters.duplicate();data.encode_float(208,float(row.get("limit_count",0)));data.encode_float(248,float(i));data.encode_float(252,parameters.decode_float(252) if row.has("optical") else 0.)
         if _bank_jobs.has(i):data.encode_s32(80,_bank_jobs[i].work);data.encode_s32(84,_bank_jobs[i].jobs)
         _rd.buffer_update(_params[i],0,256,data)
+        data.encode_s32(80,_camera_jobs.get(i,{}).get("work",0));data.encode_s32(84,_camera_jobs.get(i,{}).get("jobs",0))
+        _rd.buffer_update(_camera_params[i],0,256,data)
 func _dispatch_stage(commands: int,count: int) -> void:
     var groups: int=ceili(float(count)/64);var x: int=mini(groups,32768);_rd.compute_list_dispatch(commands,x,ceili(float(groups)/x),1)
 func _record_stage(commands: int,stage: int,count: int) -> void:
     var order: Array=_resident_banks.keys() if stage in [2,3,8] else [0];order.sort()
     if _reverse_passes and stage in [2,3,8]:order.reverse()
     for i in order:
-        _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline);_rd.compute_list_bind_uniform_set(commands,_sets[str(i)+":"+str(stage)],0);_rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,int(_reset_view),int(_reset_shadow)]).to_byte_array(),16);_dispatch_stage(commands,_bank_jobs[i].work if stage in [2,3,8] else count);_rd.compute_list_add_barrier(commands)
+        if stage in [2,3] and not _camera_jobs.has(i):continue
+        var amount: int=_camera_jobs[i].work if stage in [2,3] else _bank_jobs[i].work if stage==8 else count
+        _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline);_rd.compute_list_bind_uniform_set(commands,_sets[str(i)+":"+str(stage)],0);_rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,int(_reset_view),int(_reset_shadow)]).to_byte_array(),16);_dispatch_stage(commands,amount);_rd.compute_list_add_barrier(commands)
 func _capture() -> void:
     super._capture()
     if not gpu_ready:return
+    _mutex.lock();_readback.camera_samples=_camera_work;_readback.camera_jobs=_camera_job_count;_readback.shadow_samples=sample_invocations;_mutex.unlock()
     var shadow: PackedByteArray=_rd.buffer_get_data(_buffers[13])
     _mutex.lock();_readback["library_bytes"]=total_source_bytes;_readback["exclusive_allocation_bytes"]=allocation_bytes-total_source_bytes;_readback["banks"]=banks.size();_readback["shadow"]=shadow;_readback["resident_banks"]=_resident_banks.size();_readback["catalog_source_bytes"]=catalog_source_bytes;_readback["page_io_bytes"]=page_io_bytes;_readback["residency_changes"]=residency_changes;_readback["projection_capacity"]=projection_capacity;_readback["pass_counts"]=_pass_counts.duplicate();_mutex.unlock()
     _mutex.lock();_readback["field"]={"ready":not _field_receipt.is_empty(),"nodes":_field_receipt.get("nodes",0),"bytes":_field_receipt.get("bytes",0),"solve":_field_receipt.get("solve",0),"producer":_field_receipt.get("producer",0),"indirect":_field_context.get("indirect",false)};_readback["failure"]=failure;_mutex.unlock()
 func _release() -> void:
     _clear_sets()
+    for row in _camera_jobs.values():_rd.free_rid(row.rid)
+    _camera_jobs.clear();allocation_bytes-=_camera_job_bytes;_camera_job_bytes=0;_camera_job_stamp=PackedByteArray();_camera_work=0;_camera_job_count=0
+    for rid in _camera_params:_rd.free_rid(rid)
+    allocation_bytes-=_camera_params.size()*256;_camera_params.clear()
     for row in _bank_jobs.values():_rd.free_rid(row.rid)
     _bank_jobs.clear();allocation_bytes-=_bank_job_bytes;_bank_job_bytes=0
     _job_signature=PackedByteArray();_translated_jobs=PackedByteArray();_view_stamp=PackedByteArray();_shadow_stamp=PackedByteArray();_uploaded_geometry=PackedByteArray();_frame_passes.clear();_pass_counts.clear()

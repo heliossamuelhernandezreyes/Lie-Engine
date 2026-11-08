@@ -12,7 +12,7 @@ def verify(path,badging):
         assert archive.testzip() is None
         names=archive.namelist()
         proof=json.loads(archive.read('assets/build-source.json'))
-        assert proof['package']=='org.lieengine.construction.v620' and proof['version']=='6.2.0-invisible-wall-physics'
+        assert proof['package']=='org.lieengine.construction.v630' and proof['version']=='6.3.0-hierarchical-camera'
         for name,expected in proof['source_files_sha256'].items():
             with archive.open('assets/'+name) as stream:
                 assert hashlib.file_digest(stream,'sha256').hexdigest()==expected,name
@@ -34,7 +34,7 @@ def verify(path,badging):
         credits=archive.read('assets/ATTRIBUTION.txt')
         assert b'Centre-of-Archaeology' in credits and b'Poly Haven' in credits and b'Godot' in credits
     text=badging.read_text()
-    assert "name='org.lieengine.construction.v620'" in text and "versionName='6.2.0-invisible-wall-physics'" in text
+    assert "name='org.lieengine.construction.v630'" in text and "versionName='6.3.0-hierarchical-camera'" in text
     permissions=re.findall(r"uses-permission(?:-sdk-23)?: name='([^']+)'",text)
     assert not any(name in permissions for name in ['android.permission.INTERNET','android.permission.READ_EXTERNAL_STORAGE','android.permission.WRITE_EXTERNAL_STORAGE']),permissions
     with path.open('rb') as stream:checksum=hashlib.file_digest(stream,'sha256').hexdigest()

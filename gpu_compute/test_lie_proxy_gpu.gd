@@ -3,9 +3,9 @@ func run() -> void:
     var lab=load("res://lie_construction_proxy_lab.tscn").instantiate();lab.output_resolution=256;root.add_child(lab);await settle(20)
     check(lab.metrics.get("configured",false),"proxy lab configures original renderer and field")
     var merged: Dictionary=await capture(lab);var field_solves: int=lab.transport.frame_count;var geometry: int=lab.geometry_builds
-    check(lab.proxy_world.graph.body_count==5 and lab._proxy_button.is_visible_in_tree(),"five invisible wall volumes and visible experiment action")
+    check(lab.proxy_world.graph.body_count==13 and lab._proxy_button.is_visible_in_tree(),"thirteen invisible wall volumes and visible experiment action")
     lab.command({"op":"set_values","values":{"proxy_grouped":false}});var pieces: Dictionary=await capture(lab)
-    check(lab.proxy_world.graph.body_count==781,"per-piece physical baseline")
+    check(lab.proxy_world.graph.body_count==1381,"per-piece physical baseline")
     check(merged.color==pieces.color and merged.depth==pieces.depth and merged.shadow==pieces.shadow,"physics grouping preserves exact appearance, depth and shadow")
     check(lab.geometry_builds==geometry and lab.transport.frame_count==field_solves and pieces.frames==merged.frames,"grouping preserves geometry, field solve and render cache")
     lab.command({"op":"set_values","values":{"reverse_banks":true}});var cold: Dictionary=await capture(lab)
