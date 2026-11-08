@@ -14,6 +14,7 @@ func run() -> void:
     for view in views:
         var values: Dictionary=view.duplicate();var name: String=values.name;values.erase("name");values.camera_guard=false;values.camera_culling=false;values.reverse_banks=false
         check(lab.command({"op":"set_values","values":values}).ok,"baseline camera "+name)
+        check(lab.metrics.get("configured",false),"current scene configures its own renderer and light field "+name)
         var full: Dictionary=await capture(lab);var solves: int=lab.transport.frame_count
         lab.command({"op":"set_values","values":{"camera_culling":true}});var selected: Dictionary=await capture(lab)
         var peak: float=difference(full.color,selected.color)

@@ -1,6 +1,27 @@
 extends RefCounted
 ## Scene adapter only. The common quality field owns transport/scattering.
 const Model=preload("res://lie11_model.gd")
+static func transpose_csr(gather: PackedByteArray) -> PackedByteArray:
+    # This is an index transpose of the SAME edge weights. Reusing the dense
+    # source-factor encoder here incorrectly applies its row-energy test to
+    # transposed rows; unequal patch areas can make those sums exceed one.
+    # The common transport validates exact transpose ownership and handles its
+    # own source/area budgets. Never renormalize or silently remove an edge.
+    if gather.size()<20:return PackedByteArray()
+    var n: int=gather.decode_u32(0);var m: int=gather.decode_u32(4)
+    if n<1 or n>512 or gather.size()!=4*(n+5)+8*m:return PackedByteArray()
+    var rows: Array=[]
+    for i in range(n):rows.append(PackedByteArray())
+    var begin: int=4*(n+5)
+    for receiver in range(n):
+        for edge in range(gather.decode_u32(16+receiver*4),gather.decode_u32(20+receiver*4)):
+            var at: int=begin+edge*8;var source: int=gather.decode_u32(at)
+            if source>=n:return PackedByteArray()
+            rows[source].append_array(PackedInt32Array([receiver]).to_byte_array());rows[source].append_array(gather.slice(at+4,at+8))
+    var result:=PackedInt32Array([n,m,4,n+5]).to_byte_array();var prefix: int=0;result.append_array(PackedInt32Array([0]).to_byte_array())
+    for row in rows:prefix+=row.size()/8;result.append_array(PackedInt32Array([prefix]).to_byte_array())
+    for row in rows:result.append_array(row)
+    return result
 static func verified_bytes(path: String,spec: Dictionary) -> PackedByteArray:
     var name: String=spec.get("file","")
     if name.get_file()!=name or name.is_empty() or FileAccess.get_sha256(path+name)!=spec.get("sha256"):return PackedByteArray()
@@ -46,10 +67,9 @@ static func small_scene(entries: Array,materials: Dictionary) -> Dictionary:
                 if k!=owners[i] and k!=owners[j] and Model.blocked(a,b,[boxes[k]]):clear=false;break
             if clear:visibility[i*n+j]=1;visibility[j*n+i]=1
     var model: Dictionary={"schema":1,"patches":patches,"materials":{"opaque":{"tint_linear":[1.,1.,1.],"absorption_code":0,"radius_scale":1.}},"lights":[{"position":[0.,2.,2.],"power_rgb":[40.,32.,24.],"radius":12.}],"bounces":2,"blockers":[],"mesh_visibility":visibility,"factor_normalization":"symmetric_local","field_quality":{"angular_sectors":6,"area_budget":true,"reference_area":1.,"roughness_split":.5}}
-    var dense: PackedByteArray=Model.factor_bytes(model);var transposed:=PackedFloat32Array();transposed.resize(n*n);var values: PackedFloat32Array=dense.to_float32_array()
-    for i in range(n):
-        for j in range(n):transposed[i*n+j]=values[j*n+i]
+    var dense: PackedByteArray=Model.factor_bytes(model);var gather: PackedByteArray=Model.sparse_factor_bytes(dense,n);var outgoing: PackedByteArray=transpose_csr(gather)
+    if gather.is_empty() or outgoing.is_empty():return {}
     var box_packet:=PackedInt32Array([boxes.size(),0,0,0]).to_byte_array();var planes:=PackedFloat32Array()
     for box in boxes:box_packet.append_array(PackedFloat32Array([box[0][0],box[0][1],box[0][2],0,box[1][0],box[1][1],box[1][2],0]).to_byte_array());planes.append_array(PackedFloat32Array([0,0,1,1000000.]))
     var optics:=PackedInt32Array([1,n,1,1]).to_byte_array();optics.append_array(optical.to_byte_array());var mapping:=PackedInt32Array([entries.size(),n,1,0]).to_byte_array();mapping.append_array(spans.to_byte_array());mapping.append_array(groups.to_byte_array())
-    return {"model":model,"sources":{"factors":Model.sparse_factor_bytes(dense,n),"outgoing":Model.sparse_factor_bytes(transposed.to_byte_array(),n),"optics":optics,"owners":owners.to_byte_array(),"planes":planes.to_byte_array(),"boxes":box_packet},"mapping":mapping,"proof":{"nodes":n,"visibility":"conservative profile AABBs; geometry edits create a new immutable field"}}
+    return {"model":model,"sources":{"factors":gather,"outgoing":outgoing,"optics":optics,"owners":owners.to_byte_array(),"planes":planes.to_byte_array(),"boxes":box_packet},"mapping":mapping,"proof":{"nodes":n,"visibility":"conservative profile AABBs; geometry edits create a new immutable field"}}

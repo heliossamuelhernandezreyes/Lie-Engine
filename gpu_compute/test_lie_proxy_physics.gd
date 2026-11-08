@@ -1,6 +1,8 @@
 extends SceneTree
 const Proxy=preload("res://lie_construction_proxy.gd")
 const Hierarchy=preload("res://lie_construction_hierarchy.gd")
+const Adapter=preload("res://lie_construction_field_adapter.gd")
+const Field=preload("res://lie_field_quality_transport.gd")
 var checks: int=0
 var failed: bool=false
 func _initialize() -> void:call_deferred("run")
@@ -64,6 +66,11 @@ func run() -> void:
     check(away.selected_jobs==0 and away.visited_nodes==1,"offscreen hierarchy rejected at root")
     var contain: Dictionary=Hierarchy.select(Hierarchy.build([{"id":"piece","bounds":AABB(Vector3(-.1,-.1,-1.1),Vector3(.2,.2,.2))}]),Transform3D.IDENTITY,42.,1920)
     check(contain.selected_jobs==1 and contain.visited_nodes==1 and contain.accepted_nodes==1,"fully contained hierarchy accepted at root")
+    var roof: Dictionary=read("roof-2102.json");var materials: Dictionary=read("fields/materials.json").materials
+    var field: Dictionary=Adapter.small_scene(roof.instances,materials);var transport=Field.new()
+    check(not field.is_empty() and transport.bind_sources(field.model,field.sources) and transport.configure(field.model),"roof with unequal patch areas binds exact gather/outgoing field graphs")
+    check(transport._count==148 and field.sources.factors.decode_u32(4)==field.sources.outgoing.decode_u32(4),"roof retains all field nodes and edge weights")
+    transport.shutdown()
     var door: Dictionary=read("door-2102.json");var entries: Array=door.instances.duplicate(true)
     world.configure(Proxy.build(door,entries,catalogs,true));await settle()
     check(not world.ray(Vector3(0,1.025,.4),Vector3(0,1.025,-.4)).is_empty(),"closed independent leaf blocks doorway")
