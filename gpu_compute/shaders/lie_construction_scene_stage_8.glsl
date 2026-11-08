@@ -5,7 +5,13 @@
 layout(local_size_x=64) in;
 struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
 struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
-struct Projection { vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+// 64-byte std430 record: offsets 0/12, 16/24, 32/44, 48/60.
+struct Projection {
+    vec3 normal; float depth;
+    vec2 center; vec2 gradient;
+    vec3 geometry; float owner;
+    vec3 ellipse; float radius;
+};
 struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
 layout(set=0,binding=14,std430) readonly buffer OpticalNormals {vec4 v[];} optical_normals;
 layout(set=0,binding=0,std430) readonly buffer Samples { Sample v[]; } samples;
@@ -36,10 +42,10 @@ vec2 project(vec3 p,vec3 eye,vec3 right,vec3 up,vec3 forward,float tangent,vec2 
 }
 bool inside(ivec2 p) { return all(greaterThanEqual(p,ivec2(0))) && all(lessThan(p,parameters.counts.zw)); }
 float pixel_depth(Projection p,vec2 xy) {
-    return 1.0/(1.0/p.screen.z+dot(p.gradient.xy,xy-p.screen.xy));
+    return 1.0/(1.0/p.depth+dot(p.gradient,xy-p.center));
 }
 float footprint_distance(Projection p,vec2 xy) {
-    vec2 q=xy-p.screen.xy;
+    vec2 q=xy-p.center;
     return q.x*q.x*p.ellipse.x+2*q.x*q.y*p.ellipse.y+q.y*q.y*p.ellipse.z;
 }
 struct SourceBounds { uvec4 interval; vec4 low; vec4 high; };
@@ -52,14 +58,14 @@ SourceBounds source_bounds(uint sid) {
 bool in_source(SourceBounds b,uint sid,vec3 local) {
     return sid<b.interval.y && all(greaterThanEqual(local,b.low.xyz-vec3(.000002))) && all(lessThanEqual(local,b.high.xyz+vec3(.000002)));
 }
-bool covered(Projection p,vec2 xy,Sample s,Instance inst,mat3 inverse_basis,SourceBounds bounds) {
+bool covered(Projection p,vec2 xy,Sample s,Instance inst,mat3 inverse_basis,SourceBounds bounds,uint sid) {
     if(footprint_distance(p,xy)>1) return false;
     // Keep coarse samples on their original source face. In particular, a
     // brick's projected discs cannot cover adjacent mortar or an opening.
     vec2 uv=xy/vec2(parameters.counts.zw);
     vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
     vec3 local=inverse_basis*(parameters.eye.xyz+ray*pixel_depth(p,xy)-inst.origin.xyz);
-    if(!in_source(bounds,uint(p.gradient.w),local))return false;
+    if(!in_source(bounds,sid,local))return false;
     if(inst.meta.z>0. && local.x>inst.meta.w+1e-7)return false;
     if(inst.meta.z<0. && local.x<inst.meta.w-1e-7)return false;
     vec3 n=abs(s.normal_gray.xyz);
@@ -88,7 +94,9 @@ vec3 material_color(Sample s,Instance inst) {
 void main() {
     uint i=gl_GlobalInvocationID.x+gl_GlobalInvocationID.y*gl_NumWorkGroups.x*gl_WorkGroupSize.x;
         if(i>=uint(parameters.counts.x))return;
-        uint j=job_index(i);uvec4 address=bank_jobs.v[j];i=address.y+i-address.x;
+        uint j=job_index(i);uvec4 address=bank_jobs.v[j];uint local_index=i-address.x;
+        if(address.w==0u)i=address.y+local_index;
+        else {uint cursor=address.y+local_index;i=bank_jobs.v[cursor/4u][cursor%4u];}
         uvec4 job=jobs.v[address.z];uint sid=job.x+i-job.w;
         Instance inst=instances.v[job.z];
         if(int(inst.meta.y)!=int(parameters.settings.z))return;

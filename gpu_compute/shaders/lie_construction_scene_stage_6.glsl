@@ -5,7 +5,13 @@
 layout(local_size_x=64) in;
 struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
 struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
-struct Projection { vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+// 64-byte std430 record: offsets 0/12, 16/24, 32/44, 48/60.
+struct Projection {
+    vec3 normal; float depth;
+    vec2 center; vec2 gradient;
+    vec3 geometry; float owner;
+    vec3 ellipse; float radius;
+};
 struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
 
 layout(set=0,binding=1,std430) readonly buffer Instances { Instance v[]; } instances;
@@ -84,10 +90,10 @@ void main() {
         vec3 p=parameters.eye.xyz+ray*uintBitsToFloat(depths.v[i]),v=normalize(parameters.eye.xyz-p);
         vec3 delta=parameters.light.xyz-p;float distance2=max(dot(delta,delta),.0001);vec3 l=normalize(delta);
         float nl=max(dot(n,l),0),nv=max(dot(n,v),1e-5);
-        float shadow_factor=parameters.options.x>.5?visibility(p+point.geometry.xyz*parameters.options.z*.45,point.geometry.xyz):1;
+        float shadow_factor=parameters.options.x>.5?visibility(p+point.geometry*parameters.options.z*.45,point.geometry):1;
         vec3 li=parameters.light_color.rgb*parameters.light.w/(4*PI*distance2)*shadow_factor;
         float roughness=clamp(float(acc.normal_roughness.w)/weight*parameters.options.y,.15,.95),alpha=roughness*roughness,a2=alpha*alpha;
-        vec3 coat_n=parameters.settings.y<.5?normalize(p-instances.v[int(point.gradient.z)].origin.xyz):n;
+        vec3 coat_n=parameters.settings.y<.5?normalize(p-instances.v[int(point.owner)].origin.xyz):n;
         if(parameters.settings.y<.5) {roughness=.10;alpha=roughness*roughness;a2=alpha*alpha;}
         vec3 h=normalize(v+l);float nh=max(dot(coat_n,h),0),vh=max(dot(v,h),0),denom=nh*nh*(a2-1)+1;
         vec3 F=vec3(.025)+(vec3(1)-vec3(.025))*pow(1-vh,5);

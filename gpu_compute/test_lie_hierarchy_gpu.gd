@@ -12,7 +12,7 @@ func run() -> void:
         {"name":"open_door","mode":"door","door_angle":75.,"yaw":15.,"elevation":5.,"zoom":.25,"focus_x":.5,"focus_y":0.},
         {"name":"roof","mode":"roof","yaw":-145.,"elevation":30.,"zoom":.25,"focus_x":.7,"focus_y":.3}]
     for view in views:
-        var values: Dictionary=view.duplicate();var name: String=values.name;values.erase("name");values.camera_guard=false;values.camera_culling=false;values.reverse_banks=false
+        var values: Dictionary=view.duplicate();var name: String=values.name;values.erase("name");values.camera_guard=false;values.camera_culling=false;values.cluster_culling=false;values.reverse_banks=false
         check(lab.command({"op":"set_values","values":values}).ok,"baseline camera "+name)
         check(lab.metrics.get("configured",false),"current scene configures its own renderer and light field "+name)
         var full: Dictionary=await capture(lab);var solves: int=lab.transport.frame_count

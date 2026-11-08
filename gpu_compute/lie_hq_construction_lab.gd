@@ -60,6 +60,7 @@ func _build_ui() -> void:
 func _extra_boolean_controls() -> Array:return []
 func _before_camera_packet(_target: Vector3) -> void:pass
 func _camera_selection() -> PackedByteArray:return PackedByteArray()
+func _cluster_selection_enabled() -> bool:return false
 func command(request: Dictionary) -> Dictionary:
     if request.get("op")=="snapshot":return {"ok":true,"revision":revision,"state":state.duplicate(),"metrics":metrics.duplicate()}
     if request.get("op")!="set_values" or not request.get("values") is Dictionary:return {"ok":false,"error":"command"}
@@ -106,7 +107,7 @@ func update_scene() -> void:
     var geometry_key: String=JSON.stringify([state.mode,state.seed,state.lod,state.occluder,state.door_angle if state.mode=="door" else 0.])
     if geometry_key!=_geometry_key:
         var built: Dictionary=_build_geometry()
-        if built.is_empty():metrics={"error":"geometry"};return
+        if built.is_empty() or built.has("error"):metrics={"error":built.get("error","geometry")};return
         _geometry=built;_geometry_key=geometry_key
     var instances: PackedByteArray=_geometry.instances;var jobs: PackedByteArray=_geometry.jobs;var work: int=_geometry.work
     _before_camera_packet(target)
@@ -119,7 +120,7 @@ func update_scene() -> void:
     values.append_array(PackedFloat32Array([1,1,1 if state.reverse_banks else 0,0,1,1,1,0,2102,1,0,1 if state.normals else 0]));bytes.append_array(values.to_byte_array())
     _building=true;light_world.begin_update();key_emitter.position=light;key_emitter.power_rgb_linear=Vector3(1,.96,.91)*55*r*r;key_emitter.radius_m=12.;key_emitter.enabled=state.key_enabled;fill_emitter.position=target+Vector3(r*.7,.6*r,-r*.5);fill_emitter.power_rgb_linear=Vector3(.44,.72,1)*55*r*r*state.fill_power;fill_emitter.radius_m=12.;fill_emitter.enabled=state.fill_enabled;light_world.end_update();_building=false
     if not _configure_field(_geometry.entries,instances):metrics={"error":"field source or ownership contract"};return
-    metrics={"configured":effect.configure_view(bytes,instances,jobs,work,_camera_selection()),"instances":instances.size()/96,"work":work,"source_mesh_draws":0,"banks":effect.banks.size()}
+    metrics={"configured":effect.configure_view(bytes,instances,jobs,work,_camera_selection(),_cluster_selection_enabled()),"instances":instances.size()/96,"work":work,"source_mesh_draws":0,"banks":effect.banks.size()}
 func _build_geometry() -> Dictionary:
     var entries: Array=[];var levels: Array=[];var work: int=0
     for e in recipe.instances:
@@ -128,13 +129,8 @@ func _build_geometry() -> Dictionary:
         if bank<0:return {}
         var ranges: Array=effect.banks[bank].catalog.masters[e.master].levels;var level: int=mini(state.lod if state.lod>=0 else e.lod,ranges.size()-1)
         entries.append(e);levels.append(level);work+=int(ranges[level].count)
-    while work>effect.work_capacity():
-        var changed: bool=false
-        for i in range(entries.size()):
-            var bank: int=effect.manifest.banks.find(entries[i].bank);var ranges: Array=effect.banks[bank].catalog.masters[entries[i].master].levels
-            if levels[i]+1<ranges.size():work-=int(ranges[levels[i]].count)-int(ranges[levels[i]+1].count);levels[i]+=1;changed=true
-            if work<=effect.work_capacity():break
-        if not changed:return {}
+    if work>effect.work_capacity():
+        return {"error":"El detalle solicitado supera el presupuesto de muestras. Elige un LOD explícito o divide la escena; no se ha reducido la calidad automáticamente."}
     var instances:=PackedFloat32Array();var jobs:=PackedInt32Array();var field_entries: Array=[];work=0
     for i in range(entries.size()):
         var e: Dictionary=entries[i];var bank: int=effect.manifest.banks.find(e.bank);var c: Array=e.basis_columns;var basis:=Basis(Vector3(c[0][0],c[0][1],c[0][2]),Vector3(c[1][0],c[1][1],c[1][2]),Vector3(c[2][0],c[2][1],c[2][2]));var s: Array=e.scale;basis=basis.scaled_local(Vector3(s[0],s[1],s[2]));var p: Array=e.origin;var origin:=Vector3(p[0],p[1],p[2])

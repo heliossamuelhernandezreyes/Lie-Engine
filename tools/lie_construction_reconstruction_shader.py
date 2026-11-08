@@ -21,7 +21,9 @@ def optimize(stage, shader):
         'layout(set=0,binding=20,std430) readonly buffer BankJobs {uvec4 v[];} bank_jobs;\nuint job_index(uint invocation) {')
     shader = shader.replace('jobs.v[mid].w<=invocation', 'bank_jobs.v[mid].x<=invocation')
     shader = shader.replace('uint j=job_index(i);uvec4 job=jobs.v[j];uint sid=job.x+i-job.w;',
-        'uint j=job_index(i);uvec4 address=bank_jobs.v[j];i=address.y+i-address.x;\n'
+        'uint j=job_index(i);uvec4 address=bank_jobs.v[j];uint local_index=i-address.x;\n'
+        '        if(address.w==0u)i=address.y+local_index;\n'
+        '        else {uint cursor=address.y+local_index;i=bank_jobs.v[cursor/4u][cursor%4u];}\n'
         '        uvec4 job=jobs.v[address.z];uint sid=job.x+i-job.w;')
 
     # Resolve the immutable source interval once per sample, not per pixel.

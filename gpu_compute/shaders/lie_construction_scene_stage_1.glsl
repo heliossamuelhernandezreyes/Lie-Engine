@@ -5,7 +5,13 @@
 layout(local_size_x=64) in;
 struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
 struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
-struct Projection { vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+// 64-byte std430 record: offsets 0/12, 16/24, 32/44, 48/60.
+struct Projection {
+    vec3 normal; float depth;
+    vec2 center; vec2 gradient;
+    vec3 geometry; float owner;
+    vec3 ellipse; float radius;
+};
 struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
 
 

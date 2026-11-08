@@ -61,6 +61,7 @@ jobs:
           for view in whole close; do
             timeout 600 /tmp/lie-native-replay "/tmp/audit-stage/architecture-fixtures/$view" | tee "architecture-native-$view.log"
             for variant in hoist cache; do
+              if [ ! -d "/tmp/audit-stage/architecture-fixtures/$view/$variant" ]; then continue; fi
               timeout 600 /tmp/lie-native-replay "/tmp/audit-stage/architecture-fixtures/$view" "/tmp/audit-stage/architecture-fixtures/$view/$variant" "candidate-$variant" | tee "architecture-$variant-$view.log"
             done
           done
@@ -82,6 +83,7 @@ jobs:
             /tmp/audit-stage/architecture-fixtures/*/native-replay.json
             /tmp/audit-stage/architecture-fixtures/*/candidate-*-replay.json
             /tmp/audit-stage/architecture-fixtures/*/layout.txt
+            /tmp/audit-stage/architecture-fixtures/*/projection-stride.txt
             /tmp/audit-stage/architecture-fixtures/*/common-*.bin
             /tmp/audit-stage/architecture-fixtures/*/bank-*.bin
             /tmp/audit-stage/architecture-fixtures/*/*.spv

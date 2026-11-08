@@ -5,7 +5,13 @@
 layout(local_size_x=64) in;
 struct Sample { vec4 position_radius; vec4 normal_gray; vec4 attributes; vec4 albedo; vec4 support; };
 struct Instance { vec4 x; vec4 y; vec4 z; vec4 origin; vec4 meta; vec4 tint; };
-struct Projection { vec4 normal; vec4 screen; vec4 gradient; vec4 geometry; vec4 ellipse; };
+// 64-byte std430 record: offsets 0/12, 16/24, 32/44, 48/60.
+struct Projection {
+    vec3 normal; float depth;
+    vec2 center; vec2 gradient;
+    vec3 geometry; float owner;
+    vec3 ellipse; float radius;
+};
 struct Accumulator { uvec4 color_weight; uvec4 normal_roughness; };
 
 layout(set=0,binding=1,std430) readonly buffer Instances { Instance v[]; } instances;
@@ -155,11 +161,11 @@ vec3 lie_opaque_brdf(vec3 albedo,float roughness,float f0,float survival,vec3 no
 }
 
 uvec2 construction_group(Projection point) {
-    Instance inst=instances.v[uint(point.gradient.z)];
-    vec3 n=transpose(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz))*point.geometry.xyz;
+    Instance inst=instances.v[uint(point.owner)];
+    vec3 n=transpose(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz))*point.geometry;
     vec3 a=abs(n);uint axis=a.x>=a.y && a.x>=a.z?0u:a.y>=a.z?1u:2u;
     uint face=axis*2u+(n[axis]>=0.?0u:1u);
-    return field_map.v[uint(point.gradient.z)*6u+face];
+    return field_map.v[uint(point.owner)*6u+face];
 }
 vec3 construction_indirect(vec3 world,uvec2 group) {
     if((field_map.config.z&2u)==0u || group.y==0u)return vec3(0);
@@ -189,7 +195,7 @@ vec3 construction_field_radiance(Projection point,vec3 world,vec3 view,vec3 norm
     for(uint l=0u;l<surface_lights.header.y;l++) {
         vec4 lamp=surface_lights.values[l*2u],power=surface_lights.values[l*2u+1u];vec3 delta=lamp.xyz-world;float d2=dot(delta,delta);
         if(d2<=1e-10 || lamp.w<=0.)continue;
-        vec3 direction=lie_opaque_direction(delta);if(dot(point.geometry.xyz,direction)<=0.)continue;
+        vec3 direction=lie_opaque_direction(delta);if(dot(point.geometry,direction)<=0.)continue;
         float fade=pow(max(0.,1.-pow(sqrt(d2)/lamp.w,4.)),2.);
         vec3 visibility=l==field_map.config.w?vec3(key_shadow):construction_light_gate(world,group,l);
         vec3 li=power.rgb*(fade/(4.*PI*max(d2,power.w)))*visibility;
@@ -214,11 +220,11 @@ void main() {
         vec3 ray=parameters.forward.xyz+parameters.right.xyz*((2*uv.x-1)*parameters.lens.x)+parameters.up.xyz*((1-2*uv.y)*parameters.lens.x);
         vec3 p=parameters.eye.xyz+ray*uintBitsToFloat(depths.v[i]),v=normalize(parameters.eye.xyz-p);
         vec3 delta=parameters.light.xyz-p;float distance2=max(dot(delta,delta),.0001);vec3 l=normalize(delta);
-        float nl=dot(point.geometry.xyz,l)>0.?max(dot(n,l),0):0.,nv=max(dot(n,v),1e-5);
-        float shadow_factor=parameters.options.x>.5?visibility(p+point.geometry.xyz*parameters.options.z*.45,point.geometry.xyz):1;
+        float nl=dot(point.geometry,l)>0.?max(dot(n,l),0):0.,nv=max(dot(n,v),1e-5);
+        float shadow_factor=parameters.options.x>.5?visibility(p+point.geometry*parameters.options.z*.45,point.geometry):1;
         vec3 li=parameters.light_color.rgb*parameters.light.w/(4*PI*distance2)*shadow_factor;
         float roughness=clamp(float(acc.normal_roughness.w)/weight*parameters.options.y,.15,.95),alpha=roughness*roughness,a2=alpha*alpha;
-        vec3 coat_n=parameters.settings.y<.5?normalize(p-instances.v[int(point.gradient.z)].origin.xyz):n;
+        vec3 coat_n=parameters.settings.y<.5?normalize(p-instances.v[int(point.owner)].origin.xyz):n;
         if(parameters.settings.y<.5) {roughness=.10;alpha=roughness*roughness;a2=alpha*alpha;}
         vec3 h=normalize(v+l);float nh=max(dot(coat_n,h),0),vh=max(dot(v,h),0),denom=nh*nh*(a2-1)+1;
         vec3 F=vec3(.04)+(vec3(1)-vec3(.04))*pow(1-vh,5);

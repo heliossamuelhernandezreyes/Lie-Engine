@@ -53,6 +53,11 @@ if __name__ == '__main__':
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--stage', type=Path, required=True)
     args = p.parse_args()
+    # These historical candidates borrow unused fields of the old 80-byte
+    # record. The lossless 64-byte layout has no such fields to borrow.
+    if 'struct Projection { vec4 normal;' not in (args.stage / 'shaders/lie_construction_scene_stage_2.glsl').read_text():
+        print('80-byte exploratory candidates do not apply to the compact layout')
+        raise SystemExit(0)
     for name, transform in [('hoist', hoisted_material), ('cache', cached_material)]:
         for stage in (2, 3):
             original = args.stage / 'shaders' / f'lie_construction_scene_stage_{stage}.glsl'

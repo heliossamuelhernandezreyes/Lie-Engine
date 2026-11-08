@@ -24,6 +24,11 @@
 #include <unistd.h>
 #include <vector>
 #include "interval_capture.hpp"
+#include "visibility_extension.hpp"
+#if __has_include(<vulkan/vulkan_core.h>)
+#include <vulkan/vulkan_core.h>
+#define LIE_HAS_VULKAN_LIMITS 1
+#endif
 using namespace godot;
 namespace {
 constexpr const char *LIB_SHA="378c7b59e2dae87cbbffb0ac9cf96ed13c939823";
@@ -91,10 +96,30 @@ protected:
         ClassDB::bind_method(D_METHOD("release_counters"),&LieGPUProbe::release_counters);
         ClassDB::bind_method(D_METHOD("telemetry"),&LieGPUProbe::telemetry);
         ClassDB::bind_method(D_METHOD("vulkan_format_support","instance","physical_device"),&LieGPUProbe::vulkan_format_support);
+        ClassDB::bind_method(D_METHOD("vulkan_limits","instance","physical_device"),&LieGPUProbe::vulkan_limits);
     }
 public:
     ~LieGPUProbe(){release_counters();}
     Dictionary telemetry(){return telemetry_data();}
+    Dictionary vulkan_limits(int64_t instance,int64_t physical_device){
+        if(!instance || !physical_device)return unavailable("Vulkan handles unavailable");
+#ifdef LIE_HAS_VULKAN_LIMITS
+#ifdef __ANDROID__
+        void *library=dlopen("libvulkan.so",RTLD_NOW|RTLD_LOCAL);
+#else
+        void *library=dlopen("libvulkan.so.1",RTLD_NOW|RTLD_LOCAL);
+#endif
+        if(!library)return unavailable("Vulkan loader unavailable");
+        auto get_proc=reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(library,"vkGetInstanceProcAddr"));
+        auto query=get_proc?reinterpret_cast<PFN_vkGetPhysicalDeviceProperties>(get_proc(reinterpret_cast<VkInstance>(instance),"vkGetPhysicalDeviceProperties")):nullptr;
+        if(!query){dlclose(library);return unavailable("Vulkan property query unavailable");}
+        VkPhysicalDeviceProperties properties{};query(reinterpret_cast<VkPhysicalDevice>(physical_device),&properties);dlclose(library);
+        Dictionary d;d["available"]=true;d["max_storage_buffer_range"]=int64_t(properties.limits.maxStorageBufferRange);d["api_version"]=properties.apiVersion;d["driver_version"]=properties.driverVersion;
+        d["scope"]="Read-only Vulkan 1.0 physical-device properties using borrowed RenderingDevice handles; no counters or device ownership.";return d;
+#else
+        return unavailable("Vulkan property headers were unavailable in this native build");
+#endif
+    }
     Dictionary vulkan_format_support(int64_t instance,int64_t physical_device){
         if(!instance || !physical_device)return unavailable("Vulkan handles unavailable");
         // Public Vulkan 1.0 ABI (VkFormatProperties), not engine-private data.
@@ -165,6 +190,6 @@ public:
     }
     void release_counters(){auto ignored=capture.close();(void)ignored;sampler.reset();counters.clear();}
 };
-void initialize_probe(ModuleInitializationLevel level){if(level==MODULE_INITIALIZATION_LEVEL_SCENE)GDREGISTER_CLASS(LieGPUProbe);}
+void initialize_probe(ModuleInitializationLevel level){if(level==MODULE_INITIALIZATION_LEVEL_SCENE){GDREGISTER_CLASS(LieGPUProbe);GDREGISTER_CLASS(LieVisibilityPlanner);}}
 void terminate_probe(ModuleInitializationLevel){}
 extern "C" GDExtensionBool GDE_EXPORT lie_gpu_probe_init(GDExtensionInterfaceGetProcAddress get_proc,GDExtensionClassLibraryPtr library,GDExtensionInitialization *initialization){GDExtensionBinding::InitObject init(get_proc,library,initialization);init.register_initializer(initialize_probe);init.register_terminator(terminate_probe);init.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);return init.init();}

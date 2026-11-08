@@ -1,0 +1,192 @@
+{
+  "schema": "lie-native-visibility-preflight/1",
+  "date": "2026-11-08",
+  "baseline_runtime": "3aacb5e58034042f9a8e9c19a7bcf4e8b7823054",
+  "source_samples_resampled": false,
+  "negative_experiment": {
+    "method": "64 consecutive source samples per cluster",
+    "outcome": "Correct but zero omitted samples in the three original-bank scenes because source faces are interleaved",
+    "cases": [
+      {
+        "backface_skipped_samples": 0,
+        "clusters": 18212,
+        "cpu_usec": 674,
+        "frustum_skipped_samples": 0,
+        "logical_samples": 1165568,
+        "ok": true,
+        "ranges": 781,
+        "rejected_clusters": 0,
+        "scope": "Native CPU conservative geometric backface planning, including validation and output packing. Not GPU time or optical occlusion.",
+        "selected_jobs": 781,
+        "selected_samples": 1165568
+      },
+      {
+        "backface_skipped_samples": 0,
+        "clusters": 18212,
+        "cpu_usec": 647,
+        "frustum_skipped_samples": 0,
+        "logical_samples": 1165568,
+        "ok": true,
+        "ranges": 781,
+        "rejected_clusters": 0,
+        "scope": "Native CPU conservative geometric backface planning, including validation and output packing. Not GPU time or optical occlusion.",
+        "selected_jobs": 781,
+        "selected_samples": 1165568
+      },
+      {
+        "backface_skipped_samples": 0,
+        "clusters": 8625,
+        "cpu_usec": 299,
+        "frustum_skipped_samples": 0,
+        "logical_samples": 552000,
+        "ok": true,
+        "ranges": 4,
+        "rejected_clusters": 0,
+        "scope": "Native CPU conservative geometric backface planning, including validation and output packing. Not GPU time or optical occlusion.",
+        "selected_jobs": 4,
+        "selected_samples": 552000
+      }
+    ]
+  },
+  "replacement": {
+    "method": "Source-preserving normal bins and Morton index lists; original global owner addresses",
+    "independent_validation": {
+      "schema": "lie-native-backface-validation/1",
+      "cases": [
+        {
+          "state": {
+            "ambient": 1.0,
+            "bounces": 2,
+            "camera_culling": true,
+            "camera_guard": false,
+            "cluster_culling": true,
+            "door_angle": 0.0,
+            "elevation": 22.0,
+            "energy_radius": false,
+            "field_lighting": true,
+            "fill_enabled": true,
+            "fill_power": 0.32,
+            "focus_x": 0.0,
+            "focus_y": 0.0,
+            "indirect": true,
+            "key_enabled": true,
+            "light": -35.0,
+            "lod": -1,
+            "mode": "corner",
+            "normals": true,
+            "occluder": true,
+            "proxy_grouped": true,
+            "reverse_banks": false,
+            "seed": 2102,
+            "shadows": true,
+            "yaw": -25.0,
+            "zoom": 1.0
+          },
+          "logical_samples": 1165568,
+          "selected_samples": 672184,
+          "exhaustively_checked_omissions": 493384,
+          "maximum_omitted_front_cosine": -0.0001922650553751737,
+          "native_planning_cpu_usec": 8295
+        },
+        {
+          "state": {
+            "ambient": 1.0,
+            "bounces": 2,
+            "camera_culling": true,
+            "camera_guard": false,
+            "cluster_culling": true,
+            "door_angle": 0.0,
+            "elevation": -10.0,
+            "energy_radius": false,
+            "field_lighting": true,
+            "fill_enabled": true,
+            "fill_power": 0.32,
+            "focus_x": 0.0,
+            "focus_y": 0.0,
+            "indirect": true,
+            "key_enabled": true,
+            "light": -35.0,
+            "lod": -1,
+            "mode": "corner",
+            "normals": true,
+            "occluder": true,
+            "proxy_grouped": true,
+            "reverse_banks": false,
+            "seed": 2102,
+            "shadows": true,
+            "yaw": 155.0,
+            "zoom": 1.0
+          },
+          "logical_samples": 1165568,
+          "selected_samples": 729199,
+          "exhaustively_checked_omissions": 436369,
+          "maximum_omitted_front_cosine": -0.0006014443933963776,
+          "native_planning_cpu_usec": 4991
+        },
+        {
+          "state": {
+            "ambient": 1.0,
+            "bounces": 2,
+            "camera_culling": true,
+            "camera_guard": false,
+            "cluster_culling": true,
+            "door_angle": 75.0,
+            "elevation": -10.0,
+            "energy_radius": false,
+            "field_lighting": true,
+            "fill_enabled": true,
+            "fill_power": 0.32,
+            "focus_x": 0.0,
+            "focus_y": 0.0,
+            "indirect": true,
+            "key_enabled": true,
+            "light": -35.0,
+            "lod": -1,
+            "mode": "door",
+            "normals": true,
+            "occluder": true,
+            "proxy_grouped": true,
+            "reverse_banks": false,
+            "seed": 2102,
+            "shadows": true,
+            "yaw": 15.0,
+            "zoom": 1.0
+          },
+          "logical_samples": 552000,
+          "selected_samples": 273885,
+          "exhaustively_checked_omissions": 278115,
+          "maximum_omitted_front_cosine": -0.001788020133972168,
+          "native_planning_cpu_usec": 2601
+        }
+      ],
+      "failed": false,
+      "scope": "Every omitted original source sample checked with independent NumPy float32 geometry. Not GPU timing; exact Vulkan buffer checks are separate."
+    }
+  },
+  "checks": {
+    "python": {
+      "passed": 287,
+      "skipped": 1
+    },
+    "native_property_points": 128000,
+    "native_extension_loaded": true,
+    "shader_compilation": true,
+    "projection_member_offsets": [
+      0,
+      12,
+      16,
+      24,
+      32,
+      44,
+      48,
+      60
+    ]
+  },
+  "known_limits": [
+    "Full Vulkan buffer/image acceptance and Android export still required after this preflight",
+    "No physical Android performance measured",
+    "Static Mali compiler estimates are not device benchmarks",
+    "Reference renderer still needs 12 storage descriptors; no GLES fallback",
+    "No general optical occlusion or screen-tile rasterizer implemented in this slice"
+  ]
+}

@@ -2,6 +2,7 @@ extends "res://lie22_modular_effect.gd"
 ## Exact LOD residency; all banks still share visibility and shading targets.
 const Kernels=preload("res://lie_construction_scene_kernels.gd")
 const Pages=preload("res://lie_capture_pages.gd")
+const Clusters=preload("res://lie_visibility_clusters.gd")
 var manifest: Dictionary={}
 var banks: Array=[]
 var _sets: Dictionary={}
@@ -44,6 +45,13 @@ var _uploaded_geometry:=PackedByteArray()
 var _validated_instances:=PackedByteArray()
 var _validated_jobs:=PackedByteArray()
 var _validated_work: int=0
+var _validated_cluster_plan:=PackedByteArray()
+var _validated_cluster_indices:=PackedByteArray()
+var _cluster_planner: Object
+var _camera_plan_metrics: Dictionary={}
+var _camera_plan_profile: Array=[]
+var _device_limits: Dictionary={}
+var _limits_rejected: bool=false
 var _frame_passes: Dictionary={}
 var _pass_counts: Dictionary={}
 var _reset_view: bool=true
@@ -53,10 +61,15 @@ const PASS_NAMES={1:"clear",8:"shadow",2:"projection_depth",3:"material_accumula
 func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
     return configure_view(parameters,instances,jobs,work,PackedByteArray())
 
-func configure_view(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int,selection: PackedByteArray) -> bool:
+func configure_view(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int,selection: PackedByteArray,clusters: bool=false) -> bool:
     # Reuse validation only for byte-identical immutable geometry. Dimensions
     # and count fields still have to match this consumer on every transaction.
     if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>instance_capacity()*96 or jobs.size()%16!=0 or jobs.size()>instance_capacity()*16 or work<1 or work>work_capacity():return false
+    # Keep unsupported allocations out of the pending transaction. 128 MiB is
+    # the conservative Vulkan storage-range floor when no native query exists.
+    _mutex.lock();var range_limit: int=int(_device_limits.get("max_storage_buffer_range",134217728));_mutex.unlock()
+    if _projection_target(work)*_projection_stride()>range_limit:
+        failure="Projection buffer exceeds device storage range; split the scene workload explicitly";return false
     if instances.is_empty() or jobs.is_empty():return false
     if not selection.is_empty():
         if selection.size()!=jobs.size()/16:return false
@@ -71,9 +84,11 @@ func configure_view(parameters: PackedByteArray,instances: PackedByteArray,jobs:
             prefix+=entries[i+1]
         if prefix!=work:return false
         _validated_instances=instances.duplicate();_validated_jobs=jobs.duplicate();_validated_work=work
+        var cluster_packet: Dictionary=Clusters.packet(instances,jobs,banks)
+        _validated_cluster_plan=cluster_packet.get("plan",PackedByteArray());_validated_cluster_indices=cluster_packet.get("indices",PackedByteArray())
     # Selection and geometry are published in ONE transaction. The render
     # thread can never combine a new scene with an old visibility mask.
-    _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":instances.duplicate(),"jobs":jobs.duplicate(),"work":work,"selection":selection.duplicate()};_mutex.unlock();return true
+    _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":_validated_instances,"jobs":_validated_jobs,"work":work,"selection":selection.duplicate(),"clusters":clusters,"cluster_plan":_validated_cluster_plan,"cluster_indices":_validated_cluster_indices};_mutex.unlock();return true
 
 func _collect_profile() -> void:
     if frame_count==0:return
@@ -107,6 +122,8 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     var signature: PackedByteArray=_frame_signature(next)
     if signature==_resident:return
     var work: int=next.work;var capacity: int=_projection_target(work)
+    if capacity*_projection_stride()>int(_device_limits.get("max_storage_buffer_range",134217728)):
+        failure="Projection buffer exceeds device storage range";return
     if capacity!=projection_capacity:
         _clear_sets();_rd.free_rid(_buffers[3]);allocation_bytes-=int(_lengths[3]);projection_capacity=capacity
         _buffer(3,projection_capacity*_projection_stride());_make_set();_view_stamp=PackedByteArray()
@@ -117,6 +134,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     var p: PackedByteArray=next.parameters
     var view: PackedByteArray=geometry.duplicate();view.append_array(p.slice(0,96));view.append_array(p.slice(208,256))
     view.append_array(next.get("selection",PackedByteArray()))
+    view.append_array(var_to_bytes(next.get("clusters",false)))
     var shadow: PackedByteArray=geometry.duplicate();shadow.append_array(p.slice(96,112));shadow.append_array(p.slice(160,208))
     # Reverse-bank diagnostics deliberately rerun both paths, so order tests
     # continue to exercise rasterization instead of accidentally testing a hit.
@@ -155,7 +173,7 @@ func _publish_diagnostics() -> void:
         "exclusive_bytes":allocation_bytes-total_source_bytes,"page_io_bytes":page_io_bytes,
         "asset_uploads":asset_uploads,"instances":instance_count,"samples":sample_invocations,
         "output_size":output_size,"internal_size":render_size,"field":{},
-        "profile":_profiles.duplicate(true),"pass_counts":_pass_counts.duplicate(),"bank_dispatch_samples":{},"camera_samples":_camera_work,"camera_jobs":_camera_job_count,"camera_skipped_samples":sample_invocations-_camera_work,"shadow_samples":sample_invocations,"snapshot_usec":Time.get_ticks_usec()}
+        "profile":_profiles.duplicate(true),"pass_counts":_pass_counts.duplicate(),"bank_dispatch_samples":{},"camera_samples":_camera_work,"camera_jobs":_camera_job_count,"camera_skipped_samples":sample_invocations-_camera_work,"shadow_samples":sample_invocations,"camera_plan":_camera_plan_metrics.duplicate(),"camera_plan_profile":_camera_plan_profile.duplicate(),"projection_stride":_projection_stride(),"projection_bytes":projection_capacity*_projection_stride(),"device_limits":_device_limits.duplicate(),"snapshot_usec":Time.get_ticks_usec()}
     for bank in _bank_jobs:result.bank_dispatch_samples[str(bank)]=_bank_jobs[bank].work
     if gpu_ready:result.device=_rd.get_device_name()
     for key in ["producer","epoch","solve","nodes","bytes"]:
@@ -167,12 +185,27 @@ func sample_stride() -> int:return 80
 func instance_capacity() -> int:return 2048
 func work_capacity() -> int:return 3000000
 func shader_resource() -> RDShaderFile:return Kernels.SHADERS[1]
-func _projection_stride() -> int:return 80
+func _projection_stride() -> int:return 64
 func _projection_target(work: int) -> int:return mini(work_capacity(),maxi(65536,ceili(float(work)/65536)*65536))
 func _image_bindings() -> Array:return [11,12]
 func _run_stage(stage: int) -> bool:return stage!=6
 func _init(size: int=960) -> void:
     super._init(512);output_size=clampi(size,256,1024);render_size=output_size*2
+func _initialize() -> bool:
+    if _limits_rejected:return false
+    _rd=RenderingServer.get_rendering_device()
+    if _rd==null:failure="RenderingDevice no disponible";return false
+    var limits: Dictionary={"storage_buffers_per_stage":_rd.limit_get(RenderingDevice.LIMIT_MAX_STORAGE_BUFFERS_PER_SHADER_STAGE),"storage_buffers_per_set":_rd.limit_get(RenderingDevice.LIMIT_MAX_STORAGE_BUFFERS_PER_UNIFORM_SET),"workgroup_invocations":_rd.limit_get(RenderingDevice.LIMIT_MAX_COMPUTE_WORKGROUP_INVOCATIONS),"workgroup_size_x":_rd.limit_get(RenderingDevice.LIMIT_MAX_COMPUTE_WORKGROUP_SIZE_X),"texture_size_2d":_rd.limit_get(RenderingDevice.LIMIT_MAX_TEXTURE_SIZE_2D),"max_storage_buffer_range":134217728,"range_source":"conservative Vulkan guaranteed minimum"}
+    if RenderingServer.get_current_rendering_driver_name()=="vulkan" and ClassDB.class_exists("LieGPUProbe"):
+        var probe: Object=ClassDB.instantiate("LieGPUProbe")
+        if probe.has_method("vulkan_limits"):
+            var properties: Dictionary=probe.vulkan_limits(_rd.get_driver_resource(RenderingDevice.DRIVER_RESOURCE_TOPMOST_OBJECT,RID(),0),_rd.get_driver_resource(RenderingDevice.DRIVER_RESOURCE_PHYSICAL_DEVICE,RID(),0))
+            if properties.get("available",false):limits.max_storage_buffer_range=int(properties.max_storage_buffer_range);limits.range_source="VkPhysicalDeviceProperties";limits.api_version=properties.api_version;limits.driver_version=properties.driver_version
+    _mutex.lock();_device_limits=limits;_mutex.unlock()
+    if limits.storage_buffers_per_stage<12 or limits.storage_buffers_per_set<12:failure="LIE reference kernels require 12 storage buffers per stage/set";_limits_rejected=true;return false
+    if limits.workgroup_invocations<64 or limits.workgroup_size_x<64 or limits.texture_size_2d<render_size:failure="LIE compute workgroup or image dimensions exceed device limits";_limits_rejected=true;return false
+    if render_size*render_size*32>limits.max_storage_buffer_range:failure="LIE accumulator exceeds device storage range";_limits_rejected=true;return false
+    return super._initialize()
 func _load_capture_data() -> void:
     var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(scene_root()+"manifest.json"))
     if not parsed is Dictionary or not parsed.get("banks") is Array or parsed.banks.is_empty() or parsed.banks.size()>16:failure="Scene manifest";return
@@ -181,7 +214,7 @@ func _load_capture_data() -> void:
         if not name is String or not name.is_valid_identifier():failure="Bank path";return
         var bank: Dictionary=Pages.open_bank(scene_root()+"banks/"+name+"/",manifest.bank_bindings.get(name,{}))
         if bank.is_empty():failure="Capture page metadata: "+name;return
-        bank.name=name;banks.append(bank);catalog_source_bytes+=int(bank.catalog.bytes)+int(bank.optical.get("bytes",0))
+        bank.name=name;bank.clusters=Clusters.open_bank(bank);banks.append(bank);catalog_source_bytes+=int(bank.catalog.bytes)+int(bank.optical.get("bytes",0))
     catalog=banks[0].catalog;capture_loaded=true
 func _acquire_primary_source() -> bool:
     # The base owns writable geometry resources; its primary source slot is a
@@ -218,7 +251,7 @@ func _frame_signature(next: Dictionary) -> PackedByteArray:
     _mutex.lock();_field_context=_pending_field.duplicate();_mutex.unlock();_field_receipt={}
     if not _field_context.is_empty() and _field_context.instances==next.instances:
         _field_receipt=_field_context.transport.render_binding(_rd)
-    var signature: PackedByteArray=super._frame_signature(next);signature.append_array(next.get("selection",PackedByteArray()));signature.append_array(var_to_bytes([_field_receipt.get("producer",0),_field_receipt.get("epoch",""),_field_receipt.get("solve",0),_field_context.get("indirect",false),_field_context.get("primary",-1)]));return signature
+    var signature: PackedByteArray=super._frame_signature(next);signature.append_array(next.get("selection",PackedByteArray()));signature.append_array(var_to_bytes([next.get("clusters",false),_field_receipt.get("producer",0),_field_receipt.get("epoch",""),_field_receipt.get("solve",0),_field_context.get("indirect",false),_field_context.get("primary",-1)]));return signature
 func _sync_field() -> void:
     var bytes:=PackedByteArray();bytes.resize(16)
     if not _field_receipt.is_empty():
@@ -343,20 +376,33 @@ func _release_uncommitted(row: Dictionary) -> void:
 func _prepare_camera_jobs(next: Dictionary) -> void:
     var selection: PackedByteArray=next.get("selection",PackedByteArray())
     var stamp: PackedByteArray=next.instances.duplicate();stamp.append_array(next.jobs);stamp.append_array(selection)
+    stamp.append_array(var_to_bytes(next.get("clusters",false)))
+    if next.get("clusters",false):stamp.append_array(next.parameters.slice(0,16))
     if stamp==_camera_job_stamp:return
     _clear_sets()
     for row in _camera_jobs.values():_rd.free_rid(row.rid)
     _camera_jobs.clear();allocation_bytes-=_camera_job_bytes;_camera_job_bytes=0;_camera_work=0;_camera_job_count=0
-    var jobs: PackedInt32Array=next.jobs.to_int32_array();var dispatches: Dictionary={}
-    for j in range(jobs.size()/4):
-        if not selection.is_empty() and selection[j]==0:continue
-        var i: int=j*4;var bank: int=int(next.instances.decode_float(jobs[i+2]*96+68))
-        if not dispatches.has(bank):dispatches[bank]={"data":PackedInt32Array(),"work":0}
-        var row: Dictionary=dispatches[bank];row.data.append_array(PackedInt32Array([row.work,jobs[i+3],j,0]));row.work+=jobs[i+1]
-        _camera_work+=jobs[i+1];_camera_job_count+=1
+    var jobs: PackedInt32Array=next.jobs.to_int32_array();var dispatches: Dictionary={};var planned: Dictionary={}
+    if _cluster_planner==null and ClassDB.class_exists("LieVisibilityPlanner"):_cluster_planner=ClassDB.instantiate("LieVisibilityPlanner")
+    if next.get("clusters",false) and _cluster_planner!=null and _cluster_planner.has_method("contract_version") and _cluster_planner.contract_version()==2 and not next.get("cluster_plan",PackedByteArray()).is_empty():
+        planned=_cluster_planner.select_clusters(next.cluster_plan,next.parameters,next.instances,next.jobs,selection,next.cluster_indices)
+    if planned.get("ok",false):
+        _camera_work=int(planned.selected_samples);_camera_job_count=int(planned.selected_jobs)
+        for row in planned.banks:dispatches[int(row.bank)]={"data":row.data,"work":row.work,"jobs":row.jobs}
+        _camera_plan_metrics=planned.duplicate();_camera_plan_metrics.erase("banks");_camera_plan_metrics.enabled=true
+        _camera_plan_profile.append({"serial":frame_count+1,"cpu_usec":int(planned.cpu_usec)})
+        if _camera_plan_profile.size()>120:_camera_plan_profile.pop_front()
+    else:
+        _camera_plan_metrics={"enabled":false,"reason":planned.get("reason","disabled" if not next.get("clusters",false) else "native planner or verified cluster metadata unavailable")}
+        for j in range(jobs.size()/4):
+            if not selection.is_empty() and selection[j]==0:continue
+            var i: int=j*4;var bank: int=int(next.instances.decode_float(jobs[i+2]*96+68))
+            if not dispatches.has(bank):dispatches[bank]={"data":PackedByteArray(),"work":0,"jobs":0}
+            var row: Dictionary=dispatches[bank];row.data.append_array(PackedInt32Array([row.work,jobs[i+3],j,0]).to_byte_array());row.work+=jobs[i+1];row.jobs+=1
+            _camera_work+=jobs[i+1];_camera_job_count+=1
     for bank in dispatches:
-        var row: Dictionary=dispatches[bank];var data: PackedByteArray=row.data.to_byte_array()
-        _camera_jobs[bank]={"rid":_rd.storage_buffer_create(data.size(),data),"work":row.work,"jobs":row.data.size()/4};_camera_job_bytes+=data.size()
+        var row: Dictionary=dispatches[bank];var data: PackedByteArray=row.data
+        _camera_jobs[bank]={"rid":_rd.storage_buffer_create(data.size(),data),"work":row.work,"jobs":row.jobs};_camera_job_bytes+=data.size()
     allocation_bytes+=_camera_job_bytes;_camera_job_stamp=stamp;_make_set()
 func _update_parameters(parameters: PackedByteArray) -> void:
     _reverse_passes=parameters.decode_float(216)>.5
@@ -378,7 +424,7 @@ func _record_stage(commands: int,stage: int,count: int) -> void:
 func _capture() -> void:
     super._capture()
     if not gpu_ready:return
-    _mutex.lock();_readback.camera_samples=_camera_work;_readback.camera_jobs=_camera_job_count;_readback.shadow_samples=sample_invocations;_mutex.unlock()
+    _mutex.lock();_readback.camera_samples=_camera_work;_readback.camera_jobs=_camera_job_count;_readback.shadow_samples=sample_invocations;_readback.camera_plan=_camera_plan_metrics.duplicate();_readback.projection_stride=_projection_stride();_readback.projection_bytes=projection_capacity*_projection_stride();_mutex.unlock()
     var shadow: PackedByteArray=_rd.buffer_get_data(_buffers[13])
     _mutex.lock();_readback["library_bytes"]=total_source_bytes;_readback["exclusive_allocation_bytes"]=allocation_bytes-total_source_bytes;_readback["banks"]=banks.size();_readback["shadow"]=shadow;_readback["resident_banks"]=_resident_banks.size();_readback["catalog_source_bytes"]=catalog_source_bytes;_readback["page_io_bytes"]=page_io_bytes;_readback["residency_changes"]=residency_changes;_readback["projection_capacity"]=projection_capacity;_readback["pass_counts"]=_pass_counts.duplicate();_mutex.unlock()
     _mutex.lock();_readback["field"]={"ready":not _field_receipt.is_empty(),"nodes":_field_receipt.get("nodes",0),"bytes":_field_receipt.get("bytes",0),"solve":_field_receipt.get("solve",0),"producer":_field_receipt.get("producer",0),"indirect":_field_context.get("indirect",false)};_readback["failure"]=failure;_mutex.unlock()
@@ -391,6 +437,7 @@ func _release() -> void:
     for row in _bank_jobs.values():_rd.free_rid(row.rid)
     _bank_jobs.clear();allocation_bytes-=_bank_job_bytes;_bank_job_bytes=0
     _job_signature=PackedByteArray();_translated_jobs=PackedByteArray();_view_stamp=PackedByteArray();_shadow_stamp=PackedByteArray();_uploaded_geometry=PackedByteArray();_frame_passes.clear();_pass_counts.clear()
+    _camera_plan_metrics={};_camera_plan_profile.clear();_cluster_planner=null
     for stage in _kernels:
         if stage!=1:_rd.free_rid(_kernels[stage].pipeline);_rd.free_rid(_kernels[stage].shader)
     _kernels.clear()

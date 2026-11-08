@@ -28,7 +28,8 @@ func _audit_hash(data: PackedByteArray) -> String:
 func _export_fixture(path: String,start_serial: int) -> void:
     if not gpu_ready:return
     DirAccess.make_dir_recursive_absolute(path)
-    var result: Dictionary={"schema":"lie-architecture-replay-fixture/1","device":_rd.get_device_name(),"output_size":output_size,"internal_size":render_size,"projection_capacity":projection_capacity,"samples":sample_invocations,"camera_samples":_camera_work,"instances":instance_count,"serial":frame_count,"banks":[],"inputs":{},"reference":{},"physical_android_tested":false,"scope":"Exact captured GPU inputs and original Godot-compiled SPIR-V; output hashes cover depth, owner and material accumulators. Diagnostic readbacks are outside benchmark timestamps."}
+    var result: Dictionary={"schema":"lie-architecture-replay-fixture/1","device":_rd.get_device_name(),"output_size":output_size,"internal_size":render_size,"projection_capacity":projection_capacity,"projection_stride":_projection_stride(),"samples":sample_invocations,"camera_samples":_camera_work,"instances":instance_count,"serial":frame_count,"banks":[],"inputs":{},"reference":{},"physical_android_tested":false,"scope":"Exact captured GPU inputs and original Godot-compiled SPIR-V; output hashes cover depth, owner and material accumulators. Diagnostic readbacks are outside benchmark timestamps."}
+    result.inputs["projection-stride.txt"]=_audit_write(path+"/projection-stride.txt",str(_projection_stride()).to_utf8_buffer())
     for binding in [1,2,6]:result.inputs["common-"+str(binding)+".bin"]=_audit_write(path+"/common-"+str(binding)+".bin",_rd.buffer_get_data(_buffers[binding]))
     var order: Array=_camera_jobs.keys();order.sort()
     for bank in order:

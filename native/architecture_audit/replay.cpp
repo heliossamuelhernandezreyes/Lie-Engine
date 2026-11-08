@@ -337,11 +337,17 @@ int main(int argc, char **argv) {
       throw std::runtime_error("fixture layout");
     Context c;
     c.init();
+    uint32_t stride = 80;
+    if (fs::exists(root / "projection-stride.txt")) {
+      std::ifstream stride_file(root / "projection-stride.txt");
+      if (!(stride_file >> stride) || (stride != 64 && stride != 80))
+        throw std::runtime_error("projection stride");
+    }
     std::map<int, size_t> common;
     for (int binding : {1, 2, 6})
       common[binding] =
           c.input(root / ("common-" + std::to_string(binding) + ".bin"));
-    common[3] = c.buffer(uint64_t(capacity) * 80);
+    common[3] = c.buffer(uint64_t(capacity) * stride);
     common[4] = c.buffer(uint64_t(size) * size * 4);
     common[5] = c.buffer(uint64_t(size) * size * 4);
     common[7] = c.buffer(uint64_t(size) * size * 32);
@@ -369,6 +375,7 @@ int main(int argc, char **argv) {
            << quoted(c.props.deviceName) << ",\"variant\":" << quoted(prefix)
            << ",\"api_version\":" << c.props.apiVersion
            << ",\"driver_version\":" << c.props.driverVersion
+           << ",\"projection_stride\":" << stride
            << ",\"timestamp_valid_bits\":" << c.valid_bits
            << ",\"max_storage_buffer_range\":"
            << c.props.limits.maxStorageBufferRange
