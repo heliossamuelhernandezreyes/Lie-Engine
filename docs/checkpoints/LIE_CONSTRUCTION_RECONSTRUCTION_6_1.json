@@ -1,0 +1,456 @@
+{
+  "schema": "lie-construction-android-release/1",
+  "run_id": 42437095701,
+  "job_id": 128598161056,
+  "artifact_sha256": "bb7caf8cf951607aae95427948260522fa9b550ec6ef8f27c2d6daef8a50d1d0",
+  "apk": {
+    "schema": "lie-construction-apk-proof/1",
+    "filename": "LIE-Construccion-v6.1.0.apk",
+    "apk_bytes": 216783273,
+    "apk_sha256": "14c0797ca78f30168d41d8b3e8beeb03da2dd133693c39247d7adb5f132b9ad9",
+    "package": "org.lieengine.construction.v610",
+    "version": "6.1.0-reconstruction",
+    "code_commit": "d66ac7cef6c3872d5527fee19a679b11b026410e",
+    "verified_capture_and_metadata_files": 90,
+    "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+    "bank_bindings": {
+      "brick": {
+        "sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+        "optical": null
+      },
+      "mortar": {
+        "sha256": "8b060c904961dd645e60e41f66db4cba79151d4e04ae1d720fe98d286715f8b0",
+        "optical": "18677055e3803443610883bea7b1b8e0e8f6ee9620201777b36459abeb17597e"
+      },
+      "concrete": {
+        "sha256": "3f19c51f6590631467a752669a822364cab19e2658276d5324170491f05dc3b3",
+        "optical": "4c3b7df7787d305811236d899d0083e10b80f9fc032c5b11e56c916ebe98a02c"
+      },
+      "wood": {
+        "sha256": "5fea091b66d409971e8a4b3d676f350e56321c806ff734a73e5ebeaa34971dd9",
+        "optical": "9b17b8ba92fbfad27bdd0af014ec13a5ef77c389496c4f38928f51f1c45e769f"
+      },
+      "door": {
+        "sha256": "129ae84dc95a683a1c3958fe1a6466444d4aeeb1888643944224c530a9610e8d",
+        "optical": "b9ed23c30aeb62d9946fd2fa21cd377d4861765edac8841d63bf79416c66e5f4"
+      }
+    },
+    "native_libraries": [
+      {
+        "file": "lib/arm64-v8a/libc++_shared.so",
+        "sha256": "c4c2fe5cbcb1fba0003a31fc7ab29a9bb12df6cc187ec45a806462540e83d93b",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/libgodot_android.so",
+        "sha256": "6517cb725565b0b3f009e6a559d8c0a5f66093384a6f48b5d18e2dc0998e1159",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/liblie_gpu_probe.so",
+        "sha256": "7cc40f3d752da8f48a7f9d1bde761e475ff627f776d6d2626d1a1beb03adc9ed",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      }
+    ],
+    "permissions": [],
+    "source_resampling": false,
+    "physical_android_tested": false
+  },
+  "native_checks": {
+    "construction": 49,
+    "field": 26,
+    "mobile": 28,
+    "hardware": 16,
+    "mobile_metrics": 8,
+    "rig": 247,
+    "agent": 25
+  },
+  "full_quality": {
+    "appearance_bytes": 316924064,
+    "field": {
+      "bytes": 24105544,
+      "indirect": true,
+      "nodes": 4742,
+      "producer": -9223371879467710238,
+      "ready": true,
+      "solve": 1
+    },
+    "output_size": 960,
+    "source_bytes": 12335104
+  },
+  "physical_android_tested": false,
+  "native_registration_in_apk": true,
+  "automatically_copies_completed_report": true,
+  "cancellation_preserves_clipboard": true,
+  "reconstruction_comparison": {
+    "schema": "lie-construction-reconstruction-comparison/1",
+    "cases": [
+      {
+        "case": 0,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 23.765,
+        "candidate_command_ms": 0.424,
+        "baseline_last_profile": {
+          "gpu_ns": 13153486680,
+          "marker_frame": 1,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 1
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2890415278,
+          "marker_frame": 1,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 40517983,
+            "material_accumulation": 1095242956,
+            "output": 13192602,
+            "projection_depth": 1202387668,
+            "shading": 183635272,
+            "shadow": 355015133
+          },
+          "serial": 1
+        }
+      },
+      {
+        "case": 1,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 22.325,
+        "candidate_command_ms": 0.453,
+        "baseline_last_profile": {
+          "gpu_ns": 12132597977,
+          "marker_frame": 27,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 2
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 387189864,
+          "marker_frame": 27,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 4375382,
+            "output": 9996522,
+            "shading": 160372114,
+            "shadow": 212135365
+          },
+          "serial": 2
+        }
+      },
+      {
+        "case": 2,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 22.972,
+        "candidate_command_ms": 0.516,
+        "baseline_last_profile": {
+          "gpu_ns": 11646573168,
+          "marker_frame": 34,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 3
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1886947239,
+          "marker_frame": 34,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 12910374,
+            "material_accumulation": 783106018,
+            "output": 11833070,
+            "projection_depth": 921588209,
+            "shading": 157130924
+          },
+          "serial": 3
+        }
+      },
+      {
+        "case": 3,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 24.954,
+        "candidate_command_ms": 0.454,
+        "baseline_last_profile": {
+          "gpu_ns": 11964665133,
+          "marker_frame": 41,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 4
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1885567341,
+          "marker_frame": 41,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 13038483,
+            "material_accumulation": 787877879,
+            "output": 12351431,
+            "projection_depth": 911889853,
+            "shading": 160058879
+          },
+          "serial": 4
+        }
+      },
+      {
+        "case": 4,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 20.43,
+        "candidate_command_ms": 21.343,
+        "baseline_last_profile": {
+          "gpu_ns": 1612570054,
+          "marker_frame": 48,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 5
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 464687840,
+          "marker_frame": 48,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 13130477,
+            "material_accumulation": 250907112,
+            "output": 10946964,
+            "projection_depth": 82927416,
+            "shading": 91139458,
+            "shadow": 15147870
+          },
+          "serial": 5
+        }
+      },
+      {
+        "case": 5,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 9.9,
+        "candidate_command_ms": 10.243,
+        "baseline_last_profile": {
+          "gpu_ns": 3781412857,
+          "marker_frame": 55,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 6
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1470916147,
+          "marker_frame": 55,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 12850651,
+            "material_accumulation": 716516043,
+            "output": 9048534,
+            "projection_depth": 249362094,
+            "shading": 464436970,
+            "shadow": 18262054
+          },
+          "serial": 6
+        }
+      },
+      {
+        "case": 6,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 178.052,
+        "candidate_command_ms": 172.476,
+        "baseline_last_profile": {
+          "gpu_ns": 16045898653,
+          "marker_frame": 62,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 7
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2796124198,
+          "marker_frame": 62,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 12973405,
+            "material_accumulation": 1033194564,
+            "output": 9484610,
+            "projection_depth": 1356648157,
+            "shading": 177400293,
+            "shadow": 205998559
+          },
+          "serial": 7
+        }
+      },
+      {
+        "case": 7,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 23.518,
+        "candidate_command_ms": 0.45,
+        "baseline_last_profile": {
+          "gpu_ns": 11420718102,
+          "marker_frame": 69,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 8
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1808104867,
+          "marker_frame": 69,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "clear": 12914681,
+            "material_accumulation": 747583815,
+            "output": 10033019,
+            "projection_depth": 874432545,
+            "shading": 162748250
+          },
+          "serial": 8
+        }
+      },
+      {
+        "case": 8,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 91.16,
+        "candidate_command_ms": 64.221,
+        "baseline_last_profile": {
+          "gpu_ns": 11308546636,
+          "marker_frame": 76,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 9
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 100367378,
+          "marker_frame": 76,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "output": 13000711,
+            "shading": 87169408
+          },
+          "serial": 9
+        }
+      },
+      {
+        "case": 9,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 89.474,
+        "candidate_command_ms": 60.211,
+        "baseline_last_profile": {
+          "gpu_ns": 11357996462,
+          "marker_frame": 83,
+          "owner_instance_id": -9223371991824726570,
+          "serial": 10
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 168135869,
+          "marker_frame": 83,
+          "owner_instance_id": -9223371991220746791,
+          "passes_ns": {
+            "output": 10221859,
+            "shading": 157700082
+          },
+          "serial": 10
+        }
+      }
+    ],
+    "physical_android_tested": false,
+    "same_source_samples_and_lod": true,
+    "scope": "Same attributed capture banks, controls, 960 output / 1920 internal. Software Vulkan correctness and host observations only."
+  },
+  "native_reconstruction_checks": 28,
+  "preserved_negative_reconstruction_run": 42436770047,
+  "artifact_id": 13599199992,
+  "tested_runtime_commit": "d66ac7cef6c3872d5527fee19a679b11b026410e",
+  "python_tests": {
+    "run": 285,
+    "skipped": 1,
+    "failed": 0
+  },
+  "physical_followup_pending": true,
+  "preserved_negative": {
+    "run_id": 42436770047,
+    "code_commit": "09985101fed91780a24aadec2874e97e3e44e031",
+    "artifact_id": 13600046773,
+    "artifact_sha256": "a55064365e01e751955b016716ea612db0a5df92314d46c5d36b96805f11f0a5",
+    "failure": "Shadow pass lacked reflected descriptors; corrected binding set before release."
+  }
+}

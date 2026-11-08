@@ -133,3 +133,17 @@ antes de medirla ni cambiar simultáneamente la representación del material.
 - [Schütz et al.: Rendering Point Clouds with Compute Shaders and Vertex Order Optimization (2021)](https://www.cg.tuwien.ac.at/research/publications/2021/SCHUETZ-2021-PCC/SCHUETZ-2021-PCC-paper.pdf)
 - [Arm: Mali and Unreal Engine’s Nanite (2026)](https://developer.arm.com/community/arm-community-blogs/b/mobile-graphics-and-gaming-blog/posts/mali-and-unreal-engine-s-nanite-enabling-the-future-of-mobile-graphics)
 - [Godot: RenderingDevice, marcadores y listas de cómputo](https://docs.godotengine.org/en/stable/classes/class_renderingdevice.html)
+
+## Resultado de la entrega
+
+Código de runtime `d66ac7cef6c3872d5527fee19a679b11b026410e`, CI
+[42437095701](https://github.com/heliossamuelhernandezreyes/Lie-Engine/actions/runs/42437095701) aprobado.
+Diez comparaciones nativas: profundidad y alpha exactos, error máximo RGBA 0.0.
+131 comprobaciones Vulkan, 285 Python (una omitida), 8 de métricas, 16 de
+telemetría, 247 de rig y 25 de agente. APK ARM64, 216,783,273 bytes,
+SHA256 `14c0797ca78f30168d41d8b3e8beeb03da2dd133693c39247d7adb5f132b9ad9`.
+
+El primer run 42436770047 falló por descriptores ausentes en el pase de sombra;
+se conserva su artefacto y SHA en el checkpoint. La corrección se aprobó después
+de repetir todos los controles. La medición de velocidad física de 6.1 sigue
+pendiente: no se declara alcanzado el objetivo de 60 FPS.
