@@ -1,0 +1,21 @@
+{
+  "schema": "lie-preserved-negative/1",
+  "run_id": 42499052781,
+  "job_id": 128787588313,
+  "commit": "8138ec74e732678220096eea1722171bb2024d95",
+  "artifact_id": 13625225709,
+  "artifact_sha256": "29e51c4e0f6c507e13be206d115b1f433f3a3c1ccadb685bbd8b7f4a086bcb36",
+  "failed_suite": "test_lie_hierarchy_gpu",
+  "reported_failures": ["camera dispatch counts report actual selected work roof", "paired visibility benchmark restores controls", "visibility benchmark automatically copies completed report"],
+  "cause": "The pre-existing small_scene field adapter passed an already transposed graph through a dense encoder that checks unit row sums. The valid unequal-area roof transpose has a row sum above one and was rejected. Configuration failed, so the old door scene remained resident and the benchmark refused to start.",
+  "roof_nodes": 148,
+  "roof_edges": 62,
+  "max_transposed_row_sum": 1.03385367244482,
+  "valid_camera_comparisons_with_exact_rgba_depth_shadow": ["whole", "close_edge", "close_window", "back", "overhead", "empty", "open_door"],
+  "full_quality_comparison": {"output": 960, "internal": 1920, "logical_samples": 1165568, "camera_samples": 392960, "rgba_exact": true, "depth_exact": true, "shadow_exact": true},
+  "roof_image_comparison_valid": false,
+  "passed_other_native_checks": {"proxy": 15, "physics": 63, "reconstruction": 28, "construction": 49, "field": 26, "mobile": 28, "hardware": 16, "rig": 247, "agent": 25, "metrics": 8},
+  "correction_commit": "3aacb5e58034042f9a8e9c19a7bcf4e8b7823054",
+  "correction": "Transpose the original CSR adjacency without changing weights, and assert successful current-scene configuration before every native image comparison.",
+  "physical_android_tested": false
+}

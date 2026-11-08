@@ -1,0 +1,2357 @@
+{
+  "schema": "lie-construction-android-release/1",
+  "run_id": 42499827083,
+  "job_id": 128789938697,
+  "artifact_sha256": "66c95efcf9653ad4f89b72c30d12e6d7dc4b81529cb0fbb1a691835d8593e55b",
+  "apk": {
+    "schema": "lie-construction-apk-proof/1",
+    "filename": "LIE-Construccion-v6.3.0.apk",
+    "apk_bytes": 216796305,
+    "apk_sha256": "0bdd8f5e4ac13423203f2f9bda526205cad71edbc3ded74c78c834afd6ac5ba7",
+    "package": "org.lieengine.construction.v630",
+    "version": "6.3.0-hierarchical-camera",
+    "code_commit": "3aacb5e58034042f9a8e9c19a7bcf4e8b7823054",
+    "verified_capture_and_metadata_files": 90,
+    "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+    "bank_bindings": {
+      "brick": {
+        "sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+        "optical": null
+      },
+      "mortar": {
+        "sha256": "8b060c904961dd645e60e41f66db4cba79151d4e04ae1d720fe98d286715f8b0",
+        "optical": "18677055e3803443610883bea7b1b8e0e8f6ee9620201777b36459abeb17597e"
+      },
+      "concrete": {
+        "sha256": "3f19c51f6590631467a752669a822364cab19e2658276d5324170491f05dc3b3",
+        "optical": "4c3b7df7787d305811236d899d0083e10b80f9fc032c5b11e56c916ebe98a02c"
+      },
+      "wood": {
+        "sha256": "5fea091b66d409971e8a4b3d676f350e56321c806ff734a73e5ebeaa34971dd9",
+        "optical": "9b17b8ba92fbfad27bdd0af014ec13a5ef77c389496c4f38928f51f1c45e769f"
+      },
+      "door": {
+        "sha256": "129ae84dc95a683a1c3958fe1a6466444d4aeeb1888643944224c530a9610e8d",
+        "optical": "b9ed23c30aeb62d9946fd2fa21cd377d4861765edac8841d63bf79416c66e5f4"
+      }
+    },
+    "native_libraries": [
+      {
+        "file": "lib/arm64-v8a/libc++_shared.so",
+        "sha256": "c4c2fe5cbcb1fba0003a31fc7ab29a9bb12df6cc187ec45a806462540e83d93b",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/libgodot_android.so",
+        "sha256": "6517cb725565b0b3f009e6a559d8c0a5f66093384a6f48b5d18e2dc0998e1159",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/liblie_gpu_probe.so",
+        "sha256": "7cc40f3d752da8f48a7f9d1bde761e475ff627f776d6d2626d1a1beb03adc9ed",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      }
+    ],
+    "permissions": [],
+    "source_resampling": false,
+    "physical_android_tested": false
+  },
+  "native_checks": {
+    "construction": 49,
+    "field": 26,
+    "mobile": 28,
+    "hardware": 16,
+    "mobile_metrics": 8,
+    "rig": 247,
+    "agent": 25
+  },
+  "full_quality": {
+    "appearance_bytes": 316937840,
+    "field": {
+      "bytes": 24105544,
+      "indirect": true,
+      "nodes": 4742,
+      "producer": -9223371873545352990,
+      "ready": true,
+      "solve": 1
+    },
+    "output_size": 960,
+    "source_bytes": 12335104
+  },
+  "physical_android_tested": false,
+  "native_registration_in_apk": true,
+  "automatically_copies_completed_report": true,
+  "cancellation_preserves_clipboard": true,
+  "reconstruction_comparison": {
+    "schema": "lie-construction-reconstruction-comparison/1",
+    "cases": [
+      {
+        "case": 0,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.43,
+        "candidate_command_ms": 0.432,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 3355370474,
+          "marker_frame": 1,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 41037390,
+            "material_accumulation": 1102228584,
+            "output": 35778203,
+            "projection_depth": 1207987149,
+            "shading": 610479757,
+            "shadow": 357400118
+          },
+          "serial": 1
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2117956889,
+          "marker_frame": 1,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 13216647,
+            "material_accumulation": 805481474,
+            "output": 13163481,
+            "projection_depth": 926160619,
+            "shading": 180127923,
+            "shadow": 179395255
+          },
+          "serial": 1
+        }
+      },
+      {
+        "case": 1,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.437,
+        "candidate_command_ms": 0.482,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 379673411,
+          "marker_frame": 27,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 4322223,
+            "output": 12029479,
+            "shading": 154916673,
+            "shadow": 208044339
+          },
+          "serial": 2
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 368326186,
+          "marker_frame": 27,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 4351181,
+            "output": 9785220,
+            "shading": 156546701,
+            "shadow": 197322585
+          },
+          "serial": 2
+        }
+      },
+      {
+        "case": 2,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.434,
+        "candidate_command_ms": 0.456,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1868405518,
+          "marker_frame": 34,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 14011144,
+            "material_accumulation": 784051269,
+            "output": 11027416,
+            "projection_depth": 909905517,
+            "shading": 149036834
+          },
+          "serial": 3
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1884851341,
+          "marker_frame": 34,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 14644132,
+            "material_accumulation": 789798026,
+            "output": 9603068,
+            "projection_depth": 911210218,
+            "shading": 159226401
+          },
+          "serial": 3
+        }
+      },
+      {
+        "case": 3,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.516,
+        "candidate_command_ms": 0.445,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1902196540,
+          "marker_frame": 41,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 13926302,
+            "material_accumulation": 787961626,
+            "output": 9466487,
+            "projection_depth": 932415824,
+            "shading": 158041370
+          },
+          "serial": 4
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1874386090,
+          "marker_frame": 41,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12776980,
+            "material_accumulation": 789070102,
+            "output": 9856849,
+            "projection_depth": 907206095,
+            "shading": 155088638
+          },
+          "serial": 4
+        }
+      },
+      {
+        "case": 4,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 21.662,
+        "candidate_command_ms": 19.748,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 468569736,
+          "marker_frame": 48,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 13354590,
+            "material_accumulation": 250393220,
+            "output": 11764115,
+            "projection_depth": 84980702,
+            "shading": 92084474,
+            "shadow": 15582446
+          },
+          "serial": 5
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 487073187,
+          "marker_frame": 48,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12779953,
+            "material_accumulation": 264556121,
+            "output": 9814112,
+            "projection_depth": 80773281,
+            "shading": 102678503,
+            "shadow": 15999858
+          },
+          "serial": 5
+        }
+      },
+      {
+        "case": 5,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 10.141,
+        "candidate_command_ms": 9.495,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1471333180,
+          "marker_frame": 55,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 12773664,
+            "material_accumulation": 711085583,
+            "output": 10826346,
+            "projection_depth": 249770056,
+            "shading": 469230973,
+            "shadow": 17218415
+          },
+          "serial": 6
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1470562799,
+          "marker_frame": 55,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 14533734,
+            "material_accumulation": 714090867,
+            "output": 9098957,
+            "projection_depth": 247932491,
+            "shading": 465143466,
+            "shadow": 19335360
+          },
+          "serial": 6
+        }
+      },
+      {
+        "case": 6,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 165.057,
+        "candidate_command_ms": 166.905,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2731978120,
+          "marker_frame": 62,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 12882767,
+            "material_accumulation": 1013384038,
+            "output": 9938563,
+            "projection_depth": 1310318776,
+            "shading": 172262440,
+            "shadow": 212766051
+          },
+          "serial": 7
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "shadow",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 2765675233,
+          "marker_frame": 62,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12786104,
+            "material_accumulation": 1008813510,
+            "output": 9514656,
+            "projection_depth": 1348326996,
+            "shading": 176192938,
+            "shadow": 209594277
+          },
+          "serial": 7
+        }
+      },
+      {
+        "case": 7,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 0.463,
+        "candidate_command_ms": 0.481,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1774815475,
+          "marker_frame": 69,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "clear": 14525625,
+            "material_accumulation": 743905592,
+            "output": 9801202,
+            "projection_depth": 866491994,
+            "shading": 139681306
+          },
+          "serial": 8
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "clear",
+            "projection_depth",
+            "material_accumulation",
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 1798403684,
+          "marker_frame": 69,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "clear": 12742750,
+            "material_accumulation": 758249222,
+            "output": 9656639,
+            "projection_depth": 866016878,
+            "shading": 151359203
+          },
+          "serial": 8
+        }
+      },
+      {
+        "case": 8,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 59.156,
+        "candidate_command_ms": 59.668,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 103000206,
+          "marker_frame": 76,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "output": 10255422,
+            "shading": 92556415
+          },
+          "serial": 9
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 106145186,
+          "marker_frame": 76,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "output": 11803780,
+            "shading": 94111328
+          },
+          "serial": 9
+        }
+      },
+      {
+        "case": 9,
+        "depth_bit_exact": true,
+        "alpha_bit_exact": true,
+        "peak_rgba_error": 0.0,
+        "baseline_command_ms": 60.597,
+        "candidate_command_ms": 59.289,
+        "baseline_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 161765108,
+          "marker_frame": 83,
+          "owner_instance_id": -9223371991489182250,
+          "passes_ns": {
+            "output": 9414454,
+            "shading": 152147245
+          },
+          "serial": 10
+        },
+        "candidate_last_profile": {
+          "executed_passes": [
+            "shading",
+            "output"
+          ],
+          "gpu_ns": 164386006,
+          "marker_frame": 83,
+          "owner_instance_id": -9223371994609744423,
+          "passes_ns": {
+            "output": 11793503,
+            "shading": 152412400
+          },
+          "serial": 10
+        }
+      }
+    ],
+    "physical_android_tested": false,
+    "same_source_samples_and_lod": true,
+    "scope": "Same attributed capture banks, controls, 960 output / 1920 internal. Software Vulkan correctness and host observations only."
+  },
+  "native_reconstruction_checks": 28,
+  "proxy_physics": {
+    "cases": [
+      {
+        "grouped": false,
+        "metrics": {
+          "approximation": "one oriented source-bounds box per piece; geometric relief is visual only",
+          "equivalent_box_triangles": 9372,
+          "generation": 1,
+          "grouped": false,
+          "physics_bodies": 781,
+          "physics_shapes": 781,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.40234375,
+        "seed": 2102,
+        "wall_fraction": 0.403365221792978,
+        "window_clear": true
+      },
+      {
+        "grouped": true,
+        "metrics": {
+          "approximation": "wall-body envelope with separate plinths, sill and frame: fills small joints and relief; preserves declared clear window; not an exact union or visual occluder",
+          "equivalent_box_triangles": 156,
+          "generation": 2,
+          "grouped": true,
+          "physics_bodies": 13,
+          "physics_shapes": 13,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.40234375,
+        "seed": 2102,
+        "wall_fraction": 0.403365221792978,
+        "window_clear": true
+      },
+      {
+        "grouped": false,
+        "metrics": {
+          "approximation": "one oriented source-bounds box per piece; geometric relief is visual only",
+          "equivalent_box_triangles": 9372,
+          "generation": 3,
+          "grouped": false,
+          "physics_bodies": 781,
+          "physics_shapes": 781,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.40234375,
+        "seed": 7319,
+        "wall_fraction": 0.403365221792978,
+        "window_clear": true
+      },
+      {
+        "grouped": true,
+        "metrics": {
+          "approximation": "wall-body envelope with separate plinths, sill and frame: fills small joints and relief; preserves declared clear window; not an exact union or visual occluder",
+          "equivalent_box_triangles": 156,
+          "generation": 4,
+          "grouped": true,
+          "physics_bodies": 13,
+          "physics_shapes": 13,
+          "rendered_proxy_triangles": 0,
+          "source_pieces": 781
+        },
+        "native_wall_fraction": 0.40234375,
+        "seed": 7319,
+        "wall_fraction": 0.403365221792978,
+        "window_clear": true
+      }
+    ],
+    "checks": 65,
+    "failed": false,
+    "physical_android_tested": false,
+    "physics_engine": "DEFAULT"
+  },
+  "proxy_native": {
+    "checks": 15,
+    "depth_exact": true,
+    "failed": false,
+    "physical_android_tested": false,
+    "report": {
+      "appearance_reused": true,
+      "blocks": [],
+      "cancelled": false,
+      "complete": true,
+      "copy_scope": "Summary with percentiles and resource/thermal boundaries; export the complete JSON for raw GPU interval rows.",
+      "device": "GenericDevice",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938.0,
+        "major": 4.0,
+        "minor": 7.0,
+        "patch": 2.0,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0.0
+      },
+      "error": "",
+      "field_reused": true,
+      "finished_at": "2026-11-08T16:28:19",
+      "gpu": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "internal_size": 512.0,
+      "kind": "invisible_wall_proxy_A_B",
+      "os": "Linux",
+      "output_size": 256.0,
+      "physical_android_session": false,
+      "physics": [
+        {
+          "contract": {
+            "camera_queries_start_clear": true,
+            "camera_wall_blocked": true,
+            "camera_wall_fraction": 0.403365221792978,
+            "camera_window_clear": true,
+            "passed": true,
+            "wall_blocks_ray": true,
+            "wall_sphere_motion": [
+              0.40234375,
+              0.40625
+            ],
+            "window_passes_ray": true,
+            "window_sphere_motion": [
+              1.0,
+              1.0
+            ]
+          },
+          "grouped": false,
+          "proxy": {
+            "approximation": "one oriented source-bounds box per piece; geometric relief is visual only",
+            "equivalent_box_triangles": 9372.0,
+            "generation": 2.0,
+            "grouped": false,
+            "physics_bodies": 781.0,
+            "physics_shapes": 781.0,
+            "rendered_proxy_triangles": 0.0,
+            "source_pieces": 781.0
+          },
+          "resources": {
+            "allocation_bytes": 123817584.0,
+            "asset_uploads": 7.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "camera_jobs": 781.0,
+            "camera_samples": 1165568.0,
+            "camera_skipped_samples": 0.0,
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111482480.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "8559869821100:8598524526625",
+              "nodes": 4742.0,
+              "producer": -9.223371972665145e+18,
+              "solve": 1.0
+            },
+            "frames": 2.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371988351842e+18,
+            "page_io_bytes": 12335104.0,
+            "pass_counts": {
+              "clear": 2.0,
+              "material_accumulation": 2.0,
+              "output": 2.0,
+              "projection_depth": 2.0,
+              "shading": 2.0,
+              "shadow": 2.0
+            },
+            "profile": [
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 776744711.0,
+                "marker_frame": 1.0,
+                "owner_instance_id": -9.223371988351842e+18,
+                "passes_ns": {
+                  "clear": 1533548.0,
+                  "material_accumulation": 240799268.0,
+                  "output": 1552762.0,
+                  "projection_depth": 335840755.0,
+                  "shading": 15846048.0,
+                  "shadow": 180739454.0
+                },
+                "serial": 1.0
+              },
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 782490626.0,
+                "marker_frame": 34.0,
+                "owner_instance_id": -9.223371988351842e+18,
+                "passes_ns": {
+                  "clear": 959673.0,
+                  "material_accumulation": 237055368.0,
+                  "output": 860049.0,
+                  "projection_depth": 341573286.0,
+                  "shading": 18073442.0,
+                  "shadow": 183519243.0
+                },
+                "serial": 2.0
+              }
+            ],
+            "ready": true,
+            "samples": 1165568.0,
+            "shadow_samples": 1165568.0,
+            "snapshot_usec": 4847959.0,
+            "source_bytes": 12335104.0
+          },
+          "timing": {
+            "elapsed_ms": 0.154,
+            "hits": 16.0,
+            "queries": 32.0,
+            "ray_cpu_ms": {
+              "max_ms": 0.015,
+              "p50_ms": 0.004,
+              "p95_ms": 0.006,
+              "samples": 32.0
+            },
+            "scope": "Actual PhysicsDirectSpaceState3D ray calls after physics-frame synchronization; CPU wall time only, not GPU rendering or FPS."
+          }
+        },
+        {
+          "contract": {
+            "camera_queries_start_clear": true,
+            "camera_wall_blocked": true,
+            "camera_wall_fraction": 0.403365221792978,
+            "camera_window_clear": true,
+            "passed": true,
+            "wall_blocks_ray": true,
+            "wall_sphere_motion": [
+              0.40234375,
+              0.40625
+            ],
+            "window_passes_ray": true,
+            "window_sphere_motion": [
+              1.0,
+              1.0
+            ]
+          },
+          "grouped": true,
+          "proxy": {
+            "approximation": "wall-body envelope with separate plinths, sill and frame: fills small joints and relief; preserves declared clear window; not an exact union or visual occluder",
+            "equivalent_box_triangles": 156.0,
+            "generation": 3.0,
+            "grouped": true,
+            "physics_bodies": 13.0,
+            "physics_shapes": 13.0,
+            "rendered_proxy_triangles": 0.0,
+            "source_pieces": 781.0
+          },
+          "resources": {
+            "allocation_bytes": 123817584.0,
+            "asset_uploads": 7.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "camera_jobs": 781.0,
+            "camera_samples": 1165568.0,
+            "camera_skipped_samples": 0.0,
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111482480.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "8559869821100:8598524526625",
+              "nodes": 4742.0,
+              "producer": -9.223371972665145e+18,
+              "solve": 1.0
+            },
+            "frames": 2.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371988351842e+18,
+            "page_io_bytes": 12335104.0,
+            "pass_counts": {
+              "clear": 2.0,
+              "material_accumulation": 2.0,
+              "output": 2.0,
+              "projection_depth": 2.0,
+              "shading": 2.0,
+              "shadow": 2.0
+            },
+            "profile": [
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 776744711.0,
+                "marker_frame": 1.0,
+                "owner_instance_id": -9.223371988351842e+18,
+                "passes_ns": {
+                  "clear": 1533548.0,
+                  "material_accumulation": 240799268.0,
+                  "output": 1552762.0,
+                  "projection_depth": 335840755.0,
+                  "shading": 15846048.0,
+                  "shadow": 180739454.0
+                },
+                "serial": 1.0
+              },
+              {
+                "executed_passes": [
+                  "clear",
+                  "shadow",
+                  "projection_depth",
+                  "material_accumulation",
+                  "shading",
+                  "output"
+                ],
+                "gpu_ns": 782490626.0,
+                "marker_frame": 34.0,
+                "owner_instance_id": -9.223371988351842e+18,
+                "passes_ns": {
+                  "clear": 959673.0,
+                  "material_accumulation": 237055368.0,
+                  "output": 860049.0,
+                  "projection_depth": 341573286.0,
+                  "shading": 18073442.0,
+                  "shadow": 183519243.0
+                },
+                "serial": 2.0
+              }
+            ],
+            "ready": true,
+            "samples": 1165568.0,
+            "shadow_samples": 1165568.0,
+            "snapshot_usec": 4940793.0,
+            "source_bytes": 12335104.0
+          },
+          "timing": {
+            "elapsed_ms": 0.069,
+            "hits": 16.0,
+            "queries": 32.0,
+            "ray_cpu_ms": {
+              "max_ms": 0.004,
+              "p50_ms": 0.001,
+              "p95_ms": 0.003,
+              "samples": 32.0
+            },
+            "scope": "Actual PhysicsDirectSpaceState3D ray calls after physics-frame synchronization; CPU wall time only, not GPU rendering or FPS."
+          }
+        }
+      ],
+      "restored": true,
+      "sample_invocations": 1165568.0,
+      "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+      "schema": "lie-construction-mobile-report/1",
+      "scope": "Invisible physics/camera experiment. Grouped wall envelopes approximate joints and relief, preserve the declared window, and do not render triangles. Capture banks, light-field ownership, LOD and render sample jobs are unchanged. No GPU image readbacks are requested by this benchmark. No rendering speedup is inferred from fewer colliders.",
+      "started_at": "2026-11-08T16:28:19",
+      "version": "6.3.0-hierarchical-camera",
+      "warm_up": [
+        {
+          "elapsed_ms": 148.283,
+          "resources": {
+            "allocation_bytes": 123817584.0,
+            "asset_uploads": 7.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "camera_jobs": 781.0,
+            "camera_samples": 1165568.0,
+            "camera_skipped_samples": 0.0,
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111482480.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "8559869821100:8598524526625",
+              "nodes": 4742.0,
+              "producer": -9.223371972665145e+18,
+              "solve": 1.0
+            },
+            "frames": 2.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371988351842e+18,
+            "page_io_bytes": 12335104.0,
+            "pass_counts": {
+              "clear": 2.0,
+              "material_accumulation": 2.0,
+              "output": 2.0,
+              "projection_depth": 2.0,
+              "shading": 2.0,
+              "shadow": 2.0
+            },
+            "ready": true,
+            "samples": 1165568.0,
+            "shadow_samples": 1165568.0,
+            "snapshot_usec": 4733429.0,
+            "source_bytes": 12335104.0
+          }
+        }
+      ]
+    },
+    "rgba_exact": true
+  },
+  "hierarchy_native": {
+    "cases": [
+      {
+        "camera_jobs": 781,
+        "camera_samples": 1165568,
+        "depth_exact": true,
+        "full_samples": 1165568,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 819,
+          "rejected_nodes": 0,
+          "selected_jobs": 781,
+          "total_jobs": 781,
+          "visited_nodes": 124
+        },
+        "name": "whole",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 1165568
+      },
+      {
+        "camera_jobs": 271,
+        "camera_samples": 393472,
+        "depth_exact": true,
+        "full_samples": 1165568,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 819,
+          "rejected_nodes": 276,
+          "selected_jobs": 271,
+          "total_jobs": 781,
+          "visited_nodes": 541
+        },
+        "name": "close_edge",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 1165568
+      },
+      {
+        "camera_jobs": 92,
+        "camera_samples": 251264,
+        "depth_exact": true,
+        "full_samples": 1165568,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 819,
+          "rejected_nodes": 157,
+          "selected_jobs": 92,
+          "total_jobs": 781,
+          "visited_nodes": 262
+        },
+        "name": "close_window",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 1165568
+      },
+      {
+        "camera_jobs": 57,
+        "camera_samples": 118912,
+        "depth_exact": true,
+        "full_samples": 1165568,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 819,
+          "rejected_nodes": 62,
+          "selected_jobs": 57,
+          "total_jobs": 781,
+          "visited_nodes": 126
+        },
+        "name": "back",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 1165568
+      },
+      {
+        "camera_jobs": 121,
+        "camera_samples": 291072,
+        "depth_exact": true,
+        "full_samples": 1165568,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 819,
+          "rejected_nodes": 125,
+          "selected_jobs": 121,
+          "total_jobs": 781,
+          "visited_nodes": 260
+        },
+        "name": "overhead",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 1165568
+      },
+      {
+        "camera_jobs": 0,
+        "camera_samples": 0,
+        "depth_exact": true,
+        "full_samples": 1165568,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 819,
+          "rejected_nodes": 1,
+          "selected_jobs": 0,
+          "total_jobs": 781,
+          "visited_nodes": 1
+        },
+        "name": "empty",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 1165568
+      },
+      {
+        "camera_jobs": 2,
+        "camera_samples": 504000,
+        "depth_exact": true,
+        "full_samples": 552000,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 10,
+          "rejected_nodes": 2,
+          "selected_jobs": 2,
+          "total_jobs": 4,
+          "visited_nodes": 8
+        },
+        "name": "open_door",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 552000
+      },
+      {
+        "camera_jobs": 0,
+        "camera_samples": 0,
+        "depth_exact": true,
+        "full_samples": 528000,
+        "hierarchy": {
+          "enabled": true,
+          "nodes": 28,
+          "rejected_nodes": 13,
+          "selected_jobs": 0,
+          "total_jobs": 22,
+          "visited_nodes": 16
+        },
+        "name": "roof",
+        "rgba_error": 0.0,
+        "shadow_exact": true,
+        "shadow_samples": 528000
+      }
+    ],
+    "checks": 53,
+    "failed": false,
+    "full_quality": {
+      "camera_samples": 392960,
+      "depth_exact": true,
+      "internal": 1920,
+      "logical_samples": 1165568,
+      "output": 960,
+      "rgba_exact": true,
+      "shadow_exact": true,
+      "shadow_samples": 1165568
+    },
+    "physical_android_tested": false,
+    "reduced_cases": 7,
+    "report": {
+      "blocks": [
+        {
+          "after": {
+            "end_usec": 33606620.0,
+            "resources": {
+              "allocation_bytes": 123817584.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 781.0,
+              "camera_samples": 1165568.0,
+              "camera_skipped_samples": 0.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111482480.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 1.0
+              },
+              "frames": 21.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 21.0,
+                "material_accumulation": 21.0,
+                "output": 21.0,
+                "projection_depth": 21.0,
+                "shading": 21.0,
+                "shadow": 10.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 33571143.0,
+              "source_bytes": 12335104.0
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "214810663105",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926108672.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932556800.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "before": {
+            "resources": {
+              "allocation_bytes": 123817584.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 781.0,
+              "camera_samples": 1165568.0,
+              "camera_skipped_samples": 0.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111482480.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 1.0
+              },
+              "frames": 19.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 19.0,
+                "material_accumulation": 19.0,
+                "output": 19.0,
+                "projection_depth": 19.0,
+                "shading": 19.0,
+                "shadow": 10.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 32377085.0,
+              "source_bytes": 12335104.0
+            },
+            "start_usec": 32411956.0,
+            "state": {
+              "ambient": 1.0,
+              "bounces": 2.0,
+              "camera_culling": false,
+              "camera_guard": false,
+              "door_angle": 75.0,
+              "elevation": 0.0,
+              "energy_radius": false,
+              "field_lighting": true,
+              "fill_enabled": true,
+              "fill_power": 0.32,
+              "focus_x": 0.0,
+              "focus_y": 0.0,
+              "indirect": true,
+              "key_enabled": true,
+              "light": -35.0,
+              "lod": -1.0,
+              "mode": "corner",
+              "normals": true,
+              "occluder": true,
+              "proxy_grouped": true,
+              "reverse_banks": false,
+              "seed": 2102.0,
+              "shadows": true,
+              "yaw": 0.0,
+              "zoom": 1.0
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "213615912614",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926022656.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932470784.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "close_view": false,
+          "hierarchy": {
+            "enabled": false,
+            "nodes": 819.0,
+            "rejected_nodes": 0.0,
+            "selected_jobs": 781.0,
+            "total_jobs": 781.0,
+            "visited_nodes": 0.0
+          },
+          "kind": "camera",
+          "measurements": {
+            "appearance_gpu_ms": {
+              "max_ms": 500.943117,
+              "p50_ms": 488.624332,
+              "p95_ms": 500.943117,
+              "samples": 2.0
+            },
+            "appearance_passes_gpu_ms": {
+              "clear": {
+                "max_ms": 1.12844,
+                "p50_ms": 0.970536,
+                "p95_ms": 1.12844,
+                "samples": 2.0
+              },
+              "material_accumulation": {
+                "max_ms": 198.249671,
+                "p50_ms": 196.45376,
+                "p95_ms": 198.249671,
+                "samples": 2.0
+              },
+              "output": {
+                "max_ms": 1.259279,
+                "p50_ms": 0.85341,
+                "p95_ms": 1.259279,
+                "samples": 2.0
+              },
+              "projection_depth": {
+                "max_ms": 285.387126,
+                "p50_ms": 278.935754,
+                "p95_ms": 285.387126,
+                "samples": 2.0
+              },
+              "shading": {
+                "max_ms": 14.961462,
+                "p50_ms": 10.63651,
+                "p95_ms": 14.961462,
+                "samples": 2.0
+              }
+            },
+            "command_cpu_ms": {
+              "max_ms": 0.499,
+              "p50_ms": 0.486,
+              "p95_ms": 0.499,
+              "samples": 2.0
+            },
+            "display_frame_ms": {
+              "max_ms": 521.525,
+              "p50_ms": 18.034,
+              "p95_ms": 521.525,
+              "samples": 2.0
+            },
+            "dropped_samples": 0.0,
+            "lighting_gpu_ms": {
+              "samples": 0.0
+            },
+            "scope": "Frame intervals include presentation, CPU and waiting. Appearance and transport are separate GPU timestamp intervals; their percentiles must not be added. Cached idle produces no new LIE solve sample. Includes cold events after the explicit warm-up; missing timestamps stay unavailable."
+          },
+          "selection_enabled": false
+        },
+        {
+          "after": {
+            "end_usec": 35484504.0,
+            "resources": {
+              "allocation_bytes": 123817584.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 781.0,
+              "camera_samples": 1165568.0,
+              "camera_skipped_samples": 0.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111482480.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 1.0
+              },
+              "frames": 24.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 24.0,
+                "material_accumulation": 24.0,
+                "output": 24.0,
+                "projection_depth": 24.0,
+                "shading": 24.0,
+                "shadow": 10.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 35449066.0,
+              "source_bytes": 12335104.0
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "216688713179",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926108672.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932556800.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "before": {
+            "resources": {
+              "allocation_bytes": 123817584.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 781.0,
+              "camera_samples": 1165568.0,
+              "camera_skipped_samples": 0.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111482480.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 1.0
+              },
+              "frames": 22.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 22.0,
+                "material_accumulation": 22.0,
+                "output": 22.0,
+                "projection_depth": 22.0,
+                "shading": 22.0,
+                "shadow": 10.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 34262368.0,
+              "source_bytes": 12335104.0
+            },
+            "start_usec": 34297609.0,
+            "state": {
+              "ambient": 1.0,
+              "bounces": 2.0,
+              "camera_culling": true,
+              "camera_guard": false,
+              "door_angle": 75.0,
+              "elevation": 0.0,
+              "energy_radius": false,
+              "field_lighting": true,
+              "fill_enabled": true,
+              "fill_power": 0.32,
+              "focus_x": 0.0,
+              "focus_y": 0.0,
+              "indirect": true,
+              "key_enabled": true,
+              "light": -35.0,
+              "lod": -1.0,
+              "mode": "corner",
+              "normals": true,
+              "occluder": true,
+              "proxy_grouped": true,
+              "reverse_banks": false,
+              "seed": 2102.0,
+              "shadows": true,
+              "yaw": 0.0,
+              "zoom": 1.0
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "215501561713",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926108672.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932556800.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "close_view": false,
+          "hierarchy": {
+            "enabled": true,
+            "nodes": 819.0,
+            "rejected_nodes": 0.0,
+            "selected_jobs": 781.0,
+            "total_jobs": 781.0,
+            "visited_nodes": 3.0
+          },
+          "kind": "camera",
+          "measurements": {
+            "appearance_gpu_ms": {
+              "max_ms": 493.91683,
+              "p50_ms": 481.595254,
+              "p95_ms": 493.91683,
+              "samples": 2.0
+            },
+            "appearance_passes_gpu_ms": {
+              "clear": {
+                "max_ms": 1.437524,
+                "p50_ms": 0.964597,
+                "p95_ms": 1.437524,
+                "samples": 2.0
+              },
+              "material_accumulation": {
+                "max_ms": 202.555461,
+                "p50_ms": 197.006434,
+                "p95_ms": 202.555461,
+                "samples": 2.0
+              },
+              "output": {
+                "max_ms": 1.102439,
+                "p50_ms": 0.894989,
+                "p95_ms": 1.102439,
+                "samples": 2.0
+              },
+              "projection_depth": {
+                "max_ms": 277.080789,
+                "p50_ms": 266.992645,
+                "p95_ms": 277.080789,
+                "samples": 2.0
+              },
+              "shading": {
+                "max_ms": 15.373958,
+                "p50_ms": 11.3859,
+                "p95_ms": 15.373958,
+                "samples": 2.0
+              }
+            },
+            "command_cpu_ms": {
+              "max_ms": 0.549,
+              "p50_ms": 0.513,
+              "p95_ms": 0.549,
+              "samples": 2.0
+            },
+            "display_frame_ms": {
+              "max_ms": 502.544,
+              "p50_ms": 18.059,
+              "p95_ms": 502.544,
+              "samples": 2.0
+            },
+            "dropped_samples": 0.0,
+            "lighting_gpu_ms": {
+              "samples": 0.0
+            },
+            "scope": "Frame intervals include presentation, CPU and waiting. Appearance and transport are separate GPU timestamp intervals; their percentiles must not be added. Cached idle produces no new LIE solve sample. Includes cold events after the explicit warm-up; missing timestamps stay unavailable."
+          },
+          "selection_enabled": true
+        },
+        {
+          "after": {
+            "end_usec": 42430653.0,
+            "resources": {
+              "allocation_bytes": 123817584.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 781.0,
+              "camera_samples": 1165568.0,
+              "camera_skipped_samples": 0.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111482480.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 2.0
+              },
+              "frames": 27.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 27.0,
+                "material_accumulation": 27.0,
+                "output": 27.0,
+                "projection_depth": 27.0,
+                "shading": 27.0,
+                "shadow": 11.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 42378073.0,
+              "source_bytes": 12335104.0
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "223634958885",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926108672.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932556800.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "before": {
+            "resources": {
+              "allocation_bytes": 123817584.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 781.0,
+              "camera_samples": 1165568.0,
+              "camera_skipped_samples": 0.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111482480.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 2.0
+              },
+              "frames": 25.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 25.0,
+                "material_accumulation": 25.0,
+                "output": 25.0,
+                "projection_depth": 25.0,
+                "shading": 25.0,
+                "shadow": 11.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 40600387.0,
+              "source_bytes": 12335104.0
+            },
+            "start_usec": 40636467.0,
+            "state": {
+              "ambient": 1.0,
+              "bounces": 2.0,
+              "camera_culling": false,
+              "camera_guard": false,
+              "door_angle": 75.0,
+              "elevation": 0.0,
+              "energy_radius": false,
+              "field_lighting": true,
+              "fill_enabled": true,
+              "fill_power": 0.32,
+              "focus_x": 0.6,
+              "focus_y": 0.0,
+              "indirect": true,
+              "key_enabled": true,
+              "light": -35.0,
+              "lod": -1.0,
+              "mode": "corner",
+              "normals": true,
+              "occluder": true,
+              "proxy_grouped": true,
+              "reverse_banks": false,
+              "seed": 2102.0,
+              "shadows": true,
+              "yaw": 0.0,
+              "zoom": 0.25
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "221840138783",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926108672.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932556800.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "close_view": true,
+          "hierarchy": {
+            "enabled": false,
+            "nodes": 819.0,
+            "rejected_nodes": 0.0,
+            "selected_jobs": 781.0,
+            "total_jobs": 781.0,
+            "visited_nodes": 0.0
+          },
+          "kind": "camera",
+          "measurements": {
+            "appearance_gpu_ms": {
+              "max_ms": 912.062785,
+              "p50_ms": 672.456404,
+              "p95_ms": 912.062785,
+              "samples": 2.0
+            },
+            "appearance_passes_gpu_ms": {
+              "clear": {
+                "max_ms": 1.021738,
+                "p50_ms": 0.986591,
+                "p95_ms": 1.021738,
+                "samples": 2.0
+              },
+              "material_accumulation": {
+                "max_ms": 358.024103,
+                "p50_ms": 264.848163,
+                "p95_ms": 358.024103,
+                "samples": 2.0
+              },
+              "output": {
+                "max_ms": 1.205078,
+                "p50_ms": 0.881559,
+                "p95_ms": 1.205078,
+                "samples": 2.0
+              },
+              "projection_depth": {
+                "max_ms": 533.504974,
+                "p50_ms": 385.797914,
+                "p95_ms": 533.504974,
+                "samples": 2.0
+              },
+              "shading": {
+                "max_ms": 19.554348,
+                "p50_ms": 17.956748,
+                "p95_ms": 19.554348,
+                "samples": 2.0
+              }
+            },
+            "command_cpu_ms": {
+              "max_ms": 0.529,
+              "p50_ms": 0.453,
+              "p95_ms": 0.529,
+              "samples": 2.0
+            },
+            "display_frame_ms": {
+              "max_ms": 693.714,
+              "p50_ms": 18.316,
+              "p95_ms": 693.714,
+              "samples": 2.0
+            },
+            "dropped_samples": 0.0,
+            "lighting_gpu_ms": {
+              "samples": 0.0
+            },
+            "scope": "Frame intervals include presentation, CPU and waiting. Appearance and transport are separate GPU timestamp intervals; their percentiles must not be added. Cached idle produces no new LIE solve sample. Includes cold events after the explicit warm-up; missing timestamps stay unavailable."
+          },
+          "selection_enabled": false
+        },
+        {
+          "after": {
+            "end_usec": 44738528.0,
+            "resources": {
+              "allocation_bytes": 123809840.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 297.0,
+              "camera_samples": 491200.0,
+              "camera_skipped_samples": 674368.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111474736.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 2.0
+              },
+              "frames": 30.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 30.0,
+                "material_accumulation": 30.0,
+                "output": 30.0,
+                "projection_depth": 30.0,
+                "shading": 30.0,
+                "shadow": 11.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 44703033.0,
+              "source_bytes": 12335104.0
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "225942823156",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926120960.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932569088.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "before": {
+            "resources": {
+              "allocation_bytes": 123809424.0,
+              "asset_uploads": 20.0,
+              "bank_dispatch_samples": {
+                "0": 753664.0,
+                "1": 219904.0,
+                "2": 96000.0,
+                "3": 96000.0
+              },
+              "camera_jobs": 271.0,
+              "camera_samples": 393472.0,
+              "camera_skipped_samples": 772096.0,
+              "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+              "exclusive_bytes": 111474320.0,
+              "failure": "",
+              "field": {
+                "bytes": 24105544.0,
+                "epoch": "12695923327155:12734578032673",
+                "nodes": 4742.0,
+                "producer": -9.223371889936692e+18,
+                "solve": 2.0
+              },
+              "frames": 28.0,
+              "instances": 781.0,
+              "internal_size": 512.0,
+              "output_size": 256.0,
+              "owner": -9.223371991740841e+18,
+              "page_io_bytes": 79966208.0,
+              "pass_counts": {
+                "clear": 28.0,
+                "material_accumulation": 28.0,
+                "output": 28.0,
+                "projection_depth": 28.0,
+                "shading": 28.0,
+                "shadow": 11.0
+              },
+              "ready": true,
+              "samples": 1165568.0,
+              "shadow_samples": 1165568.0,
+              "snapshot_usec": 43135382.0,
+              "source_bytes": 12335104.0
+            },
+            "start_usec": 43171416.0,
+            "state": {
+              "ambient": 1.0,
+              "bounces": 2.0,
+              "camera_culling": true,
+              "camera_guard": false,
+              "door_angle": 75.0,
+              "elevation": 0.0,
+              "energy_radius": false,
+              "field_lighting": true,
+              "fill_enabled": true,
+              "fill_power": 0.32,
+              "focus_x": 0.6,
+              "focus_y": 0.0,
+              "indirect": true,
+              "key_enabled": true,
+              "light": -35.0,
+              "lod": -1.0,
+              "mode": "corner",
+              "normals": true,
+              "occluder": true,
+              "proxy_grouped": true,
+              "reverse_banks": false,
+              "seed": 2102.0,
+              "shadows": true,
+              "yaw": 0.0,
+              "zoom": 0.25
+            },
+            "telemetry": {
+              "gpu_frequency": {
+                "available": false,
+                "reason": "GPU devfreq frequency is not readable by this app"
+              },
+              "gpu_temperature": {
+                "available": false,
+                "reason": "No readable thermal zone explicitly named GPU/Mali",
+                "sensors": []
+              },
+              "host_monotonic_ns": "224375154096",
+              "process_memory": {
+                "pss": {
+                  "available": true,
+                  "bytes": 926108672.0
+                },
+                "rss": {
+                  "available": true,
+                  "bytes": 932556800.0
+                },
+                "scope": "process RSS/PSS in bytes; distinct measures, not additive or exclusive GPU memory",
+                "source": "/proc/self/status and /proc/self/smaps_rollup"
+              },
+              "thermal_status": {
+                "available": false,
+                "reason": "Android thermal status API is not available on this platform"
+              }
+            }
+          },
+          "close_view": true,
+          "hierarchy": {
+            "enabled": true,
+            "nodes": 819.0,
+            "rejected_nodes": 253.0,
+            "selected_jobs": 297.0,
+            "total_jobs": 781.0,
+            "visited_nodes": 545.0
+          },
+          "kind": "camera",
+          "measurements": {
+            "appearance_gpu_ms": {
+              "max_ms": 787.374581,
+              "p50_ms": 564.562368,
+              "p95_ms": 787.374581,
+              "samples": 2.0
+            },
+            "appearance_passes_gpu_ms": {
+              "clear": {
+                "max_ms": 1.121988,
+                "p50_ms": 0.975437,
+                "p95_ms": 1.121988,
+                "samples": 2.0
+              },
+              "material_accumulation": {
+                "max_ms": 310.614397,
+                "p50_ms": 205.357373,
+                "p95_ms": 310.614397,
+                "samples": 2.0
+              },
+              "output": {
+                "max_ms": 1.447921,
+                "p50_ms": 1.120172,
+                "p95_ms": 1.447921,
+                "samples": 2.0
+              },
+              "projection_depth": {
+                "max_ms": 452.404822,
+                "p50_ms": 336.594062,
+                "p95_ms": 452.404822,
+                "samples": 2.0
+              },
+              "shading": {
+                "max_ms": 21.567006,
+                "p50_ms": 20.02603,
+                "p95_ms": 21.567006,
+                "samples": 2.0
+              }
+            },
+            "command_cpu_ms": {
+              "max_ms": 1.943,
+              "p50_ms": 1.856,
+              "p95_ms": 1.943,
+              "samples": 2.0
+            },
+            "display_frame_ms": {
+              "max_ms": 588.4,
+              "p50_ms": 19.655,
+              "p95_ms": 588.4,
+              "samples": 2.0
+            },
+            "dropped_samples": 0.0,
+            "lighting_gpu_ms": {
+              "samples": 0.0
+            },
+            "scope": "Frame intervals include presentation, CPU and waiting. Appearance and transport are separate GPU timestamp intervals; their percentiles must not be added. Cached idle produces no new LIE solve sample. Includes cold events after the explicit warm-up; missing timestamps stay unavailable."
+          },
+          "selection_enabled": true
+        }
+      ],
+      "cancelled": false,
+      "complete": true,
+      "copy_scope": "Summary with percentiles and resource/thermal boundaries; export the complete JSON for raw GPU interval rows.",
+      "device": "GenericDevice",
+      "engine": {
+        "build": "official",
+        "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+        "hex": 263938.0,
+        "major": 4.0,
+        "minor": 7.0,
+        "patch": 2.0,
+        "status": "stable",
+        "string": "4.7.2-stable (official)",
+        "timestamp": 0.0
+      },
+      "error": "",
+      "finished_at": "2026-11-08T16:29:06",
+      "gpu": "llvmpipe (LLVM 21.1.8, 256 bits)",
+      "internal_size": 512.0,
+      "kind": "hierarchical_camera_selection_A_B",
+      "os": "Linux",
+      "output_size": 256.0,
+      "physical_android_session": false,
+      "restored": true,
+      "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+      "schema": "lie-construction-mobile-report/1",
+      "scope": "Measurements from this runtime only. Software Vulkan is not Android performance. Resource accounting excludes driver/cache/CPU allocations. RSS and PSS are separate process metrics, not dedicated GPU memory. Temperature is reported only when an explicitly named GPU sensor is readable.",
+      "selection_scope": "Camera frustum only, over immutable source-page bounds. Full jobs retained for shadow casters and light field. Whole-instance sample jobs are skipped without changing captures, LOD, source ownership or resolution. Paired deterministic camera paths; compare within this device, never infer Android FPS from software Vulkan.",
+      "started_at": "2026-11-08T16:28:52",
+      "version": "6.3.0-hierarchical-camera",
+      "warm_up": [
+        {
+          "elapsed_ms": 1348.904,
+          "resources": {
+            "allocation_bytes": 123817584.0,
+            "asset_uploads": 20.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "camera_jobs": 781.0,
+            "camera_samples": 1165568.0,
+            "camera_skipped_samples": 0.0,
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111482480.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "12695923327155:12734578032673",
+              "nodes": 4742.0,
+              "producer": -9.223371889936692e+18,
+              "solve": 1.0
+            },
+            "frames": 19.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371991740841e+18,
+            "page_io_bytes": 79966208.0,
+            "pass_counts": {
+              "clear": 19.0,
+              "material_accumulation": 19.0,
+              "output": 19.0,
+              "projection_depth": 19.0,
+              "shading": 19.0,
+              "shadow": 10.0
+            },
+            "ready": true,
+            "samples": 1165568.0,
+            "shadow_samples": 1165568.0,
+            "snapshot_usec": 32358757.0,
+            "source_bytes": 12335104.0
+          }
+        },
+        {
+          "elapsed_ms": 634.456,
+          "resources": {
+            "allocation_bytes": 123817584.0,
+            "asset_uploads": 20.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "camera_jobs": 781.0,
+            "camera_samples": 1165568.0,
+            "camera_skipped_samples": 0.0,
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111482480.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "12695923327155:12734578032673",
+              "nodes": 4742.0,
+              "producer": -9.223371889936692e+18,
+              "solve": 1.0
+            },
+            "frames": 22.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371991740841e+18,
+            "page_io_bytes": 79966208.0,
+            "pass_counts": {
+              "clear": 22.0,
+              "material_accumulation": 22.0,
+              "output": 22.0,
+              "projection_depth": 22.0,
+              "shading": 22.0,
+              "shadow": 10.0
+            },
+            "ready": true,
+            "samples": 1165568.0,
+            "shadow_samples": 1165568.0,
+            "snapshot_usec": 34243301.0,
+            "source_bytes": 12335104.0
+          }
+        },
+        {
+          "elapsed_ms": 5093.932,
+          "resources": {
+            "allocation_bytes": 123817584.0,
+            "asset_uploads": 20.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "camera_jobs": 781.0,
+            "camera_samples": 1165568.0,
+            "camera_skipped_samples": 0.0,
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111482480.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "12695923327155:12734578032673",
+              "nodes": 4742.0,
+              "producer": -9.223371889936692e+18,
+              "solve": 2.0
+            },
+            "frames": 25.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371991740841e+18,
+            "page_io_bytes": 79966208.0,
+            "pass_counts": {
+              "clear": 25.0,
+              "material_accumulation": 25.0,
+              "output": 25.0,
+              "projection_depth": 25.0,
+              "shading": 25.0,
+              "shadow": 11.0
+            },
+            "ready": true,
+            "samples": 1165568.0,
+            "shadow_samples": 1165568.0,
+            "snapshot_usec": 40581450.0,
+            "source_bytes": 12335104.0
+          }
+        },
+        {
+          "elapsed_ms": 679.849,
+          "resources": {
+            "allocation_bytes": 123809424.0,
+            "asset_uploads": 20.0,
+            "bank_dispatch_samples": {
+              "0": 753664.0,
+              "1": 219904.0,
+              "2": 96000.0,
+              "3": 96000.0
+            },
+            "camera_jobs": 271.0,
+            "camera_samples": 393472.0,
+            "camera_skipped_samples": 772096.0,
+            "device": "llvmpipe (LLVM 21.1.8, 256 bits)",
+            "exclusive_bytes": 111474320.0,
+            "failure": "",
+            "field": {
+              "bytes": 24105544.0,
+              "epoch": "12695923327155:12734578032673",
+              "nodes": 4742.0,
+              "producer": -9.223371889936692e+18,
+              "solve": 2.0
+            },
+            "frames": 28.0,
+            "instances": 781.0,
+            "internal_size": 512.0,
+            "output_size": 256.0,
+            "owner": -9.223371991740841e+18,
+            "page_io_bytes": 79966208.0,
+            "pass_counts": {
+              "clear": 28.0,
+              "material_accumulation": 28.0,
+              "output": 28.0,
+              "projection_depth": 28.0,
+              "shading": 28.0,
+              "shadow": 11.0
+            },
+            "ready": true,
+            "samples": 1165568.0,
+            "shadow_samples": 1165568.0,
+            "snapshot_usec": 43115862.0,
+            "source_bytes": 12335104.0
+          }
+        }
+      ]
+    },
+    "zero_work_cases": 2
+  },
+  "preserved_negative_hierarchy_runs": [
+    42498669849,
+    42499052781
+  ],
+  "preserved_negative_reconstruction_run": 42436770047
+}

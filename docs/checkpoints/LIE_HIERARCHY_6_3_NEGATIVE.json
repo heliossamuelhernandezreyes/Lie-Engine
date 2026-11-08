@@ -1,0 +1,24 @@
+{
+  "schema": "lie-preserved-negative/1",
+  "run_id": 42498669849,
+  "job_id": 128786507538,
+  "commit": "4ce6425fd279ff64c898fb19bf619c934b653ef1",
+  "artifact_id": 13624687106,
+  "artifact_sha256": "4122a6b4a25b251b7a94a655d5b31492519a5ee6228112b23f45a957f3f44187",
+  "failed_suite": "test_lie_proxy_gpu",
+  "reported_failure": "per-piece physical baseline",
+  "cause": "An overbroad numeric text substitution changed the assertion 781 to 1381 while changing the grouped count from 7 to 13. The actual per-piece scene retained 781 bodies.",
+  "passed_before_failure": {
+    "physics_and_hierarchy_cpu": 63,
+    "metrics": 8,
+    "hardware_probe": 16,
+    "rig": 247,
+    "agent": 25,
+    "baseline_reconstruction": 28
+  },
+  "proxy_checks": 15,
+  "proxy_image_depth_shadow_equality_passed": true,
+  "correction_commit": "8138ec74e732678220096eea1722171bb2024d95",
+  "correction": "Restored the exact 781-body assertion and made the Vulkan loop collect all native suite diagnostics before reporting failure.",
+  "physical_android_tested": false
+}

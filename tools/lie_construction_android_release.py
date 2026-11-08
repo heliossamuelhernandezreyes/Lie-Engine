@@ -62,6 +62,7 @@ def release(artifact,expected,guide,output,run_id,job_id):
                     'native_reconstruction_checks':reconstruction['checks'],
                     'proxy_physics':physics,'proxy_native':proxy,
                     'hierarchy_native':hierarchy,
+                    'preserved_negative_hierarchy_runs':[42498669849,42499052781],
                     'preserved_negative_reconstruction_run':42436770047}
         (output/(PREFIX+'_Verificacion.json')).write_text(json.dumps(checkpoint,indent=2)+'\n')
         preview=source.read(unique('construction-hierarchy-ui.png'));(output/(PREFIX+'_Interfaz.png')).write_bytes(preview)
