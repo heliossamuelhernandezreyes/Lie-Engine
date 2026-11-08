@@ -1,0 +1,612 @@
+{
+  "schema": "lie-v640-native-visibility-checkpoint/1",
+  "runtime_commit": "94ac4f1ee225da96155f7e60433f9eaf11408f71",
+  "date": "2026-11-08",
+  "physical_android_tested": false,
+  "ci": {
+    "main": {
+      "run": 42527505716,
+      "job": 128874271733,
+      "conclusion": "success",
+      "artifact_id": 13635877422,
+      "bytes": 252011098,
+      "sha256": "aa1c914c6a314e05028cb7489efd260be4cc98d632671f2556a9e03a4af9d8a4"
+    },
+    "native_control": {
+      "run": 42527505777,
+      "job": 128874271610,
+      "conclusion": "success",
+      "artifact_id": 13636117292,
+      "bytes": 14203733,
+      "sha256": "2164d8be698eb10a56ac985dabaf2cfc6e15d659dc79ae7a05205beb97bb8a39"
+    }
+  },
+  "apk": {
+    "schema": "lie-construction-apk-proof/1",
+    "filename": "LIE-Construccion-v6.4.0.apk",
+    "apk_bytes": 227398619,
+    "apk_sha256": "e63dbf16b210c2febba927df85f7c32be3678a0b2031ed65e9466dcdaaefaa31",
+    "package": "org.lieengine.construction.v640",
+    "version": "6.4.0-native-visibility",
+    "code_commit": "94ac4f1ee225da96155f7e60433f9eaf11408f71",
+    "verified_capture_and_metadata_files": 105,
+    "scene_identity": "dbef16819bb535d5a370871d7c0736229d4c12ea2a2600eb66a2d3462ad77717",
+    "bank_bindings": {
+      "brick": {
+        "sha256": "dbdf7b21727d4ee9c789dd8cdedde29c42297deae359e5089315b1a744160916",
+        "optical": null
+      },
+      "mortar": {
+        "sha256": "8b060c904961dd645e60e41f66db4cba79151d4e04ae1d720fe98d286715f8b0",
+        "optical": "18677055e3803443610883bea7b1b8e0e8f6ee9620201777b36459abeb17597e"
+      },
+      "concrete": {
+        "sha256": "3f19c51f6590631467a752669a822364cab19e2658276d5324170491f05dc3b3",
+        "optical": "4c3b7df7787d305811236d899d0083e10b80f9fc032c5b11e56c916ebe98a02c"
+      },
+      "wood": {
+        "sha256": "5fea091b66d409971e8a4b3d676f350e56321c806ff734a73e5ebeaa34971dd9",
+        "optical": "9b17b8ba92fbfad27bdd0af014ec13a5ef77c389496c4f38928f51f1c45e769f"
+      },
+      "door": {
+        "sha256": "129ae84dc95a683a1c3958fe1a6466444d4aeeb1888643944224c530a9610e8d",
+        "optical": "b9ed23c30aeb62d9946fd2fa21cd377d4861765edac8841d63bf79416c66e5f4"
+      }
+    },
+    "native_libraries": [
+      {
+        "file": "lib/arm64-v8a/libc++_shared.so",
+        "sha256": "c4c2fe5cbcb1fba0003a31fc7ab29a9bb12df6cc187ec45a806462540e83d93b",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/libgodot_android.so",
+        "sha256": "6517cb725565b0b3f009e6a559d8c0a5f66093384a6f48b5d18e2dc0998e1159",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/liblie_gpu_probe.so",
+        "sha256": "d9febc993b246c8e1c7d7d749934064493511a05043d723ad4c762bcf20f621a",
+        "pt_load_alignment": [
+          16384,
+          16384,
+          16384
+        ]
+      }
+    ],
+    "permissions": [],
+    "source_resampling": false,
+    "physical_android_tested": false
+  },
+  "native_visibility": {
+    "checks": 57,
+    "failed": false,
+    "reduced_cases": 7,
+    "cases": [
+      {
+        "name": "whole",
+        "reference_samples": 1165568,
+        "selected_samples": 672184,
+        "logical_samples": 1165568,
+        "exact": true
+      },
+      {
+        "name": "close",
+        "reference_samples": 393472,
+        "selected_samples": 242615,
+        "logical_samples": 1165568,
+        "exact": true
+      },
+      {
+        "name": "window",
+        "reference_samples": 251264,
+        "selected_samples": 142446,
+        "logical_samples": 1165568,
+        "exact": true
+      },
+      {
+        "name": "back",
+        "reference_samples": 118912,
+        "selected_samples": 68573,
+        "logical_samples": 1165568,
+        "exact": true
+      },
+      {
+        "name": "grazing",
+        "reference_samples": 1165568,
+        "selected_samples": 732110,
+        "logical_samples": 1165568,
+        "exact": true
+      },
+      {
+        "name": "overhead",
+        "reference_samples": 291072,
+        "selected_samples": 156481,
+        "logical_samples": 1165568,
+        "exact": true
+      },
+      {
+        "name": "empty",
+        "reference_samples": 0,
+        "selected_samples": 0,
+        "logical_samples": 1165568,
+        "exact": true
+      },
+      {
+        "name": "door",
+        "reference_samples": 504000,
+        "selected_samples": 248409,
+        "logical_samples": 552000,
+        "exact": true
+      },
+      {
+        "name": "roof",
+        "reference_samples": 0,
+        "selected_samples": 0,
+        "logical_samples": 528000,
+        "exact": true
+      }
+    ],
+    "full_quality": {
+      "depth_exact": true,
+      "internal": 1920,
+      "native_plan": {
+        "backface_skipped_samples": 493384,
+        "clusters": 44751,
+        "cpu_usec": 4331,
+        "enabled": true,
+        "frustum_skipped_samples": 0,
+        "logical_samples": 1165568,
+        "ok": true,
+        "permutation_validation_cached": false,
+        "ranges": 781,
+        "rejected_clusters": 20653,
+        "scope": "Native CPU conservative geometric backface planning, including validation and output packing. Not GPU time or optical occlusion.",
+        "selected_jobs": 781,
+        "selected_samples": 672184
+      },
+      "output": 960,
+      "projection_bytes": 75497472,
+      "projection_capacity": 1179648,
+      "projection_saved_bytes": 18874368,
+      "projection_stride": 64,
+      "reference_samples": 1165568,
+      "rgba_exact": true,
+      "selected_samples": 672184,
+      "shadow_exact": true,
+      "winner_material_exact": true
+    },
+    "short_software_benchmark": [
+      {
+        "close": false,
+        "enabled": false,
+        "before_frame": 3.0,
+        "after_frame": 5.0,
+        "camera_samples": 1165568.0,
+        "appearance_gpu_ms": {
+          "max_ms": 873.250571,
+          "p50_ms": 818.016734,
+          "p95_ms": 873.250571,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "samples": 0.0
+        }
+      },
+      {
+        "close": false,
+        "enabled": true,
+        "before_frame": 6.0,
+        "after_frame": 8.0,
+        "camera_samples": 733778.0,
+        "appearance_gpu_ms": {
+          "max_ms": 503.804822,
+          "p50_ms": 494.049842,
+          "p95_ms": 503.804822,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "max_ms": 2.749,
+          "p50_ms": 2.745,
+          "p95_ms": 2.749,
+          "samples": 2.0
+        }
+      },
+      {
+        "close": false,
+        "enabled": true,
+        "before_frame": 9.0,
+        "after_frame": 11.0,
+        "camera_samples": 733778.0,
+        "appearance_gpu_ms": {
+          "max_ms": 504.696,
+          "p50_ms": 496.153251,
+          "p95_ms": 504.696,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "max_ms": 2.762,
+          "p50_ms": 2.72,
+          "p95_ms": 2.762,
+          "samples": 2.0
+        }
+      },
+      {
+        "close": false,
+        "enabled": false,
+        "before_frame": 12.0,
+        "after_frame": 14.0,
+        "camera_samples": 1165568.0,
+        "appearance_gpu_ms": {
+          "max_ms": 872.774816,
+          "p50_ms": 868.911856,
+          "p95_ms": 872.774816,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "samples": 0.0
+        }
+      },
+      {
+        "close": true,
+        "enabled": false,
+        "before_frame": 15.0,
+        "after_frame": 17.0,
+        "camera_samples": 487104.0,
+        "appearance_gpu_ms": {
+          "max_ms": 1897.287297,
+          "p50_ms": 1546.167534,
+          "p95_ms": 1897.287297,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "samples": 0.0
+        }
+      },
+      {
+        "close": true,
+        "enabled": true,
+        "before_frame": 18.0,
+        "after_frame": 20.0,
+        "camera_samples": 289732.0,
+        "appearance_gpu_ms": {
+          "max_ms": 1162.883771,
+          "p50_ms": 893.248624,
+          "p95_ms": 1162.883771,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "max_ms": 1.714,
+          "p50_ms": 1.707,
+          "p95_ms": 1.714,
+          "samples": 2.0
+        }
+      },
+      {
+        "close": true,
+        "enabled": true,
+        "before_frame": 21.0,
+        "after_frame": 23.0,
+        "camera_samples": 289732.0,
+        "appearance_gpu_ms": {
+          "max_ms": 1161.183388,
+          "p50_ms": 876.783713,
+          "p95_ms": 1161.183388,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "max_ms": 1.733,
+          "p50_ms": 1.689,
+          "p95_ms": 1.733,
+          "samples": 2.0
+        }
+      },
+      {
+        "close": true,
+        "enabled": false,
+        "before_frame": 24.0,
+        "after_frame": 26.0,
+        "camera_samples": 487104.0,
+        "appearance_gpu_ms": {
+          "max_ms": 1967.294563,
+          "p50_ms": 1499.105688,
+          "p95_ms": 1967.294563,
+          "samples": 2.0
+        },
+        "planning_cpu_ms": {
+          "samples": 0.0
+        }
+      }
+    ],
+    "benchmark_scope": "Two events per A/B/B/A block, output256/internal512. Separate CPU and GPU percentiles; not physical or sustained-performance certification."
+  },
+  "independent_baseline": {
+    "cases": 10,
+    "maximum_rgba_error": 0.0,
+    "all_depth_exact": true
+  },
+  "source_continuity": {
+    "schema": "lie-v640-source-continuity/1",
+    "original_v630_files": 90,
+    "verified_unchanged": 90,
+    "new_derived_visibility_files": 15,
+    "bank_bindings_unchanged": true,
+    "apk_sha256": "e63dbf16b210c2febba927df85f7c32be3678a0b2031ed65e9466dcdaaefaa31",
+    "runtime_commit": "94ac4f1ee225da96155f7e60433f9eaf11408f71"
+  },
+  "static_compiler": {
+    "compiler": "Mali Offline Compiler v2026.5.0 (Build 922df8)\nCopyright (c) 2007-2026 Arm Limited. All rights reserved.",
+    "comparisons": [
+      {
+        "core": "Mali-G720",
+        "stage": 1,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 12,
+        "shader_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54"
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 2,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 64,
+        "shader_sha256": "182d0b59713317454c407c2170a1e0e24d5a06903fd9db113775689f5b054d4c"
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 3,
+        "before_spill_bytes": 40,
+        "after_spill_bytes": 40,
+        "after_registers": 64,
+        "shader_sha256": "fe31d2a68cc1903854a16834c629ff6cfe0e3808bd8aa82baee45fefafcc594b"
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 4,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 4,
+        "after_registers": 64,
+        "shader_sha256": "d5f05634065f26be5fccaa72db74fc2b247b993314a9b7bed9ca643f5ce924e9"
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 7,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 27,
+        "shader_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131"
+      },
+      {
+        "core": "Mali-G720",
+        "stage": 8,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 64,
+        "shader_sha256": "63123e28cafe4e97c2381b3d6eb1bc5a1b817b166cf65117615fe1d0e90134f6"
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 1,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 12,
+        "shader_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54"
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 2,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 64,
+        "shader_sha256": "182d0b59713317454c407c2170a1e0e24d5a06903fd9db113775689f5b054d4c"
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 3,
+        "before_spill_bytes": 40,
+        "after_spill_bytes": 40,
+        "after_registers": 64,
+        "shader_sha256": "fe31d2a68cc1903854a16834c629ff6cfe0e3808bd8aa82baee45fefafcc594b"
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 4,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 4,
+        "after_registers": 64,
+        "shader_sha256": "d5f05634065f26be5fccaa72db74fc2b247b993314a9b7bed9ca643f5ce924e9"
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 7,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 27,
+        "shader_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131"
+      },
+      {
+        "core": "Mali-G610",
+        "stage": 8,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 64,
+        "shader_sha256": "63123e28cafe4e97c2381b3d6eb1bc5a1b817b166cf65117615fe1d0e90134f6"
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 1,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 12,
+        "shader_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54"
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 2,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 64,
+        "shader_sha256": "182d0b59713317454c407c2170a1e0e24d5a06903fd9db113775689f5b054d4c"
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 3,
+        "before_spill_bytes": 56,
+        "after_spill_bytes": 44,
+        "after_registers": 64,
+        "shader_sha256": "fe31d2a68cc1903854a16834c629ff6cfe0e3808bd8aa82baee45fefafcc594b"
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 4,
+        "before_spill_bytes": 16,
+        "after_spill_bytes": 12,
+        "after_registers": 64,
+        "shader_sha256": "d5f05634065f26be5fccaa72db74fc2b247b993314a9b7bed9ca643f5ce924e9"
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 7,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 23,
+        "shader_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131"
+      },
+      {
+        "core": "Mali-G57",
+        "stage": 8,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 64,
+        "shader_sha256": "63123e28cafe4e97c2381b3d6eb1bc5a1b817b166cf65117615fe1d0e90134f6"
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 1,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 11,
+        "shader_sha256": "0ad035f43fcaf8174466aeddadedcb3bd007d6963c6c7bf6e187a6b5854a0d54"
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 2,
+        "before_spill_bytes": 4,
+        "after_spill_bytes": 12,
+        "after_registers": 64,
+        "shader_sha256": "182d0b59713317454c407c2170a1e0e24d5a06903fd9db113775689f5b054d4c"
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 3,
+        "before_spill_bytes": 124,
+        "after_spill_bytes": 108,
+        "after_registers": 64,
+        "shader_sha256": "fe31d2a68cc1903854a16834c629ff6cfe0e3808bd8aa82baee45fefafcc594b"
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 4,
+        "before_spill_bytes": 36,
+        "after_spill_bytes": 36,
+        "after_registers": 64,
+        "shader_sha256": "d5f05634065f26be5fccaa72db74fc2b247b993314a9b7bed9ca643f5ce924e9"
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 7,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 28,
+        "shader_sha256": "a3f0f84ecd011fc47f6447199d27079ad282426a35f9019c7b61e5973edfe131"
+      },
+      {
+        "core": "Mali-G31",
+        "stage": 8,
+        "before_spill_bytes": 0,
+        "after_spill_bytes": 0,
+        "after_registers": 64,
+        "shader_sha256": "63123e28cafe4e97c2381b3d6eb1bc5a1b817b166cf65117615fe1d0e90134f6"
+      }
+    ],
+    "scope": "Static model estimates only; preserves regressions and improvements."
+  },
+  "native_control": {
+    "failed": false,
+    "cases": [
+      {
+        "case": "whole",
+        "exact_buffers": {
+          "4": true,
+          "5": true,
+          "7": true
+        },
+        "godot_paired_gpu": {
+          "samples": 5,
+          "median_ms": 2074.913799,
+          "min_ms": 2056.551376,
+          "max_ms": 2115.787735
+        },
+        "native_paired_gpu": {
+          "samples": 5,
+          "median_ms": 2058.746336,
+          "min_ms": 2033.6232949999999,
+          "max_ms": 2081.377697
+        }
+      },
+      {
+        "case": "close",
+        "exact_buffers": {
+          "4": true,
+          "5": true,
+          "7": true
+        },
+        "godot_paired_gpu": {
+          "samples": 5,
+          "median_ms": 2256.948148,
+          "min_ms": 2230.565285,
+          "max_ms": 2276.818636
+        },
+        "native_paired_gpu": {
+          "samples": 5,
+          "median_ms": 2227.387198,
+          "min_ms": 2183.718667,
+          "max_ms": 2442.9132250000002
+        }
+      }
+    ]
+  },
+  "remaining": [
+    "Physical Android and cross-device benchmarking",
+    "General optical occlusion",
+    "Screen-tile rasterization and lower atomic contention",
+    "Broader descriptor-budget/backend compatibility",
+    "Per-page CPU visibility-metadata residency"
+  ],
+  "regressions": {
+    "python_total": 287,
+    "python_passed": 286,
+    "python_skipped": 1,
+    "native_visibility_gpu": 57,
+    "hierarchy_gpu": 53,
+    "reconstruction_gpu": 28,
+    "hq_gpu": 49,
+    "field_gpu": 26,
+    "mobile_gpu": 28,
+    "physics": 65,
+    "proxy_gpu": 15,
+    "metrics": 9,
+    "hardware": 17,
+    "rig": 247,
+    "agent": 25
+  }
+}

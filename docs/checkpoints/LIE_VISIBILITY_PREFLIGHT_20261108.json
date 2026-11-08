@@ -165,7 +165,8 @@
   },
   "checks": {
     "python": {
-      "passed": 287,
+      "total": 287,
+      "passed": 286,
       "skipped": 1
     },
     "native_property_points": 128000,

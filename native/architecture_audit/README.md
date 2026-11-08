@@ -5,18 +5,21 @@ replays the original Godot-produced SPIR-V and the exact bound buffer bytes
 for clear, projection/depth and material accumulation. It omits shadows, the
 light field, shading, presentation, physics, audio, UI and platform lifecycle.
 
-The accepted runtime is `3aacb5e58034042f9a8e9c19a7bcf4e8b7823054` (6.3.0).
-The audit does not change its capture banks, LOD, reconstruction dimensions or
-production kernels. Candidate shader changes are generated separately and
-remain unadopted. Godot and native output depth, winner ownership and material
-accumulation must match every byte in the baseline experiment.
+The original audit froze runtime
+`3aacb5e58034042f9a8e9c19a7bcf4e8b7823054` (6.3.0), leaving its production
+kernels unchanged. Later 6.4 runtime changes keep the original capture banks
+and use a lossless 64-byte projection record and indexed visibility worklists.
+The replay accepts both layouts: `projection-stride.txt` selects 64 or 80
+bytes; old fixtures without this file use 80. Godot and native output depth,
+winner ownership and material accumulation must match every byte.
 
 ## Reproduce
 
 Run `.github/workflows/lie-architecture-audit.yml`, or use its exact commands
 locally. The workflow restores the SHA-pinned 6.3.0 APK, verifies its 90 asset
 files, compiles Godot 4.7.2 fixtures on Vulkan, exports all shader inputs, and
-executes the native control and two exploratory shader variants.
+executes the native control. The historical two exploratory shader variants
+apply only to the original 80-byte layout and remain unadopted.
 
 For an exported fixture on a Linux system with Vulkan development headers:
 
