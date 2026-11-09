@@ -18,6 +18,9 @@
 #include <vulkan/vulkan.h>
 namespace fs = std::filesystem;
 using Clock = std::chrono::steady_clock;
+static int phase_stage(int stage) {
+  return stage >= 13 && stage <= 16 ? std::array<int,4>{2,9,12,11}[stage-13] : stage;
+}
 static void ok(VkResult r, const char *op) {
   if (r != VK_SUCCESS)
     throw std::runtime_error(std::string(op) + ": " + std::to_string(r));
@@ -202,7 +205,7 @@ struct Context {
     b.size = size;
     VkBufferCreateInfo ci{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     ci.size = size;
-    ci.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    ci.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
     ci.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     ok(vkCreateBuffer(device, &ci, nullptr, &b.handle), "buffer");
     VkMemoryRequirements req{};
@@ -288,15 +291,17 @@ struct Context {
   void barrier() {
     VkMemoryBarrier b{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
     b.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-    b.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+    b.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT |
+                      VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
     vkCmdPipelineBarrier(command, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 1, &b, 0,
+                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
+                             VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, 0, 1, &b, 0,
                          nullptr, 0, nullptr);
   }
   void dispatch(int stage, VkDescriptorSet set, uint32_t count) {
     if (!count)
       return;
-    const int32_t phase[4] = {stage, 2, 1, 0};
+    const int32_t phase[4] = {phase_stage(stage), 2, 1, 0};
     vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_COMPUTE,
                       pipelines.at(stage));
     vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -306,6 +311,16 @@ struct Context {
     uint32_t groups = (count + 63) / 64, x = std::min(groups, 32768u),
              y = (groups + x - 1) / x;
     vkCmdDispatch(command, x, y, 1);
+    barrier();
+  }
+  void dispatch_large(int stage, VkDescriptorSet set, size_t queue_buffer,
+                      VkDeviceSize queue_offset) {
+    const int32_t phase[4] = {phase_stage(stage), 2, 1, 0};
+    vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_COMPUTE,pipelines.at(stage));
+    vkCmdBindDescriptorSets(command,VK_PIPELINE_BIND_POINT_COMPUTE,pipeline_layout,
+                           0,1,&set,0,nullptr);
+    vkCmdPushConstants(command,pipeline_layout,VK_SHADER_STAGE_COMPUTE_BIT,0,16,phase);
+    vkCmdDispatchIndirect(command,buffers.at(queue_buffer).handle,queue_offset);
     barrier();
   }
   void output(size_t index, const fs::path &path) {
@@ -318,6 +333,8 @@ struct Context {
 struct Bank {
   uint32_t work = 0;
   VkDescriptorSet set = VK_NULL_HANDLE;
+  size_t queue_buffer = 0;
+  VkDeviceSize queue_offset = 0;
 };
 int main(int argc, char **argv) {
   try {
@@ -337,6 +354,7 @@ int main(int argc, char **argv) {
       throw std::runtime_error("fixture layout");
     Context c;
     c.init();
+    bool surface = fs::exists(root / "surface-pipeline.txt");
     uint32_t stride = 80;
     if (fs::exists(root / "projection-stride.txt")) {
       std::ifstream stride_file(root / "projection-stride.txt");
@@ -365,9 +383,19 @@ int main(int argc, char **argv) {
       for (int binding : {0, 6, 14, 15, 20})
         bindings[binding] = c.input(root / ("bank-" + std::to_string(id) + "-" +
                                             std::to_string(binding) + ".bin"));
-      banks.push_back({work, c.descriptors(bindings)});
+      float header = 0;
+      std::memcpy(&header,static_cast<const uint8_t *>(c.buffers[bindings[6]].map)+212,4);
+      auto offset=VkDeviceSize(header)*16;
+      if(surface && (offset+32+uint64_t(work)*8>c.buffers[bindings[20]].size))
+        throw std::runtime_error("surface queue capacity");
+      banks.push_back({work,c.descriptors(bindings),bindings[20],offset});
     }
-    for (int stage : {1, 2, 3})
+    std::vector<int> stages = surface ? std::vector<int>{1,2,9,3,10,12,11}
+                                      : std::vector<int>{1,2,3};
+    const bool counter_traversal=surface && fs::exists(shaders/"stage-13.spv");
+    if(counter_traversal)
+      stages.insert(stages.end(),{13,14,15,16});
+    for (int stage : stages)
       c.shader(stage, shaders / ("stage-" + std::to_string(stage) + ".spv"));
     std::ostringstream report;
     report << std::setprecision(12)
@@ -382,8 +410,16 @@ int main(int argc, char **argv) {
            << ",\"max_storage_buffers_per_stage\":"
            << c.props.limits.maxPerStageDescriptorStorageBuffers
            << ",\"host_visible_coherent_buffers\":true,\"physical_android_"
-              "tested\":false,\"rows\":[";
+              "tested\":false,\"surface_pipeline\":" << (surface?"true":"false")
+           << ",\"read_only_counter_traversal\":" << (counter_traversal?"true":"false")
+           << ",\"rows\":[";
+    std::map<int,std::vector<uint8_t>> stable;
     for (int iteration = 0; iteration < 6; iteration++) {
+      // Coherent host writes occur only after the previous diagnostic fence.
+      if(surface)for(const auto &bank:banks) {
+        auto *p=static_cast<uint32_t *>(c.buffers[bank.queue_buffer].map)+bank.queue_offset/4;
+        const uint32_t header[8]={0,1,1,0,0,0,0,0};std::memcpy(p,header,sizeof(header));
+      }
       ok(vkResetCommandBuffer(c.command, 0), "reset command");
       ok(vkResetFences(c.device, 1, &c.fence), "reset fence");
       auto begin = Clock::now();
@@ -392,19 +428,20 @@ int main(int argc, char **argv) {
       ok(vkBeginCommandBuffer(c.command, &bi), "begin");
       vkCmdResetQueryPool(c.command, c.queries, 0, 6);
       uint32_t q = 0;
-      for (int stage : {1, 2, 3}) {
-        vkCmdWriteTimestamp(c.command, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-                            c.queries, q++);
+      for (int stage : stages) {
+        if(!surface)vkCmdWriteTimestamp(c.command,VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,c.queries,q++);
         if (stage == 1)
           c.dispatch(stage, clear, std::max(size * size, 512u * 512u));
         else if (iteration % 2 == 0) {
           for (auto it = banks.rbegin(); it != banks.rend(); ++it)
-            c.dispatch(stage, it->set, it->work);
+            if(stage==9 || stage==10 || stage==11 || stage==14 || stage==16)c.dispatch_large(stage,it->set,it->queue_buffer,it->queue_offset);
+            else c.dispatch(stage, it->set, it->work);
         } else
-          for (const auto &bank : banks)
-            c.dispatch(stage, bank.set, bank.work);
-        vkCmdWriteTimestamp(c.command, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
-                            c.queries, q++);
+          for (const auto &bank : banks) {
+            if(stage==9 || stage==10 || stage==11 || stage==14 || stage==16)c.dispatch_large(stage,bank.set,bank.queue_buffer,bank.queue_offset);
+            else c.dispatch(stage, bank.set, bank.work);
+          }
+        if(!surface)vkCmdWriteTimestamp(c.command,VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,c.queries,q++);
       }
       VkMemoryBarrier host{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
       host.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
@@ -427,13 +464,14 @@ int main(int argc, char **argv) {
           std::chrono::duration<double, std::milli>(Clock::now() - submit_begin)
               .count();
       uint64_t t[6]{};
-      ok(vkGetQueryPoolResults(
+      if(!surface)ok(vkGetQueryPoolResults(
              c.device, c.queries, 0, 6, sizeof(t), t, sizeof(uint64_t),
              VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT),
          "timestamps");
       uint64_t mask =
           c.valid_bits == 64 ? UINT64_MAX : ((uint64_t(1) << c.valid_bits) - 1);
       auto ms = [&](int i) {
+        if(surface)return 0.; // New-path correctness replay does not fabricate pass timings.
         return double((t[2 * i + 1] - t[2 * i]) & mask) *
                c.props.limits.timestampPeriod / 1e6;
       };
@@ -442,19 +480,36 @@ int main(int argc, char **argv) {
       report << "{\"iteration\":" << iteration
              << ",\"warm_up\":" << (iteration == 0 ? "true" : "false")
              << ",\"record_cpu_ms\":" << record
-             << ",\"submit_and_wait_ms\":" << wall << ",\"clear_ms\":" << ms(0)
-             << ",\"projection_depth_ms\":" << ms(1)
-             << ",\"material_accumulation_ms\":" << ms(2) << '}';
+             << ",\"submit_and_wait_ms\":" << wall;
+      if(!surface)report << ",\"clear_ms\":" << ms(0) << ",\"projection_depth_ms\":" << ms(1)
+                         << ",\"material_accumulation_ms\":" << ms(2);
+      else report << ",\"pass_timestamps_available\":false";
+      report << '}';
+      for(int binding:{4,5,7}) {
+        const auto &b=c.buffers[common.at(binding)];auto *p=static_cast<const uint8_t *>(b.map);
+        if(iteration==0)stable[binding]=std::vector<uint8_t>(p,p+b.size);
+        else if(std::memcmp(p,stable[binding].data(),b.size)!=0)
+          throw std::runtime_error("bank-order output instability at binding "+std::to_string(binding));
+      }
     }
     report << "],\"scope\":\"Selected SPIR-V and exact captured SSBO inputs; "
-              "only clear, "
-              "projection/depth and material accumulation. No Godot, window, "
+           << (surface ? "clear plus split small/cooperative-large depth, owner and material passes; an optional read-only counter traversal follows. "
+                       : "clear, projection/depth and material accumulation. ")
+           << "No Godot, window, "
               "physics, light field, shading or presentation. CPU buffer "
               "layout is an experimental replay path. Timings apply only to "
               "this device.\"}\n";
     for (int binding : {4, 5, 7})
       c.output(common.at(binding),
                root / (prefix + "-" + std::to_string(binding) + ".bin"));
+    if(surface) {
+      for(size_t i=0;i<banks.size();i++) {
+        const auto &bank=banks[i];const auto &b=c.buffers[bank.queue_buffer];
+        auto *p=static_cast<const uint8_t *>(b.map)+bank.queue_offset;
+        std::ofstream out(root/(prefix+"-queue-"+std::to_string(i)+".bin"),std::ios::binary);
+        out.write(reinterpret_cast<const char *>(p),32);
+      }
+    }
     std::ofstream file(root / (prefix + "-replay.json"));
     file << report.str();
     std::cout << report.str();

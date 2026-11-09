@@ -1,7 +1,7 @@
 extends "res://lie_hq_construction_lab.gd"
 const Meter=preload("res://lie_construction_mobile_metrics.gd")
 const Hardware=preload("res://lie_hardware_diagnostics.gd")
-const APP_VERSION="6.4.0-native-visibility"
+const APP_VERSION="6.5.0-surface-continuity"
 var output_resolution: int=960
 var hardware=Hardware.new()
 var meter=Meter.new()
@@ -61,7 +61,7 @@ func _build_ui() -> void:
     layer.add_child(margin)
     var columns:=HBoxContainer.new();columns.add_theme_constant_override("separation",16);margin.add_child(columns)
     var left:=VBoxContainer.new();left.size_flags_horizontal=Control.SIZE_EXPAND_FILL;columns.add_child(left)
-    _label(left,"LIE · Benchmark 6.4.0",28)
+    _label(left,"LIE · Benchmark 6.5.0",28)
     var actions:=HBoxContainer.new();actions.add_theme_constant_override("separation",8);left.add_child(actions)
     _benchmark_button=_button(actions,"Benchmark y copiar informe",func():run_comparison())
     _benchmark_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL;_benchmark_button.custom_minimum_size.y=56;_benchmark_button.add_theme_font_size_override("font_size",20)
@@ -81,7 +81,7 @@ func _build_ui() -> void:
     selector=OptionButton.new();selector.custom_minimum_size.y=48
     if effect!=null and effect.capture_loaded:
         for mode in effect.manifest.modes:selector.add_item(mode.replace("asset_","").replace("_"," "))
-        selector.item_selected.connect(func(i: int):command({"op":"set_values","values":{"mode":effect.manifest.modes[i]}}))
+        selector.item_selected.connect(func(i: int):command({"op":"set_values","values":{"mode":effect.manifest.modes[i],"lod":-1}}))
     box.add_child(selector)
     var quality:=OptionButton.new();quality.custom_minimum_size.y=48;_quality=quality
     for size in [480,720,960]:quality.add_item("Salida %d · interna %d" % [size,size*2])
@@ -104,7 +104,7 @@ func _build_ui() -> void:
     var copy:=_report_dialog.add_button("Copiar resumen",false,"copy");copy.custom_minimum_size.y=44
     _report_dialog.add_button("Guardar JSON completo",false,"save")
     _report_dialog.custom_action.connect(func(action: StringName):
-        if action=="copy":DisplayServer.clipboard_set(_report_text.text)
+        if action=="copy":copy_report()
         elif action=="save" and not busy and not _latest.is_empty():_save_dialog.popup_centered(Vector2i(900,600)))
     _save_dialog=FileDialog.new();_save_dialog.use_native_dialog=true;_save_dialog.access=FileDialog.ACCESS_FILESYSTEM;_save_dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE;_save_dialog.filters=PackedStringArray(["*.json ; Informe JSON ; application/json"]);_save_dialog.current_file="LIE-construccion-v6.json";layer.add_child(_save_dialog)
     _save_dialog.file_selected.connect(func(path: String):
@@ -126,6 +126,7 @@ func command(request: Dictionary) -> Dictionary:
         previous.shutdown();revision+=1;update_scene();_quality.select([480,720,960].find(size));return {"ok":true,"revision":revision}
     var result: Dictionary=super.command(request)
     if result.get("ok",false):_sync_control_availability()
+    elif result.get("error")=="sample_budget":_progress.text="El detalle solicitado supera el presupuesto. Usa Inspeccionar ladrillo completo para ver un maestro con todo su detalle."
     return result
 func _sync_control_availability() -> void:
     for key in ["indirect","key_enabled","fill_enabled","energy_radius","fill_power","bounces"]:
@@ -269,22 +270,75 @@ func run_session(seconds: float=60.) -> void:
         _latest.blocks.append(await _block_end(before,kind));_persist_report();index+=1
         if not _latest.error.is_empty():break
     _latest.elapsed_seconds=float(Time.get_ticks_usec()-start)/1e6;_finish(backup)
+func _prune_report_histories(value: Variant) -> void:
+    if value is Dictionary:
+        for key in ["profile","camera_plan_profile","appearance_rows","lighting_rows","visibility_planning_rows"]:value.erase(key)
+        for child in value.values():_prune_report_histories(child)
+    elif value is Array:
+        for child in value:_prune_report_histories(child)
 func portable_report() -> Dictionary:
     var result: Dictionary=_latest.duplicate(true)
-    for block in result.get("blocks",[]):
-        block.measurements.erase("appearance_rows");block.measurements.erase("lighting_rows")
-        for side in ["before","after"]:block[side].resources.erase("profile")
-    for warm in result.get("warm_up",[]):warm.resources.erase("profile")
-    result.copy_scope="Summary with percentiles and resource/thermal boundaries; export the complete JSON for raw GPU interval rows."
+    _prune_report_histories(result)
+    var warms: Array=result.get("warm_up",[]);result.warm_up=[];result.warm_up_events=warms.size()
+    var blocks: Array=result.get("blocks",[])
+    if not blocks.is_empty():
+        result.telemetry_final=blocks[-1].after.get("telemetry",{})
+        result.device_limits=blocks[-1].after.resources.get("device_limits",{})
+    for block in blocks:
+        for key in ["appearance_rows","lighting_rows","visibility_planning_rows"]:block.measurements.erase(key)
+        for side in ["before","after"]:
+            block[side].erase("telemetry")
+            var source: Dictionary=block[side].resources;var resource: Dictionary={}
+            var keys: Array=["frames","allocation_bytes","asset_uploads","page_io_bytes","field"] if side=="before" else ["ready","failure","frames","allocation_bytes","source_bytes","asset_uploads","page_io_bytes","instances","samples","camera_samples","camera_jobs","camera_skipped_samples","shadow_samples","projection_bytes","camera_queue_bytes","surface_mode","field"]
+            for key in keys:
+                if source.has(key):resource[key]=source[key]
+            block[side].resources=resource
+        if block.has("surface_work"):block.surface_work.erase("banks")
+    result.copy_scope="Compact summary of ALL measured blocks; warm-up and raw CPU/GPU histories stay in the exported complete JSON. Probe work is a separate untimed diagnostic."
+    if JSON.stringify(result).to_utf8_buffer().size()>24576:
+        for block in blocks:
+            block.before.erase("state")
+            var m: Dictionary=block.measurements
+            for key in m.keys():
+                if key.ends_with("_gpu_ms") and key!="appearance_gpu_ms" and key!="lighting_gpu_ms" and key!="appearance_passes_gpu_ms":m.erase(key)
+            m.erase("appearance_passes_gpu_ms")
+        result.copy_scope+=" Long session: per-pass detail and repeated block states require the complete file."
+    if JSON.stringify(result).to_utf8_buffer().size()>24576:
+        var compact: Array=[]
+        var metric_names: Array=["appearance_gpu_ms","lighting_gpu_ms","display_frame_ms","command_cpu_ms","visibility_planning_cpu_ms"]
+        var resource_names: Array=["frames","allocation_bytes","camera_samples","samples","instances","surface_mode"]
+        var work_names: Array=["available","large_samples","footprint_candidates","source_supported_depth","material_contributions","overflow"]
+        for block in blocks:
+            var row: Array=[block.kind]
+            for key in ["surface_continuity","close_view","selection_enabled","cluster_culling"]:
+                row.append(block.get(key))
+            var metrics_row: Array=[];var resources_row: Array=[];var work_row: Array=[]
+            for key in metric_names:
+                var stats: Dictionary=block.measurements.get(key,{})
+                metrics_row.append([stats.get("samples",0),stats.get("p50_ms"),stats.get("p95_ms"),stats.get("max_ms")])
+            for key in resource_names:resources_row.append(block.after.resources.get(key))
+            if block.has("surface_work"):
+                for key in work_names:work_row.append(block.surface_work.get(key))
+            row.append(metrics_row);row.append(resources_row);row.append(work_row)
+            compact.append(row)
+        result.blocks=compact;result.metric_columns=["samples","p50_ms","p95_ms","max_ms"]
+        result.block_columns=["kind","surface_continuity","close_view","selection_enabled","cluster_culling","metrics","after_resources","surface_work"]
+        result.metric_names=metric_names;result.resource_columns=resource_names;result.work_columns=work_names
+        result.copy_scope+=" Dense block metrics follow metric_columns; missing timings remain null. Every block is retained."
     return result
 func copy_report() -> bool:
     if busy or _latest.is_empty():return false
-    _report_text.text=JSON.stringify(portable_report(),"\t",true,true)
+    # Insertion order puts version, device and completion before block details.
+    _report_text.text=JSON.stringify(portable_report(),"",false,true)
+    if _report_text.text.to_utf8_buffer().size()>24576:
+        _progress.text="Informe extenso: abre Informe / copiar y guarda el JSON completo para enviarlo como archivo.";return false
     if not DisplayServer.has_feature(DisplayServer.FEATURE_CLIPBOARD):
         _progress.text="Informe listo. Abre Informe / copiar para seleccionar el texto.";return false
     DisplayServer.clipboard_set(_report_text.text)
-    _progress.text="Informe copiado. Vuelve a ChatGPT y pégalo."
+    if DisplayServer.clipboard_get()!=_report_text.text:
+        _progress.text="No se pudo verificar la copia. Abre Informe para copiar o exportar el archivo.";return false
+    _progress.text="Informe copiado y verificado. Vuelve a ChatGPT y pégalo."
     return true
 func _show_report() -> void:
-    _report_text.text=JSON.stringify(portable_report(),"\t",true,true) if not _latest.is_empty() else "Primero ejecuta una medición. Los datos se guardan en el dispositivo; no se envían automáticamente."
+    _report_text.text=JSON.stringify(portable_report(),"",false,true) if not _latest.is_empty() else "Primero ejecuta una medición. Los datos se guardan en el dispositivo; no se envían automáticamente."
     _report_dialog.popup_centered(Vector2i(900,600))

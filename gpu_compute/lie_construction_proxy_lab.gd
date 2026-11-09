@@ -11,6 +11,8 @@ var _proxy_status: Label
 var _proxy_button: Button
 var _visibility_button: Button
 var _clusters_button: Button
+var _surface_button: Button
+var _inspection_button: Button
 var _hierarchy: Dictionary={}
 var _hierarchy_key: String=""
 var _visibility: Dictionary={}
@@ -25,14 +27,23 @@ func _build_ui() -> void:
     _proxy_button=_button(row,"Probar muros y copiar",run_proxy_comparison);_proxy_button.custom_minimum_size.y=52;_proxy_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
     _visibility_button=_button(row,"Probar jerarquía y copiar",func():run_visibility_comparison());_visibility_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
     _clusters_button=_button(parent,"Probar núcleo y copiar",func():run_cluster_comparison());parent.move_child(_clusters_button,3)
+    var surface_row:=HBoxContainer.new();parent.add_child(surface_row);parent.move_child(surface_row,4)
+    _surface_button=_button(surface_row,"Probar superficie y copiar",func():run_surface_comparison());_surface_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
+    _inspection_button=_button(surface_row,"Inspeccionar ladrillo completo",inspect_full_brick);_inspection_button.size_flags_horizontal=Control.SIZE_EXPAND_FILL
     var toggles:=HFlowContainer.new();parent.add_child(toggles);parent.move_child(toggles,3)
-    for key in ["proxy_grouped","camera_guard","camera_culling","cluster_culling"]:
-        var toggle:=CheckBox.new();toggle.text={"proxy_grouped":"Unir volúmenes","camera_guard":"Cámara con colisión","camera_culling":"Selección visible","cluster_culling":"Descartar caras de espaldas"}[key];toggle.button_pressed=state[key];toggle.toggled.connect(func(v: bool):command({"op":"set_values","values":{key:v}}));controls[key]=toggle;toggles.add_child(toggle)
+    for key in ["proxy_grouped","camera_guard","camera_culling","cluster_culling","surface_continuity"]:
+        var toggle:=CheckBox.new();toggle.text={"proxy_grouped":"Unir volúmenes","camera_guard":"Cámara con colisión","camera_culling":"Selección visible","cluster_culling":"Descartar caras de espaldas","surface_continuity":"Superficie continua"}[key];toggle.button_pressed=state[key];toggle.toggled.connect(func(v: bool):command({"op":"set_values","values":{key:v}}));controls[key]=toggle;toggles.add_child(toggle)
     _proxy_status=_label(parent,"Preparando volúmenes invisibles…",16);parent.move_child(_proxy_status,4);_proxy_status.autowrap_mode=TextServer.AUTOWRAP_WORD_SMART
 func _refresh_quick_actions() -> void:
     super._refresh_quick_actions()
-    for button in [_proxy_button,_visibility_button,_clusters_button]:
+    for button in [_proxy_button,_visibility_button,_clusters_button,_surface_button,_inspection_button]:
         if button!=null:button.disabled=busy or not metrics.get("configured",false) or effect==null or not effect.gpu_ready
+func inspect_full_brick() -> void:
+    if busy:return
+    var mode: String="asset_scanned_brick"
+    if mode not in effect.manifest.modes:_progress.text="Esta escena no contiene el maestro de ladrillo.";return
+    var result: Dictionary=command({"op":"set_values","values":{"mode":mode,"lod":0,"yaw":25.,"elevation":12.,"zoom":1.,"focus_x":0.,"focus_y":0.,"camera_guard":false,"surface_continuity":true,"surface_probe":false}})
+    _progress.text="Maestro completo: %d muestras. Gira y acerca la cámara para inspeccionar." % metrics.get("work",0) if result.ok else "No se pudo abrir el maestro: "+str(result.get("error",""))
 func _before_camera_packet(target: Vector3) -> void:
     if proxy_world==null:proxy_world=Proxy.new();proxy_world.name="InvisibleWallPhysics";add_child(proxy_world)
     var key: String=_geometry_key+":"+str(state.proxy_grouped)
@@ -167,4 +178,50 @@ func run_cluster_comparison(events: int=12) -> void:
             if not _latest.error.is_empty():break
         if cancelled or not _latest.error.is_empty():break
     _latest.selection_scope="Native CPU geometric backface intervals plus camera frustum. A/B/B/A order, same deterministic paths and quality. Not optical occlusion. Full sources, global owner indices, shadows and light-field owners preserved. Native planning CPU and GPU pass times have separate scopes."
+    _previous_camera=saved_camera;_have_previous_camera=true;_finish(backup)
+
+func _surface_work_probe() -> Dictionary:
+    var previous: int=effect.frame_count
+    if not _set_values({"surface_probe":true}) or not await _wait_image(previous):return {}
+    effect.request_surface_work()
+    var result: Dictionary={}
+    for i in range(240):
+        if cancelled:break
+        await get_tree().process_frame;result=effect.surface_work()
+        if not result.is_empty():break
+    previous=effect.frame_count
+    _set_values({"surface_probe":false})
+    if not cancelled:await _wait_image(previous)
+    return result
+
+func run_surface_comparison(events: int=12) -> void:
+    if busy or not metrics.get("configured",false) or not effect.gpu_ready or events<2 or events>120:return
+    busy=true;cancelled=false;_lock_controls(true)
+    var backup: Dictionary=state.duplicate();var saved_camera: Vector3=camera.position
+    _latest=_new_report("surface_continuity_A_B_B_A")
+    for close_view in [false,true]:
+        for continuous in [false,true,true,false]:
+            if cancelled:break
+            var values: Dictionary={"mode":"corner","seed":2102,"lod":-1,"camera_guard":false,"camera_culling":true,"cluster_culling":true,"surface_continuity":continuous,"surface_probe":false,"yaw":0.,"elevation":0.,"zoom":.25 if close_view else 1.,"focus_x":.6 if close_view else 0.,"focus_y":0.,"reverse_banks":false,"field_lighting":true,"indirect":true,"bounces":2,"normals":true,"shadows":true,"key_enabled":true,"fill_enabled":true,"fill_power":.32,"ambient":1.,"energy_radius":false}
+            if not _set_values(values):_latest.error="surface_configuration";break
+            _latest.warm_up.append(await _warm_up());var before: Dictionary=await _block_start()
+            for i in range(events):
+                if cancelled:break
+                _message="Superficie %s · %s · %d/%d" % ["continua" if continuous else "6.4 referencia","cerca" if close_view else "conjunto",i+1,events]
+                var previous: int=effect.frame_count;var started: int=Time.get_ticks_usec()
+                if not _set_values({"yaw":sin(float(i+1)*.37)*18.}):_latest.error="surface_camera";break
+                meter.add_command(float(Time.get_ticks_usec()-started)/1000.)
+                if not await _wait_image(previous):
+                    if not cancelled:_latest.error="surface_image_timeout"
+                    break
+            var block: Dictionary=await _block_end(before,"camera")
+            block.surface_continuity=continuous;block.close_view=close_view
+            if continuous and not cancelled and _latest.error.is_empty():
+                _message="Diagnóstico de huellas fuera de la medición…"
+                block.surface_work=await _surface_work_probe()
+                if not cancelled and not block.surface_work.get("available",false):_latest.error="surface_work_unavailable"
+            _latest.blocks.append(block);_persist_report()
+            if not _latest.error.is_empty():break
+        if cancelled or not _latest.error.is_empty():break
+    _latest.surface_scope="Exact frozen 6.4 camera reference vs continuous disk/owner reconstruction. Same original capture bytes, LOD, resolution, lighting and A/B/B/A camera paths. Read-only work traversals are separate from timed production passes. Geometric corrections can change the image; speed is measured, not assumed."
     _previous_camera=saved_camera;_have_previous_camera=true;_finish(backup)

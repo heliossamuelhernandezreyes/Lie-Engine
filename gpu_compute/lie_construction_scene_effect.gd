@@ -7,6 +7,12 @@ var manifest: Dictionary={}
 var banks: Array=[]
 var _sets: Dictionary={}
 var _kernels: Dictionary={}
+var _legacy_kernels: Dictionary={}
+var _probe_kernels: Dictionary={}
+var _continuous: bool=true
+var _probe_active: bool=false
+var _surface_counting: bool=false
+var _surface_work_snapshot: Dictionary={}
 var _resident_banks: Dictionary={}
 var _params: Array=[]
 var _dummy:=RID()
@@ -56,12 +62,12 @@ var _frame_passes: Dictionary={}
 var _pass_counts: Dictionary={}
 var _reset_view: bool=true
 var _reset_shadow: bool=true
-const PASS_NAMES={1:"clear",8:"shadow",2:"projection_depth",3:"material_accumulation",4:"shading",7:"output"}
+const PASS_NAMES={1:"clear",8:"shadow",2:"projection_depth",3:"owner_resolution",9:"large_depth",10:"large_owner",12:"material_accumulation",11:"large_material",4:"shading",7:"output"}
 
 func configure(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int) -> bool:
     return configure_view(parameters,instances,jobs,work,PackedByteArray())
 
-func configure_view(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int,selection: PackedByteArray,clusters: bool=false) -> bool:
+func configure_view(parameters: PackedByteArray,instances: PackedByteArray,jobs: PackedByteArray,work: int,selection: PackedByteArray,clusters: bool=false,continuous: bool=true) -> bool:
     # Reuse validation only for byte-identical immutable geometry. Dimensions
     # and count fields still have to match this consumer on every transaction.
     if parameters.size()!=256 or instances.size()%96!=0 or instances.size()>instance_capacity()*96 or jobs.size()%16!=0 or jobs.size()>instance_capacity()*16 or work<1 or work>work_capacity():return false
@@ -88,7 +94,7 @@ func configure_view(parameters: PackedByteArray,instances: PackedByteArray,jobs:
         _validated_cluster_plan=cluster_packet.get("plan",PackedByteArray());_validated_cluster_indices=cluster_packet.get("indices",PackedByteArray())
     # Selection and geometry are published in ONE transaction. The render
     # thread can never combine a new scene with an old visibility mask.
-    _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":_validated_instances,"jobs":_validated_jobs,"work":work,"selection":selection.duplicate(),"clusters":clusters,"cluster_plan":_validated_cluster_plan,"cluster_indices":_validated_cluster_indices};_mutex.unlock();return true
+    _mutex.lock();_pending={"parameters":parameters.duplicate(),"instances":_validated_instances,"jobs":_validated_jobs,"work":work,"selection":selection.duplicate(),"clusters":clusters,"continuous":continuous,"cluster_plan":_validated_cluster_plan,"cluster_indices":_validated_cluster_indices};_mutex.unlock();return true
 
 func _collect_profile() -> void:
     if frame_count==0:return
@@ -121,6 +127,7 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     _collect_profile()
     var signature: PackedByteArray=_frame_signature(next)
     if signature==_resident:return
+    _continuous=bool(next.get("continuous",true));_probe_active=next.parameters.decode_float(220)>.5
     var work: int=next.work;var capacity: int=_projection_target(work)
     if capacity*_projection_stride()>int(_device_limits.get("max_storage_buffer_range",134217728)):
         failure="Projection buffer exceeds device storage range";return
@@ -129,18 +136,23 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         _buffer(3,projection_capacity*_projection_stride());_make_set();_view_stamp=PackedByteArray()
     next=_prepare_frame(next)
     if next.is_empty():return
-    _prepare_camera_jobs(next)
+    if not _prepare_camera_jobs(next):return
     var geometry: PackedByteArray=next.instances.duplicate();geometry.append_array(next.jobs)
     var p: PackedByteArray=next.parameters
     var view: PackedByteArray=geometry.duplicate();view.append_array(p.slice(0,96));view.append_array(p.slice(208,256))
     view.append_array(next.get("selection",PackedByteArray()))
     view.append_array(var_to_bytes(next.get("clusters",false)))
+    view.append_array(var_to_bytes(_continuous))
     var shadow: PackedByteArray=geometry.duplicate();shadow.append_array(p.slice(96,112));shadow.append_array(p.slice(160,208))
     # Reverse-bank diagnostics deliberately rerun both paths, so order tests
     # continue to exercise rasterization instead of accidentally testing a hit.
     view.append_array(p.slice(216,220));shadow.append_array(p.slice(216,220))
     _reset_view=view!=_view_stamp;_reset_shadow=shadow!=_shadow_stamp
     _update_parameters(p)
+    if _continuous and _probe_active and _probe_kernels.is_empty():_make_set()
+    if _reset_view and _continuous:
+        for row in _camera_jobs.values():
+            _rd.buffer_update(row.rid,row.queue_header*16,32,PackedInt32Array([0,1,1,0,0,0,0,0]).to_byte_array())
     if geometry!=_uploaded_geometry:
         _rd.buffer_update(_buffers[1],0,next.instances.size(),next.instances)
         _rd.buffer_update(_buffers[2],0,next.jobs.size(),next.jobs)
@@ -148,17 +160,27 @@ func _render_callback(_type: int,_data: RenderData) -> void:
     var stages: Array=[]
     if _reset_view or _reset_shadow:stages.append(1)
     if _reset_shadow:stages.append(8)
-    if _reset_view:stages.append_array([2,3])
+    if _reset_view:stages.append_array([2,9,3,10,12,11] if _continuous else [2,3])
     stages.append_array([4,7])
     var names: Array=[];_rd.capture_timestamp(_profile_marker("begin"))
     for stage in stages:
-        var name: String=PASS_NAMES[stage];names.append(name)
+        var name: String="material_accumulation" if stage==3 and not _continuous else PASS_NAMES[stage];names.append(name)
         _rd.capture_timestamp(_profile_marker(name+"_begin"))
         var commands: int=_rd.compute_list_begin()
-        var count: int=work if stage in [2,3,8] else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
+        var count: int=work if stage in Kernels.CAMERA_STAGES or stage==8 else maxi(render_size*render_size,512*512) if stage==1 else output_size*output_size if stage==7 else render_size*render_size
         _record_stage(commands,stage,count);_rd.compute_list_end()
         _rd.capture_timestamp(_profile_marker(name+"_end"));_pass_counts[name]=int(_pass_counts.get(name,0))+1
     _rd.capture_timestamp(_profile_marker("end"));_frame_passes[frame_count+1]=names
+    if _continuous and _probe_active:
+        # Read-only counter traversal AFTER the production timestamps/output.
+        # The production pipelines remain identical with diagnostics enabled.
+        for row in _camera_jobs.values():
+            _rd.buffer_update(row.rid,(row.queue_header+1)*16,16,PackedInt32Array([0,0,0,0]).to_byte_array())
+        _surface_counting=true
+        for stage in [2,9,12,11]:
+            var commands: int=_rd.compute_list_begin()
+            _record_stage(commands,stage,work);_rd.compute_list_end()
+        _surface_counting=false
     _resident=signature;_view_stamp=view;_shadow_stamp=shadow;sample_invocations=work;instance_count=next.instances.size()/96;frame_count+=1
 func request_diagnostics() -> void:
     RenderingServer.call_on_render_thread(Callable(self,"_publish_diagnostics"))
@@ -173,7 +195,7 @@ func _publish_diagnostics() -> void:
         "exclusive_bytes":allocation_bytes-total_source_bytes,"page_io_bytes":page_io_bytes,
         "asset_uploads":asset_uploads,"instances":instance_count,"samples":sample_invocations,
         "output_size":output_size,"internal_size":render_size,"field":{},
-        "profile":_profiles.duplicate(true),"pass_counts":_pass_counts.duplicate(),"bank_dispatch_samples":{},"camera_samples":_camera_work,"camera_jobs":_camera_job_count,"camera_skipped_samples":sample_invocations-_camera_work,"shadow_samples":sample_invocations,"camera_plan":_camera_plan_metrics.duplicate(),"camera_plan_profile":_camera_plan_profile.duplicate(),"projection_stride":_projection_stride(),"projection_bytes":projection_capacity*_projection_stride(),"device_limits":_device_limits.duplicate(),"snapshot_usec":Time.get_ticks_usec()}
+        "profile":_profiles.duplicate(true),"pass_counts":_pass_counts.duplicate(),"bank_dispatch_samples":{},"camera_samples":_camera_work,"camera_jobs":_camera_job_count,"camera_skipped_samples":sample_invocations-_camera_work,"shadow_samples":sample_invocations,"camera_plan":_camera_plan_metrics.duplicate(),"camera_plan_profile":_camera_plan_profile.duplicate(),"projection_stride":_projection_stride(),"projection_bytes":projection_capacity*_projection_stride(),"device_limits":_device_limits.duplicate(),"surface_mode":"continuous" if _continuous else "legacy_640","camera_queue_bytes":_camera_job_bytes,"surface_probe_active":_probe_active,"snapshot_usec":Time.get_ticks_usec()}
     for bank in _bank_jobs:result.bank_dispatch_samples[str(bank)]=_bank_jobs[bank].work
     if gpu_ready:result.device=_rd.get_device_name()
     for key in ["producer","epoch","solve","nodes","bytes"]:
@@ -251,7 +273,7 @@ func _frame_signature(next: Dictionary) -> PackedByteArray:
     _mutex.lock();_field_context=_pending_field.duplicate();_mutex.unlock();_field_receipt={}
     if not _field_context.is_empty() and _field_context.instances==next.instances:
         _field_receipt=_field_context.transport.render_binding(_rd)
-    var signature: PackedByteArray=super._frame_signature(next);signature.append_array(next.get("selection",PackedByteArray()));signature.append_array(var_to_bytes([next.get("clusters",false),_field_receipt.get("producer",0),_field_receipt.get("epoch",""),_field_receipt.get("solve",0),_field_context.get("indirect",false),_field_context.get("primary",-1)]));return signature
+    var signature: PackedByteArray=super._frame_signature(next);signature.append_array(next.get("selection",PackedByteArray()));signature.append_array(var_to_bytes([next.get("clusters",false),next.get("continuous",true),_field_receipt.get("producer",0),_field_receipt.get("epoch",""),_field_receipt.get("solve",0),_field_context.get("indirect",false),_field_context.get("primary",-1)]));return signature
 func _sync_field() -> void:
     var bytes:=PackedByteArray();bytes.resize(16)
     if not _field_receipt.is_empty():
@@ -277,27 +299,47 @@ func _make_set() -> void:
         var format:=RDTextureFormat.new();format.width=1;format.height=1;format.format=RenderingDevice.DATA_FORMAT_R32G32B32A32_SFLOAT;format.usage_bits=RenderingDevice.TEXTURE_USAGE_STORAGE_BIT|RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT;_field_dummy_image=_rd.texture_create(format,RDTextureView.new(),[]);allocation_bytes+=352
         _sources_ready=true
     if _kernels.is_empty():
-        for stage in [1,2,3,4,7,8]:
+        for stage in [1,2,3,4,7,8,9,10,11,12]:
             var spirv: RDShaderSPIRV=Kernels.SHADERS[stage].get_spirv()
             if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure="Scene kernel compile";return
-            var shader: RID=_shader if stage==1 else _rd.shader_create_from_spirv(spirv);var pipeline: RID=_pipeline if stage==1 else _rd.compute_pipeline_create(shader)
+            var shader: RID=_shader if stage==1 else _rd.shader_create_from_spirv(spirv)
+            var pipeline: RID=_pipeline if stage==1 else _rd.compute_pipeline_create(shader)
             _kernels[stage]={"shader":shader,"pipeline":pipeline}
-    for stage in _kernels:
-        var order: Array=_resident_banks.keys() if stage in [2,3,8] else [0]
-        for bank in order:
-            # Resizing can rebuild sets before _sync_field. Always use this
-            # frame's validated producer receipt, never a previous producer RID.
-            var handles: Dictionary=_buffers.duplicate();handles.merge(_images);handles[6]=_camera_params[bank] if stage in [2,3] else _params[bank];handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map;handles[17]=_field_receipt.get("patches",_field_dummy_patch);handles[18]=_field_receipt.get("irradiance",_field_dummy_image);handles[19]=_field_receipt.get("direct",_field_dummy_light)
-            var dispatch: Dictionary=_camera_jobs if stage in [2,3] else _bank_jobs
-            handles[20]=dispatch[bank].rid if dispatch.has(bank) else _dummy
-            if _resident_banks.has(bank):
-                var row: Dictionary=_resident_banks[bank];handles[0]=row.core.rid;handles[14]=row.optical.rid if row.has("optical") else _dummy;handles[15]=row.limits
-            var uniforms: Array[RDUniform]=[]
-            for binding in Kernels.BINDINGS[stage]:uniforms.append(_uniform(binding,handles[binding],binding in [11,12,18]))
-            var set_rid: RID=_rd.uniform_set_create(uniforms,_kernels[stage].shader,0)
-            if not set_rid.is_valid():failure="Scene descriptors";return
-            _sets[str(bank)+":"+str(stage)]=set_rid
-    _set=_sets["0:1"]
+        for stage in [2,3]:
+            var spirv: RDShaderSPIRV=Kernels.LEGACY[stage].get_spirv()
+            if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure="Legacy camera kernel compile";return
+            var shader: RID=_rd.shader_create_from_spirv(spirv)
+            _legacy_kernels[stage]={"shader":shader,"pipeline":_rd.compute_pipeline_create(shader)}
+    if _continuous and _probe_active and _probe_kernels.is_empty():
+        for stage in Kernels.PROBE:
+            var spirv: RDShaderSPIRV=Kernels.PROBE[stage].get_spirv()
+            if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure="Surface probe kernel compile";return
+            var shader: RID=_rd.shader_create_from_spirv(spirv)
+            _probe_kernels[stage]={"shader":shader,"pipeline":_rd.compute_pipeline_create(shader)}
+    for stage in _kernels:_make_stage_sets(stage,_kernels[stage],"")
+    for stage in _legacy_kernels:_make_stage_sets(stage,_legacy_kernels[stage],"legacy:")
+    for stage in _probe_kernels:_make_stage_sets(stage,_probe_kernels[stage],"probe:")
+    _set=_sets.get("0:1",RID())
+func _make_stage_sets(stage: int,kernel: Dictionary,prefix: String) -> void:
+    var camera_stage: bool=stage in Kernels.CAMERA_STAGES
+    var order: Array=_resident_banks.keys() if camera_stage or stage==8 else [0]
+    for bank in order:
+        var handles: Dictionary=_buffers.duplicate();handles.merge(_images)
+        handles[6]=_camera_params[bank] if camera_stage else _params[bank]
+        handles[14]=_dummy;handles[15]=_dummy_limits;handles[16]=_field_map
+        handles[17]=_field_receipt.get("patches",_field_dummy_patch)
+        handles[18]=_field_receipt.get("irradiance",_field_dummy_image)
+        handles[19]=_field_receipt.get("direct",_field_dummy_light)
+        var dispatch: Dictionary=_camera_jobs if camera_stage else _bank_jobs
+        handles[20]=dispatch[bank].rid if dispatch.has(bank) else _dummy
+        if _resident_banks.has(bank):
+            var row: Dictionary=_resident_banks[bank]
+            handles[0]=row.core.rid;handles[14]=row.optical.rid if row.has("optical") else _dummy;handles[15]=row.limits
+        var uniforms: Array[RDUniform]=[]
+        for binding in Kernels.BINDINGS[stage]:uniforms.append(_uniform(binding,handles[binding],binding in [11,12,18]))
+        var rid: RID=_rd.uniform_set_create(uniforms,kernel.shader,0)
+        if not rid.is_valid():failure="Scene descriptors";return
+        _sets[prefix+str(bank)+":"+str(stage)]=rid
 func _release_bank(row: Dictionary) -> void:
     SharedSamples.release_handle(_rd,row.core)
     if row.has("optical"):SharedSamples.release_handle(_rd,row.optical)
@@ -373,15 +415,15 @@ func _release_uncommitted(row: Dictionary) -> void:
     if row.get("core",{}).get("ok",false):SharedSamples.release_handle(_rd,row.core)
     if row.get("optical",{}).get("ok",false):SharedSamples.release_handle(_rd,row.optical)
     if row.get("limits",RID()).is_valid():_rd.free_rid(row.limits)
-func _prepare_camera_jobs(next: Dictionary) -> void:
+func _prepare_camera_jobs(next: Dictionary) -> bool:
     var selection: PackedByteArray=next.get("selection",PackedByteArray())
     var stamp: PackedByteArray=next.instances.duplicate();stamp.append_array(next.jobs);stamp.append_array(selection)
-    stamp.append_array(var_to_bytes(next.get("clusters",false)))
+    stamp.append_array(var_to_bytes([next.get("clusters",false),next.get("continuous",true)]))
     if next.get("clusters",false):stamp.append_array(next.parameters.slice(0,16))
-    if stamp==_camera_job_stamp:return
+    if stamp==_camera_job_stamp:return true
     _clear_sets()
-    for row in _camera_jobs.values():_rd.free_rid(row.rid)
-    _camera_jobs.clear();allocation_bytes-=_camera_job_bytes;_camera_job_bytes=0;_camera_work=0;_camera_job_count=0
+    var previous: Dictionary=_camera_jobs;_camera_jobs={}
+    allocation_bytes-=_camera_job_bytes;_camera_job_bytes=0;_camera_work=0;_camera_job_count=0
     var jobs: PackedInt32Array=next.jobs.to_int32_array();var dispatches: Dictionary={};var planned: Dictionary={}
     if _cluster_planner==null and ClassDB.class_exists("LieVisibilityPlanner"):_cluster_planner=ClassDB.instantiate("LieVisibilityPlanner")
     if next.get("clusters",false) and _cluster_planner!=null and _cluster_planner.has_method("contract_version") and _cluster_planner.contract_version()==2 and not next.get("cluster_plan",PackedByteArray()).is_empty():
@@ -400,10 +442,31 @@ func _prepare_camera_jobs(next: Dictionary) -> void:
             if not dispatches.has(bank):dispatches[bank]={"data":PackedByteArray(),"work":0,"jobs":0}
             var row: Dictionary=dispatches[bank];row.data.append_array(PackedInt32Array([row.work,jobs[i+3],j,0]).to_byte_array());row.work+=jobs[i+1];row.jobs+=1
             _camera_work+=jobs[i+1];_camera_job_count+=1
+    var range_limit: int=int(_device_limits.get("max_storage_buffer_range",134217728))
     for bank in dispatches:
         var row: Dictionary=dispatches[bank];var data: PackedByteArray=row.data
-        _camera_jobs[bank]={"rid":_rd.storage_buffer_create(data.size(),data),"work":row.work,"jobs":row.jobs};_camera_job_bytes+=data.size()
-    allocation_bytes+=_camera_job_bytes;_camera_job_stamp=stamp;_make_set()
+        var header: int=data.size()/16
+        var required: int=data.size()+32+int(row.work)*8
+        var capacity: int=ceili(float(required)/65536.)*65536
+        if capacity>range_limit:
+            for old_row in previous.values():_rd.free_rid(old_row.rid)
+            for new_row in _camera_jobs.values():_rd.free_rid(new_row.rid)
+            _camera_jobs.clear();_camera_job_bytes=0;failure="Camera work arena exceeds device storage range";return false
+        var rid: RID
+        if previous.has(bank) and int(previous[bank].capacity)>=required:
+            rid=previous[bank].rid;capacity=int(previous[bank].capacity);previous.erase(bank)
+        else:
+            if previous.has(bank):_rd.free_rid(previous[bank].rid);previous.erase(bank)
+            rid=_rd.storage_buffer_create(capacity,PackedByteArray(),RenderingDevice.STORAGE_BUFFER_USAGE_DISPATCH_INDIRECT)
+        if not rid.is_valid():
+            for old_row in previous.values():_rd.free_rid(old_row.rid)
+            for new_row in _camera_jobs.values():_rd.free_rid(new_row.rid)
+            _camera_jobs.clear();_camera_job_bytes=0;failure="Camera work arena allocation";return false
+        _rd.buffer_update(rid,0,data.size(),data)
+        _camera_jobs[bank]={"rid":rid,"capacity":capacity,"work":row.work,"jobs":row.jobs,"queue_header":header}
+        _camera_job_bytes+=capacity
+    for row in previous.values():_rd.free_rid(row.rid)
+    allocation_bytes+=_camera_job_bytes;_camera_job_stamp=stamp;_make_set();return true
 func _update_parameters(parameters: PackedByteArray) -> void:
     _reverse_passes=parameters.decode_float(216)>.5
     for i in range(banks.size()):
@@ -411,16 +474,43 @@ func _update_parameters(parameters: PackedByteArray) -> void:
         if _bank_jobs.has(i):data.encode_s32(80,_bank_jobs[i].work);data.encode_s32(84,_bank_jobs[i].jobs)
         _rd.buffer_update(_params[i],0,256,data)
         data.encode_s32(80,_camera_jobs.get(i,{}).get("work",0));data.encode_s32(84,_camera_jobs.get(i,{}).get("jobs",0))
+        data.encode_float(212,float(_camera_jobs.get(i,{}).get("queue_header",0)))
         _rd.buffer_update(_camera_params[i],0,256,data)
 func _dispatch_stage(commands: int,count: int) -> void:
     var groups: int=ceili(float(count)/64);var x: int=mini(groups,32768);_rd.compute_list_dispatch(commands,x,ceili(float(groups)/x),1)
 func _record_stage(commands: int,stage: int,count: int) -> void:
-    var order: Array=_resident_banks.keys() if stage in [2,3,8] else [0];order.sort()
-    if _reverse_passes and stage in [2,3,8]:order.reverse()
-    for i in order:
-        if stage in [2,3] and not _camera_jobs.has(i):continue
-        var amount: int=_camera_jobs[i].work if stage in [2,3] else _bank_jobs[i].work if stage==8 else count
-        _rd.compute_list_bind_compute_pipeline(commands,_kernels[stage].pipeline);_rd.compute_list_bind_uniform_set(commands,_sets[str(i)+":"+str(stage)],0);_rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,int(_reset_view),int(_reset_shadow)]).to_byte_array(),16);_dispatch_stage(commands,amount);_rd.compute_list_add_barrier(commands)
+    var camera_stage: bool=stage in Kernels.CAMERA_STAGES
+    var order: Array=_resident_banks.keys() if camera_stage or stage==8 else [0];order.sort()
+    if _reverse_passes and (camera_stage or stage==8):order.reverse()
+    var legacy: bool=not _continuous and stage in [2,3]
+    var probe: bool=_continuous and _surface_counting and camera_stage
+    var kernel: Dictionary=_legacy_kernels[stage] if legacy else _probe_kernels[stage] if probe else _kernels[stage]
+    var prefix: String="legacy:" if legacy else "probe:" if probe else ""
+    for bank in order:
+        if camera_stage and not _camera_jobs.has(bank):continue
+        var amount: int=_camera_jobs[bank].work if camera_stage else _bank_jobs[bank].work if stage==8 else count
+        _rd.compute_list_bind_compute_pipeline(commands,kernel.pipeline)
+        _rd.compute_list_bind_uniform_set(commands,_sets[prefix+str(bank)+":"+str(stage)],0)
+        _rd.compute_list_set_push_constant(commands,PackedInt32Array([stage,2,int(_reset_view),int(_reset_shadow)]).to_byte_array(),16)
+        if stage in [9,10,11]:_rd.compute_list_dispatch_indirect(commands,_camera_jobs[bank].rid,_camera_jobs[bank].queue_header*16)
+        else:_dispatch_stage(commands,amount)
+        _rd.compute_list_add_barrier(commands)
+func request_surface_work() -> void:
+    _mutex.lock();_surface_work_snapshot={};_mutex.unlock()
+    RenderingServer.call_on_render_thread(Callable(self,"_read_surface_work"))
+func surface_work() -> Dictionary:
+    _mutex.lock();var result: Dictionary=_surface_work_snapshot.duplicate(true);_mutex.unlock();return result
+func _read_surface_work() -> void:
+    if not gpu_ready:return
+    var result: Dictionary={"serial":frame_count,"available":_continuous and _probe_active,"banks":[],"large_samples":0,"footprint_candidates":0,"source_supported_depth":0,"material_contributions":0,"overflow":false,"readback_bytes":0,"scope":"Separate read-only GPU traversal of production projections, depth and owners; 32 bytes per active bank. Counts are not production GPU timing. Uint32 overflow is reported, never silently interpreted."}
+    if result.available:
+        for bank in _camera_jobs:
+            var row: Dictionary=_camera_jobs[bank];var data: PackedInt32Array=_rd.buffer_get_data(row.rid,row.queue_header*16,32).to_int32_array()
+            var values: Array=[]
+            for v in data:values.append(int(v)&0xffffffff)
+            result.banks.append({"bank":bank,"large_samples":values[3],"footprint_candidates":values[4],"source_supported_depth":values[5],"material_contributions":values[6],"overflow_bits":values[7]})
+            result.large_samples+=values[3];result.footprint_candidates+=values[4];result.source_supported_depth+=values[5];result.material_contributions+=values[6];result.overflow=result.overflow or values[7]!=0;result.readback_bytes+=32
+    _mutex.lock();_surface_work_snapshot=result;_mutex.unlock()
 func _capture() -> void:
     super._capture()
     if not gpu_ready:return
@@ -441,6 +531,10 @@ func _release() -> void:
     for stage in _kernels:
         if stage!=1:_rd.free_rid(_kernels[stage].pipeline);_rd.free_rid(_kernels[stage].shader)
     _kernels.clear()
+    for kernel in _legacy_kernels.values():_rd.free_rid(kernel.pipeline);_rd.free_rid(kernel.shader)
+    _legacy_kernels.clear();_surface_work_snapshot={}
+    for kernel in _probe_kernels.values():_rd.free_rid(kernel.pipeline);_rd.free_rid(kernel.shader)
+    _probe_kernels.clear()
     for row in _resident_banks.values():_release_bank(row)
     _resident_banks.clear();total_source_bytes=0;_plan_signature=""
     for i in range(_params.size()):
