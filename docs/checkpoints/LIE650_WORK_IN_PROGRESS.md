@@ -85,3 +85,17 @@ implementation; its path was not replaced.
 The revised diagnostic passes all 29 oracle fixtures on both SwiftShader and
 Mesa 26/LLVM 19 locally; the complete 292-test Python suite still passes with
 one skip. Current compositor/control and final Android checks remain pending.
+
+## Final acceptance
+
+Candidate 177523c25cc3eb5989939df8dc3b11c2285335d4 passed the complete Android
+workflow 42656719380. The read-only diagnostic compositor passes 28 checks;
+all seven real-bank GPU suites pass 256 checks. The strict ten-case frozen
+6.4 float comparison has exact depth/alpha and maximum RGBA error 0. The
+292-test Python suite (one skip) and all 29 analytic Vulkan fixtures pass.
+
+The downloaded APK was independently reverified: 227,511,098 bytes, SHA-256
+53146e01153ea8f9b022d57e3c824000b2d1462fc5cf038fe3990ad2e1d50db8.
+All 105 capture/metadata files match 6.4. ARM64 ELF load segments meet 16 KiB
+alignment; CI verified package signing and ZIP alignment. No physical Android
+run or speedup is claimed. Final summary: ../LIE_SURFACE_CONTINUITY_650.md.
