@@ -5,8 +5,11 @@ func _initialize() -> void:
     for probe in [false,true]:
         var folder: String="surface-probe-shaders" if probe else "surface-shaders"
         DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://"+folder))
-        for stage in [1,2,3,9,10,11,12]:
-            var shader: RDShaderFile=Kernels.PROBE[stage] if probe and stage!=1 else Kernels.SHADERS[stage]
+        var extra: Dictionary={13:2,14:9,15:12,16:11}
+        var stages: Array=[1,2,3,9,10,11,12]
+        if probe:stages.append_array([13,14,15,16])
+        for stage in stages:
+            var shader: RDShaderFile=Kernels.PROBE[extra[stage]] if extra.has(stage) else Kernels.SHADERS[stage]
             var spirv: RDShaderSPIRV=shader.get_spirv()
             var error: String=spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)
             if error!="":printerr(error);quit(1);return

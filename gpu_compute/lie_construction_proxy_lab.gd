@@ -223,5 +223,5 @@ func run_surface_comparison(events: int=12) -> void:
             _latest.blocks.append(block);_persist_report()
             if not _latest.error.is_empty():break
         if cancelled or not _latest.error.is_empty():break
-    _latest.surface_scope="Exact frozen 6.4 camera reference vs continuous disk/owner reconstruction. Same original capture bytes, LOD, resolution, lighting and A/B/B/A camera paths. Instrumented work replays are separate from timed production passes. Geometric corrections can change the image; speed is measured, not assumed."
+    _latest.surface_scope="Exact frozen 6.4 camera reference vs continuous disk/owner reconstruction. Same original capture bytes, LOD, resolution, lighting and A/B/B/A camera paths. Read-only work traversals are separate from timed production passes. Geometric corrections can change the image; speed is measured, not assumed."
     _previous_camera=saved_camera;_have_previous_camera=true;_finish(backup)

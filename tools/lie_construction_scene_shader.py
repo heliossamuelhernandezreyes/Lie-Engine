@@ -50,8 +50,10 @@ bool covered(Projection p,vec2 xy)''')
         result[f'gpu_compute/shaders/lie_construction_scene_stage_{stage}.glsl']=camera_shader(stage,shader)
     for stage in (9,12):
         result[f'gpu_compute/shaders/lie_construction_scene_stage_{stage}.glsl']=camera_shader(stage,legacy[2 if stage==9 else 3])
-    for stage in (2,3,9,12):
+    for stage in (2,9,12):
         shader=result[f'gpu_compute/shaders/lie_construction_scene_stage_{stage}.glsl']
+        for name in ('Projected','Depth','Winner','Accumulated','Shadow'):
+            shader=shader.replace(' buffer '+name+' {',' readonly buffer '+name+' {')
         result[f'gpu_compute/shaders/lie_construction_probe_stage_{stage}.glsl']=shader.replace('#version 450','#version 450\n#define LIE_SURFACE_PROBE 1',1)
     gd='extends RefCounted\nconst SHADERS={\n'
     for stage in (1,2,3,4,6,7,8,9,10,11,12):
@@ -61,7 +63,7 @@ bool covered(Projection p,vec2 xy)''')
     gd+='}\nconst LEGACY={\n'
     for stage in (2,3):gd+=f'    {stage}:preload("res://shaders/lie_construction_legacy_stage_{stage}.glsl"),\n'
     gd+='}\nconst PROBE={\n'
-    for stage in (2,3,9,10,11,12):gd+=f'    {stage}:preload("res://shaders/lie_construction_probe_stage_{9 if stage in (10,11) else stage}.glsl"),\n'
+    for stage in (2,9,11,12):gd+=f'    {stage}:preload("res://shaders/lie_construction_probe_stage_{9 if stage==11 else stage}.glsl"),\n'
     gd+='}\nconst CAMERA_STAGES=[2,3,9,10,11,12]\n'
     gd+='const BINDINGS='+json.dumps(bindings,separators=(',',':')).replace('"','')+'\n'
     result['gpu_compute/lie_construction_scene_kernels.gd']=gd;return result

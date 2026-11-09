@@ -18,9 +18,7 @@ const LEGACY={
 }
 const PROBE={
     2:preload("res://shaders/lie_construction_probe_stage_2.glsl"),
-    3:preload("res://shaders/lie_construction_probe_stage_3.glsl"),
     9:preload("res://shaders/lie_construction_probe_stage_9.glsl"),
-    10:preload("res://shaders/lie_construction_probe_stage_9.glsl"),
     11:preload("res://shaders/lie_construction_probe_stage_9.glsl"),
     12:preload("res://shaders/lie_construction_probe_stage_12.glsl"),
 }

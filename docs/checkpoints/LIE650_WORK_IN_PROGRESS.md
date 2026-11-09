@@ -58,3 +58,30 @@ passes all 292 tests. The first sixty-block summary exceeded the copy bound;
 a declared column layout now retains every block and exact statistics.
 
 Final CI, frozen-6.4 image comparison and verified ARM64 APK are still pending.
+
+## Read-only diagnostic refinement
+
+All seven local real-bank GPU suites passed 256 checks. CI also passed the
+real-bank suites on LLVM 21, but the first frozen-image comparison stopped at
+a missing `surface_probe` state key in the baseline. Both controls now
+explicitly set that diagnostic flag false; state/sample/float comparisons
+remain strict. The next CI run rejected the `opaque_close` instrumented
+fixture. The original combined assertion did not preserve whether pixels or
+counters differed, so no specific floating-point or driver cause is claimed.
+Detailed per-buffer mismatches are now preserved. A later diagnostic run
+passed all fixtures, all real-bank suites and the frozen float comparison.
+
+The diagnostic path is now isolated structurally: production SPIR-V renders
+first; four extra GPU traversals then read the production projections, depth,
+winners and source data. Their image/visibility buffers are declared read-only
+and only queue statistics are written. Counters run after production GPU end
+timestamps and outside benchmark blocks. All seven exported production
+SPIR-V binaries are byte-identical before/after this isolation. A separate
+Vulkan replay synchronization defect was found and fixed: shader writes to
+the queue now become visible to DRAW_INDIRECT/INDIRECT_COMMAND_READ. Godot
+4.7.2 already tracks RESOURCE_USAGE_INDIRECT_BUFFER_READ in its public dispatch
+implementation; its path was not replaced.
+
+The revised diagnostic passes all 29 oracle fixtures on both SwiftShader and
+Mesa 26/LLVM 19 locally; the complete 292-test Python suite still passes with
+one skip. Current compositor/control and final Android checks remain pending.

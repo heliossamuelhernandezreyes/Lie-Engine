@@ -18,6 +18,9 @@
 #include <vulkan/vulkan.h>
 namespace fs = std::filesystem;
 using Clock = std::chrono::steady_clock;
+static int phase_stage(int stage) {
+  return stage >= 13 && stage <= 16 ? std::array<int,4>{2,9,12,11}[stage-13] : stage;
+}
 static void ok(VkResult r, const char *op) {
   if (r != VK_SUCCESS)
     throw std::runtime_error(std::string(op) + ": " + std::to_string(r));
@@ -288,15 +291,17 @@ struct Context {
   void barrier() {
     VkMemoryBarrier b{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
     b.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-    b.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+    b.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT |
+                      VK_ACCESS_INDIRECT_COMMAND_READ_BIT;
     vkCmdPipelineBarrier(command, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
-                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, 0, 1, &b, 0,
+                         VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT |
+                             VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, 0, 1, &b, 0,
                          nullptr, 0, nullptr);
   }
   void dispatch(int stage, VkDescriptorSet set, uint32_t count) {
     if (!count)
       return;
-    const int32_t phase[4] = {stage, 2, 1, 0};
+    const int32_t phase[4] = {phase_stage(stage), 2, 1, 0};
     vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_COMPUTE,
                       pipelines.at(stage));
     vkCmdBindDescriptorSets(command, VK_PIPELINE_BIND_POINT_COMPUTE,
@@ -310,7 +315,7 @@ struct Context {
   }
   void dispatch_large(int stage, VkDescriptorSet set, size_t queue_buffer,
                       VkDeviceSize queue_offset) {
-    const int32_t phase[4] = {stage, 2, 1, 0};
+    const int32_t phase[4] = {phase_stage(stage), 2, 1, 0};
     vkCmdBindPipeline(command, VK_PIPELINE_BIND_POINT_COMPUTE,pipelines.at(stage));
     vkCmdBindDescriptorSets(command,VK_PIPELINE_BIND_POINT_COMPUTE,pipeline_layout,
                            0,1,&set,0,nullptr);
@@ -387,6 +392,9 @@ int main(int argc, char **argv) {
     }
     std::vector<int> stages = surface ? std::vector<int>{1,2,9,3,10,12,11}
                                       : std::vector<int>{1,2,3};
+    const bool counter_traversal=surface && fs::exists(shaders/"stage-13.spv");
+    if(counter_traversal)
+      stages.insert(stages.end(),{13,14,15,16});
     for (int stage : stages)
       c.shader(stage, shaders / ("stage-" + std::to_string(stage) + ".spv"));
     std::ostringstream report;
@@ -403,6 +411,7 @@ int main(int argc, char **argv) {
            << c.props.limits.maxPerStageDescriptorStorageBuffers
            << ",\"host_visible_coherent_buffers\":true,\"physical_android_"
               "tested\":false,\"surface_pipeline\":" << (surface?"true":"false")
+           << ",\"read_only_counter_traversal\":" << (counter_traversal?"true":"false")
            << ",\"rows\":[";
     std::map<int,std::vector<uint8_t>> stable;
     for (int iteration = 0; iteration < 6; iteration++) {
@@ -425,11 +434,11 @@ int main(int argc, char **argv) {
           c.dispatch(stage, clear, std::max(size * size, 512u * 512u));
         else if (iteration % 2 == 0) {
           for (auto it = banks.rbegin(); it != banks.rend(); ++it)
-            if(stage==9 || stage==10 || stage==11)c.dispatch_large(stage,it->set,it->queue_buffer,it->queue_offset);
+            if(stage==9 || stage==10 || stage==11 || stage==14 || stage==16)c.dispatch_large(stage,it->set,it->queue_buffer,it->queue_offset);
             else c.dispatch(stage, it->set, it->work);
         } else
           for (const auto &bank : banks) {
-            if(stage==9 || stage==10 || stage==11)c.dispatch_large(stage,bank.set,bank.queue_buffer,bank.queue_offset);
+            if(stage==9 || stage==10 || stage==11 || stage==14 || stage==16)c.dispatch_large(stage,bank.set,bank.queue_buffer,bank.queue_offset);
             else c.dispatch(stage, bank.set, bank.work);
           }
         if(!surface)vkCmdWriteTimestamp(c.command,VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,c.queries,q++);
@@ -484,7 +493,7 @@ int main(int argc, char **argv) {
       }
     }
     report << "],\"scope\":\"Selected SPIR-V and exact captured SSBO inputs; "
-           << (surface ? "clear plus split small/cooperative-large depth, owner and material passes. "
+           << (surface ? "clear plus split small/cooperative-large depth, owner and material passes; an optional read-only counter traversal follows. "
                        : "clear, projection/depth and material accumulation. ")
            << "No Godot, window, "
               "physics, light field, shading or presentation. CPU buffer "

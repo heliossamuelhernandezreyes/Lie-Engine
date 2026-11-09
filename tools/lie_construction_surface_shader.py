@@ -51,6 +51,7 @@ void main() {
     mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz),inverse_basis=inverse(basis);
     SourceBounds bounds=source_bounds(sid);Projection p;
     const int stage=STAGE;
+#ifndef LIE_SURFACE_PROBE
     if(stage==2) {
         vec3 local=s.position_radius.xyz;float radius=s.position_radius.w;
         if(parameters.settings.y<.5) {
@@ -66,9 +67,17 @@ void main() {
         radius*=max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
         p=lie_project_surface(delta,n,shading,radius,float(job.z));projected.v[i]=p;
     } else p=projected.v[i];
+#else
+    p=projected.v[i];
+#endif
     if(p.radius==0.)return;
     ivec4 box=lie_surface_bounds(p);if(lie_empty_bounds(box))return;
-    if(lie_large_surface(p,box)) {if(stage==2)lie_enqueue(i,address.z);return;}
+    if(lie_large_surface(p,box)) {
+#ifndef LIE_SURFACE_PROBE
+        if(stage==2)lie_enqueue(i,address.z);
+#endif
+        return;
+    }
     LIE_PROBE_DECLARE;
     for(int y=box.y;y<=box.w;y++) {
         ivec2 row=lie_surface_row(p,box,y);
@@ -84,9 +93,9 @@ void main() {
             }
             if(stage==2) {LIE_PROBE_TEST;}
             if(!covered(p,xy,s,inst,inverse_basis,bounds,sid))continue;
-            if(stage==2) {LIE_PROBE_SUPPORT;atomicMin(depths.v[pixel],bits);}
-            else if(stage==3)atomicMin(winners.v[pixel],i);
-            else {lie_accumulate(pixel,i,p,s,inst,distance);LIE_PROBE_ACCEPT;}
+            if(stage==2) {LIE_PROBE_SUPPORT;LIE_DEPTH_WRITE(pixel,bits);}
+            else if(stage==3) {LIE_OWNER_WRITE(pixel,i);}
+            else {LIE_MATERIAL_WRITE(pixel,i,p,s,inst,distance);LIE_PROBE_ACCEPT;}
         }
     }
     if(stage==2) {LIE_PROBE_DEPTH;}
@@ -125,9 +134,9 @@ void main() {
         }
         if(stage==9) {LIE_PROBE_TEST;}
         if(!covered(p,xy,s,inst,inverse_basis,bounds,sid))continue;
-        if(stage==9) {LIE_PROBE_SUPPORT;atomicMin(depths.v[pixel],bits);}
-        else if(stage==10)atomicMin(winners.v[pixel],i);
-        else {lie_accumulate(pixel,i,p,s,inst,distance);LIE_PROBE_ACCEPT;}
+        if(stage==9) {LIE_PROBE_SUPPORT;LIE_DEPTH_WRITE(pixel,bits);}
+        else if(stage==10) {LIE_OWNER_WRITE(pixel,i);}
+        else {LIE_MATERIAL_WRITE(pixel,i,p,s,inst,distance);LIE_PROBE_ACCEPT;}
     }
     if(stage==9) {LIE_PROBE_DEPTH;}
     if(stage==11) {LIE_PROBE_MATERIAL;}

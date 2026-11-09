@@ -11,6 +11,7 @@ var _legacy_kernels: Dictionary={}
 var _probe_kernels: Dictionary={}
 var _continuous: bool=true
 var _probe_active: bool=false
+var _surface_counting: bool=false
 var _surface_work_snapshot: Dictionary={}
 var _resident_banks: Dictionary={}
 var _params: Array=[]
@@ -170,6 +171,16 @@ func _render_callback(_type: int,_data: RenderData) -> void:
         _record_stage(commands,stage,count);_rd.compute_list_end()
         _rd.capture_timestamp(_profile_marker(name+"_end"));_pass_counts[name]=int(_pass_counts.get(name,0))+1
     _rd.capture_timestamp(_profile_marker("end"));_frame_passes[frame_count+1]=names
+    if _continuous and _probe_active:
+        # Read-only counter traversal AFTER the production timestamps/output.
+        # The production pipelines remain identical with diagnostics enabled.
+        for row in _camera_jobs.values():
+            _rd.buffer_update(row.rid,(row.queue_header+1)*16,16,PackedInt32Array([0,0,0,0]).to_byte_array())
+        _surface_counting=true
+        for stage in [2,9,12,11]:
+            var commands: int=_rd.compute_list_begin()
+            _record_stage(commands,stage,work);_rd.compute_list_end()
+        _surface_counting=false
     _resident=signature;_view_stamp=view;_shadow_stamp=shadow;sample_invocations=work;instance_count=next.instances.size()/96;frame_count+=1
 func request_diagnostics() -> void:
     RenderingServer.call_on_render_thread(Callable(self,"_publish_diagnostics"))
@@ -300,7 +311,7 @@ func _make_set() -> void:
             var shader: RID=_rd.shader_create_from_spirv(spirv)
             _legacy_kernels[stage]={"shader":shader,"pipeline":_rd.compute_pipeline_create(shader)}
     if _continuous and _probe_active and _probe_kernels.is_empty():
-        for stage in Kernels.CAMERA_STAGES:
+        for stage in Kernels.PROBE:
             var spirv: RDShaderSPIRV=Kernels.PROBE[stage].get_spirv()
             if spirv.get_stage_compile_error(RenderingDevice.SHADER_STAGE_COMPUTE)!="":failure="Surface probe kernel compile";return
             var shader: RID=_rd.shader_create_from_spirv(spirv)
@@ -472,7 +483,7 @@ func _record_stage(commands: int,stage: int,count: int) -> void:
     var order: Array=_resident_banks.keys() if camera_stage or stage==8 else [0];order.sort()
     if _reverse_passes and (camera_stage or stage==8):order.reverse()
     var legacy: bool=not _continuous and stage in [2,3]
-    var probe: bool=_continuous and _probe_active and camera_stage
+    var probe: bool=_continuous and _surface_counting and camera_stage
     var kernel: Dictionary=_legacy_kernels[stage] if legacy else _probe_kernels[stage] if probe else _kernels[stage]
     var prefix: String="legacy:" if legacy else "probe:" if probe else ""
     for bank in order:
@@ -491,7 +502,7 @@ func surface_work() -> Dictionary:
     _mutex.lock();var result: Dictionary=_surface_work_snapshot.duplicate(true);_mutex.unlock();return result
 func _read_surface_work() -> void:
     if not gpu_ready:return
-    var result: Dictionary={"serial":frame_count,"available":_continuous and _probe_active,"banks":[],"large_samples":0,"footprint_candidates":0,"source_supported_depth":0,"material_contributions":0,"overflow":false,"readback_bytes":0,"scope":"Explicit separate diagnostic replay; 32 bytes per active bank. Counts are not production GPU timing. Uint32 overflow is reported, never silently interpreted."}
+    var result: Dictionary={"serial":frame_count,"available":_continuous and _probe_active,"banks":[],"large_samples":0,"footprint_candidates":0,"source_supported_depth":0,"material_contributions":0,"overflow":false,"readback_bytes":0,"scope":"Separate read-only GPU traversal of production projections, depth and owners; 32 bytes per active bank. Counts are not production GPU timing. Uint32 overflow is reported, never silently interpreted."}
     if result.available:
         for bank in _camera_jobs:
             var row: Dictionary=_camera_jobs[bank];var data: PackedInt32Array=_rd.buffer_get_data(row.rid,row.queue_header*16,32).to_int32_array()

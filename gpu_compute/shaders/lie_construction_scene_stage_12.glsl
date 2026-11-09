@@ -123,6 +123,9 @@ vec3 material_color(Sample s,Instance inst) {
 #define LIE_PROBE_ACCEPT material++
 #define LIE_PROBE_DEPTH lie_probe_add(0u,tested);lie_probe_add(1u,supported)
 #define LIE_PROBE_MATERIAL lie_probe_add(2u,material)
+#define LIE_DEPTH_WRITE(pixel,bits)
+#define LIE_OWNER_WRITE(pixel,index)
+#define LIE_MATERIAL_WRITE(pixel,index,p,s,inst,distance)
 #else
 #define LIE_PROBE_DECLARE
 #define LIE_PROBE_TEST
@@ -130,6 +133,9 @@ vec3 material_color(Sample s,Instance inst) {
 #define LIE_PROBE_ACCEPT
 #define LIE_PROBE_DEPTH
 #define LIE_PROBE_MATERIAL
+#define LIE_DEPTH_WRITE(pixel,bits) atomicMin(depths.v[pixel],bits)
+#define LIE_OWNER_WRITE(pixel,index) atomicMin(winners.v[pixel],index)
+#define LIE_MATERIAL_WRITE(pixel,index,p,s,inst,distance) lie_accumulate(pixel,index,p,s,inst,distance)
 #endif
 vec3 lie_camera_ray(vec2 xy) {
     vec2 uv=xy/vec2(parameters.counts.zw);
@@ -269,6 +275,7 @@ Projection lie_project_surface(vec3 delta,vec3 n,vec3 shading,float radius,float
     p.depth=plane;p.center=vec2(box.xy);p.gradient=vec2(box.zw);
     p.ellipse=delta;p.radius=-radius;return p;
 }
+#ifndef LIE_SURFACE_PROBE
 void lie_accumulate(uint pixel,uint i,Projection p,Sample s,Instance inst,float distance) {
     uint owner=winners.v[pixel];
     if(owner==EMPTY || projected.v[owner].owner!=p.owner)return;
@@ -290,6 +297,7 @@ void lie_accumulate(uint pixel,uint i,Projection p,Sample s,Instance inst,float 
     }
     atomicAdd(accumulated.v[pixel].normal_roughness.w,uint(round(rough*float(w))));
 }
+#endif
 
 
 void main() {
@@ -304,6 +312,7 @@ void main() {
     mat3 basis=mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz),inverse_basis=inverse(basis);
     SourceBounds bounds=source_bounds(sid);Projection p;
     const int stage=12;
+#ifndef LIE_SURFACE_PROBE
     if(stage==2) {
         vec3 local=s.position_radius.xyz;float radius=s.position_radius.w;
         if(parameters.settings.y<.5) {
@@ -319,9 +328,17 @@ void main() {
         radius*=max(length(inst.x.xyz),max(length(inst.y.xyz),length(inst.z.xyz)));
         p=lie_project_surface(delta,n,shading,radius,float(job.z));projected.v[i]=p;
     } else p=projected.v[i];
+#else
+    p=projected.v[i];
+#endif
     if(p.radius==0.)return;
     ivec4 box=lie_surface_bounds(p);if(lie_empty_bounds(box))return;
-    if(lie_large_surface(p,box)) {if(stage==2)lie_enqueue(i,address.z);return;}
+    if(lie_large_surface(p,box)) {
+#ifndef LIE_SURFACE_PROBE
+        if(stage==2)lie_enqueue(i,address.z);
+#endif
+        return;
+    }
     LIE_PROBE_DECLARE;
     for(int y=box.y;y<=box.w;y++) {
         ivec2 row=lie_surface_row(p,box,y);
@@ -337,9 +354,9 @@ void main() {
             }
             if(stage==2) {LIE_PROBE_TEST;}
             if(!covered(p,xy,s,inst,inverse_basis,bounds,sid))continue;
-            if(stage==2) {LIE_PROBE_SUPPORT;atomicMin(depths.v[pixel],bits);}
-            else if(stage==3)atomicMin(winners.v[pixel],i);
-            else {lie_accumulate(pixel,i,p,s,inst,distance);LIE_PROBE_ACCEPT;}
+            if(stage==2) {LIE_PROBE_SUPPORT;LIE_DEPTH_WRITE(pixel,bits);}
+            else if(stage==3) {LIE_OWNER_WRITE(pixel,i);}
+            else {LIE_MATERIAL_WRITE(pixel,i,p,s,inst,distance);LIE_PROBE_ACCEPT;}
         }
     }
     if(stage==2) {LIE_PROBE_DEPTH;}
