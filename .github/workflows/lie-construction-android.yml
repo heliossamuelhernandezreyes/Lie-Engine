@@ -117,6 +117,7 @@ jobs:
             surface-continuity.log
             surface-continuity/surface-continuity-results.json
             surface-continuity/*/*.log
+            surface-continuity/*/probe-comparison.json
             /tmp/mobile-ci/surface-continuity-mobile.json
             /tmp/mobile-ci/surface-continuity-ui.png
             /tmp/mobile-ci/surface-continuous.png

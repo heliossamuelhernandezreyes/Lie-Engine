@@ -143,7 +143,14 @@ def run(stage,output,replay,godot):
             exact=all(before[b]==(folder/f'native-{b}.bin').read_bytes() for b in before)
             pq=[list(struct.unpack('<8I',x.read_bytes())) for x in sorted(folder.glob('native-queue-*.bin'))]
             probe=dict(available=True,pixel_buffers_exact=exact,queues=pq)
-            if not exact or any(q[7]!=0 for q in pq) or sum(q[6] for q in pq)<int(visible.sum()):raise RuntimeError('instrumented kernel output/counters')
+            differences={}
+            for binding,raw in before.items():
+                old=np.frombuffer(raw,dtype='<u4');new=np.fromfile(folder/f'native-{binding}.bin',dtype='<u4');ids=np.flatnonzero(old!=new)
+                differences[binding]=dict(changed_uint32=int(ids.size),first=[dict(index=int(i),production=int(old[i]),probe=int(new[i])) for i in ids[:12]])
+            diagnostic=dict(case=scene['name'],**probe,visible_pixels=int(visible.sum()),buffer_differences=differences)
+            (folder/'probe-comparison.json').write_text(json.dumps(diagnostic,indent=2))
+            if not exact or any(q[7]!=0 for q in pq) or sum(q[6] for q in pq)<int(visible.sum()):
+                raise RuntimeError('instrumented kernel output/counters: '+json.dumps(diagnostic))
         row=dict(name=scene['name'],device=json.loads(p.stdout)['device'],reference_pixels=int(expected.sum()),pixels=int(visible.sum()),
                  coverage_mismatches=int(mismatch.sum()),nonboundary_mismatches=int((mismatch&~ref['boundary']).sum()),
                  owner_mismatches=int(owners_wrong.sum()),depth_max_abs=peak,color_max_abs=color_error,queues=queues,probe=probe)
