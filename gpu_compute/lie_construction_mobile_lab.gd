@@ -104,7 +104,7 @@ func _build_ui() -> void:
     var copy:=_report_dialog.add_button("Copiar resumen",false,"copy");copy.custom_minimum_size.y=44
     _report_dialog.add_button("Guardar JSON completo",false,"save")
     _report_dialog.custom_action.connect(func(action: StringName):
-        if action=="copy":DisplayServer.clipboard_set(_report_text.text)
+        if action=="copy":copy_report()
         elif action=="save" and not busy and not _latest.is_empty():_save_dialog.popup_centered(Vector2i(900,600)))
     _save_dialog=FileDialog.new();_save_dialog.use_native_dialog=true;_save_dialog.access=FileDialog.ACCESS_FILESYSTEM;_save_dialog.file_mode=FileDialog.FILE_MODE_SAVE_FILE;_save_dialog.filters=PackedStringArray(["*.json ; Informe JSON ; application/json"]);_save_dialog.current_file="LIE-construccion-v6.json";layer.add_child(_save_dialog)
     _save_dialog.file_selected.connect(func(path: String):

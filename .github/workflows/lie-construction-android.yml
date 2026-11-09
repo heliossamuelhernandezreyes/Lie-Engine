@@ -1,7 +1,7 @@
-name: LIE construction 6.4.0 native visibility APK
+name: LIE construction 6.5.0 continuous surfaces APK
 on:
   push:
-    branches: [work/lie-construction-android]
+    branches: [work/lie-construction-android, work/lie-surface-continuity-650]
     paths-ignore: ["docs/**"]
   workflow_dispatch:
 permissions:
@@ -36,16 +36,17 @@ jobs:
       - name: Native engine, Vulkan and telemetry module
         run: |
           timeout 180 sudo apt-get update -qq
-          timeout 180 sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1 libvulkan-dev
+          timeout 180 sudo apt-get install -y -qq xvfb xauth mesa-vulkan-drivers libvulkan1 libvulkan-dev g++
+          g++ -O2 -std=c++17 -Wall -Wextra -Wno-missing-field-initializers native/architecture_audit/replay.cpp -lvulkan -o /tmp/lie-native-replay
           curl --fail --location --retry 2 --max-time 120 -o /tmp/godot.zip https://github.com/godotengine/godot-builds/releases/download/4.7.2-stable/Godot_v4.7.2-stable_linux.x86_64.zip
           unzip -q /tmp/godot.zip -d /tmp/godot-bin
           chmod +x /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
           python tools/lie_hardware_build.py --cache /tmp/lie-native-deps --platform linux.x86_64 > native-probe-build.log 2>&1
           python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-ci
-      - name: Restore pinned 6.3.0 code for independent image comparison
+      - name: Restore pinned 6.4.0 code for independent image comparison
         run: |
-          git fetch origin 3aacb5e58034042f9a8e9c19a7bcf4e8b7823054 --depth=1
-          git worktree add --detach /tmp/lie-baseline 3aacb5e58034042f9a8e9c19a7bcf4e8b7823054
+          git fetch origin 94ac4f1ee225da96155f7e60433f9eaf11408f71 --depth=1
+          git worktree add --detach /tmp/lie-baseline 94ac4f1ee225da96155f7e60433f9eaf11408f71
           PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_light_field.py
           PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_field_quality_cases.py
           PYTHONPATH=/tmp/lie-baseline/tools python /tmp/lie-baseline/tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/baseline-ci
@@ -56,13 +57,14 @@ jobs:
           engine=/tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64
           timeout 120 "$engine" --headless --path /tmp/mobile-ci --editor --import --quit 2>&1 | tee mobile-import.log
           timeout 120 "$engine" --headless --path /tmp/baseline-ci --editor --import --quit 2>&1 | tee mobile-baseline-import.log
+          python tools/lie_surface_continuity_probe.py --stage /tmp/mobile-ci --output surface-continuity --replay /tmp/lie-native-replay --godot "$engine" 2>&1 | tee surface-continuity.log
           timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/baseline-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script res://test_lie_construction_reconstruction.gd 2>&1 | tee mobile-baseline-reconstruction.log
           for script in test_lie_visibility_planner test_lie_proxy_physics test_lie_construction_mobile_metrics test_lie_hardware_probe test_lie26_rig workshop/test_lie_agent_session; do
             timeout 90 "$engine" --headless --path /tmp/mobile-ci --script "res://$script.gd" 2>&1 | tee "mobile-${script##*/}.log"
           done
           python tools/lie_visibility_validate.py --stage /tmp/mobile-ci
           native_status=0
-          for script in test_lie_native_visibility_gpu test_lie_proxy_gpu test_lie_hierarchy_gpu test_lie_construction_reconstruction test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile; do
+          for script in test_lie_native_visibility_gpu test_lie_proxy_gpu test_lie_hierarchy_gpu test_lie_construction_reconstruction test_lie_hq_construction test_lie_construction_field test_lie_construction_mobile test_lie_surface_mobile; do
             if ! timeout 900 xvfb-run -a -s '-screen 0 1280x800x24' "$engine" --path /tmp/mobile-ci --rendering-driver vulkan --rendering-method mobile --audio-driver Dummy --script "res://$script.gd" 2>&1 | tee "mobile-$script.log"; then native_status=1; fi
           done
           test "$native_status" -eq 0
@@ -91,13 +93,13 @@ jobs:
       - name: Export, sign, align and independently verify complete APK
         run: |
           keytool -genkeypair -keystore /tmp/lie-construction-debug.keystore -storepass android -keypass android -alias androiddebugkey -dname 'CN=LIE Construction Laboratory,O=LIE,C=MX' -keyalg RSA -keysize 2048 -validity 10000
-          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.4.0.apk"
-          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.4.0.apk > apk/badging.txt
-          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.4.0.apk --badging apk/badging.txt
+          python tools/lie_construction_android_build.py --data /tmp/hq-scene --stage /tmp/mobile-export --godot /tmp/godot-bin/Godot_v4.7.2-stable_linux.x86_64 --sdk "$ANDROID_HOME" --keystore /tmp/lie-construction-debug.keystore --output "$PWD/apk/LIE-Construccion-v6.5.0.apk"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging apk/LIE-Construccion-v6.5.0.apk > apk/badging.txt
+          python tools/lie_construction_apk_verify.py --apk apk/LIE-Construccion-v6.5.0.apk --badging apk/badging.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: lie-construction-v640-apk-and-evidence
+          name: lie-construction-v650-apk-and-evidence
           compression-level: 6
           path: |
             apk/
@@ -112,6 +114,11 @@ jobs:
             /tmp/baseline-ci/construction-reconstruction-native.json
             /tmp/baseline-ci/reconstruction-case*.png
             reconstruction-comparison.json
+            surface-continuity.log
+            surface-continuity/surface-continuity-results.json
+            surface-continuity/*/*.log
+            /tmp/mobile-ci/surface-continuity-mobile.json
+            /tmp/mobile-ci/surface-continuity-ui.png
             /tmp/mobile-ci/construction-proxy-physics.json
             /tmp/mobile-ci/construction-proxy-native.json
             /tmp/mobile-ci/construction-proxy-ui.png

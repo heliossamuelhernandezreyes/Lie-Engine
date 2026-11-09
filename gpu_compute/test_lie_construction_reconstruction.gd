@@ -1,7 +1,9 @@
 extends "res://test_lie_hq_construction.gd"
-## The same cases run against the pinned 6.0.1 code and the candidate.
+## Frozen 6.4 camera reference: validate legacy preservation separately from
+## the intentional coverage/material correction tested by the surface suite.
 func run() -> void:
     var lab=load("res://lie_hq_construction_lab.tscn").instantiate()
+    lab.state.surface_continuity=false
     lab.state.yaw=-32.0682373;lab.state.elevation=-2.1639343;root.add_child(lab);await settle(20)
     var results: Array=[]
     var cases: Array=[{}, {"light":25.}, {"yaw":-23.}, {"normals":false}, {"mode":"opening","yaw":20.,"elevation":22.}, {"mode":"shadow","yaw":15.,"elevation":55.}, {"mode":"corner","yaw":-145.,"elevation":18.,"normals":true}, {"yaw":0.,"elevation":0.}, {"bounces":0,"indirect":false}, {"bounces":2,"indirect":true,"energy_radius":true}]

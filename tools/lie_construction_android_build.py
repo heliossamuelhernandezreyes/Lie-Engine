@@ -55,7 +55,7 @@ def stage(data, destination, require_probe=False):
         shutil.copytree(probe, destination / 'addons/lie_gpu_probe')
     elif require_probe:
         raise ValueError('Build the actual native telemetry module before exporting')
-    project = android.PROJECT.replace('LIE Pared', 'LIE Benchmark 6.5.0').replace('0.1.0', '6.4.0').replace('lie_runtime_android_lab.tscn', 'lie_construction_proxy_lab.tscn')
+    project = android.PROJECT.replace('LIE Pared', 'LIE Benchmark 6.5.0').replace('0.1.0', '6.5.0').replace('lie_runtime_android_lab.tscn', 'lie_construction_proxy_lab.tscn')
     project = project.replace('pointing/emulate_mouse_from_touch=true', 'pointing/emulate_mouse_from_touch=false')
     project += '\n[editor]\nimport/use_multiple_threads=false\n'
     (destination / 'project.godot').write_text(project)

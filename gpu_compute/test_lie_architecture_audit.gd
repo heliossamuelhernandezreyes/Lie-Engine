@@ -7,7 +7,7 @@ func _initialize() -> void:call_deferred("run")
 func settle(n: int) -> void:
     for i in range(n):await process_frame
 func run() -> void:
-    var lab:=AuditLab.new();lab.state.field_lighting=false;lab.output_resolution=960;root.add_child(lab);await settle(18)
+    var lab:=AuditLab.new();lab.state.surface_continuity=false;lab.state.field_lighting=false;lab.output_resolution=960;root.add_child(lab);await settle(18)
     var rows: Array=[]
     for close_view in [false,true]:
         var name: String="close" if close_view else "whole"
