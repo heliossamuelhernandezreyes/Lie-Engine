@@ -21,7 +21,7 @@ var picture: TextureRect
 var texture: Texture2DRD
 var selector: OptionButton
 var controls: Dictionary={}
-var state: Dictionary={"mode":"corner","seed":2102,"yaw":32.,"elevation":22.,"light":-35.,"zoom":1.,"focus_x":0.,"focus_y":0.,"normals":true,"shadows":true,"occluder":true,"reverse_banks":false,"door_angle":0.,"lod":-1,"field_lighting":true,"indirect":true,"key_enabled":true,"fill_enabled":true,"fill_power":.32,"bounces":2,"energy_radius":false,"ambient":1.}
+var state: Dictionary={"mode":"corner","seed":2102,"yaw":32.,"elevation":22.,"light":-35.,"zoom":1.,"focus_x":0.,"focus_y":0.,"normals":true,"shadows":true,"occluder":true,"reverse_banks":false,"door_angle":0.,"lod":-1,"field_lighting":true,"indirect":true,"key_enabled":true,"fill_enabled":true,"fill_power":.32,"bounces":2,"energy_radius":false,"ambient":1.,"surface_continuity":true,"surface_probe":false}
 var revision: int=0
 var metrics: Dictionary={}
 var recipe: Dictionary={}
@@ -48,7 +48,7 @@ func _build_ui() -> void:
     var title:=Label.new();title.text="LIE · CONSTRUCCIÓN\nMateriales fotográficos 8K\nPerfiles de autoría del proyecto";box.add_child(title)
     selector=OptionButton.new()
     for mode in effect.manifest.modes:selector.add_item(mode.replace("asset_","").replace("_"," "))
-    selector.item_selected.connect(func(i: int):command({"op":"set_values","values":{"mode":effect.manifest.modes[i]}}));box.add_child(selector)
+    selector.item_selected.connect(func(i: int):command({"op":"set_values","values":{"mode":effect.manifest.modes[i],"lod":-1}}));box.add_child(selector)
     for key in ["yaw","elevation","light","zoom","door_angle","fill_power","bounces","ambient"]:
         var label:=Label.new();label.text={"yaw":"Giro de cámara","elevation":"Elevación","light":"Giro de luz","zoom":"Distancia","door_angle":"Ángulo de puerta","fill_power":"Intensidad de segunda luz","bounces":"Rebotes","ambient":"Luz ambiente"}[key];box.add_child(label)
         var slider:=HSlider.new();slider.custom_minimum_size=Vector2(280,24);slider.min_value=.25 if key=="zoom" else 0. if key in ["door_angle","fill_power","bounces","ambient"] else -180.;slider.max_value=2. if key in ["zoom","fill_power","ambient"] else 4. if key=="bounces" else 110. if key=="door_angle" else 180.;slider.step=.01 if key in ["zoom","fill_power","ambient"] else 1.;slider.value=state[key]
@@ -72,7 +72,7 @@ func command(request: Dictionary) -> Dictionary:
             if not value is String or value not in effect.manifest.modes:return {"ok":false,"error":"mode"}
         elif key=="seed":
             if not value is int or value not in [2102,7319]:return {"ok":false,"error":"seed"}
-        elif key in ["normals","shadows","occluder","reverse_banks","field_lighting","indirect","key_enabled","fill_enabled","energy_radius"] or key in _extra_boolean_controls():
+        elif key in ["normals","shadows","occluder","reverse_banks","field_lighting","indirect","key_enabled","fill_enabled","energy_radius","surface_continuity","surface_probe"] or key in _extra_boolean_controls():
             if not value is bool:return {"ok":false,"error":"boolean"}
         elif key=="bounces":
             if not value is int or value<0 or value>4:return {"ok":false,"error":"bounces"}
@@ -88,7 +88,24 @@ func command(request: Dictionary) -> Dictionary:
         else:return {"ok":false,"error":"key"}
         candidate[key]=value
     if not FileAccess.file_exists(effect.scene_root()+candidate.mode+"-"+str(candidate.seed)+".json"):return {"ok":false,"error":"scene"}
+    if candidate.mode!=state.mode or candidate.seed!=state.seed or candidate.lod!=state.lod or candidate.occluder!=state.occluder:
+        var requested: int=_requested_samples(candidate)
+        if requested<1:return {"ok":false,"error":"geometry"}
+        if requested>effect.work_capacity():return {"ok":false,"error":"sample_budget","requested":requested,"capacity":effect.work_capacity()}
     state=candidate;revision+=1;update_scene();return {"ok":true,"revision":revision}
+func _requested_samples(candidate: Dictionary) -> int:
+    var path: String=effect.scene_root()+candidate.mode+"-"+str(candidate.seed)+".json"
+    var parsed: Variant=JSON.parse_string(FileAccess.get_file_as_string(path))
+    if not parsed is Dictionary or parsed.get("scene_identity")!=effect.manifest.scene_identity:return -1
+    var work: int=0
+    for entry in parsed.instances:
+        if String(entry.id).ends_with("/occluder") and not candidate.occluder:continue
+        var bank: int=effect.manifest.banks.find(entry.bank)
+        if bank<0:return -1
+        var levels: Array=effect.banks[bank].catalog.masters[entry.master].levels
+        var level: int=mini(candidate.lod if candidate.lod>=0 else entry.lod,levels.size()-1)
+        work+=int(levels[level].count)
+    return work
 func update_scene() -> void:
     var recipe_key: String=state.mode+"-"+str(state.seed)
     if recipe_key!=_recipe_key:
@@ -117,10 +134,10 @@ func update_scene() -> void:
     var angle: float=deg_to_rad(state.light);var r: float=distance*.8;var light: Vector3=target+Vector3(sin(angle)*r,.9*r,cos(angle)*r);var pose:=Transform3D(Basis.IDENTITY,light).looking_at(target,Vector3.UP)
     var values:=PackedFloat32Array([light.x,light.y,light.z,55*r*r,1,.96,.91,0,.32*state.ambient,.35*state.ambient,.40*state.ambient,1.6,1 if state.shadows else 0,1,.0007,.00022])
     for v in [pose.basis.x,pose.basis.y,-pose.basis.z]:values.append_array(PackedFloat32Array([v.x,v.y,v.z,0]))
-    values.append_array(PackedFloat32Array([1,1,1 if state.reverse_banks else 0,0,1,1,1,0,2102,1,0,1 if state.normals else 0]));bytes.append_array(values.to_byte_array())
+    values.append_array(PackedFloat32Array([1,1,1 if state.reverse_banks else 0,1 if state.surface_probe else 0,1,1,1,0,2102,1,0,1 if state.normals else 0]));bytes.append_array(values.to_byte_array())
     _building=true;light_world.begin_update();key_emitter.position=light;key_emitter.power_rgb_linear=Vector3(1,.96,.91)*55*r*r;key_emitter.radius_m=12.;key_emitter.enabled=state.key_enabled;fill_emitter.position=target+Vector3(r*.7,.6*r,-r*.5);fill_emitter.power_rgb_linear=Vector3(.44,.72,1)*55*r*r*state.fill_power;fill_emitter.radius_m=12.;fill_emitter.enabled=state.fill_enabled;light_world.end_update();_building=false
     if not _configure_field(_geometry.entries,instances):metrics={"error":"field source or ownership contract"};return
-    metrics={"configured":effect.configure_view(bytes,instances,jobs,work,_camera_selection(),_cluster_selection_enabled()),"instances":instances.size()/96,"work":work,"source_mesh_draws":0,"banks":effect.banks.size()}
+    metrics={"configured":effect.configure_view(bytes,instances,jobs,work,_camera_selection(),_cluster_selection_enabled(),state.surface_continuity),"instances":instances.size()/96,"work":work,"source_mesh_draws":0,"banks":effect.banks.size(),"surface_continuity":state.surface_continuity}
 func _build_geometry() -> Dictionary:
     var entries: Array=[];var levels: Array=[];var work: int=0
     for e in recipe.instances:
