@@ -95,6 +95,7 @@ void main() {
 '''
 
 LARGE=r'''
+shared ivec4 lie_large_box;
 void main() {
     uint h=lie_queue_header(),group=gl_WorkGroupID.x+gl_WorkGroupID.y*gl_NumWorkGroups.x;
     if(group>=bank_jobs.v[h].w)return;
@@ -104,7 +105,9 @@ void main() {
     Instance inst=instances.v[job.z];if(int(inst.meta.y)!=int(parameters.settings.z))return;
     Sample s=samples.v[sid];Projection p=projected.v[i];
     mat3 inverse_basis=inverse(mat3(inst.x.xyz,inst.y.xyz,inst.z.xyz));
-    SourceBounds bounds=source_bounds(sid);ivec4 box=lie_surface_bounds(p);
+    SourceBounds bounds=source_bounds(sid);
+    if(gl_LocalInvocationID.x==0u)lie_large_box=lie_supported_bounds(p,s,inst,bounds);
+    barrier();ivec4 box=lie_large_box;
     if(lie_empty_bounds(box))return;
     uint width=uint(box.z-box.x+1),height=uint(box.w-box.y+1);
     LIE_PROBE_DECLARE;int stage=phase.value.x;

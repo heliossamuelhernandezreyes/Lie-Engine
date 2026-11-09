@@ -172,6 +172,36 @@ bool lie_empty_bounds(ivec4 b) {return b.z<b.x || b.w<b.y;}
 bool lie_large_surface(Projection p,ivec4 b) {
     return p.radius<0. || b.z-b.x+1>128 || b.w-b.y+1>128;
 }
+ivec4 lie_supported_bounds(Projection p,Sample s,Instance inst,SourceBounds bounds) {
+    // Intersect only already-authoritative source bounds, support rectangle
+    // and instance cut. This bounds work; covered() still decides each pixel.
+    vec3 low=bounds.low.xyz-vec3(.000002),high=bounds.high.xyz+vec3(.000002);
+    vec3 n=abs(s.normal_gray.xyz);
+    if(n.x>=n.y && n.x>=n.z) {low.zy=max(low.zy,s.support.xy-vec2(.000002));high.zy=min(high.zy,s.support.zw+vec2(.000002));}
+    else if(n.y>=n.z) {low.xz=max(low.xz,s.support.xy-vec2(.000002));high.xz=min(high.xz,s.support.zw+vec2(.000002));}
+    else {low.xy=max(low.xy,s.support.xy-vec2(.000002));high.xy=min(high.xy,s.support.zw+vec2(.000002));}
+    if(inst.meta.z>0.)high.x=min(high.x,inst.meta.w+1e-7);
+    if(inst.meta.z<0.)low.x=max(low.x,inst.meta.w-1e-7);
+    if(any(greaterThan(low,high)))return ivec4(1,1,0,0);
+    vec3 center=(low+high)*.5,extent=(high-low)*.5,origin=inst.origin.xyz-parameters.eye.xyz;
+    vec3 right=vec3(dot(parameters.right.xyz,inst.x.xyz),dot(parameters.right.xyz,inst.y.xyz),dot(parameters.right.xyz,inst.z.xyz));
+    vec3 up=vec3(dot(parameters.up.xyz,inst.x.xyz),dot(parameters.up.xyz,inst.y.xyz),dot(parameters.up.xyz,inst.z.xyz));
+    vec3 forward=vec3(dot(parameters.forward.xyz,inst.x.xyz),dot(parameters.forward.xyz,inst.y.xyz),dot(parameters.forward.xyz,inst.z.xyz));
+    vec3 c=vec3(dot(right,center)+dot(parameters.right.xyz,origin),dot(up,center)+dot(parameters.up.xyz,origin),dot(forward,center)+dot(parameters.forward.xyz,origin));
+    vec3 e=vec3(dot(abs(right),extent),dot(abs(up),extent),dot(abs(forward),extent));
+    // Expand camera-space bounds for cancellation at a grazing clip plane.
+    e+=vec3(.000008)*(vec3(1.)+abs(c));low=c-e;high=c+e;
+    low.z=max(low.z,parameters.lens.z);high.z=min(high.z,parameters.lens.w);
+    if(low.z>high.z)return ivec4(1,1,0,0);
+    vec2 screen_low=vec2(1e30),screen_high=vec2(-1e30);
+    for(int k=0;k<8;k++) {
+        vec3 q=vec3((k&1)==0?low.x:high.x,(k&2)==0?low.y:high.y,(k&4)==0?low.z:high.z);
+        vec2 xy=vec2(q.x/(q.z*parameters.lens.x)+1.,1.-q.y/(q.z*parameters.lens.x))*.5*vec2(parameters.counts.zw);
+        screen_low=min(screen_low,xy);screen_high=max(screen_high,xy);
+    }
+    ivec4 a=lie_surface_bounds(p),b=lie_clip_box(screen_low,screen_high);
+    return ivec4(max(a.xy,b.xy),min(a.zw,b.zw));
+}
 ivec2 lie_surface_row(Projection p,ivec4 box,int y) {
     if(p.radius<0.)return box.xz;
     float dy=float(y)+.5-p.center.y;

@@ -1,5 +1,6 @@
 extends SceneTree
 const Meter=preload("res://lie_construction_mobile_metrics.gd")
+const Lab=preload("res://lie_construction_mobile_lab.gd")
 var checks: int=0
 var failed: bool=false
 func check(value: bool,label: String) -> void:
@@ -23,4 +24,17 @@ func _initialize() -> void:
     m.begin({"owner":11,"frames":1},21,{"solves":1});result=m.result()
     check(result.appearance_gpu_ms.samples==0 and not result.appearance_gpu_ms.has("p50_ms"),"cached idle does not fabricate a zero-cost solve")
     check(result.command_cpu_ms.samples==0 and result.display_frame_ms.samples==0,"new blocks never mix old options or frames")
+    var lab:=Lab.new();var history: Array=[]
+    for i in range(120):history.append({"serial":i,"cpu_usec":7000,"gpu_ns":200000000,"passes_ns":{"material_accumulation":150000000}})
+    lab._latest={"version":lab.APP_VERSION,"warm_up":[],"blocks":[],"physics":[{"resources":{"profile":history.duplicate(),"camera_plan_profile":history.duplicate(),"frames":123}}]}
+    for i in range(60):
+        var resources: Dictionary={"frames":i+1,"allocation_bytes":313334976,"camera_samples":734095,"samples":1165568,"instances":781,"field":{"bytes":24105544,"solve":2},"surface_mode":"continuous","profile":history.duplicate(),"camera_plan_profile":history.duplicate()}
+        var measurements: Dictionary={"scope":"Actual timestamps; percentiles from separate intervals cannot be added.","appearance_rows":history.duplicate()}
+        for key in ["appearance_gpu_ms","lighting_gpu_ms","display_frame_ms","command_cpu_ms","visibility_planning_cpu_ms"]:measurements[key]={"samples":24,"p50_ms":209.036548,"p95_ms":214.000317,"max_ms":218.840857}
+        lab._latest.blocks.append({"kind":"camera","before":{"resources":resources.duplicate(true),"state":{"yaw":25.}},"after":{"resources":resources.duplicate(true)},"measurements":measurements})
+    var portable: Dictionary=lab.portable_report()
+    check(JSON.stringify(portable,"",false,true).to_utf8_buffer().size()<=24576 and portable.blocks.size()==60,"ten-minute summary retains every block within the transport bound")
+    check(not portable.physics[0].resources.has("profile") and lab._latest.physics[0].resources.profile.size()==120,"nested physics histories are omitted only from the copy")
+    check(portable.metric_columns==["samples","p50_ms","p95_ms","max_ms"] and portable.block_columns[5]=="metrics" and portable.metric_names[0]=="appearance_gpu_ms" and portable.blocks[0][5][0][1]==209.036548,"dense summary retains exact statistics and declares columns")
+    lab.free()
     print("CONSTRUCTION MOBILE METRICS ","FAIL" if failed else "PASS"," ",checks);quit(1 if failed else 0)

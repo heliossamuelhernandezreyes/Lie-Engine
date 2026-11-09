@@ -270,8 +270,15 @@ func run_session(seconds: float=60.) -> void:
         _latest.blocks.append(await _block_end(before,kind));_persist_report();index+=1
         if not _latest.error.is_empty():break
     _latest.elapsed_seconds=float(Time.get_ticks_usec()-start)/1e6;_finish(backup)
+func _prune_report_histories(value: Variant) -> void:
+    if value is Dictionary:
+        for key in ["profile","camera_plan_profile","appearance_rows","lighting_rows","visibility_planning_rows"]:value.erase(key)
+        for child in value.values():_prune_report_histories(child)
+    elif value is Array:
+        for child in value:_prune_report_histories(child)
 func portable_report() -> Dictionary:
     var result: Dictionary=_latest.duplicate(true)
+    _prune_report_histories(result)
     var warms: Array=result.get("warm_up",[]);result.warm_up=[];result.warm_up_events=warms.size()
     var blocks: Array=result.get("blocks",[])
     if not blocks.is_empty():
@@ -296,11 +303,35 @@ func portable_report() -> Dictionary:
                 if key.ends_with("_gpu_ms") and key!="appearance_gpu_ms" and key!="lighting_gpu_ms" and key!="appearance_passes_gpu_ms":m.erase(key)
             m.erase("appearance_passes_gpu_ms")
         result.copy_scope+=" Long session: per-pass detail and repeated block states require the complete file."
+    if JSON.stringify(result).to_utf8_buffer().size()>24576:
+        var compact: Array=[]
+        var metric_names: Array=["appearance_gpu_ms","lighting_gpu_ms","display_frame_ms","command_cpu_ms","visibility_planning_cpu_ms"]
+        var resource_names: Array=["frames","allocation_bytes","camera_samples","samples","instances","surface_mode"]
+        var work_names: Array=["available","large_samples","footprint_candidates","source_supported_depth","material_contributions","overflow"]
+        for block in blocks:
+            var row: Array=[block.kind]
+            for key in ["surface_continuity","close_view","selection_enabled","cluster_culling"]:
+                row.append(block.get(key))
+            var metrics_row: Array=[];var resources_row: Array=[];var work_row: Array=[]
+            for key in metric_names:
+                var stats: Dictionary=block.measurements.get(key,{})
+                metrics_row.append([stats.get("samples",0),stats.get("p50_ms"),stats.get("p95_ms"),stats.get("max_ms")])
+            for key in resource_names:resources_row.append(block.after.resources.get(key))
+            if block.has("surface_work"):
+                for key in work_names:work_row.append(block.surface_work.get(key))
+            row.append(metrics_row);row.append(resources_row);row.append(work_row)
+            compact.append(row)
+        result.blocks=compact;result.metric_columns=["samples","p50_ms","p95_ms","max_ms"]
+        result.block_columns=["kind","surface_continuity","close_view","selection_enabled","cluster_culling","metrics","after_resources","surface_work"]
+        result.metric_names=metric_names;result.resource_columns=resource_names;result.work_columns=work_names
+        result.copy_scope+=" Dense block metrics follow metric_columns; missing timings remain null. Every block is retained."
     return result
 func copy_report() -> bool:
     if busy or _latest.is_empty():return false
     # Insertion order puts version, device and completion before block details.
     _report_text.text=JSON.stringify(portable_report(),"",false,true)
+    if _report_text.text.to_utf8_buffer().size()>24576:
+        _progress.text="Informe extenso: abre Informe / copiar y guarda el JSON completo para enviarlo como archivo.";return false
     if not DisplayServer.has_feature(DisplayServer.FEATURE_CLIPBOARD):
         _progress.text="Informe listo. Abre Informe / copiar para seleccionar el texto.";return false
     DisplayServer.clipboard_set(_report_text.text)

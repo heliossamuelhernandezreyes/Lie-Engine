@@ -9,6 +9,7 @@ func run() -> void:
     check(corrected.get("failure","").is_empty() and not corrected.is_empty(),"actual continuous compositor image")
     lab.command({"op":"set_values","values":{"surface_continuity":false}})
     var legacy: Dictionary=await capture(lab)
+    save(corrected,"surface-continuous");save(legacy,"surface-legacy")
     check(legacy.shadow==corrected.shadow and legacy.library_bytes==corrected.library_bytes,"reference and corrected routes retain shadow and immutable sources")
     lab.command({"op":"set_values","values":{"surface_continuity":true}})
     var restored: Dictionary=await capture(lab)
@@ -25,6 +26,7 @@ func run() -> void:
     lab.command({"op":"set_values","values":{"surface_probe":false}});await capture(lab)
     lab.inspect_full_brick();var brick: Dictionary=await capture(lab)
     check(lab.state.mode=="asset_scanned_brick" and lab.state.lod==0 and brick.instances==1 and brick.sample_invocations==480000,"inspection uses original full brick LOD with one instance")
+    await settle(3);root.get_texture().get_image().save_png("res://surface-full-brick-ui.png")
     var before: Dictionary=lab.state.duplicate();var revision: int=lab.revision;var frames: int=lab.effect.frame_count
     var rejected: Dictionary=lab.command({"op":"set_values","values":{"mode":"corner","lod":0}})
     check(not rejected.ok and rejected.error=="sample_budget" and lab.state==before and lab.revision==revision and lab.effect.frame_count==frames,"excess scene detail is rejected atomically")
@@ -39,6 +41,9 @@ func run() -> void:
         if block.surface_continuity:
             probes+=1;check(block.surface_work.available and not block.surface_work.overflow,"continuous blocks retain separate work probes")
     check(probes==4,"both continuous rounds and views receive untimed diagnostics")
+    await settle(8)
+    var final_diag: Dictionary=await lab._sync_metrics()
+    check(final_diag.surface_mode=="continuous" and not final_diag.surface_probe_active and lab.controls.surface_continuity.button_pressed==lab.state.surface_continuity,"restoration reaches the actual compositor and visible surface control")
     var portable: Dictionary=lab.portable_report();var text: String=JSON.stringify(portable,"",false,true)
     check(text.to_utf8_buffer().size()<=24576 and portable.blocks.size()==8,"copied summary is bounded and retains every comparison")
     check(not portable.blocks[0].before.resources.has("camera_plan_profile") and not portable.blocks[0].measurements.has("visibility_planning_rows"),"copied summary omits repeated planner histories")

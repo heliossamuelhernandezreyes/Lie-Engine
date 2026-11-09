@@ -26,3 +26,35 @@ real attributed-bank compositor suites and probe equality; independent frozen
 6.4 legacy-image comparison; mobile benchmark/report/restoration; reviewed
 resource counts; signed/aligned/verified ARM64 APK and persistent deliverables.
 No physical Android speedup or 60 FPS target is established by this checkpoint.
+
+## Validation update 2026-11-09
+
+292 Python tests passed (one skip) with the pinned dependency environment.
+Godot 4.7.2 import and native visibility/physics/hardware/rig/agent headless
+suites passed. Actual llvmpipe Vulkan real-bank surface suite: 27 checks passed,
+including full 480,000-sample brick, atomic budget rejection, production/probe
+byte equality, all eight A/B/B/A blocks, restoration and a ~16.3 kB clipboard.
+The headless metrics/report suite now passes 12 checks including sixty blocks,
+exact declared dense statistics and nested-history removal without mutation.
+
+The first full-bank continuous prototype was slower than frozen 6.4 on this
+CPU Vulkan implementation, especially close up; no mobile speedup is claimed.
+It exposed 119,239,716 candidate footprint pixels with only 13,788,358 supported.
+Conservative pre-clipping to the ALREADY authoritative source bounds, support
+rectangle and instance cut reduces candidates to 33,126,272 (72.2% less), while
+the supported and material counts stay identical. A single lane computes a
+shared conservative workgroup bound. No source data, clipping predicate or
+visible disk coverage is removed. Before/after real-bank color, depth and
+shadow snapshot buffers are byte-identical; both surface suites pass 27 checks.
+All 29 independent-oracle Vulkan cases also pass after this work reduction,
+with zero coverage or owner mismatches and exact color. Five instrumented
+cases remain byte-exact. All 105 immutable source files match.
+
+Local negative runs retained: launching the full scene with SwiftShader lacks
+VK_KHR_xlib_surface and falls back to OpenGL; this is not GPU acceptance. The
+full compositor passes instead use actual Mesa llvmpipe Vulkan. A Python run
+from the base runtime lacked optional capture dependencies; the pinned venv
+passes all 292 tests. The first sixty-block summary exceeded the copy bound;
+a declared column layout now retains every block and exact statistics.
+
+Final CI, frozen-6.4 image comparison and verified ARM64 APK are still pending.

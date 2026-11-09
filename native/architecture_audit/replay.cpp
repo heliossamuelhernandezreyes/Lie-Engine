@@ -484,8 +484,9 @@ int main(int argc, char **argv) {
       }
     }
     report << "],\"scope\":\"Selected SPIR-V and exact captured SSBO inputs; "
-              "only clear, "
-              "projection/depth and material accumulation. No Godot, window, "
+           << (surface ? "clear plus split small/cooperative-large depth, owner and material passes. "
+                       : "clear, projection/depth and material accumulation. ")
+           << "No Godot, window, "
               "physics, light field, shading or presentation. CPU buffer "
               "layout is an experimental replay path. Timings apply only to "
               "this device.\"}\n";

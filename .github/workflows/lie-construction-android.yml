@@ -119,6 +119,9 @@ jobs:
             surface-continuity/*/*.log
             /tmp/mobile-ci/surface-continuity-mobile.json
             /tmp/mobile-ci/surface-continuity-ui.png
+            /tmp/mobile-ci/surface-continuous.png
+            /tmp/mobile-ci/surface-legacy.png
+            /tmp/mobile-ci/surface-full-brick-ui.png
             /tmp/mobile-ci/construction-proxy-physics.json
             /tmp/mobile-ci/construction-proxy-native.json
             /tmp/mobile-ci/construction-proxy-ui.png
